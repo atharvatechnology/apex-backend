@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # custom models
     "accounts",
+    # third party
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -88,7 +90,8 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation\
+            .UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -127,3 +130,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Auth User Start
 AUTH_USER_MODEL = "accounts.User"
 # Auth User End
+
+# Rest Framework Start
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"]
+}
+# Rest Framework End
