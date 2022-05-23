@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "common",
     "notes",
+    "courses",
 ]
 
 MIDDLEWARE = [
