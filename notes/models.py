@@ -26,7 +26,7 @@ class Note(CreatorBaseModel):
         return self.title
 
 
-class Content(models.Model):
+class Content(CreatorBaseModel):
     def content_location(instance, filename):
         return "content/{0}/{1}".format(instance.note.id, filename)
 
