@@ -19,5 +19,5 @@ assignees: ''
 ## References
 - List your references here
 
-## Additional Information 
+## Additional Information
 <!---- Provide additional info here like images ---->
