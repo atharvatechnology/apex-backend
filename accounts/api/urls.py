@@ -14,6 +14,8 @@ urlpatterns = [
     path("verify/", UserOTPVerifyAPIView.as_view(), name="otp-verify"),
     path("reset/", UserResetPasswordOTPRequestView.as_view(), name="reset-password"),
     path(
-        "reset/verify/", UserResetPasswordConfirmView.as_view(), name="reset-password"
+        "reset/verify/",
+        UserResetPasswordConfirmView.as_view(),
+        name="reset-password-verify",
     ),
 ]
