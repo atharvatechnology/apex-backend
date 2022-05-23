@@ -13,9 +13,7 @@ class UserManager(BaseUserManager):
     use_in_migrations = True
 
     def _create_user(self, username, email, password, **extra_fields):
-        """
-        Create and save a user with the given username, email, and password.
-        """
+        """Create and save a user with the given username, email, and password."""
         if not username:
             raise ValueError("The given username must be set")
         email = self.normalize_email(email)
@@ -87,8 +85,13 @@ class User(AbstractUser):
             "unique": _("A user with that username already exists."),
         },
     )
+    otp_counter = models.PositiveIntegerField(default=0)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_generate_time = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()
 
     def __str__(self):
-        return f"{self.get_full_name()}"
+        if self.get_full_name():
+            return f"{self.get_full_name()}"
+        return f"{self.username}"
