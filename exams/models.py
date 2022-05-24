@@ -10,13 +10,18 @@ from common.validators import validate_positive
 class ExamTemplate(CreatorBaseModel):
     """Model definition for ExamTemplate."""
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(_("name"), max_length=128)
     # description = models.TextField(blank=True)
-    duration = models.IntegerField(default=0, validators=[validate_positive])
-    max_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    pass_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    duration = models.DurationField(_("duration"))
+    # models.IntegerField(default=0, validators=[validate_positive])
+    max_score = models.DecimalField(
+        _("max_score"), max_digits=5, decimal_places=2, default=0
+    )
+    pass_score = models.DecimalField(
+        _("pass_score"), max_digits=5, decimal_places=2, default=0
+    )
     display_num_questions = models.IntegerField(
-        default=0, validators=[validate_positive]
+        _("display_num_questions"), default=0, validators=[validate_positive]
     )
     # exam_type = models.CharField(max_length=10, choices=(
     #     ('S', 'SINGLE'), ('M', 'MULTIPLE')), default='S')
