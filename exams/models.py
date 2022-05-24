@@ -34,7 +34,25 @@ class ExamTemplate(CreatorBaseModel):
         return self.name
 
 
+class ExamStatus:
+    CREATED = "created"
+    STARTED = "started"
+    FINISHED = "finished"
+    SCHEDULED = "scheduled"
+    CANCELLED = "cancelled"
+
+    CHOICES = [
+        (CREATED, "Created"),
+        (STARTED, "Started"),
+        (FINISHED, "Finished"),
+        (SCHEDULED, "Scheduled"),
+        (CANCELLED, "Cancelled"),
+    ]
+
+
 # Create your models here.
+
+
 class Exam(CreatorBaseModel):
     """Model definition for Exam."""
 
@@ -54,6 +72,12 @@ class Exam(CreatorBaseModel):
     #                            on_delete=models.SET_NULL,
     #                            null=True,
     #                            blank=True)
+    status = models.CharField(
+        _("status"),
+        max_length=16,
+        choices=ExamStatus.CHOICES,
+        default=ExamStatus.CREATED,
+    )
     price = models.DecimalField(
         _("price"),
         max_digits=5,
@@ -80,3 +104,24 @@ class Exam(CreatorBaseModel):
     def __str__(self):
         """Unicode representation of Exam."""
         return self.name
+
+    def change_status(self, status):
+        self.status = status
+        self.save()
+
+    @property
+    def current_status(self):
+        return self.status
+
+    # FSM State transition methods
+    def start_exam(self):
+        self.change_status(ExamStatus.STARTED)
+
+    def finish_exam(self):
+        self.change_status(ExamStatus.FINISHED)
+
+    def schedule_exam(self):
+        self.change_status(ExamStatus.SCHEDULED)
+
+    def cancel_exam(self):
+        self.change_status(ExamStatus.CANCELLED)

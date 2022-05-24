@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "accounts",
     "common",
     "notes",
+    "courses",
     # third party
     "drf_yasg",
     "corsheaders",
@@ -47,9 +48,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
     "dj_rest_auth",
-    "common",
-    "notes",
-    "courses",
 ]
 
 MIDDLEWARE = [
