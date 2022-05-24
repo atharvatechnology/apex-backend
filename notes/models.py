@@ -27,8 +27,8 @@ class Note(CreatorBaseModel):
 
 
 class Content(CreatorBaseModel):
-    def content_location(instance, filename):
-        return "content/{0}/{1}".format(instance.note.id, filename)
+    def content_location(self, filename):
+        return "content/{0}/{1}".format(self.note.id, filename)
 
     name = models.CharField(max_length=200)
     description = models.TextField()
