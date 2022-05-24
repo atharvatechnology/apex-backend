@@ -125,3 +125,88 @@ class Exam(CreatorBaseModel):
 
     def cancel_exam(self):
         self.change_status(ExamStatus.CANCELLED)
+
+
+class Section(models.Model):
+    """Model definition for Section."""
+
+    name = models.CharField(_("name"), max_length=64)
+    num_of_questions = models.IntegerField(_("num_of_questions"), default=0)
+    pos_marks = models.DecimalField(
+        _("pos_marks"), max_digits=5, decimal_places=2, default=Decimal("2.0")
+    )
+    neg_marks = models.DecimalField(
+        _("neg_marks"), max_digits=5, decimal_places=2, default=Decimal("0.4")
+    )
+    template = models.ForeignKey(
+        ExamTemplate, verbose_name=_("template"), on_delete=models.CASCADE
+    )
+
+    class Meta:
+        """Meta definition for Section."""
+
+        verbose_name = "Section"
+        verbose_name_plural = "Sections"
+
+    def __str__(self):
+        """Unicode representation of Section."""
+        pass
+
+
+class Question(models.Model):
+    """Model definition for Question."""
+
+    detail = models.TextField(_("detail"))
+    img = models.ImageField(_("img"), upload_to="questions/", null=True, blank=True)
+    exam = models.ForeignKey(
+        Exam,
+        verbose_name=_("exam"),
+        related_name=_("questions"),
+        on_delete=models.CASCADE,
+    )
+    marks = models.DecimalField(
+        _("marks"), max_digits=5, decimal_places=2, default=Decimal("2.0")
+    )
+    neg_marks = models.DecimalField(
+        _("neg_marks"), max_digits=5, decimal_places=2, default=Decimal("0.4")
+    )
+    feedback = models.TextField(_("feedback"), blank=True, null=True)
+
+    class Meta:
+        """Meta definition for Question."""
+
+        verbose_name = "Question"
+        verbose_name_plural = "Questions"
+        ordering = ["exam", "id"]
+
+    def __str__(self):
+        """Unicode representation of Question."""
+        return f"{self.exam}_{self.id}"
+
+
+class Option(models.Model):
+    """Model definition for Option."""
+
+    detail = models.TextField(_("detail"))
+    correct = models.BooleanField(_("correct"), default=False)
+    question = models.ForeignKey(
+        Question,
+        verbose_name=_("question"),
+        related_name=_("options"),
+        on_delete=models.CASCADE,
+    )
+    img = models.ImageField(_("img"), upload_to="options/", null=True, blank=True)
+    marks = models.DecimalField(
+        _("marks"), max_digits=5, decimal_places=2, default=Decimal("0.0")
+    )
+
+    class Meta:
+        """Meta definition for Option."""
+
+        verbose_name = "Option"
+        verbose_name_plural = "Options"
+        ordering = ["question", "id"]
+
+    def __str__(self):
+        """Unicode representation of Option."""
+        return f"{self.question}_{self.id}"
