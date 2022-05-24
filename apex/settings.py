@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # custom models
     "accounts",
+    "common",
+    "notes",
     # third party
     "drf_yasg",
     "corsheaders",
