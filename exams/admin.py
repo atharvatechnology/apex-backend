@@ -58,6 +58,7 @@ class SectionInline(CustomStackedInline):
 @admin.register(ExamTemplate)
 class ExamTemplateAdmin(nested_admin.NestedModelAdmin):
     list_display = [
+        "id",
         "name",
         "duration",
         "full_marks",
@@ -67,30 +68,42 @@ class ExamTemplateAdmin(nested_admin.NestedModelAdmin):
     inlines = [
         SectionInline,
     ]
+    readonly_fields = ["id"]
 
 
 @admin.register(Exam)
 class ExamAdmin(nested_admin.NestedModelAdmin):
-    list_display = ["name", "status", "price", "template"]
+    list_display = ["id", "name", "status", "price", "template"]
     list_filter = ["status", "template"]
     inlines = [
         QuestionInline,
     ]
+    readonly_fields = ["id"]
 
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ["name", "num_of_questions", "pos_marks", "neg_marks", "template"]
+    list_display = [
+        "id",
+        "name",
+        "num_of_questions",
+        "pos_marks",
+        "neg_marks",
+        "template",
+    ]
     list_filter = ["template"]
+    readonly_fields = ["id"]
 
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ["detail", "exam"]
+    list_display = ["id", "detail", "exam"]
     list_filter = ["exam"]
+    readonly_fields = ["id"]
 
 
 @admin.register(Option)
 class OptionAdmin(admin.ModelAdmin):
-    list_display = ["detail", "question"]
+    list_display = ["id", "detail", "question"]
     list_filter = ["question"]
+    readonly_fields = ["id"]
