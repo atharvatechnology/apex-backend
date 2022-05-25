@@ -1,11 +1,9 @@
-from rest_framework.generics import (
-    CreateAPIView,
-    DestroyAPIView,
-    ListAPIView,
-    UpdateAPIView,
-)
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from rest_framework.generics import DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
+from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from notes.api.serializers import ContentSerializer, NoteSerializer
 from notes.models import Content, Note
 
@@ -14,26 +12,18 @@ from notes.models import Content, Note
 class NoteListAPIVew(ListAPIView):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ["title"]
 
 
-class NoteCreateAPIView(CreateAPIView):
+class NoteCreateAPIView(BaseCreatorCreateAPIView):
     querset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        """Request user is set as creator and updater automatically."""
-        serializer.save(created_by=self.request.user, updated_by=self.request.user)
 
 
-class NoteUpdateAPIView(UpdateAPIView):
+class NoteUpdateAPIView(BaseCreatorUpdateAPIView):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_update(self, serializer):
-        """Request user is set as updater automatically."""
-        serializer.save(updated_by=self.request.user)
 
 
 class NoteDestroyAPIView(DestroyAPIView):
@@ -49,26 +39,19 @@ class NoteDestroyAPIView(DestroyAPIView):
 class ContentListAPIView(ListAPIView):
     queryset = Content.objects.all()
     serializer_class = ContentSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    filterset_fields = ["type"]
 
 
-class ContentCreateAPIView(CreateAPIView):
+class ContentCreateAPIView(BaseCreatorCreateAPIView):
     queryset = Content.objects.all()
     serializer_class = ContentSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        """Request user is set as creator and updater automatically."""
-        serializer.save(created_by=self.request.user, updated_by=self.request.user)
 
 
-class ContentUpdateAPIView(UpdateAPIView):
+class ContentUpdateAPIView(BaseCreatorUpdateAPIView):
     queryset = Content.objects.all()
     serializer_class = ContentSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_update(self, serializer):
-        """Request user is set as updater automatically."""
-        serializer.save(updated_by=self.request.user)
 
 
 class ContentDestroyAPIView(DestroyAPIView):

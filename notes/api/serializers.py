@@ -1,15 +1,22 @@
-from rest_framework import serializers
-
+from common.api.serializers import CreatorSerializer
 from notes.models import Content, Note
 
 
-class NoteSerializer(serializers.ModelSerializer):
+class NoteSerializer(CreatorSerializer):
     class Meta:
         model = Note
-        fields = ["title", "created_at", "updated_at"]
+        fields = CreatorSerializer.Meta.fields + ("title",)
 
 
-class ContentSerializer(serializers.ModelSerializer):
+class ContentSerializer(CreatorSerializer):
+    note = NoteSerializer()
+
     class Meta:
         model = Content
-        fields = ["name", "description", "type", "file", "note"]
+        fields = CreatorSerializer.Meta.fields + (
+            "name",
+            "description",
+            "type",
+            "file",
+            "note",
+        )
