@@ -70,12 +70,12 @@ class Course(models.Model):
         blank=True,
         null=True,
     )
-    type_id = models.IntegerField(
-        _("type_id"),
-    )
-    instructor_id = models.IntegerField(
-        _("instructor_id"),
-    )
+    # type_id = models.IntegerField(
+    #     _("type_id"),
+    # )
+    # instructor_id = models.IntegerField(
+    #     _("instructor_id"),
+    # )
 
     link = models.URLField(
         _("link"),
