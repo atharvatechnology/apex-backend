@@ -6,6 +6,7 @@ class NoteSerializer(CreatorSerializer):
     class Meta:
         model = Note
         fields = CreatorSerializer.Meta.fields + ("title",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
 class ContentSerializer(CreatorSerializer):
@@ -20,3 +21,4 @@ class ContentSerializer(CreatorSerializer):
             "file",
             "note",
         )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
