@@ -14,14 +14,14 @@ class ExamTemplate(CreatorBaseModel):
     # description = models.TextField(blank=True)
     duration = models.DurationField(_("duration"))
     # models.IntegerField(default=0, validators=[validate_positive])
-    max_score = models.DecimalField(
-        _("max_score"), max_digits=5, decimal_places=2, default=0
+    full_marks = models.DecimalField(
+        _("full_marks"), max_digits=5, decimal_places=2, default=0
     )
-    pass_score = models.DecimalField(
-        _("pass_score"), max_digits=5, decimal_places=2, default=0
+    pass_marks = models.DecimalField(
+        _("pass_marks"), max_digits=5, decimal_places=2, default=0
     )
-    display_num_questions = models.IntegerField(
-        _("display_num_questions"), default=0, validators=[validate_positive]
+    display_num_questions = models.PositiveIntegerField(
+        _("display_num_questions"), default=1
     )
     # exam_type = models.CharField(max_length=10, choices=(
     #     ('S', 'SINGLE'), ('M', 'MULTIPLE')), default='S')
@@ -62,6 +62,7 @@ class Exam(CreatorBaseModel):
         verbose_name=_("categories"),
         related_name="%(app_label)s_%(class)s_related",
         related_query_name="%(app_label)s_%(class)ss",
+        blank=True,
     )
     # TODO: Add course field here after course app is created
     # Also how to relate course to exams?
@@ -164,12 +165,6 @@ class Question(models.Model):
         related_name=_("questions"),
         on_delete=models.CASCADE,
     )
-    marks = models.DecimalField(
-        _("marks"), max_digits=5, decimal_places=2, default=Decimal("2.0")
-    )
-    neg_marks = models.DecimalField(
-        _("neg_marks"), max_digits=5, decimal_places=2, default=Decimal("0.4")
-    )
     feedback = models.TextField(_("feedback"), blank=True, null=True)
 
     class Meta:
@@ -196,9 +191,6 @@ class Option(models.Model):
         on_delete=models.CASCADE,
     )
     img = models.ImageField(_("img"), upload_to="options/", null=True, blank=True)
-    marks = models.DecimalField(
-        _("marks"), max_digits=5, decimal_places=2, default=Decimal("0.0")
-    )
 
     class Meta:
         """Meta definition for Option."""
