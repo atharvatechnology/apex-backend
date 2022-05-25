@@ -128,6 +128,7 @@ class Exam(CreatorBaseModel):
         self.change_status(ExamStatus.CANCELLED)
 
 
+# class SectionTemplate(models.Model):
 class Section(models.Model):
     """Model definition for Section."""
 
@@ -151,7 +152,34 @@ class Section(models.Model):
 
     def __str__(self):
         """Unicode representation of Section."""
-        pass
+        return self.name
+
+
+# class Section(models.Model):
+#     """Model definition for Section."""
+
+#     exam = models.ForeignKey(
+#         Exam,
+#         verbose_name=_("exam"),
+#         related_name=_("sections"),
+#         on_delete=models.CASCADE,
+#     )
+#     template = models.ForeignKey(
+#         SectionTemplate,
+#         verbose_name=_("template"),
+#         relate3d_name=_("sections"),
+#         on_delete=models.CASCADE
+#     )
+
+#     class Meta:
+#         """Meta definition for Section."""
+
+#         verbose_name = 'Section'
+#         verbose_name_plural = 'Sections'
+
+#     def __str__(self):
+#         """Unicode representation of Section."""
+#         return f'{self.name}'
 
 
 class Question(models.Model):
@@ -163,6 +191,12 @@ class Question(models.Model):
         Exam,
         verbose_name=_("exam"),
         related_name=_("questions"),
+        on_delete=models.CASCADE,
+    )
+    section = models.ForeignKey(
+        Section,
+        verbose_name=_("section"),
+        related_name=_("sections"),
         on_delete=models.CASCADE,
     )
     feedback = models.TextField(_("feedback"), blank=True, null=True)
