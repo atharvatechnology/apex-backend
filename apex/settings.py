@@ -64,6 +64,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apex.middleware.MyMiddleware",
+    "apex.middleware.MoveJWTCookieIntoTheBody",
 ]
 
 ROOT_URLCONF = "apex.urls"
@@ -166,13 +168,35 @@ OTP_SMS_TOKEN = "d5cbdb41774asdf640c8abaasdf2"
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = "jwt_auth"
 JWT_AUTH_REFRESH_COOKIE = "jwt_refresh"
+JWT_AUTH_SAMESITE = "none"
 # JWT dj-rest-auth End
 
 # Cors
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_METHODS = list(default_methods) + []
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Origin",
     "Access-Control-Allow-Headers",
+    "Access-Control-Allow-Methods",
+    "Access-Control-Allow-Credentials",
 ]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8000",
+#     "http://localhost:3000",
+#     "http://192.168.0.14:3000",
+#     "http://192.168.0.5:8000",
+# ]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost:\d+",
+    r"^http://192.168.0.\d:\d+",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:3000",
+]
+# cors end
