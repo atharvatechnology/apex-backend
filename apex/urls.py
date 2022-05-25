@@ -37,4 +37,5 @@ urlpatterns += [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.api.urls")),
     path("dj-rest-auth/", include("dj_rest_auth.urls")),
+    path("exams/", include("exams.api.urls")),
 ]
