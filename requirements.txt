@@ -8,6 +8,7 @@ distlib==0.3.4
 dj-rest-auth==2.2.4
 Django==4.0.4
 django-cors-headers==3.12.0
+django-filter==21.1
 djangorestframework==3.13.1
 djangorestframework-simplejwt==5.1.0
 drf-yasg==1.20.0
@@ -20,6 +21,7 @@ Jinja2==3.1.2
 MarkupSafe==2.1.1
 nodeenv==1.6.0
 packaging==21.3
+Pillow==9.1.1
 platformdirs==2.5.2
 pre-commit==2.19.0
 PyJWT==2.4.0
@@ -36,4 +38,3 @@ toml==0.10.2
 uritemplate==4.1.1
 urllib3==1.26.9
 virtualenv==20.14.1
-Pillow==9.1.1
