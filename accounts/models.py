@@ -4,12 +4,16 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils.timezone import datetime, make_aware, timedelta
 from django.utils.translation import gettext_lazy as _
 
+from accounts.api.otp import OTP
 from accounts.validators import PhoneNumberValidator
 
 
 class UserManager(BaseUserManager):
+    """Custom User Manager."""
+
     use_in_migrations = True
 
     def _create_user(self, username, email, password, **extra_fields):
@@ -71,6 +75,8 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
+    """Custom User model."""
+
     username_validator = PhoneNumberValidator()
 
     username = models.CharField(
@@ -95,3 +101,25 @@ class User(AbstractUser):
         if self.get_full_name():
             return f"{self.get_full_name()}"
         return f"{self.username}"
+
+    def validate_otp(self, otp):
+        """To validate received OTP."""
+        five_minutes_ago = make_aware(
+            datetime.now() - timedelta(hours=0, minutes=5, seconds=0)
+        )
+        if not self.otp:
+            return (False, "OTP is already used")
+        if self.otp_generate_time < five_minutes_ago:
+            return (False, "The OTP is out of date")
+        if self.otp != otp:
+            return (False, "OTP is not valid")
+        return (True, otp)
+
+    def generate_otp(self):
+        """To generate OTP and call send otp method."""
+        self.otp_counter += 1
+        otp = OTP.generateOTP(self.username, self.otp_counter)
+        self.otp_generate_time = make_aware(datetime.now())
+        self.otp = otp
+        OTP.sendOTP(self.username, otp)
+        return otp

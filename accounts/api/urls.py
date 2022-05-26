@@ -2,20 +2,26 @@ from django.urls import path
 
 from accounts.api.views import (
     UserCreateAPIView,
-    UserOTPVerifyAPIView,
-    UserResetPasswordConfirmView,
-    UserResetPasswordOTPRequestView,
+    UserCreateOTPVerifyAPIView,
+    UserResetPasswordConfirmAPIView,
+    UserResetPasswordOTPRequestAPIView,
+    UserResetPasswordOTPVerifyAPIView,
 )
 
 app_name = "accounts"
 
 urlpatterns = [
     path("create/", UserCreateAPIView.as_view(), name="create"),
-    path("verify/", UserOTPVerifyAPIView.as_view(), name="otp-verify"),
-    path("reset/", UserResetPasswordOTPRequestView.as_view(), name="reset-password"),
+    path("create/verify/", UserCreateOTPVerifyAPIView.as_view(), name="otp-verify"),
+    path("reset/", UserResetPasswordOTPRequestAPIView.as_view(), name="reset-password"),
     path(
         "reset/verify/",
-        UserResetPasswordConfirmView.as_view(),
+        UserResetPasswordOTPVerifyAPIView.as_view(),
         name="reset-password-verify",
+    ),
+    path(
+        "reset/confirm/",
+        UserResetPasswordConfirmAPIView.as_view(),
+        name="reset-password-confirm",
     ),
 ]

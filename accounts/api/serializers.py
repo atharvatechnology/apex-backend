@@ -1,14 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.utils.timezone import datetime, make_aware, timedelta
 from rest_framework import serializers
-
-from accounts.api.otp import OTP
 
 User = get_user_model()
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    """User Create Serializer."""
+
     class Meta:
         model = User
         fields = [
@@ -20,17 +19,16 @@ class UserCreateSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         instance = super().create(validated_data)
-        instance.otp_counter += 1
         instance.is_active = False
         instance.set_password(validated_data["password"])
-        otp = OTP.generateOTP(instance.username, instance.otp_counter)
-        instance.otp = otp
+        instance.generate_otp()
         instance.save()
-        OTP.sendOTP(instance.username, otp)
         return instance
 
 
-class UserOTPVerifySerializer(serializers.ModelSerializer):
+class UserCreateOTPVerifySerializer(serializers.ModelSerializer):
+    """User Create OTP Verify Serializer."""
+
     otp = serializers.CharField(required=True)
 
     class Meta:
@@ -41,15 +39,9 @@ class UserOTPVerifySerializer(serializers.ModelSerializer):
         ]
 
     def validate_otp(self, value):
-        five_minutes_ago = make_aware(
-            datetime.now() - timedelta(hours=0, minutes=5, seconds=0)
-        )
-        if not self.instance.otp:
-            raise serializers.ValidationError("OTP is already used")
-        if self.instance.otp_generate_time < five_minutes_ago:
-            raise serializers.ValidationError("The OTP is out of date ")
-        if self.instance.otp != value:
-            raise serializers.ValidationError("OTP is not valid")
+        status, message = self.instance.validate_otp(value)
+        if not status:
+            raise serializers.ValidationError(message)
         return None
 
     @transaction.atomic
@@ -60,7 +52,9 @@ class UserOTPVerifySerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserResetPasswordRequestSerializer(serializers.ModelSerializer):
+class UserResetPasswordOTPRequestSerializer(serializers.ModelSerializer):
+    """User Reset Password OTP Request Serializer."""
+
     class Meta:
         model = User
         fields = [
@@ -69,16 +63,40 @@ class UserResetPasswordRequestSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        instance.otp_counter += 1
-        otp = OTP.generateOTP(instance.username, instance.otp_counter)
-        instance.otp = otp
-        instance.otp_generate_time = make_aware(datetime.now())
+        instance = super().update(instance, validated_data)
+        instance.generate_otp()
         instance.save()
-        OTP.sendOTP(instance.username, otp)
         return instance
 
 
-class UserResetPasswordVerifySerializer(serializers.ModelSerializer):
+class UserResetPasswordOTPVerifySerializer(serializers.ModelSerializer):
+    """User Reset Password OTP Verify Serializer."""
+
+    otp = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "otp",
+        ]
+
+    def validate_otp(self, value):
+        status, message = self.instance.validate_otp(value)
+        if not status:
+            raise serializers.ValidationError(message)
+        return value
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        instance.save()
+        return instance
+
+
+class UserResetPasswordConfirmSerializer(serializers.ModelSerializer):
+    """User Reset Password Confirm Serializer."""
+
     class Meta:
         model = User
         fields = [
@@ -89,15 +107,9 @@ class UserResetPasswordVerifySerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
 
     def validate_otp(self, value):
-        five_minutes_ago = make_aware(
-            datetime.now() - timedelta(hours=0, minutes=5, seconds=0)
-        )
-        if not self.instance.otp:
-            raise serializers.ValidationError("OTP is already used")
-        if self.instance.otp_generate_time < five_minutes_ago:
-            raise serializers.ValidationError("The OTP is out of date ")
-        if self.instance.otp != value:
-            raise serializers.ValidationError("OTP is not valid")
+        status, message = self.instance.validate_otp(value)
+        if not status:
+            raise serializers.ValidationError(message)
         return None
 
     @transaction.atomic
