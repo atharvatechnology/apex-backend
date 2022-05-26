@@ -106,7 +106,7 @@ class Exam(CreatorBaseModel):
         """Unicode representation of Exam."""
         return self.name
 
-    def change_status(self, status):
+    def __change_status(self, status):
         self.status = status
         self.save()
 
@@ -116,16 +116,16 @@ class Exam(CreatorBaseModel):
 
     # FSM State transition methods
     def start_exam(self):
-        self.change_status(ExamStatus.STARTED)
+        self.__change_status(ExamStatus.STARTED)
 
     def finish_exam(self):
-        self.change_status(ExamStatus.FINISHED)
+        self.__change_status(ExamStatus.FINISHED)
 
     def schedule_exam(self):
-        self.change_status(ExamStatus.SCHEDULED)
+        self.__change_status(ExamStatus.SCHEDULED)
 
     def cancel_exam(self):
-        self.change_status(ExamStatus.CANCELLED)
+        self.__change_status(ExamStatus.CANCELLED)
 
 
 # class SectionTemplate(models.Model):

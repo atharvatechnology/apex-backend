@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
+from enrollments.api.serializers import SessionSerializer
 from exams.models import Exam, ExamTemplate, Option, Question
 
 
@@ -29,6 +30,7 @@ class ExamTemplateListSerializer(serializers.ModelSerializer):
 
 class ExamRetrieveSerializer(CreatorSerializer):
     template = ExamTemplateSerializer()
+    sessions = SessionSerializer(many=True)
 
     class Meta:
         model = Exam
@@ -37,6 +39,7 @@ class ExamRetrieveSerializer(CreatorSerializer):
             "category",
             "status",
             "price",
+            "sessions",
             "template",
         )
 
@@ -87,7 +90,6 @@ class OptionSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "detail",
-            "correct",
             "img",
         )
 
