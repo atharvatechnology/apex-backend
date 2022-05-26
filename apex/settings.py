@@ -208,6 +208,14 @@ CORS_ALLOWED_ORIGIN_REGEXES = env(
         r"^http://192.168.\d+.\d+:\d+",
     ],
 )
+CORS_ALLOWED_ORIGIN_REGEXES = env(
+    "CORS_ALLOWED_ORIGIN_REGEXES",
+    default=[
+        r"^http://localhost:\d+",
+        r"^http://192.168.\d+.\d+:\d+",
+        r"^http://.*.ngrok.io",
+    ],
+)
 
 CORS_ALLOW_CREDENTIALS = True
 
