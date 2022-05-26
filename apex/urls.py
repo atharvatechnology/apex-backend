@@ -36,7 +36,7 @@ urlpatterns = [
 urlpatterns += [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.api.urls")),
-    path("dj-rest-auth/", include("dj_rest_auth.urls")),
+    path("auth/", include("dj_rest_auth.urls")),
     path("notes/", include("notes.api.urls")),
     path("exams/", include("exams.api.urls")),
 ]
