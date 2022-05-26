@@ -30,7 +30,7 @@ class Enrollment(models.Model):
     student = models.ForeignKey(
         User,
         verbose_name=_("student"),
-        related_name="enrollments",
+        related_name="enrolls",
         on_delete=models.CASCADE,
     )
     status = models.CharField(
