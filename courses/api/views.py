@@ -1,3 +1,5 @@
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
     CreateAPIView,
@@ -21,12 +23,31 @@ from courses.api.serializers import (
 from courses.models import Course, CourseCategory
 
 
+class CourseFilter(django_filters.FilterSet):
+    price = django_filters.NumberFilter()
+    price__gt = django_filters.NumberFilter(field_name="price", lookup_expr="gt")
+    price__lt = django_filters.NumberFilter(field_name="price", lookup_expr="lt")
+
+    class Meta:
+        model = Course
+        fields = ["price", "category"]
+
+
+# class CourseFilter(django_filters.FilterSet):
+#     class Meta:
+#         model = Course
+#         fields = {
+#             'price': ['lt', 'gt']
+#         }
+
+
 class CourseListAPIView(ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = CourseRetrieveSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = Course.objects.all()
+    filterset_class = CourseFilter
 
 
 class CourseCreateAPIView(CreateAPIView):
@@ -58,6 +79,7 @@ class CourseDeleteAPIView(DestroyAPIView):
 
 
 class CourseCategoryListAPIView(ListAPIView):
+
     permission_classes = [AllowAny]
     serializer_class = CourseCategoryRetrieveSerializer
     queryset = CourseCategory.objects.all()

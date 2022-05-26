@@ -14,6 +14,7 @@ class CourseCreateSerializer(serializers.ModelSerializer):
             "password",
             "status",
             "price",
+            "category",
         )
 
 
