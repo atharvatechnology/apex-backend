@@ -12,6 +12,7 @@ class ContentTabularInline(admin.TabularInline):
 @admin.register(Content)
 class ContentAdmin(admin.ModelAdmin):
     list_display = ["id", "name"]
+    readonly_fields = ["created_by", "updated_by"]
 
     def save_model(self, request, obj, form, change):
         instance = form.save(commit=False)
