@@ -10,3 +10,4 @@ django-nested-admin==3.4.0
 pyotp==2.6.0
 Pillow==9.1.1
 pre-commit==2.19.0
+gunicorn==20.1.0
