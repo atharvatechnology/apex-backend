@@ -5,14 +5,31 @@ from rest_framework import serializers
 User = get_user_model()
 
 
+class FullNameField(serializers.Field):
+    """Custom Full Name field for the User model."""
+
+    def to_representation(self, value):
+        """Return the full name of the user."""
+        return value.get_full_name()
+
+    def to_internal_value(self, data):
+        """Return the user object fields based on the full name."""
+        fname, lname = data.rsplit(" ", 1)
+        return {"first_name": fname, "last_name": lname}
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
     """User Create Serializer."""
+
+    fullName = FullNameField(source="*")
 
     class Meta:
         model = User
         fields = [
             "username",
             "password",
+            "email",
+            "fullName",
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
