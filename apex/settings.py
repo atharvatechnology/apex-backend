@@ -12,22 +12,34 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+import environ
 from corsheaders.defaults import default_headers, default_methods
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# django environ configuration starts here
+env = environ.Env(
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(list, []),
+)
+
+environ.Env.read_env()
+# django environ configuration ends here
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-(nv23-80)topw_k1uw(8ib=5%+jrida67biofm(f3vvli6o1y^"
+SECRET_KEY = env(
+    "SECRET_KEY",
+    default="django-insecure-(nv23-80)topw_k1uw(8ib=5%+jrida67biofm(f3vvli6o1y^",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 
 # Application definition
@@ -93,12 +105,7 @@ WSGI_APPLICATION = "apex.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASES = {"default": env.db()}
 
 
 # Password validation
@@ -137,7 +144,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = env("STATIC_URL")
+if DEBUG:
+    STATICFILES_DIRS = [(BASE_DIR / "static")]
+else:
+    STATICFILES_ROOT = [(BASE_DIR / "static")]
+STATIC_ROOT = BASE_DIR / "static-live"
+
+# Media files
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -161,15 +177,16 @@ REST_FRAMEWORK = {
 # Rest Framework End
 
 # OTP Start
-OTP_SEND_URL = "https://sms.aakashsms.com/sms/v3/send"
-OTP_SMS_TOKEN = "d5cbdb41774asdf640c8abaasdf2"
+OTP_SEND_URL = env("OTP_SEND_URL", default="https://sms.aakashsms.com/sms/v3/send")
+OTP_SMS_TOKEN = env("OTP_SMS_TOKEN", default="aakash")
+OTP_EXPIRY_SECONDS = env("OTP_EXPIRY_SECONDS", default=120)
 # OTP End
 
 # JWT dj-rest-auth Start
 REST_USE_JWT = True
-JWT_AUTH_COOKIE = "jwt_auth"
-JWT_AUTH_REFRESH_COOKIE = "jwt_refresh"
-JWT_AUTH_SAMESITE = "none"
+JWT_AUTH_COOKIE = env("JWT_AUTH_COOKIE", default="jwt_auth")
+JWT_AUTH_REFRESH_COOKIE = env("JWT_AUTH_REFRESH_COOKIE", default="jwt_refresh")
+JWT_AUTH_SAMESITE = env("JWT_AUTH_SAMESITE", default="none")
 JWT_AUTH_RETURN_EXPIRATION = True
 # JWT dj-rest-auth End
 
@@ -184,10 +201,21 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Credentials",
 ]
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^http://localhost:\d+",
-    r"^http://192.168.\d+.\d+:\d+",
-]
+CORS_ALLOWED_ORIGIN_REGEXES = env(
+    "CORS_ALLOWED_ORIGIN_REGEXES",
+    default=[
+        r"^http://localhost:\d+",
+        r"^http://192.168.\d+.\d+:\d+",
+    ],
+)
+CORS_ALLOWED_ORIGIN_REGEXES = env(
+    "CORS_ALLOWED_ORIGIN_REGEXES",
+    default=[
+        r"^http://localhost:\d+",
+        r"^http://192.168.\d+.\d+:\d+",
+        r"^http://.*.ngrok.io",
+    ],
+)
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -202,8 +230,12 @@ USER_AUTHENTICATION_RULE = (
     "rest_framework_simplejwt.authentication.default_user_authentication_rule"
 )
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=env.int("ACCESS_EXPIRY_TIME", default=5)
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        minutes=env.int("REFRESH_EXPIRY_TIME", default=1440)
+    ),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
@@ -228,3 +260,8 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 }
 # simple jwt config end
+
+APPEND_SLASH = True
+
+# So that if error while saving then the save process will roll back
+ATOMIC_REQUESTS = True
