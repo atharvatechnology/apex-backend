@@ -39,4 +39,5 @@ urlpatterns += [
     path("auth/", include("dj_rest_auth.urls")),
     path("notes/", include("notes.api.urls")),
     path("exams/", include("exams.api.urls")),
+    path("enrollments/", include("enrollments.api.urls")),
 ]
