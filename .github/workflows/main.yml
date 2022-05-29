@@ -30,6 +30,9 @@ jobs:
         uses: crazy-max/ghaction-docker-meta@v4
         with:
           images: ghcr.io/atharvatechnology/apex-backend
+          tag-sha: true
+          tag-edge: false
+          tag-latest: true
             
       - name: Login to ghcr
         uses: docker/login-action@v2
@@ -43,5 +46,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: 0.1
+          tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
