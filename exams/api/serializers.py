@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
+from common.api.mixin import EnrolledSerializerMixin
 from common.api.serializers import CreatorSerializer
-from enrollments.api.serializers import SessionSerializer
+from enrollments.api.serializers import ExamEnrollmentPaperSerializer, SessionSerializer
 from exams.models import Exam, ExamTemplate, Option, Question
 
 
@@ -28,7 +29,7 @@ class ExamTemplateListSerializer(serializers.ModelSerializer):
         )
 
 
-class ExamRetrieveSerializer(CreatorSerializer):
+class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
     template = ExamTemplateSerializer()
     sessions = SessionSerializer(many=True)
 
@@ -39,6 +40,8 @@ class ExamRetrieveSerializer(CreatorSerializer):
             "category",
             "status",
             "price",
+            "is_enrolled",
+            "is_enrolled_active",
             "sessions",
             "template",
         )
@@ -108,9 +111,35 @@ class QuestionSerializer(serializers.ModelSerializer):
         )
 
 
+class OptionResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Option
+        fields = (
+            "id",
+            "detail",
+            "correct",
+            "img",
+        )
+
+
+class QuestionResultSerializer(serializers.ModelSerializer):
+    options = OptionResultSerializer(many=True)
+
+    class Meta:
+        model = Question
+        fields = (
+            "id",
+            "detail",
+            "img",
+            "feedback",
+            "options",
+        )
+
+
 class ExamPaperSerializer(serializers.ModelSerializer):
     template = ExamTemplateSerializer()
     questions = QuestionSerializer(many=True)
+    exam_enroll = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -122,4 +151,32 @@ class ExamPaperSerializer(serializers.ModelSerializer):
             "price",
             "questions",
             "template",
+            "exam_enroll",
         )
+
+    def get_exam_enroll(self, obj):
+        if self.context["request"].user.is_authenticated:
+            student_enrollments = obj.enrolls.filter(
+                student=self.context["request"].user
+            )
+            if student_enrollments.count() > 0:
+                return ExamEnrollmentPaperSerializer(
+                    student_enrollments[0].exam_enrolls.filter(exam=obj).first()
+                ).data
+
+
+# class ExamPaperWOEnrollmentSeriaizer(serializers.ModelSerializer):
+#     template = ExamTemplateSerializer()
+#     questions = QuestionSerializer(many=True)
+
+#     class Meta:
+#         model = Exam
+#         fields = (
+#             "id",
+#             "name",
+#             "category",
+#             "status",
+#             "price",
+#             "questions",
+#             "template",
+#         )
