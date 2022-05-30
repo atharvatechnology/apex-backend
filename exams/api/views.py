@@ -21,7 +21,7 @@ class ExamCreateAPIView(BaseCreatorCreateAPIView):
 
 class ExamListAPIView(ListAPIView):
     serializer_class = ExamListSerializer
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
     queryset = Exam.objects.all()
 
 

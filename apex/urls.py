@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from drf_yasg import openapi
@@ -33,10 +35,14 @@ urlpatterns = [
     ),
 ]
 
-urlpatterns += [
+urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.api.urls")),
-    path("dj-rest-auth/", include("dj_rest_auth.urls")),
     path("courses/", include("courses.api.urls")),
+    path("auth/", include("dj_rest_auth.urls")),
+    path("notes/", include("notes.api.urls")),
     path("exams/", include("exams.api.urls")),
+    path("enrollments/", include("enrollments.api.urls")),
 ]
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
