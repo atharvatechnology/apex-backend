@@ -27,7 +27,7 @@ repos:
     rev: 3.9.2
     hooks:
       - id: flake8
-        exclude: migrations
+        exclude: migrations|apps
 
   - repo: https://github.com/asottile/seed-isort-config
     rev: v2.2.0
