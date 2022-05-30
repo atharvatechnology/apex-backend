@@ -1,4 +1,3 @@
-import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
@@ -8,7 +7,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from courses.api.serializers import (
     CourseCategoryCreateSerialilzer,
@@ -22,89 +21,96 @@ from courses.api.serializers import (
 )
 from courses.models import Course, CourseCategory
 
-
-class CourseFilter(django_filters.FilterSet):
-    price = django_filters.NumberFilter()
-    price__gt = django_filters.NumberFilter(field_name="price", lookup_expr="gt")
-    price__lt = django_filters.NumberFilter(field_name="price", lookup_expr="lt")
-
-    class Meta:
-        model = Course
-        fields = ["price", "category"]
-
+from ..filters import CourseFilter
 
 # class CourseFilter(django_filters.FilterSet):
+#     price = django_filters.NumberFilter()
+#     price__gt = django_filters.NumberFilter(field_name="price", lookup_expr="gt")
+#     price__lt = django_filters.NumberFilter(field_name="price", lookup_expr="lt")
+
 #     class Meta:
 #         model = Course
-#         fields = {
-#             'price': ['lt', 'gt']
-#         }
+#         fields = ["price", "category"]
 
 
 class CourseListAPIView(ListAPIView):
+    """View for listing courses."""
+
     permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializer
+    serializer_class = CourseCreateSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = Course.objects.all()
     filterset_class = CourseFilter
+    # filterset_fields = ['price', 'category']
+    # ordering = ['course']
 
 
 class CourseCreateAPIView(CreateAPIView):
-    permission_classes = [AllowAny]
+    """View for creating courses."""
+
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseCreateSerializer
 
 
 class CourseRetrieveAPIView(RetrieveAPIView):
+    """View for retrieving courses."""
+
     permission_classes = [AllowAny]
     serializer_class = CourseRetrieveSerializer
     queryset = Course.objects.all()
 
 
 class CourseUpdateAPIView(UpdateAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = CourseUpdateSerializer
+    """View for updating courses."""
 
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseUpdateSerializer
     queryset = Course.objects.all()
-    # category_id = self.kwargs.get('catid')
-    # if category_id:
-    #     return queryset.filter(category=category_id)
-    # return queryset
 
 
 class CourseDeleteAPIView(DestroyAPIView):
-    permission_classes = [AllowAny]
+    """View for deleting courses."""
+
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseDeleteSerializer
     queryset = Course.objects.all()
 
 
 class CourseCategoryListAPIView(ListAPIView):
+    """View for listing course categories."""
 
     permission_classes = [AllowAny]
     serializer_class = CourseCategoryRetrieveSerializer
     queryset = CourseCategory.objects.all()
-    # filter_backends = [filters.SearchFilter]
-    # search_fields = ['name']
 
 
 class CourseCategoryCreateAPIView(CreateAPIView):
-    permission_classes = [AllowAny]
+    """View for creating course categories."""
+
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseCategoryCreateSerialilzer
 
 
 class CourseCategoryRetrieveAPIView(RetrieveAPIView):
+    """View for retrieving course categories."""
+
     permission_classes = [AllowAny]
     serializer_class = CourseCategoryRetrieveSerializer
     queryset = CourseCategory.objects.all()
 
 
 class CourseCategoryUpdateAPIView(UpdateAPIView):
-    permission_classes = [AllowAny]
+    """View for updating course categories."""
+
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseCategoryUpdateSerializer
     queryset = CourseCategory.objects.all()
 
 
 class CourseCategoryDeleteAPIView(DestroyAPIView):
-    permission_classes = [AllowAny]
+    """View for deleting course categories."""
+
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseCategoryDeleteSerializer
     queryset = CourseCategory.objects.all()

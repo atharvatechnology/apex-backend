@@ -34,7 +34,7 @@ class CourseCategory(models.Model):
 
 
 class CourseStatus:
-    INSESSION = "insession"  # course has active classses currently
+    INSESSION = "insession"  # course has active classses currently.
     UPCOMING = "upcoming"  # course is being planned.
     ENDED = "ended"  # course has successfully ended.
     CANCELLED = "cancelled"  # course has been abruptly ended.
@@ -70,12 +70,6 @@ class Course(models.Model):
         blank=True,
         null=True,
     )
-    # type_id = models.IntegerField(
-    #     _("type_id"),
-    # )
-    # instructor_id = models.IntegerField(
-    #     _("instructor_id"),
-    # )
 
     link = models.URLField(
         _("link"),

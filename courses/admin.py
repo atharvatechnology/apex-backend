@@ -4,6 +4,8 @@ from courses.models import Course, CourseCategory
 
 
 class CourseAdmin(admin.ModelAdmin):
+    """Admin for Course model."""
+
     readonly_fields = ("id",)
     list_display = (
         "id",
@@ -19,6 +21,8 @@ class CourseAdmin(admin.ModelAdmin):
 
 
 class CourseCategoryAdmin(admin.ModelAdmin):
+    """Admin for CourseCategory model."""
+
     readonly_fields = ("id",)
     list_display = (
         "id",

@@ -1,10 +1,11 @@
-# from pyexpat import model
 from rest_framework import serializers
 
 from courses.models import Course, CourseCategory
 
 
 class CourseCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating courses."""
+
     class Meta:
         model = Course
         fields = (
@@ -19,7 +20,10 @@ class CourseCreateSerializer(serializers.ModelSerializer):
 
 
 class CourseRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving courses."""
+
     class Meta:
+
         model = Course
         fields = (
             "id",
@@ -29,17 +33,11 @@ class CourseRetrieveSerializer(serializers.ModelSerializer):
             "status",
             "price",
         )
-        # extra_kwargs = {'password':{
-        #     'write_only': True
-        # }}
-
-        # def create(self, validated_data):
-        #     course = Course.objects.create(**validated_data)
-        #     course.save()
-        #     return course
 
 
 class CourseUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating courses."""
+
     class Meta:
         model = Course
         fields = (
@@ -53,6 +51,8 @@ class CourseUpdateSerializer(serializers.ModelSerializer):
 
 
 class CourseDeleteSerializer(serializers.ModelSerializer):
+    """Serializer for deleting courses."""
+
     class Meta:
         model = Course
         fields = (
@@ -66,6 +66,8 @@ class CourseDeleteSerializer(serializers.ModelSerializer):
 
 
 class CourseCategoryCreateSerialilzer(serializers.ModelSerializer):
+    """Serializer for creating course categories."""
+
     class Meta:
         model = CourseCategory
         fields = (
@@ -76,6 +78,8 @@ class CourseCategoryCreateSerialilzer(serializers.ModelSerializer):
 
 
 class CourseCategoryRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving course categories."""
+
     class Meta:
         model = CourseCategory
         fields = (
@@ -86,6 +90,8 @@ class CourseCategoryRetrieveSerializer(serializers.ModelSerializer):
 
 
 class CourseCategoryUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating course categories."""
+
     class Meta:
         model = CourseCategory
         fields = (
@@ -96,6 +102,8 @@ class CourseCategoryUpdateSerializer(serializers.ModelSerializer):
 
 
 class CourseCategoryDeleteSerializer(serializers.ModelSerializer):
+    """Serializer for deleting course categories."""
+
     class Meta:
         model = CourseCategory
         fields = (

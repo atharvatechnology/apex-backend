@@ -146,10 +146,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Rest Framework Start
 REST_FRAMEWORK = {
-    # "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    # "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.CursorPagination",
     "DEFAULT_PAGINATION_CLASS": "courses.api.paginations.CustomPagination",
-    # "DEFAULT_PAGINATION_CLASS": "courses.api.paginations.LinkHeaderPagination",
     "PAGE_SIZE": 100,
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
