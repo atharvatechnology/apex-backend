@@ -47,7 +47,7 @@ class SessionAdmin(admin.ModelAdmin):
 class ExamThroughEnrollmentAdmin(admin.ModelAdmin):
     """Exam through enrollment admin."""
 
-    list_display = ("enrollment", "exam", "selected_session", "score", "status")
+    list_display = ("id", "enrollment", "exam", "selected_session", "score", "status")
     list_filter = ("status", "enrollment", "exam", "selected_session")
     inlines = [
         QuestionEnrollmentInline,
