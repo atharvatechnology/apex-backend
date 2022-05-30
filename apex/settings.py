@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "django_filters",
     "nested_admin",
+    "django_celery_results",
 ]
 
 MIDDLEWARE = [
@@ -265,3 +266,11 @@ APPEND_SLASH = True
 
 # So that if error while saving then the save process will roll back
 ATOMIC_REQUESTS = True
+
+# Celery settings
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379")
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Kathmandu"
