@@ -22,6 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, []),
+    CSRF_TRUSTED_ORIGINS=(list, []),
+    CORS_ALLOWED_ORIGIN_REGEXES=(list, []),
 )
 
 environ.Env.read_env()
@@ -187,6 +189,7 @@ REST_USE_JWT = True
 JWT_AUTH_COOKIE = env("JWT_AUTH_COOKIE", default="jwt_auth")
 JWT_AUTH_REFRESH_COOKIE = env("JWT_AUTH_REFRESH_COOKIE", default="jwt_refresh")
 JWT_AUTH_SAMESITE = env("JWT_AUTH_SAMESITE", default="none")
+JWT_AUTH_SECURE = env("JWT_AUTH_SECURE", default=False)
 JWT_AUTH_RETURN_EXPIRATION = True
 # JWT dj-rest-auth End
 
@@ -201,13 +204,6 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Credentials",
 ]
 
-CORS_ALLOWED_ORIGIN_REGEXES = env(
-    "CORS_ALLOWED_ORIGIN_REGEXES",
-    default=[
-        r"^http://localhost:\d+",
-        r"^http://192.168.\d+.\d+:\d+",
-    ],
-)
 CORS_ALLOWED_ORIGIN_REGEXES = env(
     "CORS_ALLOWED_ORIGIN_REGEXES",
     default=[
