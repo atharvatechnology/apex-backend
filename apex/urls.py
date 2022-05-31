@@ -35,7 +35,7 @@ urlpatterns = [
     ),
 ]
 
-urlpatterns = [
+urlpatterns += [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.api.urls")),
     path("auth/", include("dj_rest_auth.urls")),
