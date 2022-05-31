@@ -9,6 +9,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from courses.api.paginations import LargeResultsSetPagination
 from courses.api.serializers import (
     CourseCategoryCreateSerialilzer,
     CourseCategoryDeleteSerializer,
@@ -23,25 +24,17 @@ from courses.models import Course, CourseCategory
 
 from ..filters import CourseFilter
 
-# class CourseFilter(django_filters.FilterSet):
-#     price = django_filters.NumberFilter()
-#     price__gt = django_filters.NumberFilter(field_name="price", lookup_expr="gt")
-#     price__lt = django_filters.NumberFilter(field_name="price", lookup_expr="lt")
-
-#     class Meta:
-#         model = Course
-#         fields = ["price", "category"]
-
 
 class CourseListAPIView(ListAPIView):
     """View for listing courses."""
 
     permission_classes = [AllowAny]
-    serializer_class = CourseCreateSerializer
+    serializer_class = CourseRetrieveSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = Course.objects.all()
     filterset_class = CourseFilter
+    pagination_class = LargeResultsSetPagination
     # filterset_fields = ['price', 'category']
     # ordering = ['course']
 

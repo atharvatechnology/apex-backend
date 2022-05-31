@@ -2,17 +2,27 @@ from rest_framework import pagination
 from rest_framework.response import Response
 
 
-class CustomPagination(pagination.PageNumberPagination):
-    """Pagination for courses."""
-
-    page_size = 2
+class LargeResultsSetPagination(pagination.PageNumberPagination):
+    page_size = 1000
     page_size_query_param = "page_size"
-    max_page_size = 50
-    page_query_param = "p"
+    max_page_size = 10000
 
+
+class StandardResultsSetPagination(pagination.PageNumberPagination):
+    page_size = 100
+    page_size_query_param = "page_size"
+    max_page_size = 1000
+
+
+class CustomPagination(pagination.PageNumberPagination):
     def get_paginated_response(self, data):
-        response = Response(data)
-        response["count"] = self.page.paginator.count
-        response["next"] = self.get_next_link()
-        response["previous"] = self.get_previous_link()
-        return response
+        return Response(
+            {
+                "links": {
+                    "next": self.get_next_link(),
+                    "previous": self.get_previous_link(),
+                },
+                "count": self.page.paginator.count,
+                "results": data,
+            }
+        )

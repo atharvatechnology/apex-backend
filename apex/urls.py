@@ -35,7 +35,7 @@ urlpatterns = [
     ),
 ]
 
-urlpatterns = [
+urlpatterns += [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.api.urls")),
     path("courses/", include("courses.api.urls")),
