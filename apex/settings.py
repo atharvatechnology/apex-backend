@@ -219,10 +219,13 @@ CORS_ALLOWED_ORIGIN_REGEXES = env(
 
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8000",
-    "http://localhost:3000",
-]
+CSRF_TRUSTED_ORIGINS = env(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "http://localhost:8000",
+        "http://localhost:3000",
+    ],
+)
 # cors end
 
 # simple jwt config start
