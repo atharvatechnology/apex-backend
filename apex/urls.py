@@ -37,11 +37,11 @@ urlpatterns = [
 
 urlpatterns += [
     path("admin/", admin.site.urls),
-    path("accounts/", include("accounts.api.urls")),
-    path("auth/", include("dj_rest_auth.urls")),
-    path("notes/", include("notes.api.urls")),
-    path("exams/", include("exams.api.urls")),
-    path("enrollments/", include("enrollments.api.urls")),
+    path("api/accounts/", include("accounts.api.urls")),
+    path("api/auth/", include("dj_rest_auth.urls")),
+    path("api/notes/", include("notes.api.urls")),
+    path("api/exams/", include("exams.api.urls")),
+    path("api/enrollments/", include("enrollments.api.urls")),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

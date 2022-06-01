@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Redis
+*.rdb
+
 # Distribution / packaging
 .Python
 build/
@@ -127,3 +130,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+*.bak
+*.dat
+*.dir

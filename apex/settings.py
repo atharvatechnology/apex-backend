@@ -22,6 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, []),
+    CSRF_TRUSTED_ORIGINS=(list, []),
+    CORS_ALLOWED_ORIGIN_REGEXES=(list, []),
 )
 
 environ.Env.read_env()
@@ -67,6 +69,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "django_filters",
     "nested_admin",
+    "django_celery_results",
 ]
 
 MIDDLEWARE = [
@@ -169,7 +172,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.SessionAuthentication",
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
@@ -179,7 +182,9 @@ REST_FRAMEWORK = {
 # OTP Start
 OTP_SEND_URL = env("OTP_SEND_URL", default="https://sms.aakashsms.com/sms/v3/send")
 OTP_SMS_TOKEN = env("OTP_SMS_TOKEN", default="aakash")
+OTP_SMS_PLATFORM = env("OTP_SMS_PLATFORM", default="AakashSMS")
 OTP_EXPIRY_SECONDS = env("OTP_EXPIRY_SECONDS", default=120)
+OTP_SMS_FROM = env("OTP_SMS_FROM", default="Apex")
 # OTP End
 
 # JWT dj-rest-auth Start
@@ -187,7 +192,11 @@ REST_USE_JWT = True
 JWT_AUTH_COOKIE = env("JWT_AUTH_COOKIE", default="jwt_auth")
 JWT_AUTH_REFRESH_COOKIE = env("JWT_AUTH_REFRESH_COOKIE", default="jwt_refresh")
 JWT_AUTH_SAMESITE = env("JWT_AUTH_SAMESITE", default="none")
+JWT_AUTH_SECURE = env("JWT_AUTH_SECURE", default=False)
 JWT_AUTH_RETURN_EXPIRATION = True
+REST_AUTH_SERIALIZERS = {
+    "USER_DETAILS_SERIALIZER": "accounts.api.serializers.UserCustomDetailsSerializer",
+}
 # JWT dj-rest-auth End
 
 # Cors
@@ -206,23 +215,19 @@ CORS_ALLOWED_ORIGIN_REGEXES = env(
     default=[
         r"^http://localhost:\d+",
         r"^http://192.168.\d+.\d+:\d+",
-    ],
-)
-CORS_ALLOWED_ORIGIN_REGEXES = env(
-    "CORS_ALLOWED_ORIGIN_REGEXES",
-    default=[
-        r"^http://localhost:\d+",
-        r"^http://192.168.\d+.\d+:\d+",
         r"^http://.*.ngrok.io",
     ],
 )
 
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8000",
-    "http://localhost:3000",
-]
+CSRF_TRUSTED_ORIGINS = env(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "http://localhost:8000",
+        "http://localhost:3000",
+    ],
+)
 # cors end
 
 # simple jwt config start
@@ -265,3 +270,11 @@ APPEND_SLASH = True
 
 # So that if error while saving then the save process will roll back
 ATOMIC_REQUESTS = True
+
+# Celery settings
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379")
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Kathmandu"

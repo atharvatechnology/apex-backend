@@ -17,6 +17,10 @@ class ExamTemplate(CreatorBaseModel):
     full_marks = models.DecimalField(
         _("full_marks"), max_digits=5, decimal_places=2, default=0
     )
+    # TODO: Change pass_marks to pass_marks_ratio
+    # this is the ratio of pass_marks to full_marks
+    # storing ratio instead of full marks enables us to
+    # checking if pass_marks is less than full_marks
     pass_marks = models.DecimalField(
         _("pass_marks"), max_digits=5, decimal_places=2, default=0
     )
@@ -36,15 +40,11 @@ class ExamTemplate(CreatorBaseModel):
 
 class ExamStatus:
     CREATED = "created"
-    STARTED = "started"
-    FINISHED = "finished"
     SCHEDULED = "scheduled"
     CANCELLED = "cancelled"
 
     CHOICES = [
         (CREATED, "Created"),
-        (STARTED, "Started"),
-        (FINISHED, "Finished"),
         (SCHEDULED, "Scheduled"),
         (CANCELLED, "Cancelled"),
     ]
