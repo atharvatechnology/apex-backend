@@ -169,6 +169,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Rest Framework Start
 REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "courses.api.paginations.CustomPagination",
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
@@ -209,6 +210,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Methods",
     "Access-Control-Allow-Credentials",
 ]
+
 
 CORS_ALLOWED_ORIGIN_REGEXES = env(
     "CORS_ALLOWED_ORIGIN_REGEXES",
