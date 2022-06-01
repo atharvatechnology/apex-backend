@@ -22,6 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, []),
+    CSRF_TRUSTED_ORIGINS=(list, []),
+    CORS_ALLOWED_ORIGIN_REGEXES=(list, []),
 )
 
 environ.Env.read_env()
@@ -188,6 +190,7 @@ REST_USE_JWT = True
 JWT_AUTH_COOKIE = env("JWT_AUTH_COOKIE", default="jwt_auth")
 JWT_AUTH_REFRESH_COOKIE = env("JWT_AUTH_REFRESH_COOKIE", default="jwt_refresh")
 JWT_AUTH_SAMESITE = env("JWT_AUTH_SAMESITE", default="none")
+JWT_AUTH_SECURE = env("JWT_AUTH_SECURE", default=False)
 JWT_AUTH_RETURN_EXPIRATION = True
 # JWT dj-rest-auth End
 
@@ -207,23 +210,19 @@ CORS_ALLOWED_ORIGIN_REGEXES = env(
     default=[
         r"^http://localhost:\d+",
         r"^http://192.168.\d+.\d+:\d+",
-    ],
-)
-CORS_ALLOWED_ORIGIN_REGEXES = env(
-    "CORS_ALLOWED_ORIGIN_REGEXES",
-    default=[
-        r"^http://localhost:\d+",
-        r"^http://192.168.\d+.\d+:\d+",
         r"^http://.*.ngrok.io",
     ],
 )
 
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8000",
-    "http://localhost:3000",
-]
+CSRF_TRUSTED_ORIGINS = env(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "http://localhost:8000",
+        "http://localhost:3000",
+    ],
+)
 # cors end
 
 # simple jwt config start
