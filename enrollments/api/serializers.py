@@ -5,10 +5,12 @@ from enrollments.api.utils import is_enrolled
 from enrollments.models import (
     Enrollment,
     EnrollmentStatus,
+    ExamEnrollmentStatus,
     ExamThroughEnrollment,
     QuestionEnrollment,
     Session,
 )
+from exams.models import Exam, Option, Question
 
 
 class SessionSerializer(CreatorSerializer):
@@ -132,6 +134,31 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
         return enrollment
 
 
+class OptionResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Option
+        fields = (
+            "id",
+            "detail",
+            "correct",
+            "img",
+        )
+
+
+class QuestionResultSerializer(serializers.ModelSerializer):
+    options = OptionResultSerializer(many=True)
+
+    class Meta:
+        model = Question
+        fields = (
+            "id",
+            "detail",
+            "img",
+            "feedback",
+            "options",
+        )
+
+
 class QuestionEnrollmentSerializer(serializers.ModelSerializer):
     """Serializer when user retrieves his latest exam result."""
 
@@ -146,8 +173,7 @@ class QuestionEnrollmentSerializer(serializers.ModelSerializer):
         )
 
     def get_question(self, obj):
-        from exams.api.serializers import QuestionResultSerializer
-
+        """Get question result."""
         return QuestionResultSerializer(obj.question).data
 
 
@@ -172,15 +198,17 @@ class ExamEnrollmentUpdateSerializer(serializers.ModelSerializer):
     """
 
     question_states = QuestionEnrollmentSubmitSerializer(many=True)
-    submitted = serializers.BooleanField(required=False, default=False)
+    submitted = serializers.BooleanField(required=False, default=False, write_only=True)
 
     class Meta:
         model = ExamThroughEnrollment
         fields = (
             "id",
             "question_states",
+            "status",
             "submitted",
         )
+        read_only_fields = ("status",)
 
     def update(self, instance, validated_data):
         """Update an exam enrollment.
@@ -202,42 +230,40 @@ class ExamEnrollmentUpdateSerializer(serializers.ModelSerializer):
         submitted = validated_data.get("submitted") or False
 
         for state_data in question_states:
-            question = state_data["question"]
-            option = state_data["selected_option"]
+            question = state_data.get("question")
+            option = state_data.get("selected_option")
             prev_question_states = instance.question_states.all()
             prev_states = prev_question_states.filter(question=question)
             if len(prev_states) > 0:
                 prev_state = prev_states.first()
                 prev_state.question = question
-                prev_option = prev_state.selected_option
                 prev_state.selected_option = option
                 prev_state.save()
-                new_option = prev_state.selected_option
-                if new_option.correct != prev_option.correct:
-                    if new_option.correct:
-                        instance.score += (
-                            prev_state.question.section.pos_marks
-                            + prev_state.question.section.neg_marks
-                        )
-                    else:
-                        instance.score -= (
-                            prev_state.question.section.pos_marks
-                            + prev_state.question.section.neg_marks
-                        )
             else:
                 new_state = QuestionEnrollment(
                     exam_stat=instance, question=question, selected_option=option
                 )
                 new_state.save()
-                if new_state.selected_option.correct:
-                    instance.score += new_state.question.section.pos_marks
-                else:
-                    instance.score -= new_state.question.section.neg_marks
         if submitted:
-            instance.attempt_exam()
+            if instance.status == ExamEnrollmentStatus.CREATED:
+                instance.attempt_exam()
         else:
             instance.save()
         return instance
+
+
+class ExamNameSerializer(serializers.ModelSerializer):
+    """Serializer for exam name."""
+
+    questions = QuestionResultSerializer(many=True)
+
+    class Meta:
+        model = Exam
+        fields = (
+            "id",
+            "name",
+            "questions",
+        )
 
 
 class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
@@ -245,7 +271,7 @@ class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
 
     question_states = QuestionEnrollmentSerializer(many=True)
     rank = serializers.SerializerMethodField()
-    # exam = serializers.SerializerMethodField()
+    exam = ExamNameSerializer()
 
     class Meta:
         model = ExamThroughEnrollment
