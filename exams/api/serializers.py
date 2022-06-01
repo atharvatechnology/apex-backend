@@ -3,7 +3,7 @@ from rest_framework import serializers
 from common.api.mixin import EnrolledSerializerMixin
 from common.api.serializers import CreatorSerializer
 from enrollments.api.serializers import ExamEnrollmentPaperSerializer, SessionSerializer
-from enrollments.models import ExamEnrollmentStatus
+from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
 from exams.models import Exam, ExamTemplate, Option, Question
 
 
@@ -30,10 +30,23 @@ class ExamTemplateListSerializer(serializers.ModelSerializer):
         )
 
 
+class ExamEnrollmentExamRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer of ExamEnroll when user is retrieving an exam."""
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "status",
+        )
+
+
 class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
+    """Serializer when user is retrieving an exam."""
+
     template = ExamTemplateSerializer()
     sessions = SessionSerializer(many=True)
-    has_submitted = serializers.SerializerMethodField()
+    exam_enroll = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -46,10 +59,25 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
             "is_enrolled_active",
             "sessions",
             "template",
-            "has_submitted",
+            "exam_enroll",
         )
 
-    def get_has_submitted(self, obj):
+    def get_exam_enroll(self, obj):
+        """Retrieve exam enroll of current user.
+
+        If user is not enrolled, return None.
+
+        Parameters
+        ----------
+        obj : Exam
+            instance of Exam db object.
+
+        Returns
+        -------
+        ExamThroughEnrollment
+            instance of ExamThroughEnrollment db object.
+
+        """
         enrollments = []
         user = self.context["request"].user
         if user.is_authenticated:
@@ -58,11 +86,13 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
             enrollment = enrollments.first()
             exam_enrollment = enrollment.exam_enrolls.all().filter(exam=obj).first()
             if exam_enrollment.status != ExamEnrollmentStatus.CREATED:
-                return True
-        return False
+                return ExamEnrollmentExamRetrieveSerializer(exam_enrollment).data
+        return None
 
 
 class ExamCreateSerializer(CreatorSerializer):
+    """Serializer when admin is creating an exam."""
+
     class Meta:
         model = Exam
         fields = CreatorSerializer.Meta.fields + (
@@ -76,6 +106,8 @@ class ExamCreateSerializer(CreatorSerializer):
 
 
 class ExamListSerializer(serializers.ModelSerializer):
+    """Serializer when user is listing exams."""
+
     template = ExamTemplateListSerializer()
 
     class Meta:
@@ -91,6 +123,8 @@ class ExamListSerializer(serializers.ModelSerializer):
 
 
 class ExamUpdateSerializer(CreatorSerializer):
+    """Serializer when admin is updating an exam."""
+
     class Meta:
         model = Exam
         fields = CreatorSerializer.Meta.fields + (

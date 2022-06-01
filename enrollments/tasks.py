@@ -5,6 +5,17 @@ from enrollments.models import ExamThroughEnrollment
 
 @shared_task
 def calculate_score(exam_through_enrollment_id):
+    """Calculate score for a given exam through enrollment.
+
+    Score the exam submission and update the score in the database.
+    Pass/Fail the submission based on the score.
+
+    Parameters
+    ----------
+    exam_through_enrollment_id : int
+        id of exam through enrollment
+
+    """
     exam_through_enrollment = ExamThroughEnrollment.objects.get(
         id=exam_through_enrollment_id
     )
