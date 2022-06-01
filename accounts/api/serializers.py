@@ -1,3 +1,4 @@
+from dj_rest_auth.serializers import UserDetailsSerializer
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
@@ -14,7 +15,10 @@ class FullNameField(serializers.Field):
 
     def to_internal_value(self, data):
         """Return the user object fields based on the full name."""
-        fname, lname = data.rsplit(" ", 1)
+        try:
+            fname, lname = data.rsplit(" ", 1)
+        except ValueError:
+            fname, lname = data, ""
         return {"first_name": fname, "last_name": lname}
 
 
@@ -136,3 +140,14 @@ class UserResetPasswordConfirmSerializer(serializers.ModelSerializer):
         instance.is_active = True
         instance.save()
         return instance
+
+
+class UserCustomDetailsSerializer(UserDetailsSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    class Meta(UserDetailsSerializer.Meta):
+        extra_fields = UserDetailsSerializer.Meta.extra_fields + ["full_name"]
+        fields = list(UserDetailsSerializer.Meta.fields) + ["full_name"]
+
+    def get_full_name(self, obj):
+        return obj.get_full_name()

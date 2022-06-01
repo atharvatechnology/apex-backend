@@ -193,6 +193,9 @@ JWT_AUTH_REFRESH_COOKIE = env("JWT_AUTH_REFRESH_COOKIE", default="jwt_refresh")
 JWT_AUTH_SAMESITE = env("JWT_AUTH_SAMESITE", default="none")
 JWT_AUTH_SECURE = env("JWT_AUTH_SECURE", default=False)
 JWT_AUTH_RETURN_EXPIRATION = True
+REST_AUTH_SERIALIZERS = {
+    "USER_DETAILS_SERIALIZER": "accounts.api.serializers.UserCustomDetailsSerializer",
+}
 # JWT dj-rest-auth End
 
 # Cors
