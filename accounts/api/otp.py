@@ -14,6 +14,28 @@ class GenerateKey:
 
 class OTP:
     @staticmethod
+    def __sendOTPAakash(to, otp):
+        return {
+            "auth_token": settings.OTP_SMS_TOKEN,
+            "to": to,
+            "text": f"Your OTP is {otp}",
+        }
+
+    @staticmethod
+    def __sendOTPSparrow(to, otp):
+        return {
+            "token": settings.OTP_SMS_TOKEN,
+            "from": settings.OTP_SMS_FROM,
+            "to": to,
+            "text": f"Your OTP is {otp}",
+        }
+
+    message_function = {
+        "AakashSMS": __sendOTPAakash,
+        "SparrowSMS": __sendOTPSparrow,
+    }
+
+    @staticmethod
     def getOTP(phone):
         keygen = GenerateKey().returnValue(phone)
         key = base64.b32encode(keygen.encode())
@@ -31,18 +53,17 @@ class OTP:
             return True
         return False
 
-    @staticmethod
-    def sendOTP(phone, otp):
-        print("OTP", otp)
+    def sendOTP(self, phone, otp):
         sms_send_url = settings.OTP_SEND_URL
-        params = {
-            "auth_token": settings.OTP_SMS_TOKEN,
-            "to": phone,
-            "text": f"Your OTP is {otp}",
-        }
-        otp_send = requests.post(sms_send_url, data=params)
-        result = otp_send.json()
-        print("OTP SEND", result)
-        if not result["error"]:
-            return True
+        platform = settings.OTP_SMS_PLATFORM
+        if platform in self.message_function:
+            params = self.message_function[platform](phone, otp)
+            otp_send = requests.post(sms_send_url, data=params)
+        if platform == "AakashSMS":
+            result = otp_send.json()
+            if not result["error"]:
+                return True
+        elif platform == "SparrowSMS":
+            if otp_send.status_code == 200:
+                return True
         return False

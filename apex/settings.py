@@ -181,7 +181,9 @@ REST_FRAMEWORK = {
 # OTP Start
 OTP_SEND_URL = env("OTP_SEND_URL", default="https://sms.aakashsms.com/sms/v3/send")
 OTP_SMS_TOKEN = env("OTP_SMS_TOKEN", default="aakash")
+OTP_SMS_PLATFORM = env("OTP_SMS_PLATFORM", default="AakashSMS")
 OTP_EXPIRY_SECONDS = env("OTP_EXPIRY_SECONDS", default=120)
+OTP_SMS_FROM = env("OTP_SMS_FROM", default="Apex")
 # OTP End
 
 # JWT dj-rest-auth Start
