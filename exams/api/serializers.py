@@ -3,6 +3,7 @@ from rest_framework import serializers
 from common.api.mixin import EnrolledSerializerMixin
 from common.api.serializers import CreatorSerializer
 from enrollments.api.serializers import ExamEnrollmentPaperSerializer, SessionSerializer
+from enrollments.models import ExamEnrollmentStatus
 from exams.models import Exam, ExamTemplate, Option, Question
 
 
@@ -32,6 +33,7 @@ class ExamTemplateListSerializer(serializers.ModelSerializer):
 class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
     template = ExamTemplateSerializer()
     sessions = SessionSerializer(many=True)
+    has_submitted = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -44,7 +46,20 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
             "is_enrolled_active",
             "sessions",
             "template",
+            "has_submitted",
         )
+
+    def get_has_submitted(self, obj):
+        enrollments = []
+        user = self.context["request"].user
+        if user.is_authenticated:
+            enrollments = obj.enrolls.all().filter(student=user)
+        if len(enrollments) > 0:
+            enrollment = enrollments.first()
+            exam_enrollment = enrollment.exam_enrolls.all().filter(exam=obj).first()
+            if exam_enrollment.status != ExamEnrollmentStatus.CREATED:
+                return True
+        return False
 
 
 class ExamCreateSerializer(CreatorSerializer):
@@ -99,31 +114,6 @@ class OptionSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True)
-
-    class Meta:
-        model = Question
-        fields = (
-            "id",
-            "detail",
-            "img",
-            "feedback",
-            "options",
-        )
-
-
-class OptionResultSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Option
-        fields = (
-            "id",
-            "detail",
-            "correct",
-            "img",
-        )
-
-
-class QuestionResultSerializer(serializers.ModelSerializer):
-    options = OptionResultSerializer(many=True)
 
     class Meta:
         model = Question
