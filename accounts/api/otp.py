@@ -53,11 +53,12 @@ class OTP:
             return True
         return False
 
-    def sendOTP(self, phone, otp):
+    @staticmethod
+    def sendOTP(phone, otp):
         sms_send_url = settings.OTP_SEND_URL
         platform = settings.OTP_SMS_PLATFORM
-        if platform in self.message_function:
-            params = self.message_function[platform](phone, otp)
+        if platform in OTP().message_function:
+            params = OTP().message_function[platform](phone, otp)
             otp_send = requests.post(sms_send_url, data=params)
         if platform == "AakashSMS":
             result = otp_send.json()
