@@ -14,7 +14,7 @@ User = get_user_model()
 class EnrollmentStatus:
     ACTIVE = "active"  # student can access all the enrolled objects
     INACTIVE = "inactive"  # enrollment/access has expired
-    PENDING = "pending"  # enrollment is awaiting admin verification
+    PENDING = "pending"  # enrollment is awaiting admin verification/payment
     CANCELLED = "cancelled"  # enrollment is abruply expired
     CHOICES = [
         (ACTIVE, "active"),
@@ -66,7 +66,12 @@ class Enrollment(models.Model):
 class SessionStatus:
     ACTIVE = "active"  # session is active
     INACTIVE = "inactive"  # session is inactive
-    CHOICES = [(ACTIVE, "active"), (INACTIVE, "inactive")]
+    ENDED = "ended"  # session has ended
+    CHOICES = [
+        (ACTIVE, "active"),
+        (INACTIVE, "inactive"),
+        (ENDED, "ended"),
+    ]
 
 
 class Session(CreatorBaseModel):
@@ -103,12 +108,16 @@ class ExamEnrollmentStatus:
         "created"  # student has enrolled in the exam but not yet attempted the exam
     )
     ATTEMPTED = "attempted"  # student has attempted the exam
+    STARTED = "started"
+    FINISHED = "finished"
     FAILED = "failed"  # student has failed the attempt
     PASSED = "passed"  # student has passed the latest attempt
     COMPLETED = "completed"  # exam has been completed
     CHOICES = [
         (CREATED, "created"),
         (ATTEMPTED, "attempted"),
+        (STARTED, "started"),
+        (FINISHED, "finished"),
         (FAILED, "failed"),
         (PASSED, "passed"),
         (COMPLETED, "completed"),
@@ -178,6 +187,33 @@ class ExamThroughEnrollment(models.Model):
     def complete_exam(self):
         self.__change_status(ExamEnrollmentStatus.COMPLETED)
 
+    def calculate_score(self):
+        """Return score of exam_enroll.
+
+        Parameters
+        ----------
+        self : ExamThroughEnrollment
+            exam_enroll whose score is to be calculated
+
+        Returns
+        -------
+        int
+            score of exam_enroll
+
+        """
+        pos_score = 0
+        neg_score = 0
+        for question_state in self.question_states.all():
+            question = question_state.question
+            option = question_state.selected_option
+            if not option:
+                continue
+            if option.correct:
+                pos_score += question.section.pos_marks
+            else:
+                neg_score += question.section.neg_marks
+        return pos_score - neg_score
+
 
 # TODO: add course enrollment model here after course app is created
 
@@ -204,13 +240,16 @@ class QuestionEnrollment(models.Model):
         verbose_name=_("selected_option"),
         related_name=_("user_choices"),
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     updated_at = models.DateTimeField(_("upadated_at"), auto_now=True)
 
     def save(self, *args, **kwargs):
         try:
             self.exam_stat.exam.questions.get(pk=self.question.id)
-            self.question.options.get(pk=self.selected_option.id)
+            if self.selected_option:
+                self.question.options.get(pk=self.selected_option.id)
             super().save(*args, **kwargs)
         except Exception as error:
             raise error
