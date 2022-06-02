@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from common.admin import CreatorBaseModelAdmin
 from enrollments.models import (
     Enrollment,
     ExamThroughEnrollment,
@@ -35,7 +36,7 @@ class EnrollmentAdmin(admin.ModelAdmin):
 
 
 @admin.register(Session)
-class SessionAdmin(admin.ModelAdmin):
+class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Session admin."""
 
     list_display = ("exam", "status", "start_date", "end_date")
