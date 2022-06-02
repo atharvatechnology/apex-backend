@@ -16,3 +16,4 @@ django-redis==5.2.0
 flower==1.0.0
 django-celery-beat==2.2.1
 psycopg2-binary==2.9.3
+django-ckeditor==6.4.2
