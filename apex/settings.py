@@ -274,6 +274,9 @@ APPEND_SLASH = True
 # So that if error while saving then the save process will roll back
 ATOMIC_REQUESTS = True
 
+# so that while entering exam max post fields exceeded error will not be raised
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
 # Celery settings
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379")
