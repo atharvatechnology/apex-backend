@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "django_filters",
     "nested_admin",
     "django_celery_results",
+    "ckeditor",
 ]
 
 MIDDLEWARE = [
@@ -280,3 +281,37 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Asia/Kathmandu"
+# celery settings end
+
+# ckeditor settings start
+CKEDITOR_BASEPATH = f"/{STATIC_URL}ckeditor/ckeditor/"
+
+CKEDITOR_JQUERY_URL = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+CKEDITOR_MATHJAX_URL = (
+    "//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML"
+)
+CKEDITOR_CONFIGS = {
+    "default": {
+        "skin": "moono",
+        # 'skin': 'office2013',
+        "toolbar_Custom": [
+            {"name": "formats", "items": ["Bold", "Italic", "Underline"]},
+            {
+                "name": "math",
+                "items": [
+                    "Mathjax",
+                ],
+            },
+        ],
+        "toolbar": "Custom",
+        "mathJaxLib": CKEDITOR_MATHJAX_URL,
+        "height": 200,
+        "width": 600,
+        "extraPlugins": ",".join(
+            [
+                "mathjax",
+            ]
+        ),
+    },
+}
+# ckeditor settings end
