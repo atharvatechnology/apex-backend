@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from courses.models import Course, CourseCategory
+# from courses.models import Course, CourseCategory
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -32,5 +32,5 @@ class CourseCategoryAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-admin.site.register(Course, CourseAdmin)
-admin.site.register(CourseCategory, CourseCategoryAdmin)
+# admin.site.register(Course, CourseAdmin)
+# admin.site.register(CourseCategory, CourseCategoryAdmin)
