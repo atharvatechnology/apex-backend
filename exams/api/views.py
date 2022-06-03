@@ -3,6 +3,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from exams.api.permissions import IsExamEnrolledActive
 from exams.models import Exam, ExamStatus, ExamTemplate
 
 from .serializers import (
@@ -40,7 +41,7 @@ class ExamUpdateAPIView(BaseCreatorUpdateAPIView):
 
 class ExamPaperAPIView(RetrieveAPIView):
     serializer_class = ExamPaperSerializer
-    permission_classes = [IsAuthenticated]  # TODO: IsEnrolled
+    permission_classes = [IsAuthenticated, IsExamEnrolledActive]  # TODO: IsEnrolled
     queryset = Exam.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
