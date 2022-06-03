@@ -162,7 +162,7 @@ class QuestionResultSerializer(serializers.ModelSerializer):
 class QuestionEnrollmentSerializer(serializers.ModelSerializer):
     """Serializer when user retrieves his latest exam result."""
 
-    question = serializers.SerializerMethodField()
+    # question = serializers.SerializerMethodField()
 
     class Meta:
         model = QuestionEnrollment
@@ -172,9 +172,9 @@ class QuestionEnrollmentSerializer(serializers.ModelSerializer):
             "selected_option",
         )
 
-    def get_question(self, obj):
-        """Get question result."""
-        return QuestionResultSerializer(obj.question).data
+    # def get_question(self, obj):
+    #     """Get question result."""
+    #     return QuestionResultSerializer(obj.question).data
 
 
 class QuestionEnrollmentSubmitSerializer(serializers.ModelSerializer):
