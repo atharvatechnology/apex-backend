@@ -5,6 +5,7 @@ from enrollments.api.views import (
     EnrollmentListAPIView,
     ExamEnrollmentCheckpointRetrieveAPIView,
     ExamEnrollmentRetrieveAPIView,
+    ExamEnrollmentRetrievePoolAPIView,
     ExamEnrollmentUpdateAPIView,
     SessionCreateAPIView,
 )
@@ -27,6 +28,11 @@ urlpatterns += [
     path(
         "exam/result/<int:pk>",
         ExamEnrollmentRetrieveAPIView.as_view(),
+        name="exam-enrollment-result",
+    ),
+    path(
+        "exam/result/<int:pk>/pool/",
+        ExamEnrollmentRetrievePoolAPIView.as_view(),
         name="exam-enrollment-result",
     ),
     path(

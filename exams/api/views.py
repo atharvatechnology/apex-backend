@@ -10,6 +10,7 @@ from .serializers import (
     ExamCreateSerializer,
     ExamListSerializer,
     ExamPaperSerializer,
+    ExamRetrievePoolSerializer,
     ExamRetrieveSerializer,
     ExamTemplateSerializer,
     ExamUpdateSerializer,
@@ -29,6 +30,12 @@ class ExamListAPIView(ListAPIView):
 
 class ExamRetrieveAPIView(RetrieveAPIView):
     serializer_class = ExamRetrieveSerializer
+    permission_classes = [AllowAny]
+    queryset = Exam.objects.all()
+
+
+class ExamRetrievePoolAPIView(RetrieveAPIView):
+    serializer_class = ExamRetrievePoolSerializer
     permission_classes = [AllowAny]
     queryset = Exam.objects.all()
 

@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.db import models
 
 from common.admin import CreatorBaseModelAdmin
 from enrollments.models import (
@@ -43,6 +45,15 @@ class EnrollmentAdmin(admin.ModelAdmin):
         return super().get_readonly_fields(request, obj) + ["status"]
 
 
+class CustomAdminSplitDateTime(admin.widgets.AdminSplitDateTime):
+    def __init__(self, attrs=None):
+        widgets = [
+            admin.widgets.AdminDateWidget,
+            admin.widgets.AdminTimeWidget(attrs=None, format="%H:%M"),
+        ]
+        forms.MultiWidget.__init__(self, widgets, attrs)
+
+
 @admin.register(Session)
 class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Session admin."""
@@ -50,6 +61,12 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     list_display = ("exam", "status", "start_date", "end_date")
     list_filter = ("status", "exam")
     inlines = [ExamThroughEnrollmentInline]
+    formfield_overrides = {
+        models.DateTimeField: {
+            "widget": CustomAdminSplitDateTime(),
+            "help_text": "Seconds doesnot matters",
+        },
+    }
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:

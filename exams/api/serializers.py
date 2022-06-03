@@ -90,6 +90,17 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
         return None
 
 
+class ExamRetrievePoolSerializer(serializers.ModelSerializer):
+    """Serializer when user is retrieving an exam for pooling."""
+
+    class Meta:
+        model = Exam
+        fields = (
+            "id",
+            "status",
+        )
+
+
 class ExamCreateSerializer(CreatorSerializer):
     """Serializer when admin is creating an exam."""
 
