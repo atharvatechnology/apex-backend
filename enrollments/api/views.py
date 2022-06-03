@@ -103,14 +103,15 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         if (
             # the exam is still in progress
             exam_enrollment.selected_session.status
-            != SessionStatus.ENDED
+            == SessionStatus.ENDED
         ) and (
             # the exam result has not been calculated yet
             exam_enrollment.status
-            not in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
+            in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
         ):
-            return Response(
-                {"detail": "Your result has not been published yet."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        return super().retrieve(request, *args, **kwargs)
+            return super().retrieve(request, *args, **kwargs)
+
+        return Response(
+            {"detail": "Your result has not been published yet."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
