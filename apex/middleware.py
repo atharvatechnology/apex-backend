@@ -2,6 +2,7 @@ import json
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.urls import reverse_lazy
 from django.utils.deprecation import MiddlewareMixin
 
 
@@ -18,7 +19,7 @@ class MoveJWTCookieIntoTheBody(MiddlewareMixin):
         return self.get_response(request)
 
     def process_view(self, request, view_func, *view_args, **view_kwargs):
-        if request.path == "/auth/token/verify/":
+        if request.path == reverse_lazy("token_verify"):
             if settings.JWT_AUTH_COOKIE in request.COOKIES:
                 data = json.loads(request.body)
                 data["token"] = request.COOKIES[settings.JWT_AUTH_COOKIE]
