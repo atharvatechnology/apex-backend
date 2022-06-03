@@ -12,6 +12,7 @@ from common.api.views import BaseCreatorCreateAPIView
 from enrollments.api.serializers import (
     EnrollmentCreateSerializer,
     EnrollmentRetrieveSerializer,
+    ExamEnrollmentCheckPointRetrieveSerializer,
     ExamEnrollmentRetrieveSerializer,
     ExamEnrollmentUpdateSerializer,
     SessionSerializer,
@@ -113,5 +114,31 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
 
         return Response(
             {"detail": "Your result has not been published yet."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class ExamEnrollmentCheckpointRetrieveAPIView(RetrieveAPIView):
+    """Retrieve an exam enrollment saved state."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = ExamThroughEnrollment.objects.all()
+    serializer_class = ExamEnrollmentCheckPointRetrieveSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        exam_enrollment = self.get_object()
+        if (
+            # the exam is still in progress
+            exam_enrollment.selected_session.status
+            == SessionStatus.ACTIVE
+        ) and (
+            # the exam result has not been calculated yet
+            exam_enrollment.status
+            in [ExamEnrollmentStatus.CREATED]
+        ):
+            return super().retrieve(request, *args, **kwargs)
+
+        return Response(
+            {"detail": "Exam is not active or u have already submitted."},
             status=status.HTTP_400_BAD_REQUEST,
         )
