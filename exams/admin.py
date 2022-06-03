@@ -97,10 +97,14 @@ class SectionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(nested_admin.NestedModelAdmin):
     list_display = ["id", "detail", "exam"]
     list_filter = ["exam"]
     readonly_fields = ["id"]
+
+    inlines = [
+        OptionInline,
+    ]
 
 
 @admin.register(Option)
