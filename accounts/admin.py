@@ -156,4 +156,4 @@ admin.site.register(User, UserAdmin)
 # admin.site.register(Permission)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
-admin.site.unregister(Group)
+# admin.site.unregister(Group)

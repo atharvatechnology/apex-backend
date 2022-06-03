@@ -39,6 +39,7 @@ urlpatterns += [
     path("admin/", admin.site.urls),
     path("api/accounts/", include("accounts.api.urls")),
     path("api/auth/", include("dj_rest_auth.urls")),
+    path("api/courses/", include("courses.api.urls")),
     path("api/notes/", include("notes.api.urls")),
     path("api/exams/", include("exams.api.urls")),
     path("api/enrollments/", include("enrollments.api.urls")),

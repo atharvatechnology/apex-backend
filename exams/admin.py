@@ -2,6 +2,7 @@ import nested_admin
 from django import forms
 from django.contrib import admin
 
+from common.admin import CreatorBaseModelAdmin
 from exams.models import Exam, ExamTemplate, Option, Question, Section
 
 
@@ -56,7 +57,7 @@ class SectionInline(CustomStackedInline):
 
 
 @admin.register(ExamTemplate)
-class ExamTemplateAdmin(nested_admin.NestedModelAdmin):
+class ExamTemplateAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     list_display = [
         "id",
         "name",
@@ -68,17 +69,15 @@ class ExamTemplateAdmin(nested_admin.NestedModelAdmin):
     inlines = [
         SectionInline,
     ]
-    readonly_fields = ["id"]
 
 
 @admin.register(Exam)
-class ExamAdmin(nested_admin.NestedModelAdmin):
+class ExamAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     list_display = ["id", "name", "status", "price", "template"]
     list_filter = ["status", "template"]
     inlines = [
         QuestionInline,
     ]
-    readonly_fields = ["id"]
 
 
 @admin.register(Section)

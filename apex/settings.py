@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "django_filters",
     "nested_admin",
     "django_celery_results",
+    "ckeditor",
 ]
 
 MIDDLEWARE = [
@@ -169,6 +170,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Rest Framework Start
 REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "courses.api.paginations.CustomPagination",
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
@@ -209,6 +211,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Methods",
     "Access-Control-Allow-Credentials",
 ]
+
 
 CORS_ALLOWED_ORIGIN_REGEXES = env(
     "CORS_ALLOWED_ORIGIN_REGEXES",
@@ -271,6 +274,9 @@ APPEND_SLASH = True
 # So that if error while saving then the save process will roll back
 ATOMIC_REQUESTS = True
 
+# so that while entering exam max post fields exceeded error will not be raised
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
 # Celery settings
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379")
@@ -278,3 +284,37 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Asia/Kathmandu"
+# celery settings end
+
+# ckeditor settings start
+CKEDITOR_BASEPATH = f"/{STATIC_URL}ckeditor/ckeditor/"
+
+CKEDITOR_JQUERY_URL = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+CKEDITOR_MATHJAX_URL = (
+    "//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML"
+)
+CKEDITOR_CONFIGS = {
+    "default": {
+        "skin": "moono",
+        # 'skin': 'office2013',
+        "toolbar_Custom": [
+            {"name": "formats", "items": ["Bold", "Italic", "Underline"]},
+            {
+                "name": "math",
+                "items": [
+                    "Mathjax",
+                ],
+            },
+        ],
+        "toolbar": "Custom",
+        "mathJaxLib": CKEDITOR_MATHJAX_URL,
+        "height": 200,
+        "width": 600,
+        "extraPlugins": ",".join(
+            [
+                "mathjax",
+            ]
+        ),
+    },
+}
+# ckeditor settings end
