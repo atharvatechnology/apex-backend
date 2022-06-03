@@ -132,7 +132,7 @@ class Exam(CreatorBaseModel):
         if self.status == ExamStatus.CREATED:
             return
         # GO back to default state
-        if self.status == ExamStatus.IN_PROGRESS:
+        if self.status in [ExamStatus.IN_PROGRESS, ExamStatus.SCHEDULED]:
             return self.__change_status(ExamStatus.CREATED)
         raise StateTransitionError(f"Exam cannot be finished from {self.status} state")
 

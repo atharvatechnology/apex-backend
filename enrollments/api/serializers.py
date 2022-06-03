@@ -313,6 +313,27 @@ class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
     #     return ExamPaperWOEnrollmentSeriaizer(self.exam).data
 
 
+class ExamEnrollmentCheckPointRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer when user retrieves his latest exam result."""
+
+    question_states = QuestionEnrollmentSerializer(many=True)
+    # exam = ExamNameSerializer()
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "enrollment",
+            "exam",
+            "question_states",
+            "status",
+        )
+
+    # def get_exam(self):
+    #     from exams.api.serializers import ExamPaperWOEnrollmentSeriaizer
+    #     return ExamPaperWOEnrollmentSeriaizer(self.exam).data
+
+
 class ExamEnrollmentPaperSerializer(serializers.ModelSerializer):
     """Serializer when user retrieves his latest exam schedule."""
 

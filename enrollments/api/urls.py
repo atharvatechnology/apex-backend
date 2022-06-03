@@ -3,6 +3,7 @@ from django.urls import path
 from enrollments.api.views import (
     EnrollmentCreateAPIView,
     EnrollmentListAPIView,
+    ExamEnrollmentCheckpointRetrieveAPIView,
     ExamEnrollmentRetrieveAPIView,
     ExamEnrollmentUpdateAPIView,
     SessionCreateAPIView,
@@ -27,5 +28,10 @@ urlpatterns += [
         "exam/result/<int:pk>",
         ExamEnrollmentRetrieveAPIView.as_view(),
         name="exam-enrollment-result",
+    ),
+    path(
+        "exam/checkpoint/<int:pk>",
+        ExamEnrollmentCheckpointRetrieveAPIView.as_view(),
+        name="exam-enrollment-checkpoint",
     ),
 ]
