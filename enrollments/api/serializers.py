@@ -313,6 +313,17 @@ class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
     #     return ExamPaperWOEnrollmentSeriaizer(self.exam).data
 
 
+class ExamEnrollmentRetrievePoolSerializer(serializers.ModelSerializer):
+    """Serializer when user retrieves his latest exam result with pooling."""
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "status",
+        )
+
+
 class ExamEnrollmentCheckPointRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when user retrieves his latest exam result."""
 

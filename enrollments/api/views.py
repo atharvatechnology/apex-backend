@@ -13,6 +13,7 @@ from enrollments.api.serializers import (
     EnrollmentCreateSerializer,
     EnrollmentRetrieveSerializer,
     ExamEnrollmentCheckPointRetrieveSerializer,
+    ExamEnrollmentRetrievePoolSerializer,
     ExamEnrollmentRetrieveSerializer,
     ExamEnrollmentUpdateSerializer,
     SessionSerializer,
@@ -110,6 +111,7 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
             exam_enrollment.status
             in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
         ):
+
             return super().retrieve(request, *args, **kwargs)
 
         return Response(
@@ -142,3 +144,11 @@ class ExamEnrollmentCheckpointRetrieveAPIView(RetrieveAPIView):
             {"detail": "Exam is not active or u have already submitted."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class ExamEnrollmentRetrievePoolAPIView(RetrieveAPIView):
+    """Retrieve an exam enrollment result."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = ExamThroughEnrollment.objects.all()
+    serializer_class = ExamEnrollmentRetrievePoolSerializer
