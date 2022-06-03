@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from common.admin import CreatorBaseModelAdmin
 from enrollments.models import (
     Enrollment,
     ExamThroughEnrollment,
@@ -13,6 +14,7 @@ class ExamThroughEnrollmentInline(admin.TabularInline):
 
     model = ExamThroughEnrollment
     extra = 1
+    readonly_fields = ["status"]
 
 
 class QuestionEnrollmentInline(admin.TabularInline):
@@ -33,14 +35,26 @@ class EnrollmentAdmin(admin.ModelAdmin):
         ExamThroughEnrollmentInline,
     ]
 
+    readonly_fields = []
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return super().get_readonly_fields(request, obj)
+        return super().get_readonly_fields(request, obj) + ["status"]
+
 
 @admin.register(Session)
-class SessionAdmin(admin.ModelAdmin):
+class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Session admin."""
 
     list_display = ("exam", "status", "start_date", "end_date")
     list_filter = ("status", "exam")
     inlines = [ExamThroughEnrollmentInline]
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return super().get_readonly_fields(request, obj)
+        return super().get_readonly_fields(request, obj) + ["status"]
 
 
 @admin.register(ExamThroughEnrollment)
@@ -52,6 +66,12 @@ class ExamThroughEnrollmentAdmin(admin.ModelAdmin):
     inlines = [
         QuestionEnrollmentInline,
     ]
+    readonly_fields = []
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return super().get_readonly_fields(request, obj)
+        return super().get_readonly_fields(request, obj) + ["status"]
 
 
 @admin.register(QuestionEnrollment)

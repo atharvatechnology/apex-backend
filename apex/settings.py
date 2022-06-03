@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "nested_admin",
     "django_celery_results",
     "django_celery_beat",
+    "ckeditor",
 ]
 
 MIDDLEWARE = [
@@ -170,10 +171,11 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Rest Framework Start
 REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "courses.api.paginations.CustomPagination",
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.SessionAuthentication",
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
@@ -183,7 +185,9 @@ REST_FRAMEWORK = {
 # OTP Start
 OTP_SEND_URL = env("OTP_SEND_URL", default="https://sms.aakashsms.com/sms/v3/send")
 OTP_SMS_TOKEN = env("OTP_SMS_TOKEN", default="aakash")
+OTP_SMS_PLATFORM = env("OTP_SMS_PLATFORM", default="AakashSMS")
 OTP_EXPIRY_SECONDS = env("OTP_EXPIRY_SECONDS", default=120)
+OTP_SMS_FROM = env("OTP_SMS_FROM", default="Apex")
 # OTP End
 
 # JWT dj-rest-auth Start
@@ -193,6 +197,9 @@ JWT_AUTH_REFRESH_COOKIE = env("JWT_AUTH_REFRESH_COOKIE", default="jwt_refresh")
 JWT_AUTH_SAMESITE = env("JWT_AUTH_SAMESITE", default="none")
 JWT_AUTH_SECURE = env("JWT_AUTH_SECURE", default=False)
 JWT_AUTH_RETURN_EXPIRATION = True
+REST_AUTH_SERIALIZERS = {
+    "USER_DETAILS_SERIALIZER": "accounts.api.serializers.UserCustomDetailsSerializer",
+}
 # JWT dj-rest-auth End
 
 # Cors
@@ -205,6 +212,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Methods",
     "Access-Control-Allow-Credentials",
 ]
+
 
 CORS_ALLOWED_ORIGIN_REGEXES = env(
     "CORS_ALLOWED_ORIGIN_REGEXES",
@@ -267,6 +275,9 @@ APPEND_SLASH = True
 # So that if error while saving then the save process will roll back
 ATOMIC_REQUESTS = True
 
+# so that while entering exam max post fields exceeded error will not be raised
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
 # Celery settings
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379")
@@ -274,3 +285,37 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Asia/Kathmandu"
+# celery settings end
+
+# ckeditor settings start
+CKEDITOR_BASEPATH = f"/{STATIC_URL}ckeditor/ckeditor/"
+
+CKEDITOR_JQUERY_URL = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+CKEDITOR_MATHJAX_URL = (
+    "//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML"
+)
+CKEDITOR_CONFIGS = {
+    "default": {
+        "skin": "moono",
+        # 'skin': 'office2013',
+        "toolbar_Custom": [
+            {"name": "formats", "items": ["Bold", "Italic", "Underline"]},
+            {
+                "name": "math",
+                "items": [
+                    "Mathjax",
+                ],
+            },
+        ],
+        "toolbar": "Custom",
+        "mathJaxLib": CKEDITOR_MATHJAX_URL,
+        "height": 200,
+        "width": 600,
+        "extraPlugins": ",".join(
+            [
+                "mathjax",
+            ]
+        ),
+    },
+}
+# ckeditor settings end

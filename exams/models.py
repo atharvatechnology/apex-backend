@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from ckeditor.fields import RichTextField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -170,7 +171,7 @@ class Section(models.Model):
 
     def __str__(self):
         """Unicode representation of Section."""
-        return self.name
+        return f"{self.name} ({self.template.name})"
 
 
 # class Section(models.Model):
@@ -203,7 +204,7 @@ class Section(models.Model):
 class Question(models.Model):
     """Model definition for Question."""
 
-    detail = models.TextField(_("detail"))
+    detail = RichTextField(_("detail"))
     img = models.ImageField(_("img"), upload_to="questions/", null=True, blank=True)
     exam = models.ForeignKey(
         Exam,
@@ -234,7 +235,7 @@ class Question(models.Model):
 class Option(models.Model):
     """Model definition for Option."""
 
-    detail = models.TextField(_("detail"))
+    detail = RichTextField(_("detail"))
     correct = models.BooleanField(_("correct"), default=False)
     question = models.ForeignKey(
         Question,
