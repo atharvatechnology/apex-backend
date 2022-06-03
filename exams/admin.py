@@ -79,6 +79,7 @@ class ExamAdmin(nested_admin.NestedModelAdmin):
         QuestionInline,
     ]
     readonly_fields = ["id"]
+    save_on_top = True
 
 
 @admin.register(Section)
