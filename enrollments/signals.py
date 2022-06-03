@@ -26,6 +26,7 @@ def on_exam_session_save(sender, instance, **kwargs):
         # prevent further submissions into that ExamEnrollment
         # start the calculation of the score
         for exam_through_enrollment in instance.session_enrolls.all():
-            exam_through_enrollment.attempt_exam()
+            if exam_through_enrollment.status == ExamEnrollmentStatus.CREATED:
+                exam_through_enrollment.attempt_exam()
             # scoring calculation automatically beigns after
             # exam is attempted

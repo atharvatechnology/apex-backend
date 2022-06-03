@@ -45,9 +45,9 @@ class ExamPaperAPIView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.status != ExamStatus.IN_PROGRESS:
-            return Response({"detail": "Exam is not in progress"}, status=400)
-        return super().retrieve(request, *args, **kwargs)
+        if instance.status == ExamStatus.IN_PROGRESS:
+            return super().retrieve(request, *args, **kwargs)
+        return Response({"detail": "Exam is not in progress"}, status=400)
 
 
 class ExamDeleteAPIView(DestroyAPIView):
