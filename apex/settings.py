@@ -230,6 +230,7 @@ CSRF_TRUSTED_ORIGINS = env(
     default=[
         "http://localhost:8000",
         "http://localhost:3000",
+        "http://localhost:3001",
     ],
 )
 # cors end
@@ -290,13 +291,13 @@ CELERY_TIMEZONE = "Asia/Kathmandu"
 # ckeditor settings start
 CKEDITOR_BASEPATH = f"/{STATIC_URL}ckeditor/ckeditor/"
 
-CKEDITOR_JQUERY_URL = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+# CKEDITOR_JQUERY_URL = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
 CKEDITOR_MATHJAX_URL = (
     "//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML"
 )
 CKEDITOR_CONFIGS = {
     "default": {
-        "skin": "moono",
+        "skin": "moono-lisa",
         # 'skin': 'office2013',
         "toolbar_Custom": [
             {"name": "formats", "items": ["Bold", "Italic", "Underline"]},
@@ -319,3 +320,15 @@ CKEDITOR_CONFIGS = {
     },
 }
 # ckeditor settings end
+
+# Email settings start
+EMAIL_CONFIG = env.email_url(
+    "EMAIL_URL", default="consolemail://test@example.com:password@localhost:25"
+)
+vars().update(EMAIL_CONFIG)
+# Email settings end
+
+# server Bug tracker settings start
+SERVER_EMAIL = EMAIL_CONFIG["EMAIL_HOST_USER"]
+ADMINS = [("Apex Error", "sushilk.calcgen@gmail.com")]
+# server Bug tracker settings end
