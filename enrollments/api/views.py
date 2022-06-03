@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
@@ -5,6 +6,7 @@ from rest_framework.generics import (
     UpdateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView
 from enrollments.api.serializers import (
@@ -14,7 +16,12 @@ from enrollments.api.serializers import (
     ExamEnrollmentUpdateSerializer,
     SessionSerializer,
 )
-from enrollments.models import Enrollment, ExamThroughEnrollment
+from enrollments.models import (
+    Enrollment,
+    ExamEnrollmentStatus,
+    ExamThroughEnrollment,
+    SessionStatus,
+)
 
 
 class SessionCreateAPIView(BaseCreatorCreateAPIView):
@@ -74,6 +81,15 @@ class ExamEnrollmentUpdateAPIView(UpdateAPIView):
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentUpdateSerializer
 
+    def update(self, request, *args, **kwargs):
+        exam_enrollment = self.get_object()
+        if exam_enrollment.status != ExamEnrollmentStatus.CREATED:
+            return Response(
+                {"detail": "Your answers have already been submitted."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return super().update(request, *args, **kwargs)
+
 
 class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
     """Retrieve an exam enrollment result."""
@@ -81,3 +97,20 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentRetrieveSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        exam_enrollment = self.get_object()
+        if (
+            # the exam is still in progress
+            exam_enrollment.selected_session.status
+            != SessionStatus.ENDED
+        ) and (
+            # the exam result has not been calculated yet
+            exam_enrollment.status
+            not in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
+        ):
+            return Response(
+                {"detail": "Your result has not been published yet."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return super().retrieve(request, *args, **kwargs)
