@@ -122,7 +122,7 @@ class Session(CreatorBaseModel):
         # tasks = PeriodicTask.objects.filter(kwargs={"session_id": self.id})
         # alternatively you can do this
         # # filter the tasks by task names
-
+        self.exam.finish_exam()
         self.delete_tasks()
         super().delete(*args, **kwargs)
 
