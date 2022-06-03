@@ -332,3 +332,10 @@ vars().update(EMAIL_CONFIG)
 SERVER_EMAIL = EMAIL_CONFIG["EMAIL_HOST_USER"]
 ADMINS = [("Apex Error", "sushilk.calcgen@gmail.com")]
 # server Bug tracker settings end
+
+# For providing https route start
+HTTPS_ENABLED = env("HTTPS_ENABLED", default=False)
+
+if HTTPS_ENABLED:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# For providing https route end
