@@ -162,7 +162,7 @@ class QuestionResultSerializer(serializers.ModelSerializer):
 class QuestionEnrollmentSerializer(serializers.ModelSerializer):
     """Serializer when user retrieves his latest exam result."""
 
-    question = serializers.SerializerMethodField()
+    # question = serializers.SerializerMethodField()
 
     class Meta:
         model = QuestionEnrollment
@@ -172,9 +172,9 @@ class QuestionEnrollmentSerializer(serializers.ModelSerializer):
             "selected_option",
         )
 
-    def get_question(self, obj):
-        """Get question result."""
-        return QuestionResultSerializer(obj.question).data
+    # def get_question(self, obj):
+    #     """Get question result."""
+    #     return QuestionResultSerializer(obj.question).data
 
 
 class QuestionEnrollmentSubmitSerializer(serializers.ModelSerializer):
@@ -307,6 +307,38 @@ class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
             score__lt=obj.score
         ).count()
         return num_examinee - num_examinee_lower_score
+
+    # def get_exam(self):
+    #     from exams.api.serializers import ExamPaperWOEnrollmentSeriaizer
+    #     return ExamPaperWOEnrollmentSeriaizer(self.exam).data
+
+
+class ExamEnrollmentRetrievePoolSerializer(serializers.ModelSerializer):
+    """Serializer when user retrieves his latest exam result with pooling."""
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "status",
+        )
+
+
+class ExamEnrollmentCheckPointRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer when user retrieves his latest exam result."""
+
+    question_states = QuestionEnrollmentSerializer(many=True)
+    # exam = ExamNameSerializer()
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "enrollment",
+            "exam",
+            "question_states",
+            "status",
+        )
 
     # def get_exam(self):
     #     from exams.api.serializers import ExamPaperWOEnrollmentSeriaizer

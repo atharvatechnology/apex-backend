@@ -4,6 +4,7 @@ from ckeditor.fields import RichTextField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from common.errors import StateTransitionError
 from common.models import CreatorBaseModel
 from common.validators import validate_positive
 
@@ -13,7 +14,9 @@ class ExamTemplate(CreatorBaseModel):
 
     name = models.CharField(_("name"), max_length=128)
     # description = models.TextField(blank=True)
-    duration = models.DurationField(_("duration"))
+    duration = models.DurationField(
+        _("duration"), help_text=_("Enter duration in HH:MM:SS format")
+    )
     # models.IntegerField(default=0, validators=[validate_positive])
     full_marks = models.DecimalField(
         _("full_marks"), max_digits=5, decimal_places=2, default=0
@@ -43,11 +46,13 @@ class ExamStatus:
     CREATED = "created"
     SCHEDULED = "scheduled"
     CANCELLED = "cancelled"
+    IN_PROGRESS = "in_progress"
 
     CHOICES = [
         (CREATED, "Created"),
         (SCHEDULED, "Scheduled"),
         (CANCELLED, "Cancelled"),
+        (IN_PROGRESS, "In Progress"),
     ]
 
 
@@ -117,13 +122,26 @@ class Exam(CreatorBaseModel):
 
     # FSM State transition methods
     def start_exam(self):
-        self.__change_status(ExamStatus.STARTED)
+        if self.status == ExamStatus.IN_PROGRESS:
+            return
+        if self.status == ExamStatus.SCHEDULED:
+            return self.__change_status(ExamStatus.IN_PROGRESS)
+        raise StateTransitionError(f"Exam cannot be started from {self.status} state")
 
     def finish_exam(self):
-        self.__change_status(ExamStatus.FINISHED)
+        if self.status == ExamStatus.CREATED:
+            return
+        # GO back to default state
+        if self.status in [ExamStatus.IN_PROGRESS, ExamStatus.SCHEDULED]:
+            return self.__change_status(ExamStatus.CREATED)
+        raise StateTransitionError(f"Exam cannot be finished from {self.status} state")
 
     def schedule_exam(self):
-        self.__change_status(ExamStatus.SCHEDULED)
+        if self.status == ExamStatus.SCHEDULED:
+            return
+        if self.status in ExamStatus.CREATED:
+            return self.__change_status(ExamStatus.SCHEDULED)
+        raise StateTransitionError(f"Exam cannot be scheduled from {self.status} state")
 
     def cancel_exam(self):
         self.__change_status(ExamStatus.CANCELLED)

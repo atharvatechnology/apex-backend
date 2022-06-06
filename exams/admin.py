@@ -18,18 +18,12 @@ class OptionsAdminForm(forms.ModelForm):
     class Meta:
         model = Option
         fields = "__all__"
-        widgets = {
-            "detail": admin.widgets.AdminTextareaWidget(
-                attrs={"rows": 2, "cols": 1, "class": "vTextField"}
-            ),
-        }
 
 
-class OptionInline(CustomTabularInline):
+class OptionInline(nested_admin.NestedTabularInline):
     model = Option
-    extra = 4
-    max_num = 6
-    form = OptionsAdminForm
+    extra = 0
+    max_num = 4
 
 
 class QuestionAdminForm(forms.ModelForm):
@@ -37,12 +31,11 @@ class QuestionAdminForm(forms.ModelForm):
         model = Question
         fields = "__all__"
         widgets = {
-            "detail": admin.widgets.AdminTextareaWidget(attrs={"rows": 3, "cols": 2}),
             "feedback": admin.widgets.AdminTextareaWidget(attrs={"rows": 3, "cols": 2}),
         }
 
 
-class QuestionInline(CustomStackedInline):
+class QuestionInline(nested_admin.NestedStackedInline):
     model = Question
     extra = 1
     inlines = [
@@ -51,7 +44,7 @@ class QuestionInline(CustomStackedInline):
     form = QuestionAdminForm
 
 
-class SectionInline(CustomStackedInline):
+class SectionInline(nested_admin.NestedStackedInline):
     model = Section
     extra = 1
 
@@ -78,6 +71,8 @@ class ExamAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     inlines = [
         QuestionInline,
     ]
+    readonly_fields = ["id"]
+    save_on_top = True
 
 
 @admin.register(Section)
@@ -95,10 +90,14 @@ class SectionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(nested_admin.NestedModelAdmin):
     list_display = ["id", "detail", "exam"]
     list_filter = ["exam"]
     readonly_fields = ["id"]
+
+    inlines = [
+        OptionInline,
+    ]
 
 
 @admin.register(Option)

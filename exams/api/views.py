@@ -1,13 +1,16 @@
 from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
-from exams.models import Exam, ExamTemplate
+from exams.api.permissions import IsExamEnrolledActive
+from exams.models import Exam, ExamStatus, ExamTemplate
 
 from .serializers import (
     ExamCreateSerializer,
     ExamListSerializer,
     ExamPaperSerializer,
+    ExamRetrievePoolSerializer,
     ExamRetrieveSerializer,
     ExamTemplateSerializer,
     ExamUpdateSerializer,
@@ -31,6 +34,12 @@ class ExamRetrieveAPIView(RetrieveAPIView):
     queryset = Exam.objects.all()
 
 
+class ExamRetrievePoolAPIView(RetrieveAPIView):
+    serializer_class = ExamRetrievePoolSerializer
+    permission_classes = [AllowAny]
+    queryset = Exam.objects.all()
+
+
 class ExamUpdateAPIView(BaseCreatorUpdateAPIView):
     serializer_class = ExamUpdateSerializer
     permission_classes = [IsAuthenticated]
@@ -39,8 +48,14 @@ class ExamUpdateAPIView(BaseCreatorUpdateAPIView):
 
 class ExamPaperAPIView(RetrieveAPIView):
     serializer_class = ExamPaperSerializer
-    permission_classes = [IsAuthenticated]  # TODO: IsEnrolled
+    permission_classes = [IsAuthenticated, IsExamEnrolledActive]  # TODO: IsEnrolled
     queryset = Exam.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.status == ExamStatus.IN_PROGRESS:
+            return super().retrieve(request, *args, **kwargs)
+        return Response({"detail": "Exam is not in progress"}, status=400)
 
 
 class ExamDeleteAPIView(DestroyAPIView):
