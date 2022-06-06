@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from courses.models import Course, CourseCategory
+from notes.api.serializers import NoteSerializer
 
 
 class CourseCreateSerializer(serializers.ModelSerializer):
@@ -22,6 +23,8 @@ class CourseCreateSerializer(serializers.ModelSerializer):
 class CourseRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving courses."""
 
+    notes = NoteSerializer(many=True)
+
     class Meta:
 
         model = Course
@@ -32,6 +35,7 @@ class CourseRetrieveSerializer(serializers.ModelSerializer):
             "password",
             "status",
             "price",
+            "notes",
         )
 
 
