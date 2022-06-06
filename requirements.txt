@@ -17,3 +17,5 @@ flower==1.0.0
 django-celery-beat==2.2.1
 psycopg2-binary==2.9.3
 django-ckeditor==6.4.2
+channels==3.0.4
+channels-redis==3.4.0
