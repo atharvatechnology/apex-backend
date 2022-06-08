@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "courses",
     "exams",
     "enrollments",
+    "attendance",
     # third party
     "drf_yasg",
     "corsheaders",
