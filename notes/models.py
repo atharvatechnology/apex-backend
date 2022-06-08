@@ -40,7 +40,7 @@ class Content(CreatorBaseModel):
     )
     file = models.FileField(upload_to=content_location, blank=True, null=True)
     note = models.ForeignKey(
-        Note, on_delete=models.CASCADE, related_name="content", blank=True, null=True
+        Note, on_delete=models.CASCADE, related_name="contents", blank=True, null=True
     )
 
     def __str__(self):

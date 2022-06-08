@@ -43,7 +43,6 @@ urlpatterns += [
     path("api/notes/", include("notes.api.urls")),
     path("api/exams/", include("exams.api.urls")),
     path("api/enrollments/", include("enrollments.api.urls")),
-    path("api/physical-book/", include("physicalbook.api.urls")),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -7,7 +7,7 @@ class ContentCreateSerializer(CreatorSerializer):
 
     Parameters
     ----------
-    CreatorSerializer : cls type
+    CreatorSerializer : cls
 
         serializer provides additional fields
         (created_at, updated_at, created_by, updated_by)
@@ -31,7 +31,7 @@ class ContentSerializerAfterEnroll(CreatorSerializer):
 
     Parameters
     ----------
-    CreatorSerializer : _type_
+    CreatorSerializer : cls
 
         inheritated serializer
         class which provides additional
@@ -56,7 +56,7 @@ class ContentSerializerBeforeEnroll(CreatorSerializer):
 
     Parameters
     ----------
-    CreatorSerializer : _type_
+    CreatorSerializer : cls
 
         inheritated serializer
         class which provides additional
@@ -79,7 +79,7 @@ class NoteCreateSerializer(CreatorSerializer):
 
     Parameters
     ----------
-    CreatorSerializer : _type_
+    CreatorSerializer : cls
         inheritated serializer
         class which provides additional
         field to NoteCreateSerializer
@@ -119,7 +119,7 @@ class NoteSerializerAfterEnroll(CreatorSerializer):
 
     Parameters
     ----------
-    CreatorSerializer : _type_
+    CreatorSerializer : cls
         inheritated serializer
         class which provides additional
         field to NoteCreateSerializer

@@ -92,7 +92,7 @@ class NoteUpdateAPIView(BaseCreatorUpdateAPIView):
     """
 
     queryset = Note.objects.all()
-    serializer_class = NoteSerializerAfterEnroll
+    serializer_class = NoteCreateSerializer
 
 
 class NoteDestroyAPIView(DestroyAPIView):
@@ -107,7 +107,7 @@ class NoteDestroyAPIView(DestroyAPIView):
     """
 
     queryset = Note.objects.all()
-    serializer_class = NoteSerializerAfterEnroll
+    serializer_class = NoteCreateSerializer
     permission_classes = [IsAuthenticated]
 
 
@@ -192,7 +192,7 @@ class ContentUpdateAPIView(BaseCreatorUpdateAPIView):
     """
 
     queryset = Content.objects.all()
-    serializer_class = ContentSerializerAfterEnroll
+    serializer_class = ContentCreateSerializer
 
 
 class ContentDestroyAPIView(DestroyAPIView):
@@ -207,5 +207,5 @@ class ContentDestroyAPIView(DestroyAPIView):
     """
 
     queryset = Content.objects.all()
-    serializer_class = ContentSerializerAfterEnroll
+    serializer_class = ContentCreateSerializer
     permission_classes = [IsAuthenticated]
