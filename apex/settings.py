@@ -47,6 +47,8 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 # Application definition
 
 INSTALLED_APPS = [
+    # channels is placed at top as recommneded in its docs
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
     "courses",
     "exams",
     "enrollments",
+    "clock",
     # third party
     "drf_yasg",
     "corsheaders",
@@ -339,3 +342,15 @@ HTTPS_ENABLED = env("HTTPS_ENABLED", default=False)
 if HTTPS_ENABLED:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # For providing https route end
+
+# Channels settings start
+ASGI_APPLICATION = "apex.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
