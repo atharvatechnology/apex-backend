@@ -1,13 +1,18 @@
 import json
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.forms import ValidationError
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from common.errors import StateTransitionError
+from common.modelFields import ZeroSecondDateTimeField
 from common.models import CreatorBaseModel
+from common.validators import validate_date_time_gt_now
 
 User = get_user_model()
 
@@ -91,8 +96,12 @@ class Session(CreatorBaseModel):
     """Model definition for Session."""
 
     objects = SessionQuerySet.as_manager()
-    start_date = models.DateTimeField(_("start_date"))
-    end_date = models.DateTimeField(_("end_date"))
+    start_date = ZeroSecondDateTimeField(
+        _("start_date"), validators=[validate_date_time_gt_now]
+    )
+    end_date = ZeroSecondDateTimeField(
+        _("end_date"), validators=[validate_date_time_gt_now]
+    )
     status = models.CharField(
         _("status"),
         max_length=32,
@@ -109,6 +118,17 @@ class Session(CreatorBaseModel):
         _("start_task"), max_length=256, null=True, blank=True
     )
     end_task = models.CharField(_("end_task"), max_length=256, null=True, blank=True)
+
+    def clean(self):
+        super().clean()
+        if self.start_date > self.end_date:
+            raise ValidationError(
+                _("Start_date should be less than End_date"), code="invalid_date"
+            )
+        if self.start_date == self.end_date:
+            raise ValidationError(
+                _("Start_date should not be same as End_date"), code="invalid_date"
+            )
 
     def delete_tasks(self):
         tasks = PeriodicTask.objects.filter(name__in=[self.start_task, self.end_task])
@@ -145,23 +165,22 @@ class Session(CreatorBaseModel):
 
     def setup_tasks(self):
         """Create the tasks for the session."""
-        from django.conf import settings
-        from django.utils.timezone import is_naive, localtime, make_aware
 
         start_date_aware = self.start_date
         end_date_aware = self.end_date
-        if is_naive(self.start_date):
-            start_date_aware = make_aware(
+        if timezone.is_naive(self.start_date):
+            start_date_aware = timezone.make_aware(
                 self.start_date, timezone=settings.CELERY_TIMEZONE
             )
         else:
-            start_date_aware = localtime(self.start_date)
-        if is_naive(self.end_date):
-            end_date_aware = make_aware(
+            start_date_aware = timezone.localtime(self.start_date)
+
+        if timezone.is_naive(self.end_date):
+            end_date_aware = timezone.make_aware(
                 self.end_date, timezone=settings.CELERY_TIMEZONE
             )
         else:
-            end_date_aware = localtime(self.end_date)
+            end_date_aware = timezone.localtime(self.end_date)
 
         start_schedule, _ = CrontabSchedule.objects.get_or_create(
             minute=start_date_aware.minute,
@@ -203,10 +222,10 @@ class Session(CreatorBaseModel):
 
     def __str__(self):
         """Unicode representation of Session."""
-        return f"id{self.id}_createdAt{self.created_at}"
+        human_readable_date = self.created_at.strftime("%Y-%m-%d %H:%M %p")
+        return f"id - {self.id} - createdAt - {human_readable_date}"
 
     def __change_status(self, status):
-        print(f"state has been changed from {self.status} {status}")
         self.status = status
         self.save()
 

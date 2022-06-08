@@ -1,6 +1,7 @@
 from dj_rest_auth.serializers import UserDetailsSerializer
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 User = get_user_model()
@@ -72,6 +73,11 @@ class UserCreateOTPVerifySerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def validate(self, attrs):
+        username = attrs.get("username")
+        attrs["user"] = get_object_or_404(User, username=username)
+        return attrs
+
 
 class UserResetPasswordOTPRequestSerializer(serializers.ModelSerializer):
     """User Reset Password OTP Request Serializer."""
@@ -140,6 +146,11 @@ class UserResetPasswordConfirmSerializer(serializers.ModelSerializer):
         instance.is_active = True
         instance.save()
         return instance
+
+    def validate(self, attrs):
+        username = attrs.get("username")
+        attrs["user"] = get_object_or_404(User, username=username)
+        return attrs
 
 
 class UserCustomDetailsSerializer(UserDetailsSerializer):
