@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from courses.models import Course, CourseCategory
 from notes.api.serializers import NoteSerializerAfterEnroll, NoteSerializerBeforeEnroll
+from physicalbook.api.serializers import PhysicalBookSerializer
 
 
 class CourseCreateSerializer(serializers.ModelSerializer):
@@ -24,6 +25,7 @@ class CourseRetrieveSerializerBeforeEnroll(serializers.ModelSerializer):
     """Serializer for retrieving courses."""
 
     notes = NoteSerializerBeforeEnroll(many=True)
+    physical_book = PhysicalBookSerializer(many=True)
 
     class Meta:
 
@@ -31,8 +33,6 @@ class CourseRetrieveSerializerBeforeEnroll(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
-            "link",
-            "password",
             "status",
             "price",
             "notes",
@@ -43,6 +43,7 @@ class CourseRetrieveSerializerAfterEnroll(serializers.ModelSerializer):
     """Serializer for retrieving courses."""
 
     notes = NoteSerializerAfterEnroll(many=True)
+    physical_book = PhysicalBookSerializer(many=True)
 
     class Meta:
 
@@ -55,6 +56,7 @@ class CourseRetrieveSerializerAfterEnroll(serializers.ModelSerializer):
             "status",
             "price",
             "notes",
+            "physical_book",
         )
 
 

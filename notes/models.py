@@ -21,7 +21,7 @@ class ContentType:
 
 class Note(CreatorBaseModel):
     title = models.CharField(max_length=200)
-    course_id = models.ForeignKey(
+    course = models.ForeignKey(
         Course, related_name="notes", on_delete=models.CASCADE, null=True, blank=True
     )
 
