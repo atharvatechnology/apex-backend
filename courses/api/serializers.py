@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from courses.models import Course, CourseCategory
+from notes.api.serializers import NoteSerializerAfterEnroll, NoteSerializerBeforeEnroll
 
 
 class CourseCreateSerializer(serializers.ModelSerializer):
@@ -19,8 +20,27 @@ class CourseCreateSerializer(serializers.ModelSerializer):
         )
 
 
-class CourseRetrieveSerializer(serializers.ModelSerializer):
+class CourseRetrieveSerializerBeforeEnroll(serializers.ModelSerializer):
     """Serializer for retrieving courses."""
+
+    notes = NoteSerializerBeforeEnroll(many=True)
+
+    class Meta:
+
+        model = Course
+        fields = (
+            "id",
+            "name",
+            "status",
+            "price",
+            "notes",
+        )
+
+
+class CourseRetrieveSerializerAfterEnroll(serializers.ModelSerializer):
+    """Serializer for retrieving courses."""
+
+    notes = NoteSerializerAfterEnroll(many=True)
 
     class Meta:
 
@@ -32,6 +52,8 @@ class CourseRetrieveSerializer(serializers.ModelSerializer):
             "password",
             "status",
             "price",
+            "notes",
+            "physical_book",
         )
 
 
