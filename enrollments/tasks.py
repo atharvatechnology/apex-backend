@@ -21,7 +21,10 @@ def calculate_score(exam_through_enrollment_id):
     )
     exam_through_enrollment.score = exam_through_enrollment.calculate_score()
     # exam_through_enrollment.save()
-    pass_marks = exam_through_enrollment.exam.template.pass_marks
+    pass_marks = (
+        exam_through_enrollment.exam.template.pass_percentage
+        * exam_through_enrollment.exam.template.full_marks
+    )
     if exam_through_enrollment.score >= pass_marks:
         # pass trigger
         exam_through_enrollment.pass_exam()
