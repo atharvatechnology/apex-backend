@@ -8,6 +8,10 @@ from exams.models import Exam, ExamTemplate, Option, Question
 
 
 class ExamTemplateSerializer(CreatorSerializer):
+    """Exam Template Serializer."""
+
+    pass_marks = serializers.SerializerMethodField()
+
     class Meta:
         model = ExamTemplate
         fields = CreatorSerializer.Meta.fields + (
@@ -18,6 +22,9 @@ class ExamTemplateSerializer(CreatorSerializer):
             "display_num_questions",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+    def get_pass_marks(self, obj):
+        return obj.pass_percentage * obj.full_marks
 
 
 class ExamTemplateListSerializer(serializers.ModelSerializer):
