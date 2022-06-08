@@ -1,23 +1,30 @@
+import nested_admin
+from django import forms
 from django.contrib import admin
 
-# from courses.models import Course, CourseCategory
+from notes.models import Content, Note
+
+from .models import Course
 
 
-class CourseAdmin(admin.ModelAdmin):
-    """Admin for Course model."""
+class CustomStackedInline(nested_admin.NestedStackedInline):
+    template = "inlines/stacked.html"
 
-    readonly_fields = ("id",)
-    list_display = (
-        "id",
-        "name",
-        "category",
-        "description",
-        "link",
-        "password",
-        "status",
-        "price",
-    )
-    list_filter = ("status", "category")
+
+class CustomTabularInline(nested_admin.NestedTabularInline):
+    template = "inlines/tabular.html"
+
+
+class ContentAdminForm(forms.ModelForm):
+    class Meta:
+        model = Content
+        fields = "__all__"
+
+
+class ContentInline(CustomTabularInline):
+    model = Content
+    form = ContentAdminForm
+    extra = 1
 
 
 class CourseCategoryAdmin(admin.ModelAdmin):
@@ -32,5 +39,22 @@ class CourseCategoryAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-# admin.site.register(Course, CourseAdmin)
-# admin.site.register(CourseCategory, CourseCategoryAdmin)
+class NoteAdminForm(forms.ModelForm):
+    class Meta:
+        model = Note
+        fields = "__all__"
+
+
+class NoteInline(CustomStackedInline):
+    model = Note
+    extra = 1
+    inlines = [ContentInline]
+    form = NoteAdminForm
+
+
+@admin.register(Course)
+class CourseAdmin(nested_admin.NestedModelAdmin):
+    list_display = ["id"]
+    # list
+    inlines = [NoteInline]
+    list_filter = ("status", "category")

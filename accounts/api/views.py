@@ -1,6 +1,8 @@
+from dj_rest_auth.views import LoginView
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import AllowAny
 
 from accounts.api.serializers import (
@@ -22,13 +24,17 @@ class UserCreateAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
 
 
-class UserCreateOTPVerifyAPIView(generics.UpdateAPIView):
+class UserCreateOTPVerifyAPIView(UpdateModelMixin, LoginView):
     """User Create OTP Verify Patch API View."""
 
     permission_classes = [AllowAny]
     http_method_names = ["patch"]
     serializer_class = UserCreateOTPVerifySerializer
     queryset = User.objects.all()
+
+    user = None
+    access_token = None
+    token = None
 
     def get_object(self):
         """Get the object using the request data.
@@ -46,6 +52,26 @@ class UserCreateOTPVerifyAPIView(generics.UpdateAPIView):
         """
         username = self.request.data.get("username", None)
         return get_object_or_404(self.queryset, username=username)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        self.serializer = serializer
+
+        self.login()
+        return self.get_response()
 
 
 class UserResetPasswordOTPRequestAPIView(generics.UpdateAPIView):
@@ -100,13 +126,17 @@ class UserResetPasswordOTPVerifyAPIView(generics.UpdateAPIView):
         return get_object_or_404(self.queryset, username=username)
 
 
-class UserResetPasswordConfirmAPIView(generics.UpdateAPIView):
+class UserResetPasswordConfirmAPIView(UpdateModelMixin, LoginView):
     """User Reset Password Confirm Patch API View."""
 
     permission_classes = [AllowAny]
     http_method_names = ["patch"]
     serializer_class = UserResetPasswordConfirmSerializer
     queryset = User.objects.all()
+
+    user = None
+    access_token = None
+    token = None
 
     def get_object(self):
         """Get the object using the request data.
@@ -124,3 +154,23 @@ class UserResetPasswordConfirmAPIView(generics.UpdateAPIView):
         """
         username = self.request.data.get("username", None)
         return get_object_or_404(self.queryset, username=username)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        self.serializer = serializer
+
+        self.login()
+        return self.get_response()
