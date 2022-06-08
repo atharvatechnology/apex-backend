@@ -105,6 +105,7 @@ class Course(models.Model):
 
         verbose_name = "Course"
         verbose_name_plural = "Courses"
+        ordering = ["-id"]
 
     def __str__(self):
         """Unicode representation of Course."""
