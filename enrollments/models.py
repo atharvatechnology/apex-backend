@@ -76,10 +76,12 @@ class SessionStatus:
     ACTIVE = "active"  # session is active
     INACTIVE = "inactive"  # session is inactive
     ENDED = "ended"  # session has ended
+    RESULTSOUT = "resultsout"  # session has ended and results are out
     CHOICES = [
         (ACTIVE, "active"),
         (INACTIVE, "inactive"),
         (ENDED, "ended"),
+        (RESULTSOUT, "resultsout"),
     ]
 
 
@@ -244,6 +246,13 @@ class Session(CreatorBaseModel):
         if self.status == SessionStatus.ACTIVE:
             return self.__change_status(SessionStatus.ENDED)
         raise StateTransitionError(f"Session cannot be ended from {self.status}")
+
+    def publish_results(self):
+        if self.status == SessionStatus.RESULTSOUT:
+            return
+        if self.status == SessionStatus.ENDED:
+            return self.__change_status(SessionStatus.RESULTSOUT)
+        raise StateTransitionError(f"Session cannot be activated from {self.status}")
 
 
 class ExamEnrollmentStatus:
