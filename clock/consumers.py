@@ -1,14 +1,16 @@
 import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.utils.timezone import now
+from django.utils.timezone import localtime, now
 
 
 class ClockConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         # self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        self.room_group_name = self.scope["url_route"]["kwargs"]["room_name"]
         # self.room
-        self.room_group_name = "clock"
+        # self.room_group_name = "exam_5"
+        # self.room_group_name = self.room_name
 
         # Join clock room
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -42,6 +44,9 @@ class ClockConsumer(AsyncWebsocketConsumer):
             },
         )
 
+    def get_current_time(self):
+        return str(localtime(now()))
+
     # Receive message from clock room
     async def check_clock(self, event):
         message = event["message"]
@@ -52,7 +57,7 @@ class ClockConsumer(AsyncWebsocketConsumer):
             text_data=json.dumps(
                 {
                     # "message": "fellow"
-                    "cur_time ": str(now())
+                    "cur_time": self.get_current_time()
                 }
             )
         )
@@ -62,5 +67,17 @@ class ClockConsumer(AsyncWebsocketConsumer):
 
         # Send message to WebSocket
         await self.send(
-            text_data=json.dumps({"status": message, "cur_time ": str(now())})
+            text_data=json.dumps(
+                {"status": message, "cur_time": self.get_current_time()}
+            )
+        )
+
+    async def get_session_status(self, event):
+        message = event["status"]
+
+        # Send message to WebSocket
+        await self.send(
+            text_data=json.dumps(
+                {"session_status": message, "cur_time": self.get_current_time()}
+            )
         )
