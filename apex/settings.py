@@ -346,11 +346,28 @@ if HTTPS_ENABLED:
 # Channels settings start
 ASGI_APPLICATION = "apex.asgi.application"
 
+redis_url = env("REDIS_URL", default="redis://localhost:6379")
+redis_host = env("REDIS_HOST", default="localhost")
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [(redis_host, 6379)],
+            # "hosts": [("127.0.0.1", 6379)],
         },
     },
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"{redis_url}/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+# Cache time to live is 2 days
+CACHE_TTL = 60 * 60 * 24 * 2
