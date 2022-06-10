@@ -380,7 +380,8 @@ class ExamThroughEnrollment(models.Model):
             if option.correct:
                 pos_score += question.section.pos_marks
             else:
-                neg_score += question.section.neg_marks
+                neg_marks = question.section.neg_percentage * question.section.pos_marks
+                neg_score += neg_marks
         return pos_score - neg_score
 
 

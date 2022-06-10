@@ -86,11 +86,11 @@ class NoteCreateSerializer(CreatorSerializer):
 
     """
 
-    content = ContentSerializerBeforeEnroll(many=True)
+    contents = ContentSerializerBeforeEnroll(many=True)
 
     class Meta:
         model = Note
-        fields = CreatorSerializer.Meta.fields + ("title", "content")
+        fields = CreatorSerializer.Meta.fields + ("title", "contents")
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
@@ -106,11 +106,11 @@ class NoteSerializerBeforeEnroll(CreatorSerializer):
 
     """
 
-    content = ContentSerializerBeforeEnroll(many=True)
+    contents = ContentSerializerBeforeEnroll(many=True)
 
     class Meta:
         model = Note
-        fields = CreatorSerializer.Meta.fields + ("title", "content")
+        fields = CreatorSerializer.Meta.fields + ("title", "contents")
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
@@ -126,9 +126,9 @@ class NoteSerializerAfterEnroll(CreatorSerializer):
 
     """
 
-    content = ContentSerializerAfterEnroll(many=True)
+    contents = ContentSerializerAfterEnroll(many=True)
 
     class Meta:
         model = Note
-        fields = CreatorSerializer.Meta.fields + ("title", "content")
+        fields = CreatorSerializer.Meta.fields + ("title", "contents")
         read_only_fields = CreatorSerializer.Meta.read_only_fields

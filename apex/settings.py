@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "exams",
     "enrollments",
     "clock",
+    "physicalbook",
     # third party
     "drf_yasg",
     "corsheaders",
