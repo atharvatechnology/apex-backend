@@ -81,7 +81,7 @@ class ExamAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     inlines = [
         QuestionInline,
     ]
-    readonly_fields = ["id"]
+    readonly_fields = CreatorBaseModelAdmin.readonly_fields + ["id"]
     save_on_top = True
 
 
