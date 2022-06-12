@@ -200,14 +200,14 @@ class Session(CreatorBaseModel):
         )
         start_task = PeriodicTask.objects.create(
             crontab=start_schedule,
-            name=f"{self.exam.name}_{start_date_aware} start task",
+            name=f"{self.exam.name}_{start_date_aware}_{self.id} start task",
             task="enrollments.tasks.start_exam_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
         )
         end_task = PeriodicTask.objects.create(
             crontab=end_schedule,
-            name=f"{self.exam.name}_{end_date_aware} end task",
+            name=f"{self.exam.name}_{end_date_aware}_{self.id} end task",
             task="enrollments.tasks.end_exam_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
