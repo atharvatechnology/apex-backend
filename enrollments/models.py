@@ -79,10 +79,12 @@ class SessionStatus:
     ACTIVE = "active"  # session is active
     INACTIVE = "inactive"  # session is inactive
     ENDED = "ended"  # session has ended
+    RESULTSOUT = "resultsout"  # session has ended and results are out
     CHOICES = [
         (ACTIVE, "active"),
         (INACTIVE, "inactive"),
         (ENDED, "ended"),
+        (RESULTSOUT, "resultsout"),
     ]
 
 
@@ -201,14 +203,14 @@ class Session(CreatorBaseModel):
         )
         start_task = PeriodicTask.objects.create(
             crontab=start_schedule,
-            name=f"{self.exam.name}_{start_date_aware} start task",
+            name=f"{self.exam.name}_{start_date_aware}_{self.id} start task",
             task="enrollments.tasks.start_exam_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
         )
         end_task = PeriodicTask.objects.create(
             crontab=end_schedule,
-            name=f"{self.exam.name}_{end_date_aware} end task",
+            name=f"{self.exam.name}_{end_date_aware}_{self.id} end task",
             task="enrollments.tasks.end_exam_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
@@ -247,6 +249,13 @@ class Session(CreatorBaseModel):
         if self.status == SessionStatus.ACTIVE:
             return self.__change_status(SessionStatus.ENDED)
         raise StateTransitionError(f"Session cannot be ended from {self.status}")
+
+    def publish_results(self):
+        if self.status == SessionStatus.RESULTSOUT:
+            return
+        if self.status == SessionStatus.ENDED:
+            return self.__change_status(SessionStatus.RESULTSOUT)
+        raise StateTransitionError(f"Session cannot be activated from {self.status}")
 
 
 class CourseEnrollmentStatus:
