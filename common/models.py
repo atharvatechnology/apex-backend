@@ -38,3 +38,8 @@ class PublishedModel(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    def is_visible(self):
+        today = datetime.now()
+        return self.is_published or self.publish_date <= today

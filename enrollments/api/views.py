@@ -112,7 +112,7 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         #     in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
         # ):
         selected_session = exam_enrollment.selected_session
-        if selected_session.is_published and (
+        if selected_session.is_visible and (
             selected_session.status == SessionStatus.RESULTSOUT
         ):
             # if (selected_session.status == SessionStatus.RESULTSOUT):
