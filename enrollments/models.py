@@ -305,10 +305,14 @@ class PhysicalBookCourseEnrollment(models.Model):
     """Model defination of EnrollmentToPhysicalBookCourse."""
 
     physical_book = models.ForeignKey(
-        "physicalbook.PhysicalBook", on_delete=models.CASCADE
+        "physicalbook.PhysicalBook",
+        on_delete=models.CASCADE,
+        related_name="physicalbook_enrolls",
     )
     course_enrollment = models.ForeignKey(
-        CourseThroughEnrollment, on_delete=models.CASCADE, related_name="physical_books"
+        CourseThroughEnrollment,
+        on_delete=models.CASCADE,
+        related_name="physicalbook_enrolls",
     )
     status_provided = models.BooleanField(default=False)
 
