@@ -49,7 +49,7 @@ class Enrollment(models.Model):
         default=EnrollmentStatus.PENDING,
     )
     courses = models.ManyToManyField(
-        "courses.Course", through="CourseThroughEnrollment", related_name="enrollments"
+        "courses.Course", through="CourseThroughEnrollment", related_name="enrolls"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     # TODO: add course field here after course app is created
@@ -281,9 +281,15 @@ class CourseEnrollmentStatus:
 class CourseThroughEnrollment(models.Model):
     """Model defination for CourseEnrollment."""
 
-    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
-    selected_session = models.ForeignKey(Session, on_delete=models.CASCADE)
+    course = models.ForeignKey(
+        "courses.Course", related_name="course_enrolls", on_delete=models.CASCADE
+    )
+    enrollment = models.ForeignKey(
+        Enrollment, related_name="course_enrolls", on_delete=models.CASCADE
+    )
+    selected_session = models.ForeignKey(
+        Session, related_name="course_enrolls", on_delete=models.CASCADE
+    )
     course_status = models.CharField(
         max_length=50, choices=CourseEnrollmentStatus.CHOICES
     )
@@ -302,7 +308,7 @@ class PhysicalBookCourseEnrollment(models.Model):
         "physicalbook.PhysicalBook", on_delete=models.CASCADE
     )
     course_enrollment = models.ForeignKey(
-        CourseThroughEnrollment, on_delete=models.CASCADE
+        CourseThroughEnrollment, on_delete=models.CASCADE, related_name="physical_books"
     )
     status_provided = models.BooleanField(default=False)
 
