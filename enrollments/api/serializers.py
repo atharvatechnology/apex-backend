@@ -3,10 +3,12 @@ from rest_framework import serializers
 from common.api.serializers import CreatorSerializer
 from enrollments.api.utils import is_enrolled
 from enrollments.models import (
+    CourseThroughEnrollment,
     Enrollment,
     EnrollmentStatus,
     ExamEnrollmentStatus,
     ExamThroughEnrollment,
+    PhysicalBookCourseEnrollment,
     QuestionEnrollment,
     Session,
 )
@@ -42,10 +44,80 @@ class ExamEnrollmentSerializer(serializers.ModelSerializer):
         )
 
 
+class PhysicalBookCourseEnrollmentSerializer(serializers.ModelSerializer):
+    """Physical book when user enrolls to course."""
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
+
+
+class CourseEnrollmentSerializer(serializers.ModelSerializer):
+    """Course when the user is enrolled."""
+
+    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+            "enrollement",
+            "selected_session",
+            "course_status",
+            "joining_date",
+            "completed_date",
+            "physical_books",
+        )
+
+
+class CourseEnrollmentUpdateSerializer(serializers.ModelSerializer):
+    """Course Update serializer after the user is enrolled."""
+
+    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+            "enrollement",
+            "selected_session",
+            "course_status",
+            "joining_date",
+            "completed_date",
+            "physical_books",
+        )
+
+
+class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer when the user is retrieving an enrollment."""
+
+    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+            "enrollement",
+            "selected_session",
+            "course_status",
+            "joining_date",
+            "completed_date",
+            "physical_books",
+        )
+
+
 class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when user is retrieving an enrollment."""
 
     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
+    courses = CourseEnrollmentSerializer(many=True)
 
     class Meta:
         model = Enrollment
@@ -54,6 +126,7 @@ class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "student",
             "status",
             "exams",
+            "courses",
         )
         read_only_fields = ("status",)
 
@@ -65,6 +138,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
     """
 
     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
+    courses = CourseEnrollmentSerializer(many=True)
 
     class Meta:
         model = Enrollment
@@ -72,6 +146,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
             "id",
             # 'student',
             "exams",
+            "courses",
         )
 
     def create(self, validated_data):

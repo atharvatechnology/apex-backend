@@ -4,6 +4,7 @@ from django.db import models
 
 from common.admin import CreatorBaseModelAdmin
 from enrollments.models import (
+    CourseThroughEnrollment,
     Enrollment,
     ExamThroughEnrollment,
     QuestionEnrollment,
@@ -17,6 +18,14 @@ class ExamThroughEnrollmentInline(admin.TabularInline):
     model = ExamThroughEnrollment
     extra = 1
     readonly_fields = ["status"]
+
+
+class CourseThroughEnrollmentInline(admin.TabularInline):
+    """CourseThroughEnrollment inline."""
+
+    model = CourseThroughEnrollment
+    extra = 1
+    readonly_fields = ["course_status"]
 
 
 class QuestionEnrollmentInline(admin.TabularInline):
@@ -35,6 +44,7 @@ class EnrollmentAdmin(admin.ModelAdmin):
     search_fields = ("student__username",)
     inlines = [
         ExamThroughEnrollmentInline,
+        CourseThroughEnrollmentInline,
     ]
 
     readonly_fields = []
