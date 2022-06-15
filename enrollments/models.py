@@ -291,9 +291,10 @@ class CourseThroughEnrollment(models.Model):
         Session, related_name="course_enrolls", on_delete=models.CASCADE
     )
     course_status = models.CharField(
-        max_length=50, choices=CourseEnrollmentStatus.CHOICES
+        max_length=50,
+        choices=CourseEnrollmentStatus.CHOICES,
+        default=CourseEnrollmentStatus.NEW,
     )
-    joining_date = models.DateTimeField(auto_now_add=True)
     completed_date = models.DateTimeField()
 
     def __str__(self):
