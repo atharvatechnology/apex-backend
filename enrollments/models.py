@@ -48,6 +48,9 @@ class Enrollment(models.Model):
         choices=EnrollmentStatus.CHOICES,
         default=EnrollmentStatus.PENDING,
     )
+    courses = models.ManyToManyField(
+        "courses.Course", through="CourseThroughEnrollment", related_name="enrolls"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     # TODO: add course field here after course app is created
     # courses = models.ManyToManyField(Course, verbose_name=_(
@@ -253,6 +256,71 @@ class Session(PublishedModel, CreatorBaseModel):
         if self.status == SessionStatus.ENDED:
             return self.__change_status(SessionStatus.RESULTSOUT)
         raise StateTransitionError(f"Session cannot be activated from {self.status}")
+
+
+class CourseEnrollmentStatus:
+    NEW = "new"  # 1st phase or recently enrolled
+    INITIATED = "initiated"  # Started the course
+    ONHOLD = "on-hold"  # If paused for certain time
+    PROGRESS = "progress"  # Go with the flow or Continue the course
+    DECLINED = "declined"  # Unsubscribed/Stop/leave that course in between
+    FINALPHASE = "final phase"  # Stage after 75% completion
+    COMPLETED = "completed"  # 100% course completion
+
+    CHOICES = [
+        (NEW, "new"),
+        (INITIATED, "initiated"),
+        (ONHOLD, "on-hold"),
+        (PROGRESS, "progress"),
+        (DECLINED, "declined"),
+        (FINALPHASE, "final phase"),
+        (COMPLETED, "completed"),
+    ]
+
+
+class CourseThroughEnrollment(models.Model):
+    """Model defination for CourseEnrollment."""
+
+    course = models.ForeignKey(
+        "courses.Course", related_name="course_enrolls", on_delete=models.CASCADE
+    )
+    enrollment = models.ForeignKey(
+        Enrollment, related_name="course_enrolls", on_delete=models.CASCADE
+    )
+    selected_session = models.ForeignKey(
+        Session, related_name="course_enrolls", on_delete=models.CASCADE
+    )
+    course_status = models.CharField(
+        max_length=50,
+        choices=CourseEnrollmentStatus.CHOICES,
+        default=CourseEnrollmentStatus.NEW,
+    )
+    completed_date = models.DateTimeField()
+
+    def __str__(self):
+        """Unicode representation of CourseEnrollment."""
+        return f"course {self.course} for {self.enrollment}enrollment"
+
+
+class PhysicalBookCourseEnrollment(models.Model):
+    """Model defination of EnrollmentToPhysicalBookCourse."""
+
+    physical_book = models.ForeignKey(
+        "physicalbook.PhysicalBook",
+        on_delete=models.CASCADE,
+        related_name="physicalbook_enrolls",
+    )
+    course_enrollment = models.ForeignKey(
+        CourseThroughEnrollment,
+        on_delete=models.CASCADE,
+        related_name="physicalbook_enrolls",
+    )
+    status_provided = models.BooleanField(default=False)
+
+    def __str__(self):
+        return (
+            f"{self.physical_book} book for {self.course_enrollment} course enrollment"
+        )
 
 
 class ExamEnrollmentStatus:
