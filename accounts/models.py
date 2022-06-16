@@ -123,3 +123,23 @@ class User(AbstractUser):
         self.otp = otp
         OTP.sendOTP(self.username, otp)
         return otp
+
+
+class Profile(models.Model):
+    """Custom Profile model."""
+
+    def profile_image_upload(self, filename):
+        """To upload profile image."""
+        return f"profile/{self.user.username}/{filename}"
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    college_name = models.CharField(max_length=100, null=True, blank=True)
+    image = models.FileField(upload_to=profile_image_upload, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    faculty = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        ordering = ["user"]
+
+    def __str__(self):
+        return f"{self.user.username}"
