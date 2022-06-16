@@ -37,7 +37,11 @@ RUN mkdir $APP_HOME/static
 RUN mkdir $APP_HOME/media
 WORKDIR $APP_HOME
 
-RUN apt-get update
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install gcc -y \
+    && apt-get clean
+
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 

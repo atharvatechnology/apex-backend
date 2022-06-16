@@ -17,7 +17,8 @@ from courses.api.serializers import (
     CourseCategoryUpdateSerializer,
     CourseCreateSerializer,
     CourseDeleteSerializer,
-    CourseRetrieveSerializer,
+    CourseRetrieveSerializerAfterEnroll,
+    CourseRetrieveSerializerBeforeEnroll,
     CourseUpdateSerializer,
 )
 from courses.models import Course, CourseCategory
@@ -29,7 +30,7 @@ class CourseListAPIView(ListAPIView):
     """View for listing courses."""
 
     permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializer
+    serializer_class = CourseRetrieveSerializerAfterEnroll
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = Course.objects.all()
@@ -46,11 +47,19 @@ class CourseCreateAPIView(CreateAPIView):
     serializer_class = CourseCreateSerializer
 
 
-class CourseRetrieveAPIView(RetrieveAPIView):
+class CourseRetrieveAPIViewBeforeEnroll(RetrieveAPIView):
     """View for retrieving courses."""
 
     permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializer
+    serializer_class = CourseRetrieveSerializerBeforeEnroll
+    queryset = Course.objects.all()
+
+
+class CourseRetrieveAPIViewAfterEnroll(RetrieveAPIView):
+    """View for retrieving courses."""
+
+    permission_classes = [AllowAny]
+    serializer_class = CourseRetrieveSerializerAfterEnroll
     queryset = Course.objects.all()
 
 

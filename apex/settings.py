@@ -47,6 +47,8 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 # Application definition
 
 INSTALLED_APPS = [
+    # channels is placed at top as recommneded in its docs
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -61,6 +63,8 @@ INSTALLED_APPS = [
     "exams",
     "enrollments",
     "attendance",
+    "clock",
+    "physicalbook",
     # third party
     "drf_yasg",
     "corsheaders",
@@ -340,3 +344,32 @@ HTTPS_ENABLED = env("HTTPS_ENABLED", default=False)
 if HTTPS_ENABLED:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # For providing https route end
+
+# Channels settings start
+ASGI_APPLICATION = "apex.asgi.application"
+
+redis_url = env("REDIS_URL", default="redis://localhost:6379")
+redis_host = env("REDIS_HOST", default="localhost")
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(redis_host, 6379)],
+            # "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"{redis_url}/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+# Cache time to live is 2 days
+CACHE_TTL = 60 * 60 * 24 * 2

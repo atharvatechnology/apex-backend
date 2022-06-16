@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from common.models import CreatorBaseModel
+from courses.models import Course
 
 
 class ContentType:
@@ -20,7 +21,9 @@ class ContentType:
 
 class Note(CreatorBaseModel):
     title = models.CharField(max_length=200)
-    # course_id = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(
+        Course, related_name="notes", on_delete=models.CASCADE, null=True, blank=True
+    )
 
     def __str__(self):
         return self.title
@@ -36,7 +39,9 @@ class Content(CreatorBaseModel):
         _("Type"), max_length=10, choices=ContentType.CHOICES, default=ContentType.VIDEO
     )
     file = models.FileField(upload_to=content_location, blank=True, null=True)
-    note = models.ForeignKey(Note, on_delete=models.CASCADE, blank=True, null=True)
+    note = models.ForeignKey(
+        Note, on_delete=models.CASCADE, related_name="contents", blank=True, null=True
+    )
 
     def __str__(self):
         return self.name

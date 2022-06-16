@@ -4,6 +4,8 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
+from accounts.models import Profile
+
 User = get_user_model()
 
 
@@ -23,10 +25,19 @@ class FullNameField(serializers.Field):
         return {"first_name": fname, "last_name": lname}
 
 
+class ProfileCreateSerializer(serializers.ModelSerializer):
+    """Serializer for the Profile model."""
+
+    class Meta:
+        model = Profile
+        fields = ["college_name", "image", "date_of_birth", "faculty"]
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
     """User Create Serializer."""
 
     fullName = FullNameField(source="*")
+    profile = ProfileCreateSerializer(required=False)
 
     class Meta:
         model = User
@@ -35,16 +46,26 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "password",
             "email",
             "fullName",
+            "profile",
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
     @transaction.atomic
     def create(self, validated_data):
+        profile_data = None
+        if "profile" in validated_data:
+            profile_data = validated_data.pop("profile")
+
         instance = super().create(validated_data)
         instance.is_active = False
         instance.set_password(validated_data["password"])
         instance.generate_otp()
         instance.save()
+
+        if profile_data:
+            for attr, value in profile_data.items():
+                setattr(instance.profile, attr, value)
+            instance.profile.save()
         return instance
 
 

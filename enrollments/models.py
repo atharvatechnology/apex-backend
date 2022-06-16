@@ -11,7 +11,7 @@ from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from common.errors import StateTransitionError
 from common.modelFields import ZeroSecondDateTimeField
-from common.models import CreatorBaseModel
+from common.models import CreatorBaseModel, PublishedModel, PublishedQueryset
 from common.validators import validate_date_time_gt_now
 
 User = get_user_model()
@@ -48,6 +48,9 @@ class Enrollment(models.Model):
         choices=EnrollmentStatus.CHOICES,
         default=EnrollmentStatus.PENDING,
     )
+    courses = models.ManyToManyField(
+        "courses.Course", through="CourseThroughEnrollment", related_name="enrolls"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     # TODO: add course field here after course app is created
     # courses = models.ManyToManyField(Course, verbose_name=_(
@@ -76,14 +79,16 @@ class SessionStatus:
     ACTIVE = "active"  # session is active
     INACTIVE = "inactive"  # session is inactive
     ENDED = "ended"  # session has ended
+    RESULTSOUT = "resultsout"  # session has ended and results are out
     CHOICES = [
         (ACTIVE, "active"),
         (INACTIVE, "inactive"),
         (ENDED, "ended"),
+        (RESULTSOUT, "resultsout"),
     ]
 
 
-class SessionQuerySet(models.QuerySet):
+class SessionQuerySet(PublishedQueryset, models.QuerySet):
     def delete(self, *args, **kwargs):
         for obj in self:
             tasks = PeriodicTask.objects.filter(name__in=[obj.start_task, obj.end_task])
@@ -92,7 +97,7 @@ class SessionQuerySet(models.QuerySet):
         super().delete(*args, **kwargs)
 
 
-class Session(CreatorBaseModel):
+class Session(PublishedModel, CreatorBaseModel):
     """Model definition for Session."""
 
     objects = SessionQuerySet.as_manager()
@@ -198,14 +203,14 @@ class Session(CreatorBaseModel):
         )
         start_task = PeriodicTask.objects.create(
             crontab=start_schedule,
-            name=f"{self.exam.name}_{start_date_aware} start task",
+            name=f"{self.exam.name}_{start_date_aware}_{self.id} start task",
             task="enrollments.tasks.start_exam_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
         )
         end_task = PeriodicTask.objects.create(
             crontab=end_schedule,
-            name=f"{self.exam.name}_{end_date_aware} end task",
+            name=f"{self.exam.name}_{end_date_aware}_{self.id} end task",
             task="enrollments.tasks.end_exam_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
@@ -244,6 +249,78 @@ class Session(CreatorBaseModel):
         if self.status == SessionStatus.ACTIVE:
             return self.__change_status(SessionStatus.ENDED)
         raise StateTransitionError(f"Session cannot be ended from {self.status}")
+
+    def publish_results(self):
+        if self.status == SessionStatus.RESULTSOUT:
+            return
+        if self.status == SessionStatus.ENDED:
+            return self.__change_status(SessionStatus.RESULTSOUT)
+        raise StateTransitionError(f"Session cannot be activated from {self.status}")
+
+
+class CourseEnrollmentStatus:
+    NEW = "new"  # 1st phase or recently enrolled
+    INITIATED = "initiated"  # Started the course
+    ONHOLD = "on-hold"  # If paused for certain time
+    PROGRESS = "progress"  # Go with the flow or Continue the course
+    DECLINED = "declined"  # Unsubscribed/Stop/leave that course in between
+    FINALPHASE = "final phase"  # Stage after 75% completion
+    COMPLETED = "completed"  # 100% course completion
+
+    CHOICES = [
+        (NEW, "new"),
+        (INITIATED, "initiated"),
+        (ONHOLD, "on-hold"),
+        (PROGRESS, "progress"),
+        (DECLINED, "declined"),
+        (FINALPHASE, "final phase"),
+        (COMPLETED, "completed"),
+    ]
+
+
+class CourseThroughEnrollment(models.Model):
+    """Model defination for CourseEnrollment."""
+
+    course = models.ForeignKey(
+        "courses.Course", related_name="course_enrolls", on_delete=models.CASCADE
+    )
+    enrollment = models.ForeignKey(
+        Enrollment, related_name="course_enrolls", on_delete=models.CASCADE
+    )
+    selected_session = models.ForeignKey(
+        Session, related_name="course_enrolls", on_delete=models.CASCADE
+    )
+    course_status = models.CharField(
+        max_length=50,
+        choices=CourseEnrollmentStatus.CHOICES,
+        default=CourseEnrollmentStatus.NEW,
+    )
+    completed_date = models.DateTimeField()
+
+    def __str__(self):
+        """Unicode representation of CourseEnrollment."""
+        return f"course {self.course} for {self.enrollment}enrollment"
+
+
+class PhysicalBookCourseEnrollment(models.Model):
+    """Model defination of EnrollmentToPhysicalBookCourse."""
+
+    physical_book = models.ForeignKey(
+        "physicalbook.PhysicalBook",
+        on_delete=models.CASCADE,
+        related_name="physicalbook_enrolls",
+    )
+    course_enrollment = models.ForeignKey(
+        CourseThroughEnrollment,
+        on_delete=models.CASCADE,
+        related_name="physicalbook_enrolls",
+    )
+    status_provided = models.BooleanField(default=False)
+
+    def __str__(self):
+        return (
+            f"{self.physical_book} book for {self.course_enrollment} course enrollment"
+        )
 
 
 class ExamEnrollmentStatus:
@@ -371,7 +448,8 @@ class ExamThroughEnrollment(models.Model):
             if option.correct:
                 pos_score += question.section.pos_marks
             else:
-                neg_score += question.section.neg_marks
+                neg_marks = question.section.neg_percentage * question.section.pos_marks
+                neg_score += neg_marks
         return pos_score - neg_score
 
 

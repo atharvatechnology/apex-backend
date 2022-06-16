@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from common.errors import StateTransitionError
+from common.modelFields import PercentageField
 from common.models import CreatorBaseModel
 from common.validators import validate_positive
 
@@ -15,21 +16,17 @@ class ExamTemplate(CreatorBaseModel):
     name = models.CharField(_("name"), max_length=128)
     # description = models.TextField(blank=True)
     duration = models.DurationField(
-        _("duration"), help_text=_("Enter duration in HH:MM:SS format")
+        _("Duration"), help_text=_("Enter duration in HH:MM:SS format")
     )
     # models.IntegerField(default=0, validators=[validate_positive])
     full_marks = models.DecimalField(
-        _("full_marks"), max_digits=5, decimal_places=2, default=0
+        _("Full Marks"), max_digits=5, decimal_places=2, default=0
     )
-    # TODO: Change pass_marks to pass_marks_ratio
-    # this is the ratio of pass_marks to full_marks
-    # storing ratio instead of full marks enables us to
-    # checking if pass_marks is less than full_marks
-    pass_marks = models.DecimalField(
-        _("pass_marks"), max_digits=5, decimal_places=2, default=0
+    pass_percentage = PercentageField(
+        _("Pass Percentage"), max_digits=3, decimal_places=2
     )
     display_num_questions = models.PositiveIntegerField(
-        _("display_num_questions"), default=1
+        _("Display Question Number"), default=1
     )
     # exam_type = models.CharField(max_length=10, choices=(
     #     ('S', 'SINGLE'), ('M', 'MULTIPLE')), default='S')
@@ -151,16 +148,16 @@ class Exam(CreatorBaseModel):
 class Section(models.Model):
     """Model definition for Section."""
 
-    name = models.CharField(_("name"), max_length=64)
-    num_of_questions = models.IntegerField(_("num_of_questions"), default=0)
+    name = models.CharField(_("Name"), max_length=64)
+    num_of_questions = models.IntegerField(_("Number Of Questions"), default=0)
     pos_marks = models.DecimalField(
-        _("pos_marks"), max_digits=5, decimal_places=2, default=Decimal("2.0")
+        _("Positive Marks"), max_digits=5, decimal_places=2, default=Decimal("2.0")
     )
-    neg_marks = models.DecimalField(
-        _("neg_marks"), max_digits=5, decimal_places=2, default=Decimal("0.4")
+    neg_percentage = PercentageField(
+        _("Negative Percentage"), max_digits=3, decimal_places=2
     )
     template = models.ForeignKey(
-        ExamTemplate, verbose_name=_("template"), on_delete=models.CASCADE
+        ExamTemplate, verbose_name=_("Template"), on_delete=models.CASCADE
     )
 
     class Meta:

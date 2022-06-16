@@ -102,16 +102,20 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         exam_enrollment = self.get_object()
-        if (
-            # the exam is still in progress
-            exam_enrollment.selected_session.status
-            == SessionStatus.ENDED
-        ) and (
-            # the exam result has not been calculated yet
-            exam_enrollment.status
-            in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
+        # if (
+        #     # the exam is still in progress
+        #     exam_enrollment.selected_session.status
+        #     == SessionStatus.ENDED
+        # ) and (
+        #     # the exam result has not been calculated yet
+        #     exam_enrollment.status
+        #     in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
+        # ):
+        selected_session = exam_enrollment.selected_session
+        if selected_session.is_visible and (
+            selected_session.status == SessionStatus.RESULTSOUT
         ):
-
+            # if (selected_session.status == SessionStatus.RESULTSOUT):
             return super().retrieve(request, *args, **kwargs)
 
         return Response(
