@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "courses",
     "exams",
     "enrollments",
+    "attendance",
     "clock",
     "physicalbook",
     # third party
