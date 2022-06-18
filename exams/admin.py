@@ -119,5 +119,5 @@ class OptionAdmin(admin.ModelAdmin):
     """Option Admin Customization."""
 
     list_display = ["id", "detail", "img", "question"]
-    list_filter = ["question"]
+    list_filter = ["question__exam"]
     readonly_fields = ["id"]
