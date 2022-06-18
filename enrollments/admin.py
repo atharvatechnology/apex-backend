@@ -67,6 +67,7 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
             "help_text": "Seconds doesnot matters",
         },
     }
+    date_hierarchy = "created_at"
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -79,11 +80,12 @@ class ExamThroughEnrollmentAdmin(admin.ModelAdmin):
     """Exam through enrollment admin."""
 
     list_display = ("id", "enrollment", "exam", "selected_session", "score", "status")
-    list_filter = ("status", "enrollment", "exam", "selected_session")
+    list_filter = ("status", "exam", "selected_session")
     inlines = [
         QuestionEnrollmentInline,
     ]
     readonly_fields = []
+    date_hierarchy = "enrollment__created_at"
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
