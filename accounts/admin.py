@@ -75,6 +75,7 @@ class UserAdmin(BaseUserAdmin):
         "email",
         "is_active",
         "is_staff",
+        "last_login",
     ]
     list_filter = (
         "is_staff",
