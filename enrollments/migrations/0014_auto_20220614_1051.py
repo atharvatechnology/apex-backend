@@ -13,6 +13,16 @@ def publish_all_pervious(apps, schema_editor):
         sess.save()
 
 
+def publish_all_previous_reverse(apps, schema_editor):
+    """Unpublish all previous session instances."""
+    # We can't import the models directly as they may be
+    # out of date for this migration. We use the historical version.
+    Session = apps.get_model("enrollments", "Session")
+    for sess in Session.objects.all():
+        sess.is_published = False
+        sess.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -20,5 +30,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(publish_all_pervious),
+        migrations.RunPython(publish_all_pervious, publish_all_previous_reverse),
     ]
