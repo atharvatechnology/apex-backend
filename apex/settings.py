@@ -311,6 +311,10 @@ CKEDITOR_CONFIGS = {
                     "Mathjax",
                 ],
             },
+            {
+                "name": "source",
+                "items": ["Source", "Preview"],
+            },
         ],
         "toolbar": "Custom",
         "mathJaxLib": CKEDITOR_MATHJAX_URL,
@@ -321,6 +325,10 @@ CKEDITOR_CONFIGS = {
                 "mathjax",
             ]
         ),
+        "pasteFromWordRemoveFontStyles": True,
+        "pasteFromWordPromptCleanup": True,
+        "forcePasteAsPlainText": True,
+        "ignoreEmptyParagraph": True,
     },
 }
 # ckeditor settings end
