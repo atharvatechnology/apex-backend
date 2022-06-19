@@ -80,7 +80,10 @@ class ExamAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     def preview(self, obj):
         return mark_safe(f'<a href="/exam-preview/{obj.id}">Preview</a>')
 
-    list_display = ["id", "name", "status", "price", "template", "preview"]
+    def question(self, obj):
+        return obj.questions.all().count()
+
+    list_display = ["id", "name", "status", "price", "question", "template", "preview"]
     list_filter = ["status", "template"]
     inlines = [
         QuestionInline,
