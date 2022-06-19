@@ -137,6 +137,7 @@ class Profile(models.Model):
     image = models.FileField(upload_to=profile_image_upload, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     faculty = models.CharField(max_length=100, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         ordering = ["user"]
