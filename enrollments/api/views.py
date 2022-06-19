@@ -117,9 +117,9 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         ):
             # if (selected_session.status == SessionStatus.RESULTSOUT):
             return super().retrieve(request, *args, **kwargs)
-        if self.publish_date:
+        if selected_session.publish_date:
             error_detail = f"Your result will be published \
-                on {self.publish_date.strftime('%Y-%m-%d %H:%M:%S')}"
+                on {selected_session.publish_date.strftime('%Y-%m-%d %H:%M:%S')}"
         else:
             error_detail = "Your result has not been published yet."
 
