@@ -36,6 +36,7 @@ class EnrollmentAdmin(admin.ModelAdmin):
     inlines = [
         ExamThroughEnrollmentInline,
     ]
+    date_hierarchy = "created_at"
 
     readonly_fields = []
 
@@ -79,7 +80,18 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
 class ExamThroughEnrollmentAdmin(admin.ModelAdmin):
     """Exam through enrollment admin."""
 
-    list_display = ("id", "enrollment", "exam", "selected_session", "score", "status")
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("enrollment", "exam")
+            .prefetch_related("question_states")
+        )
+
+    def question(self, obj):
+        return obj.question_states.all().count()
+
+    list_display = ("id", "enrollment", "exam", "question", "score", "status")
     list_filter = ("status", "exam", "selected_session")
     inlines = [
         QuestionEnrollmentInline,
@@ -98,4 +110,8 @@ class QuestionEnrollmentAdmin(admin.ModelAdmin):
     """Question enrollment admin."""
 
     list_display = ("exam_stat", "question", "selected_option", "updated_at")
-    list_filter = ("exam_stat", "question")
+    list_filter = ("question__exam",)
+    search_fields = (
+        "exam_stat__enrollment__student__first_name",
+        "exam_stat__enrollment__student__last_name",
+    )
