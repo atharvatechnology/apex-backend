@@ -4,6 +4,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.models import Group  # , Permission
 from django.core.exceptions import ValidationError
+from django.urls import reverse
+from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Profile, User
@@ -69,6 +71,13 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
+    def view_profile(self, obj):
+        return mark_safe(
+            "<a href="
+            f'"{reverse("admin:accounts_profile_change", args=(obj.profile.pk,))}">'
+            f"{obj.profile}</a>"
+        )
+
     list_display = [
         "name",
         "username",
@@ -76,6 +85,8 @@ class UserAdmin(BaseUserAdmin):
         "is_active",
         "is_staff",
         "last_login",
+        "date_joined",
+        "view_profile",
     ]
     list_filter = (
         "is_staff",
@@ -127,6 +138,7 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
+    date_hierarchy = "date_joined"
 
     def name(self, object):
         return object.get_full_name()
