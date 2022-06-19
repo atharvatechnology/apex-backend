@@ -16,7 +16,7 @@ class PhysicalBook(CreatorBaseModel):
         Returns
         -------
         str
-            file path to upload image
+            Provides file path to upload image
 
         """
 

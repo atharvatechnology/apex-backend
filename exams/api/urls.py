@@ -5,6 +5,7 @@ from exams.api.views import (
     ExamDeleteAPIView,
     ExamListAPIView,
     ExamPaperAPIView,
+    ExamPaperPreviewAPIView,
     ExamRetrieveAPIView,
     ExamRetrievePoolAPIView,
     ExamTemplateCreateAPIView,
@@ -27,6 +28,11 @@ urlpatterns = [
     path("update/<int:pk>/", ExamUpdateAPIView.as_view(), name="exam-update"),
     path("delete/<int:pk>/", ExamDeleteAPIView.as_view(), name="exam-delete"),
     path("paper/<int:pk>/", ExamPaperAPIView.as_view(), name="exam-paper"),
+    path(
+        "paper/preview/<int:pk>/",
+        ExamPaperPreviewAPIView.as_view(),
+        name="exam-paper-preview",
+    ),
 ]
 
 urlpatterns += [

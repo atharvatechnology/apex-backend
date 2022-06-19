@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group  # , Permission
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import User
+from accounts.models import Profile, User
 
 
 class UserCreationForm(forms.ModelForm):
@@ -70,11 +70,12 @@ class UserAdmin(BaseUserAdmin):
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
     list_display = [
+        "name",
         "username",
         "email",
-        "name",
         "is_active",
         "is_staff",
+        "last_login",
     ]
     list_filter = (
         "is_staff",
@@ -149,6 +150,22 @@ class UserAdmin(BaseUserAdmin):
         if not user.is_superuser and db_field.name == "groups":
             kwargs["queryset"] = Group.objects.exclude(name__in=["Admin", "Manager"])
         return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "college_name",
+        "faculty",
+        "date_of_birth",
+    ]
+    search_fields = [
+        "user__username",
+    ]
+    autocomplete_fields = [
+        "user",
+    ]
 
 
 # Now register the new UserAdmin...

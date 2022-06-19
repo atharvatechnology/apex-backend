@@ -105,7 +105,7 @@ class SectionAdmin(admin.ModelAdmin):
 class QuestionAdmin(nested_admin.NestedModelAdmin):
     """Question Admin Customization."""
 
-    list_display = ["id", "detail", "exam"]
+    list_display = ["id", "detail", "img", "exam"]
     list_filter = ["exam"]
     readonly_fields = ["id"]
 
@@ -118,6 +118,6 @@ class QuestionAdmin(nested_admin.NestedModelAdmin):
 class OptionAdmin(admin.ModelAdmin):
     """Option Admin Customization."""
 
-    list_display = ["id", "detail", "question"]
-    list_filter = ["question"]
+    list_display = ["id", "detail", "img", "question"]
+    list_filter = ["question__exam"]
     readonly_fields = ["id"]
