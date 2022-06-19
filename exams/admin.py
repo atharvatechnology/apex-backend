@@ -1,6 +1,7 @@
 import nested_admin
 from django import forms
 from django.contrib import admin
+from django.utils.html import mark_safe
 
 from common.admin import CreatorBaseModelAdmin
 from exams.models import Exam, ExamTemplate, Option, Question, Section
@@ -76,7 +77,10 @@ class ExamTemplateAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
 class ExamAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     """Exam Admin Panel with nested admin inlines."""
 
-    list_display = ["id", "name", "status", "price", "template"]
+    def preview(self, obj):
+        return mark_safe(f'<a href="/exam-preview/{obj.id}">Preview</a>')
+
+    list_display = ["id", "name", "status", "price", "template", "preview"]
     list_filter = ["status", "template"]
     inlines = [
         QuestionInline,
