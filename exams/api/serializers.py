@@ -32,6 +32,7 @@ class ExamTemplateListSerializer(serializers.ModelSerializer):
         model = ExamTemplate
         fields = (
             "id",
+            "name",
             "duration",
             "full_marks",
         )
