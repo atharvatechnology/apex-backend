@@ -16,6 +16,7 @@ class ExamTemplateSerializer(CreatorSerializer):
         model = ExamTemplate
         fields = CreatorSerializer.Meta.fields + (
             "name",
+            "description",
             "full_marks",
             "pass_marks",
             "duration",
@@ -33,8 +34,11 @@ class ExamTemplateListSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "description",
             "duration",
             "full_marks",
+            "pass_percentage",
+            "display_num_questions",
         )
 
 

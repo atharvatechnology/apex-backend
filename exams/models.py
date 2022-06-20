@@ -14,7 +14,7 @@ class ExamTemplate(CreatorBaseModel):
     """Model definition for ExamTemplate."""
 
     name = models.CharField(_("name"), max_length=128)
-    # description = models.TextField(blank=True)
+    description = models.TextField(_("description"), default="No description available")
     duration = models.DurationField(
         _("Duration"), help_text=_("Enter duration in HH:MM:SS format")
     )
