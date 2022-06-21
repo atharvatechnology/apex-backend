@@ -157,7 +157,10 @@ class Section(models.Model):
         _("Negative Percentage"), max_digits=3, decimal_places=2
     )
     template = models.ForeignKey(
-        ExamTemplate, verbose_name=_("Template"), on_delete=models.CASCADE
+        ExamTemplate,
+        verbose_name=_("Template"),
+        on_delete=models.CASCADE,
+        related_name="sections",
     )
 
     class Meta:
