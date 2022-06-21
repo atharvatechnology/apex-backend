@@ -14,6 +14,9 @@ from exams.api.views import (
     ExamTemplateRetrieveAPIView,
     ExamTemplateUpdateAPIView,
     ExamUpdateAPIView,
+    SectionCreateAPIView,
+    SectionDeleteAPIView,
+    SectionUpdateAPIView,
 )
 
 urlpatterns = [
@@ -58,5 +61,23 @@ urlpatterns += [
         "template/delete/<int:pk>/",
         ExamTemplateDeleteAPIView.as_view(),
         name="exam-template-delete",
+    ),
+]
+
+urlpatterns += [
+    path(
+        "section/create",
+        SectionCreateAPIView.as_view(),
+        name="template-section-create",
+    ),
+    path(
+        "section/update/<int:pk>/",
+        SectionUpdateAPIView.as_view(),
+        name="template-section-update",
+    ),
+    path(
+        "section/delete/<int:pk>/",
+        SectionDeleteAPIView.as_view(),
+        name="template-section-delete",
     ),
 ]
