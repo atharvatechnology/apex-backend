@@ -8,6 +8,8 @@ from exams.models import Exam, ExamTemplate, Option, Question, Section
 
 
 class SectionSerializer(serializers.ModelSerializer):
+    section_marks = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Section
         fields = (
@@ -17,7 +19,11 @@ class SectionSerializer(serializers.ModelSerializer):
             "pos_marks",
             "neg_percentage",
             "template",
+            "section_marks",
         )
+
+    def get_section_marks(self, obj):
+        return obj.pos_marks * obj.num_of_questions
 
 
 class ExamTemplateSerializer(CreatorSerializer):
