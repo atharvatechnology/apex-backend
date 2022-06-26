@@ -10,6 +10,16 @@ from common.models import CreatorBaseModel
 from common.validators import validate_positive
 
 
+class ExamTemplateStatus:
+    DRAFT = "draft"
+    COMPLETED = "completed"
+
+    CHOICES = [
+        (DRAFT, _("Draft")),
+        (COMPLETED, _("Completed")),
+    ]
+
+
 class ExamTemplate(CreatorBaseModel):
     """Model definition for ExamTemplate."""
 
@@ -27,6 +37,12 @@ class ExamTemplate(CreatorBaseModel):
     )
     display_num_questions = models.PositiveIntegerField(
         _("Display Question Number"), default=1
+    )
+    status = models.CharField(
+        _("Status"),
+        max_length=16,
+        choices=ExamTemplateStatus.CHOICES,
+        default=ExamTemplateStatus.DRAFT,
     )
     # exam_type = models.CharField(max_length=10, choices=(
     #     ('S', 'SINGLE'), ('M', 'MULTIPLE')), default='S')
