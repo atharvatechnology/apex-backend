@@ -10,11 +10,21 @@ from common.models import CreatorBaseModel
 from common.validators import validate_positive
 
 
+class ExamTemplateStatus:
+    DRAFT = "draft"
+    COMPLETED = "completed"
+
+    CHOICES = [
+        (DRAFT, _("Draft")),
+        (COMPLETED, _("Completed")),
+    ]
+
+
 class ExamTemplate(CreatorBaseModel):
     """Model definition for ExamTemplate."""
 
     name = models.CharField(_("name"), max_length=128)
-    # description = models.TextField(blank=True)
+    description = models.TextField(_("description"), default="No description available")
     duration = models.DurationField(
         _("Duration"), help_text=_("Enter duration in HH:MM:SS format")
     )
@@ -27,6 +37,12 @@ class ExamTemplate(CreatorBaseModel):
     )
     display_num_questions = models.PositiveIntegerField(
         _("Display Question Number"), default=1
+    )
+    status = models.CharField(
+        _("Status"),
+        max_length=16,
+        choices=ExamTemplateStatus.CHOICES,
+        default=ExamTemplateStatus.DRAFT,
     )
     # exam_type = models.CharField(max_length=10, choices=(
     #     ('S', 'SINGLE'), ('M', 'MULTIPLE')), default='S')
@@ -157,7 +173,10 @@ class Section(models.Model):
         _("Negative Percentage"), max_digits=3, decimal_places=2
     )
     template = models.ForeignKey(
-        ExamTemplate, verbose_name=_("Template"), on_delete=models.CASCADE
+        ExamTemplate,
+        verbose_name=_("Template"),
+        on_delete=models.CASCADE,
+        related_name="sections",
     )
 
     class Meta:

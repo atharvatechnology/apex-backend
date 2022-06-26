@@ -4,22 +4,67 @@ from common.api.mixin import EnrolledSerializerMixin
 from common.api.serializers import CreatorSerializer
 from enrollments.api.serializers import ExamEnrollmentPaperSerializer, SessionSerializer
 from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
-from exams.models import Exam, ExamTemplate, Option, Question
+from exams.models import Exam, ExamTemplate, Option, Question, Section
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    section_marks = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Section
+        fields = (
+            "id",
+            "name",
+            "num_of_questions",
+            "pos_marks",
+            "neg_percentage",
+            "template",
+            "section_marks",
+        )
+
+    def get_section_marks(self, obj):
+        return obj.pos_marks * obj.num_of_questions
 
 
 class ExamTemplateSerializer(CreatorSerializer):
     """Exam Template Serializer."""
 
-    pass_marks = serializers.SerializerMethodField()
+    pass_marks = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ExamTemplate
         fields = CreatorSerializer.Meta.fields + (
             "name",
+            "description",
             "full_marks",
+            "pass_percentage",
             "pass_marks",
             "duration",
             "display_num_questions",
+        )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+    def get_pass_marks(self, obj):
+        return obj.pass_percentage * obj.full_marks
+
+
+class ExamTemplateRetrieveSerializer(CreatorSerializer):
+    """Serializer to retrieve exam template."""
+
+    pass_marks = serializers.SerializerMethodField(read_only=True)
+    sections = SectionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ExamTemplate
+        fields = CreatorSerializer.Meta.fields + (
+            "name",
+            "description",
+            "full_marks",
+            "pass_percentage",
+            "pass_marks",
+            "duration",
+            "display_num_questions",
+            "sections",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
@@ -32,8 +77,12 @@ class ExamTemplateListSerializer(serializers.ModelSerializer):
         model = ExamTemplate
         fields = (
             "id",
+            "name",
+            "description",
             "duration",
             "full_marks",
+            "pass_percentage",
+            "display_num_questions",
         )
 
 

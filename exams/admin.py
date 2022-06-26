@@ -90,6 +90,7 @@ class ExamAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     ]
     readonly_fields = CreatorBaseModelAdmin.readonly_fields + ["id"]
     save_on_top = True
+    list_editable = ["status"]
 
 
 @admin.register(Section)
