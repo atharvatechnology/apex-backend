@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from attendance.models import (
+from attendance.models import (  # Attendance,
     StudentAttendance,
     TeacherAttendance,
     TeacherAttendanceDetail,
