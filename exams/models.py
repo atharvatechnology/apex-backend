@@ -189,6 +189,17 @@ class Section(models.Model):
         """Unicode representation of Section."""
         return f"{self.name} ({self.template.name})"
 
+    def get_section_marks(self):
+        """Calculate total marks for this section.
+
+        Returns
+        -------
+        decimal
+            Total marks for this section.
+
+        """
+        return self.pos_marks * self.num_of_questions
+
 
 # class Section(models.Model):
 #     """Model definition for Section."""
