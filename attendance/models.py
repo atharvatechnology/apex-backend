@@ -46,13 +46,19 @@ class TeacherAttendanceDetailCategory:
 class TeacherAttendance(Attendance):
     """Teacher attendance model."""
 
-    pass
+    name = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name if self.name else ""
 
 
 class TeacherAttendanceDetail(CreatorBaseModel):
     """Teacher attendance detail model."""
 
-    number_of_peroid = models.IntegerField(_("Number of peroid"))
+    number_of_period = models.IntegerField(_("Number of peroid"))
     message = models.TextField(_("Message"))
     remarks = models.TextField(_("Remarks"))
     status = models.CharField(

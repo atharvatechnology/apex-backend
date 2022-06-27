@@ -14,12 +14,13 @@ from attendance.api.serializers import (
     AttendanceDeleteSerializer,
     AttendanceRetrieveSerializer,
     AttendanceUpdateSerializer,
-    TeacherAttendanceDetailCreateSerializer,
+    TeacherAttendanceCreateSerializer,
+    TeacherAttendanceDetail,
     TeacherAttendanceDetailDeleteSerializer,
     TeacherAttendanceDetailRetrieveSerializer,
     TeacherAttendanceDetailUpdateSerializer,
 )
-from attendance.models import Attendance, TeacherAttendance
+from attendance.models import Attendance
 from common.api.views import BaseCreatorCreateAPIView
 
 from ..filters import AttendanceFilter
@@ -72,14 +73,14 @@ class TeacherAttendanceListAPIView(ListAPIView):
 
     permission_classes = [AllowAny]
     serializer_class = TeacherAttendanceDetailRetrieveSerializer
-    queryset = TeacherAttendance.objects.all()
+    queryset = TeacherAttendanceDetail.objects.all()
 
 
 class TeacherAttendanceCreateAPIView(BaseCreatorCreateAPIView):
     """View for creating teacher attendance."""
 
     # permission_classes = [IsAuthenticated]
-    serializer_class = TeacherAttendanceDetailCreateSerializer
+    serializer_class = TeacherAttendanceCreateSerializer
 
 
 class TeacherAttendanceRetrieveAPIView(RetrieveAPIView):
@@ -87,7 +88,7 @@ class TeacherAttendanceRetrieveAPIView(RetrieveAPIView):
 
     permission_classes = [AllowAny]
     serializer_class = TeacherAttendanceDetailRetrieveSerializer
-    queryset = TeacherAttendance.objects.all()
+    queryset = TeacherAttendanceDetail.objects.all()
 
 
 class TeacherAttendanceUpdateAPIView(UpdateAPIView):
@@ -95,7 +96,7 @@ class TeacherAttendanceUpdateAPIView(UpdateAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherAttendanceDetailUpdateSerializer
-    queryset = TeacherAttendance.objects.all()
+    queryset = TeacherAttendanceDetail.objects.all()
 
 
 class TeacherAttendanceDeleteAPIView(DestroyAPIView):
@@ -103,4 +104,4 @@ class TeacherAttendanceDeleteAPIView(DestroyAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherAttendanceDetailDeleteSerializer
-    queryset = TeacherAttendance.objects.all()
+    queryset = TeacherAttendanceDetail.objects.all()
