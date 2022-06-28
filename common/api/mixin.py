@@ -26,3 +26,11 @@ class EnrolledSerializerMixin(serializers.ModelSerializer):
 
         """
         return is_enrolled_active(obj, self.context["request"].user)
+
+
+class PublishableModelMixin:
+    """Filter the queryset to only include published instances."""
+
+    def get_queryset(self):
+        qs = self.queryset
+        return qs.published()

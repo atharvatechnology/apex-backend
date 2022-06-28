@@ -1,3 +1,4 @@
+from django.utils.timezone import localtime
 from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
@@ -118,12 +119,20 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         #     exam_enrollment.status
         #     in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
         # ):
-        if exam_enrollment.selected_session.status == SessionStatus.RESULTSOUT:
-
+        selected_session = exam_enrollment.selected_session
+        if selected_session.is_visible and (
+            selected_session.status == SessionStatus.RESULTSOUT
+        ):
+            # if (selected_session.status == SessionStatus.RESULTSOUT):
             return super().retrieve(request, *args, **kwargs)
+        if publish_date := selected_session.publish_date:
+            error_detail = f"Your result will be published \
+                on {localtime(publish_date).strftime('%Y-%m-%d %H:%M:%S')}"
+        else:
+            error_detail = "Your result has not been published yet."
 
         return Response(
-            {"detail": "Your result has not been published yet."},
+            {"detail": error_detail},
             status=status.HTTP_400_BAD_REQUEST,
         )
 

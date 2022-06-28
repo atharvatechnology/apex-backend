@@ -73,7 +73,7 @@ class ClockConsumer(AsyncWebsocketConsumer):
         )
 
     async def get_session_status(self, event):
-        message = event["status"]
+        message = event["is_published"]
 
         # Send message to WebSocket
         await self.send(

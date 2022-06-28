@@ -11,7 +11,7 @@ from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from common.errors import StateTransitionError
 from common.modelFields import ZeroSecondDateTimeField
-from common.models import CreatorBaseModel
+from common.models import CreatorBaseModel, PublishedModel, PublishedQueryset
 from common.validators import validate_date_time_gt_now
 
 User = get_user_model()
@@ -88,7 +88,7 @@ class SessionStatus:
     ]
 
 
-class SessionQuerySet(models.QuerySet):
+class SessionQuerySet(PublishedQueryset, models.QuerySet):
     def delete(self, *args, **kwargs):
         for obj in self:
             tasks = PeriodicTask.objects.filter(name__in=[obj.start_task, obj.end_task])
@@ -97,7 +97,7 @@ class SessionQuerySet(models.QuerySet):
         super().delete(*args, **kwargs)
 
 
-class Session(CreatorBaseModel):
+class Session(PublishedModel, CreatorBaseModel):
     """Model definition for Session."""
 
     objects = SessionQuerySet.as_manager()
@@ -155,17 +155,18 @@ class Session(CreatorBaseModel):
         """Set up tasks on create session."""
         if not self.id:
             super().save(*args, **kwargs)
-        else:
-            # filter the tasks by session id
-            tasks = PeriodicTask.objects.filter(
-                name__in=[self.start_task, self.end_task]
-            )
+            self.setup_tasks()
+        # else:
+        #     # filter the tasks by session id
+        #     tasks = PeriodicTask.objects.filter(
+        #         name__in=[self.start_task, self.end_task]
+        #     )
 
-            # tasks = PeriodicTask.objects.filter(kwargs=json.dumps(
-            # {"session_id": f"{self.id}"}))
-            # delete the tasks
-            tasks.delete()
-        self.setup_tasks()
+        #     # tasks = PeriodicTask.objects.filter(kwargs=json.dumps(
+        #     # {"session_id": f"{self.id}"}))
+        #     # delete the tasks
+        #     tasks.delete()
+        # self.setup_tasks()
         super().save(*args, **kwargs)
 
     def setup_tasks(self):

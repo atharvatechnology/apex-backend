@@ -1,10 +1,19 @@
-from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from rest_framework.generics import (
+    CreateAPIView,
+    DestroyAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+)
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from courses.api.paginations import StandardResultsSetPagination
 from exams.api.permissions import IsExamEnrolledActive
-from exams.models import Exam, ExamStatus, ExamTemplate
+from exams.models import Exam, ExamStatus, ExamTemplate, Section
 
 from .serializers import (
     ExamCreateSerializer,
@@ -12,8 +21,10 @@ from .serializers import (
     ExamPaperSerializer,
     ExamRetrievePoolSerializer,
     ExamRetrieveSerializer,
+    ExamTemplateRetrieveSerializer,
     ExamTemplateSerializer,
     ExamUpdateSerializer,
+    SectionSerializer,
 )
 
 
@@ -24,8 +35,11 @@ class ExamCreateAPIView(BaseCreatorCreateAPIView):
 
 class ExamListAPIView(ListAPIView):
     serializer_class = ExamListSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
     permission_classes = [AllowAny]
     queryset = Exam.objects.all()
+    pagination_class = StandardResultsSetPagination
 
 
 class ExamRetrieveAPIView(RetrieveAPIView):
@@ -58,6 +72,12 @@ class ExamPaperAPIView(RetrieveAPIView):
         return Response({"detail": "Exam is not in progress"}, status=400)
 
 
+class ExamPaperPreviewAPIView(RetrieveAPIView):
+    serializer_class = ExamPaperSerializer
+    permission_classes = [IsAdminUser]
+    queryset = Exam.objects.all()
+
+
 class ExamDeleteAPIView(DestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Exam.objects.all()
@@ -65,7 +85,7 @@ class ExamDeleteAPIView(DestroyAPIView):
 
 class ExamTemplateCreateAPIView(BaseCreatorCreateAPIView):
     serializer_class = ExamTemplateSerializer
-    # permission_classes = []
+    permission_classes = []
 
 
 class ExamTemplateListAPIView(ListAPIView):
@@ -76,18 +96,36 @@ class ExamTemplateListAPIView(ListAPIView):
 
 
 class ExamTemplateRetrieveAPIView(RetrieveAPIView):
-    serializer_class = ExamTemplateSerializer
+    serializer_class = ExamTemplateRetrieveSerializer
     queryset = ExamTemplate.objects.all()
 
 
 class ExamTemplateUpdateAPIView(BaseCreatorUpdateAPIView):
     serializer_class = ExamTemplateSerializer
     # TODO: permit admin only
-    # permission_classes = []
+    permission_classes = []
     queryset = ExamTemplate.objects.all()
 
 
 class ExamTemplateDeleteAPIView(DestroyAPIView):
     # TODO: permit admin only
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
+    # permission_classes = [IsAuthenticated]
     queryset = ExamTemplate.objects.all()
+
+
+class SectionCreateAPIView(CreateAPIView):
+    serializer_class = SectionSerializer
+    # permission_classes =
+
+
+class SectionUpdateAPIView(UpdateAPIView):
+    serializer_class = SectionSerializer
+    # permission_classes =
+    queryset = Section.objects.all()
+
+
+class SectionDeleteAPIView(DestroyAPIView):
+    serializer_class = SectionSerializer
+    queryset = Section.objects.all()
+    # permission_classes =

@@ -46,6 +46,7 @@ class EnrollmentAdmin(admin.ModelAdmin):
         ExamThroughEnrollmentInline,
         CourseThroughEnrollmentInline,
     ]
+    date_hierarchy = "created_at"
 
     readonly_fields = []
 
@@ -68,7 +69,7 @@ class CustomAdminSplitDateTime(admin.widgets.AdminSplitDateTime):
 class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Session admin."""
 
-    list_display = ("exam", "status", "start_date", "end_date")
+    list_display = ("exam", "status", "start_date", "end_date", "is_published")
     list_filter = ("status", "exam")
     inlines = [ExamThroughEnrollmentInline]
     formfield_overrides = {
@@ -77,6 +78,7 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
             "help_text": "Seconds doesnot matters",
         },
     }
+    date_hierarchy = "created_at"
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -88,12 +90,24 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
 class ExamThroughEnrollmentAdmin(admin.ModelAdmin):
     """Exam through enrollment admin."""
 
-    list_display = ("id", "enrollment", "exam", "selected_session", "score", "status")
-    list_filter = ("status", "enrollment", "exam", "selected_session")
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("enrollment", "exam")
+            .prefetch_related("question_states")
+        )
+
+    def question(self, obj):
+        return obj.question_states.all().count()
+
+    list_display = ("id", "enrollment", "exam", "question", "score", "status")
+    list_filter = ("status", "exam", "selected_session")
     inlines = [
         QuestionEnrollmentInline,
     ]
     readonly_fields = []
+    date_hierarchy = "enrollment__created_at"
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -106,4 +120,8 @@ class QuestionEnrollmentAdmin(admin.ModelAdmin):
     """Question enrollment admin."""
 
     list_display = ("exam_stat", "question", "selected_option", "updated_at")
-    list_filter = ("exam_stat", "question")
+    list_filter = ("question__exam",)
+    search_fields = (
+        "exam_stat__enrollment__student__first_name",
+        "exam_stat__enrollment__student__last_name",
+    )
