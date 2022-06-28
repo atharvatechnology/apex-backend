@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from notes.models import Content, Note
 
-from .models import Course
+from .models import Course, CourseCategory
 
 
 class CustomStackedInline(nested_admin.NestedStackedInline):
@@ -27,6 +27,7 @@ class ContentInline(CustomTabularInline):
     extra = 1
 
 
+@admin.register(CourseCategory)
 class CourseCategoryAdmin(admin.ModelAdmin):
     """Admin for CourseCategory model."""
 
@@ -54,7 +55,7 @@ class NoteInline(CustomStackedInline):
 
 @admin.register(Course)
 class CourseAdmin(nested_admin.NestedModelAdmin):
-    list_display = ["id"]
+    list_display = ["id", "name"]
     # list
     inlines = [NoteInline]
     list_filter = ("status", "category")

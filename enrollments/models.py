@@ -298,9 +298,92 @@ class CourseThroughEnrollment(models.Model):
     )
     completed_date = models.DateTimeField()
 
+    class Meta:
+        """Meta defination for CourseThroughEnrollment."""
+
+        verbose_name = "CourseThroughEnrollment"
+        verbose_name_plural = "CourseThroughEnrollments"
+
     def __str__(self):
         """Unicode representation of CourseEnrollment."""
         return f"course {self.course} for {self.enrollment}enrollment"
+
+    def __change_course_status(self, course_status):
+        self.course_status = course_status
+
+    @property
+    def current_course_status(self):
+        return self.course_status
+
+    def initiated_course(self):
+        if self.course_status == CourseEnrollmentStatus.INITIATED:
+            return
+        elif self.course_status == CourseEnrollmentStatus.NEW:
+            return self.__change_course_status(CourseEnrollmentStatus.INITIATED)
+        raise StateTransitionError(
+            f"Cannot be enrolled to new course at {self.course_status} status"
+        )
+
+    def progress_course(self):
+        if self.course_status == CourseEnrollmentStatus.PROGRESS:
+            return
+        elif self.course_status in [
+            CourseEnrollmentStatus.INITIATED,
+            CourseEnrollmentStatus.FINALPHASE,
+            CourseEnrollmentStatus.ONHOLD,
+        ]:
+            return self.__change_course_status(CourseEnrollmentStatus.PROGRESS)
+        raise StateTransitionError(
+            f"Cannot be able to initiated course at {self.course_status} status"
+        )
+
+    def decline_course(self):
+        if self.course_status == CourseEnrollmentStatus.DECLINED:
+            return
+        elif self.course_status in [
+            CourseEnrollmentStatus.INITIATED,
+            CourseEnrollmentStatus.PROGRESS,
+            CourseEnrollmentStatus.FINALPHASE,
+            CourseEnrollmentStatus.ONHOLD,
+        ]:
+            return self.__change_course_status(CourseEnrollmentStatus.DECLINED)
+        raise StateTransitionError(
+            f"Cannot be able to Declined course. Current status is {self.course_status}"
+        )
+
+    def on_hold_course(self):
+        if self.course_status == CourseEnrollmentStatus.ONHOLD:
+            return
+        elif self.course_status in [
+            CourseEnrollmentStatus.INITIATED,
+            CourseEnrollmentStatus.PROGRESS,
+            CourseEnrollmentStatus.FINALPHASE,
+        ]:
+            return self.__change_course_status(CourseEnrollmentStatus.ONHOLD)
+        raise StateTransitionError(
+            f"Cannot be able to be at on hold state during {self.course_status} state"
+        )
+
+    def finalphase_course(self):
+        if self.course_status == CourseEnrollmentStatus.FINALPHASE:
+            return
+        elif self.course_status == CourseEnrollmentStatus.PROGRESS:
+            return self.__change_course_status(CourseEnrollmentStatus.FINALPHASE)
+        raise StateTransitionError(
+            f"Cannot be able be at Final stage of course in {self.course_status} status"
+        )
+
+    def complete_course(self):
+        if self.course_status == CourseEnrollmentStatus.COMPLETED:
+            return
+        if self.course_status in [
+            CourseEnrollmentStatus.FINALPHASE,
+            CourseEnrollmentStatus.PROGRESS,
+        ]:
+            return self.__change_course_status(CourseEnrollmentStatus.COMPLETED)
+        raise StateTransitionError(
+            f"Cannot be able to complete course. Current status is {self.course_status}"
+        )
 
 
 class PhysicalBookCourseEnrollment(models.Model):
