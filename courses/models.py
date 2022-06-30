@@ -25,7 +25,7 @@ class CourseCategory(models.Model):
         verbose_name = "CourseCategory"
 
         verbose_name = "CourseCategory"
-        verbose_name_plural = "CourseCategorys."
+        verbose_name_plural = "CourseCategories"
         ordering = ["id"]
 
     def __str__(self):
