@@ -11,6 +11,9 @@ from exams.api_admin.views import (
     ExamTemplateRetrieveAPIView,
     ExamTemplateUpdateAPIView,
     ExamUpdateAPIView,
+    OptionCreateAPIView,
+    OptionsDeleteAPIView,
+    OptionUpdateAPIView,
     QuestionCreateAPIView,
     QuestionUpdateAPIView,
     SectionCreateAPIView,
@@ -24,6 +27,12 @@ urlpatterns = [
     path("delete/<int:pk>/", ExamDeleteAPIView.as_view(), name="exam-delete"),
     path("list/", ExamListAPIView.as_view(), name="exam-list"),
     path("retrieve/<int:pk>/", ExamRetrieveAPIView.as_view(), name="exam-retrieve"),
+]
+
+option_urls = [
+    path("create/", OptionCreateAPIView.as_view(), name="option-create"),
+    path("update/<int:pk>/", OptionUpdateAPIView.as_view(), name="option-update"),
+    path("delete/<int:pk>/", OptionsDeleteAPIView.as_view(), name="option-delete"),
 ]
 
 question_urls = [
