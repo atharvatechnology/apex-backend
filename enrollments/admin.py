@@ -25,7 +25,7 @@ class CourseThroughEnrollmentInline(admin.TabularInline):
 
     model = CourseThroughEnrollment
     extra = 1
-    readonly_fields = ["course_status"]
+    readonly_fields = ["course_enroll_status"]
 
 
 class QuestionEnrollmentInline(admin.TabularInline):

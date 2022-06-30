@@ -171,9 +171,10 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
 
         """
         exams_data = validated_data.pop("exam_enrolls", None)
+        courses_data = validated_data.pop("courses", None)
         user = self.context["request"].user
         total_price = 0.0
-        if not (exams_data):
+        if exams_data or courses_data:
             raise serializers.ValidationError("Atleast one fields should be non-empty.")
 
         def batch_is_enrolled_and_price(enrolled_objs):
@@ -202,6 +203,15 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
                 selected_session = data.get("selected_session")
                 ExamThroughEnrollment(
                     enrollment=enrollment, exam=exam, selected_session=selected_session
+                ).save()
+        if courses_data:
+            for data in courses_data:
+                course = data.get("course")
+                selected_session = data.get("selected_session")
+                CourseThroughEnrollment(
+                    course=course,
+                    enrollment=enrollment,
+                    selected_session=selected_session,
                 ).save()
         if total_price == 0.0:
             enrollment.status = EnrollmentStatus.ACTIVE

@@ -264,7 +264,7 @@ class CourseEnrollmentStatus:
     INITIATED = "initiated"  # Started the course
     ONHOLD = "on-hold"  # If paused for certain time
     PROGRESS = "progress"  # Go with the flow or Continue the course
-    DECLINED = "declined"  # Unsubscribed/Stop/leave that course in between
+    CANCELED = "canceled"  # Unsubscribed/Stop/leave that course in between
     FINALPHASE = "final phase"  # Stage after 75% completion
     COMPLETED = "completed"  # 100% course completion
 
@@ -273,7 +273,7 @@ class CourseEnrollmentStatus:
         (INITIATED, "initiated"),
         (ONHOLD, "on-hold"),
         (PROGRESS, "progress"),
-        (DECLINED, "declined"),
+        (CANCELED, "canceled"),
         (FINALPHASE, "final phase"),
         (COMPLETED, "completed"),
     ]
@@ -291,7 +291,7 @@ class CourseThroughEnrollment(models.Model):
     selected_session = models.ForeignKey(
         Session, related_name="course_enrolls", on_delete=models.CASCADE
     )
-    course_status = models.CharField(
+    course_enroll_status = models.CharField(
         max_length=50,
         choices=CourseEnrollmentStatus.CHOICES,
         default=CourseEnrollmentStatus.NEW,
@@ -308,81 +308,72 @@ class CourseThroughEnrollment(models.Model):
         """Unicode representation of CourseEnrollment."""
         return f"course {self.course} for {self.enrollment}enrollment"
 
-    def __change_course_status(self, course_status):
-        self.course_status = course_status
+    def __change_course_enroll_status(self, course_enroll_status):
+        self.course_enroll_status = course_enroll_status
 
     @property
-    def current_course_status(self):
-        return self.course_status
+    def current_course_enroll_status(self):
+        return self.course_enroll_status
 
     def initiated_course(self):
-        if self.course_status == CourseEnrollmentStatus.INITIATED:
+        if self.course_enroll_status == CourseEnrollmentStatus.INITIATED:
             return
-        elif self.course_status == CourseEnrollmentStatus.NEW:
-            return self.__change_course_status(CourseEnrollmentStatus.INITIATED)
+        elif self.course_enroll_status == CourseEnrollmentStatus.NEW:
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.INITIATED)
         raise StateTransitionError(
-            f"Cannot be enrolled to new course at {self.course_status} status"
+            f"Cannot be enrolled to new course at {self.course_enroll_status} status"
         )
 
     def progress_course(self):
-        if self.course_status == CourseEnrollmentStatus.PROGRESS:
+        if self.course_enroll_status == CourseEnrollmentStatus.PROGRESS:
             return
-        elif self.course_status in [
+        elif self.course_enroll_status in [
             CourseEnrollmentStatus.INITIATED,
             CourseEnrollmentStatus.FINALPHASE,
             CourseEnrollmentStatus.ONHOLD,
         ]:
-            return self.__change_course_status(CourseEnrollmentStatus.PROGRESS)
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.PROGRESS)
         raise StateTransitionError(
-            f"Cannot be able to initiated course at {self.course_status} status"
+            f"Cannot be able to initiated course at {self.course_enroll_status} status"
         )
 
-    def decline_course(self):
-        if self.course_status == CourseEnrollmentStatus.DECLINED:
+    def cancel_course(self):
+        if self.course_enroll_status == CourseEnrollmentStatus.CANCELED:
             return
-        elif self.course_status in [
+        elif self.course_enroll_status in [
             CourseEnrollmentStatus.INITIATED,
             CourseEnrollmentStatus.PROGRESS,
             CourseEnrollmentStatus.FINALPHASE,
             CourseEnrollmentStatus.ONHOLD,
         ]:
-            return self.__change_course_status(CourseEnrollmentStatus.DECLINED)
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.CANCELED)
         raise StateTransitionError(
-            f"Cannot be able to Declined course. Current status is {self.course_status}"
+            f"Cannot get Cancel from course at {self.course_enroll_status} status"
         )
 
     def on_hold_course(self):
-        if self.course_status == CourseEnrollmentStatus.ONHOLD:
+        if self.course_enroll_status == CourseEnrollmentStatus.ONHOLD:
             return
-        elif self.course_status in [
+        elif self.course_enroll_status in [
             CourseEnrollmentStatus.INITIATED,
             CourseEnrollmentStatus.PROGRESS,
             CourseEnrollmentStatus.FINALPHASE,
         ]:
-            return self.__change_course_status(CourseEnrollmentStatus.ONHOLD)
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.ONHOLD)
         raise StateTransitionError(
-            f"Cannot be able to be at on hold state during {self.course_status} state"
-        )
-
-    def finalphase_course(self):
-        if self.course_status == CourseEnrollmentStatus.FINALPHASE:
-            return
-        elif self.course_status == CourseEnrollmentStatus.PROGRESS:
-            return self.__change_course_status(CourseEnrollmentStatus.FINALPHASE)
-        raise StateTransitionError(
-            f"Cannot be able be at Final stage of course in {self.course_status} status"
+            f"Cannot be at on hold state during {self.course_enroll_status} state"
         )
 
     def complete_course(self):
-        if self.course_status == CourseEnrollmentStatus.COMPLETED:
+        if self.course_enroll_status == CourseEnrollmentStatus.COMPLETED:
             return
-        if self.course_status in [
+        elif self.course_enroll_status in [
             CourseEnrollmentStatus.FINALPHASE,
             CourseEnrollmentStatus.PROGRESS,
         ]:
-            return self.__change_course_status(CourseEnrollmentStatus.COMPLETED)
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.COMPLETED)
         raise StateTransitionError(
-            f"Cannot be able to complete course. Current status is {self.course_status}"
+            f"Cannot complete course. Current status is {self.course_enroll_status}"
         )
 
 
