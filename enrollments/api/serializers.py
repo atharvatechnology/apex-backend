@@ -66,10 +66,10 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "course",
-            "enrollement",
+            # "enrollement",
             "selected_session",
-            "course_status",
-            "joining_date",
+            # "course_status",
+            # "joining_date",
             "completed_date",
             "physical_books",
         )
@@ -85,10 +85,10 @@ class CourseEnrollmentUpdateSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "course",
-            "enrollement",
+            # "enrollement",
             "selected_session",
-            "course_status",
-            "joining_date",
+            # "course_status",
+            # "joining_date",
             "completed_date",
             "physical_books",
         )
@@ -104,10 +104,10 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "course",
-            "enrollement",
+            # "enrollement",
             "selected_session",
-            "course_status",
-            "joining_date",
+            # "course_status",
+            # "joining_date",
             "completed_date",
             "physical_books",
         )

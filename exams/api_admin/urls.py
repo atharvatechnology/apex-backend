@@ -7,6 +7,7 @@ from exams.api_admin.views import (
     ExamRetrieveAPIView,
     ExamTemplateCreateAPIView,
     ExamTemplateDeleteAPIView,
+    ExamTemplateDropdownListAPIView,
     ExamTemplateListAPIView,
     ExamTemplateRetrieveAPIView,
     ExamTemplateUpdateAPIView,
@@ -50,6 +51,11 @@ template_urls = [
     path("section/", include(section_urls)),
     path("create/", ExamTemplateCreateAPIView.as_view(), name="template-create"),
     path("list/", ExamTemplateListAPIView.as_view(), name="template-list"),
+    path(
+        "list/dropdown/",
+        ExamTemplateDropdownListAPIView.as_view(),
+        name="template-list-dropdown",
+    ),
     path(
         "retrieve/<int:pk>/",
         ExamTemplateRetrieveAPIView.as_view(),
