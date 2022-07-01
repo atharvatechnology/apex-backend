@@ -313,6 +313,14 @@ class ExamTemplateRetrieveSerializer(CreatorSerializer):
         return obj.full_marks - sum_marks
 
 
+class ExamTemplateMiniSerializer(serializers.ModelSerializer):
+    """Serializer for ExamTemplateMini."""
+
+    class Meta:
+        model = ExamTemplate
+        fields = ("id", "name")
+
+
 class ExamTemplateListAdminSerializer(ExamTemplateListSerializer):
     """Serializer to list exam templates for admin."""
 

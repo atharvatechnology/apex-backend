@@ -11,13 +11,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from courses.api.paginations import StandardResultsSetPagination
-from exams.models import Exam, ExamTemplate, Question, Section
+from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Section
 
 from .serializers import (
     ExamCreateSerializer,
     ExamListAdminSerializer,
     ExamRetrieveAdminSerializer,
     ExamTemplateCreateUpdateSerializer,
+    ExamTemplateMiniSerializer,
     ExamTemplateRetrieveSerializer,
     ExamUpdateSerializer,
     OptionCUDSerializer,
@@ -58,11 +59,23 @@ class ExamTemplateCreateAPIView(BaseCreatorCreateAPIView):
     permission_classes = []
 
 
+class ExamTemplateDropdownListAPIView(ListAPIView):
+    serializer_class = ExamTemplateMiniSerializer
+    queryset = ExamTemplate.objects.all()
+    permission_classes = []
+
+    def get_queryset(self):
+        return super().get_queryset().filter(status=ExamTemplateStatus.COMPLETED)
+
+
 class ExamTemplateListAPIView(ListAPIView):
     serializer_class = ExamTemplateCreateUpdateSerializer
     # TODO: permit admin only
     # permission_classes = []
     queryset = ExamTemplate.objects.all()
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    pagination_class = StandardResultsSetPagination
 
 
 class ExamTemplateRetrieveAPIView(RetrieveAPIView):
