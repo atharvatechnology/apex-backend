@@ -59,38 +59,26 @@ class PhysicalBookCourseEnrollmentSerializer(serializers.ModelSerializer):
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     """Course when the user is enrolled."""
 
-    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
-
     class Meta:
         model = CourseThroughEnrollment
         fields = (
             "id",
-            "course",
-            # "enrollement",
-            "selected_session",
-            # "course_status",
-            # "joining_date",
-            "completed_date",
-            "physical_books",
+            "course_enroll_status",
         )
 
 
 class CourseEnrollmentUpdateSerializer(serializers.ModelSerializer):
     """Course Update serializer after the user is enrolled."""
 
-    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
-
     class Meta:
         model = CourseThroughEnrollment
         fields = (
             "id",
             "course",
-            # "enrollement",
+            "enrollment",
             "selected_session",
-            # "course_status",
-            # "joining_date",
+            "course_enroll_status",
             "completed_date",
-            "physical_books",
         )
 
 
@@ -104,10 +92,9 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "course",
-            # "enrollement",
+            "enrollment",
             "selected_session",
-            # "course_status",
-            # "joining_date",
+            "course_enroll_status",
             "completed_date",
             "physical_books",
         )
@@ -138,7 +125,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
     """
 
     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
-    courses = CourseEnrollmentSerializer(many=True)
+    courses = CourseEnrollmentSerializer(many=True, source="course_enrolls")
 
     class Meta:
         model = Enrollment
@@ -171,10 +158,10 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
 
         """
         exams_data = validated_data.pop("exam_enrolls", None)
-        courses_data = validated_data.pop("courses", None)
+        courses_data = validated_data.pop("course_enrolls", None)
         user = self.context["request"].user
         total_price = 0.0
-        if exams_data or courses_data:
+        if not (exams_data or courses_data):
             raise serializers.ValidationError("Atleast one fields should be non-empty.")
 
         def batch_is_enrolled_and_price(enrolled_objs):
