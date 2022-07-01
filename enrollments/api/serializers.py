@@ -64,7 +64,6 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "course",
-            "course_enroll_status",
             "selected_session",
             "completed_date",
         )
