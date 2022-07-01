@@ -63,6 +63,9 @@ class ExamTemplateListAPIView(ListAPIView):
     # TODO: permit admin only
     # permission_classes = []
     queryset = ExamTemplate.objects.all()
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    pagination_class = StandardResultsSetPagination
 
 
 class ExamTemplateRetrieveAPIView(RetrieveAPIView):
