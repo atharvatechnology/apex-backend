@@ -28,6 +28,11 @@ class CourseThroughEnrollmentInline(admin.TabularInline):
     readonly_fields = ["course_enroll_status"]
 
 
+@admin.register(CourseThroughEnrollment)
+class CourseThroughEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ["id", "enrollment"]
+
+
 class QuestionEnrollmentInline(admin.TabularInline):
     """QuestionEnrollment Inline."""
 
