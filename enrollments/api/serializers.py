@@ -63,7 +63,10 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
         model = CourseThroughEnrollment
         fields = (
             "id",
+            "course",
             "course_enroll_status",
+            "selected_session",
+            "completed_date",
         )
 
 
@@ -125,7 +128,9 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
     """
 
     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
-    courses = CourseEnrollmentSerializer(many=True, source="course_enrolls")
+    courses = CourseEnrollmentSerializer(
+        many=True, source="course_enrolls", required=False
+    )
 
     class Meta:
         model = Enrollment
@@ -157,6 +162,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
             other validation error
 
         """
+
         exams_data = validated_data.pop("exam_enrolls", None)
         courses_data = validated_data.pop("course_enrolls", None)
         user = self.context["request"].user
