@@ -20,6 +20,7 @@ from .serializers import (
     ExamTemplateCreateUpdateSerializer,
     ExamTemplateRetrieveSerializer,
     ExamUpdateSerializer,
+    OptionCUDSerializer,
     QuestionCreateSerializer,
     QuestionUpdateSerializer,
     SectionCRUDSerializer,
@@ -81,6 +82,27 @@ class ExamTemplateDeleteAPIView(DestroyAPIView):
     permission_classes = []
     # permission_classes = [IsAuthenticated]
     queryset = ExamTemplate.objects.all()
+
+
+class OptionCreateAPIView(CreateAPIView):
+    serializer_class = OptionCUDSerializer
+    # permission_classes =
+
+
+class OptionUpdateAPIView(UpdateAPIView):
+    serializer_class = OptionCUDSerializer
+    # permission_classes =
+    queryset = Question.objects.all()
+
+
+class OptionsDeleteAPIView(DestroyAPIView):
+    serializer_class = OptionCUDSerializer
+    # permission_classes =
+    queryset = Question.objects.all()
+
+
+class QuestionDeleteAPIView(DestroyAPIView):
+    queryset = Question.objects.all()
 
 
 class ExamCreateAPIView(BaseCreatorCreateAPIView):

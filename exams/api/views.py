@@ -4,24 +4,20 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from courses.api.paginations import StandardResultsSetPagination
 from exams.api.permissions import IsExamEnrolledActive
 from exams.models import Exam, ExamStatus
 
-from .serializers import (
-    ExamCreateSerializer,
+from .serializers import (  # ExamUpdateSerializer,
     ExamListSerializer,
     ExamPaperSerializer,
     ExamRetrievePoolSerializer,
     ExamRetrieveSerializer,
-    ExamUpdateSerializer,
 )
 
-
-class ExamCreateAPIView(BaseCreatorCreateAPIView):
-    serializer_class = ExamCreateSerializer
-    # permission_classes = [AllowAny]
+# class ExamCreateAPIView(BaseCreatorCreateAPIView):
+#     serializer_class = ExamCreateSerializer
+#     # permission_classes = [AllowAny]
 
 
 class ExamListAPIView(ListAPIView):
@@ -45,10 +41,10 @@ class ExamRetrievePoolAPIView(RetrieveAPIView):
     queryset = Exam.objects.all()
 
 
-class ExamUpdateAPIView(BaseCreatorUpdateAPIView):
-    serializer_class = ExamUpdateSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = Exam.objects.all()
+# class ExamUpdateAPIView(BaseCreatorUpdateAPIView):
+#     serializer_class = ExamUpdateSerializer
+#     permission_classes = [IsAuthenticated]
+#     queryset = Exam.objects.all()
 
 
 class ExamPaperAPIView(RetrieveAPIView):

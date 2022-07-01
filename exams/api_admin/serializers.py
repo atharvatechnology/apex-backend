@@ -1,15 +1,61 @@
+from django.db import transaction
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
 from enrollments.api.serializers import SessionSerializer
 from exams.api.serializers import ExamTemplateListSerializer
-from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Section
+from exams.models import (
+    Exam,
+    ExamTemplate,
+    ExamTemplateStatus,
+    Option,
+    Question,
+    Section,
+)
 
 from .validators import validate_gt_than_template_marks
 
 
+class OptionBaseSerializer(serializers.ModelSerializer):
+    """Base serializer for Option model."""
+
+    class Meta:
+        model = Option
+        fields = (
+            "id",
+            "detail",
+            "correct",
+            "img",
+        )
+
+
+class OptionUpdateOnExamUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for Option model when Exam is updated."""
+
+    id = serializers.IntegerField(required=True)
+
+    class Meta:
+        model = Option
+        fields = (
+            "id",
+            "detail",
+            "correct",
+            "img",
+        )
+
+
+class OptionCUDSerializer(OptionBaseSerializer):
+    """Serializer for creating options."""
+
+    class Meta:
+        model = Option
+        fields = OptionBaseSerializer.Meta.fields + ("question",)
+
+
 class QuestionCreateSerializer(serializers.ModelSerializer):
     """Serializer when admin is creating a question."""
+
+    options = OptionBaseSerializer(many=True)
 
     class Meta:
         model = Question
@@ -19,8 +65,19 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
             "img",
             "exam",
             "section",
+            "options",
             "feedback",
         )
+
+    @transaction.atomic
+    def create(self, validated_data):
+        options = validated_data.pop("options", None)
+        if not options:
+            raise serializers.ValidationError("Options are required.")
+        question = Question.objects.create(**validated_data)
+        for option in options:
+            Option.objects.create(question=question, **option)
+        return question
 
     # def validate(self, attrs):
 
@@ -30,6 +87,8 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
 class QuestionUpdateSerializer(serializers.ModelSerializer):
     """Serializer when admin is updating a question."""
 
+    options = OptionUpdateOnExamUpdateSerializer(many=True)
+
     class Meta:
         model = Question
         fields = (
@@ -39,6 +98,7 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
             "exam",
             "section",
             "feedback",
+            "options",
         )
         read_only_fields = (
             "id",
@@ -46,9 +106,22 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
             "section",
         )
 
-    # def validate(self, attrs):
-
-    #     return
+    def update(self, instance, validated_data):
+        options = validated_data.pop("options", None)
+        instance = super().update(instance, validated_data)
+        instance_options_id = [option.id for option in instance.options.all()]
+        if options:
+            # check for invalid options data
+            for option in options:
+                option_id = option.pop("id", None)
+                if not option_id:
+                    raise serializers.ValidationError(
+                        "Please provide id for all options"
+                    )
+                if option_id not in instance_options_id:
+                    raise serializers.ValidationError("Invalid option id")
+                Option.objects.filter(id=option_id).update(**option)
+        return instance
 
 
 def get_total_section_marks(template):
@@ -104,6 +177,68 @@ class SectionCRUDSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class OptionsOnExamRetrievalSerializer(serializers.ModelSerializer):
+    """Serializer for options on exam retrieval."""
+
+    class Meta:
+        model = Option
+        fields = (
+            "id",
+            "detail",
+            "correct",
+            "img",
+        )
+
+
+class QuestionOnExamRetrievalSerializer(serializers.ModelSerializer):
+    """Serializer for Question when user is retrieving an exam."""
+
+    options = OptionsOnExamRetrievalSerializer(many=True)
+
+    class Meta:
+        model = Question
+        fields = (
+            "id",
+            "detail",
+            "img",
+            "options",
+            "feedback",
+            "section",
+        )
+
+
+class SectionOnExamRetrievalSerializer(serializers.ModelSerializer):
+    """Serializer for Section on Exam Retrieval."""
+
+    # questions = QuestionOnExamRetrievalSerializer(many=True)
+
+    class Meta:
+        model = Section
+        fields = (
+            "id",
+            "name",
+            "num_of_questions",
+            "pos_marks",
+            "neg_percentage",
+            # "questions",
+        )
+
+
+class ExamTemplateOnExamRetrievalSerializer(serializers.ModelSerializer):
+    """Serializer for ExamTemplate on Exam Retrieval."""
+
+    sections = SectionOnExamRetrievalSerializer(many=True)
+
+    class Meta:
+        model = ExamTemplate
+        fields = (
+            "id",
+            "name",
+            "full_marks",
+            "sections",
+        )
+
+
 class ExamTemplateCreateUpdateSerializer(CreatorSerializer):
     """Exam Template Serializer."""
 
@@ -124,6 +259,10 @@ class ExamTemplateCreateUpdateSerializer(CreatorSerializer):
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
     def update(self, instance, validated_data):
+        if instance.status == ExamTemplateStatus.COMPLETED:
+            raise serializers.ValidationError(
+                "Exam Template is already completed. You can not update it."
+            )
         full_marks = validated_data.get("full_marks", instance.full_marks)
         status = validated_data.get("status", instance.status)
         total_section_marks = get_total_section_marks(instance)
@@ -175,6 +314,8 @@ class ExamTemplateRetrieveSerializer(CreatorSerializer):
 
 
 class ExamTemplateListAdminSerializer(ExamTemplateListSerializer):
+    """Serializer to list exam templates for admin."""
+
     class Meta:
         model = ExamTemplate
         fields = ExamTemplateListSerializer.Meta.fields
@@ -229,7 +370,8 @@ class ExamUpdateSerializer(CreatorSerializer):
 class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
     """Serializer when admin is retrieving an exam."""
 
-    template = ExamTemplateListSerializer()
+    template = ExamTemplateOnExamRetrievalSerializer()
+    questions = QuestionOnExamRetrievalSerializer(many=True)
     sessions = SessionSerializer(many=True, read_only=True)
 
     class Meta:
@@ -242,4 +384,5 @@ class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
             "price",
             "template",
             "sessions",
+            "questions",
         )

@@ -242,7 +242,7 @@ class Question(models.Model):
     section = models.ForeignKey(
         Section,
         verbose_name=_("section"),
-        related_name=_("sections"),
+        related_name=_("questions"),
         on_delete=models.CASCADE,
     )
     feedback = models.TextField(_("feedback"), blank=True, null=True)

@@ -4,18 +4,7 @@ from common.api.mixin import EnrolledSerializerMixin
 from common.api.serializers import CreatorSerializer
 from enrollments.api.serializers import ExamEnrollmentPaperSerializer, SessionSerializer
 from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
-from exams.models import Exam, ExamTemplate, Option, Question  # ExamTemplateStatus,
-
-# def get_total_section_marks(template):
-#     """Calculate total marks for the template.
-
-#     Returns
-#     -------
-#     decimal
-#         Total marks of the sections in the template.
-
-#     """
-#     return sum(section.get_section_marks() for section in template.sections.all())
+from exams.models import Exam, ExamTemplate, Option, Question
 
 
 class ExamTemplateSerializer(CreatorSerializer):
