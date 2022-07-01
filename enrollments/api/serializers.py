@@ -23,8 +23,8 @@ class SessionSerializer(CreatorSerializer):
         fields = CreatorSerializer.Meta.fields + (
             "start_date",
             "end_date",
-            "status",
-            "exam",
+            # "status",
+            # "exam",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
 

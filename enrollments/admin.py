@@ -74,8 +74,9 @@ class CustomAdminSplitDateTime(admin.widgets.AdminSplitDateTime):
 class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Session admin."""
 
-    list_display = ("exam", "status", "start_date", "end_date", "is_published")
-    list_filter = ("status", "exam")
+    # list_display = ("exam", "start_date")These field were in list display
+    list_display = ("end_date", "is_published")
+    # list_filter = ("status", "exam")
     inlines = [ExamThroughEnrollmentInline]
     formfield_overrides = {
         models.DateTimeField: {

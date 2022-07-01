@@ -7,7 +7,7 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import ExamEnrollmentStatus, SessionStatus
+from .models import ExamEnrollmentStatus, ExamSessionStatus
 from .tasks import calculate_score
 
 channel_layer = get_channel_layer()
@@ -23,11 +23,11 @@ def on_exam_attempt(sender, instance, **kwargs):
 
 @receiver(post_save, sender="enrollments.Session")
 def on_exam_session_save(sender, instance, **kwargs):
-    if instance.status == SessionStatus.INACTIVE:
+    if instance.status == ExamSessionStatus.INACTIVE:
         print("session inactive")
         instance.exam.schedule_exam()
 
-    elif instance.status == SessionStatus.ACTIVE:
+    elif instance.status == ExamSessionStatus.ACTIVE:
         print("session active")
         instance.exam.start_exam()
         async_to_sync(channel_layer.group_send)(
@@ -36,7 +36,7 @@ def on_exam_session_save(sender, instance, **kwargs):
             {"type": "get_exam", "status": instance.exam.status},
         )
 
-    elif instance.status == SessionStatus.ENDED:
+    elif instance.status == ExamSessionStatus.ENDED:
         print("session ended")
         instance.exam.finish_exam()
         # prevent further enrollment into that session
@@ -70,7 +70,7 @@ def on_exam_session_save(sender, instance, **kwargs):
                 # session = Session.objects.get(id=session_id)
                 instance.publish_results()
 
-    elif instance.status == SessionStatus.RESULTSOUT:
+    elif instance.status == ExamSessionStatus.RESULTSOUT:
         print("session results out")
         # clear the cache
         cache.delete(f"session_{instance.id}_total_results")
@@ -81,6 +81,6 @@ def on_exam_session_save(sender, instance, **kwargs):
             {
                 "type": "get_session_status",
                 "is_published": instance.is_visible
-                and (instance.status == SessionStatus.RESULTSOUT),
+                and (instance.status == ExamSessionStatus.RESULTSOUT),
             },
         )

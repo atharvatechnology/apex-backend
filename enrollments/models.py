@@ -75,7 +75,7 @@ class Enrollment(models.Model):
         return f"{self.student.__str__()} at {self.created_at}"
 
 
-class SessionStatus:
+class ExamSessionStatus:
     ACTIVE = "active"  # session is active
     INACTIVE = "inactive"  # session is inactive
     ENDED = "ended"  # session has ended
@@ -85,6 +85,17 @@ class SessionStatus:
         (INACTIVE, "inactive"),
         (ENDED, "ended"),
         (RESULTSOUT, "resultsout"),
+    ]
+
+
+class CourseSessionStatus:
+    ACTIVE = "active"  # session is active
+    INACTIVE = "inactive"  # session is inactive
+    ENDED = "ended"  # session has ended
+    CHOICES = [
+        (ACTIVE, "active"),
+        (INACTIVE, "inactive"),
+        (ENDED, "ended"),
     ]
 
 
@@ -106,18 +117,6 @@ class Session(PublishedModel, CreatorBaseModel):
     )
     end_date = ZeroSecondDateTimeField(
         _("end_date"), validators=[validate_date_time_gt_now]
-    )
-    status = models.CharField(
-        _("status"),
-        max_length=32,
-        choices=SessionStatus.CHOICES,
-        default=SessionStatus.INACTIVE,
-    )
-    exam = models.ForeignKey(
-        "exams.Exam",
-        verbose_name=_("exam"),
-        related_name="sessions",
-        on_delete=models.CASCADE,
     )
     start_task = models.CharField(
         _("start_task"), max_length=256, null=True, blank=True
@@ -231,32 +230,108 @@ class Session(PublishedModel, CreatorBaseModel):
         human_readable_date = self.created_at.strftime("%Y-%m-%d %H:%M %p")
         return f"id - {self.id} - createdAt - {human_readable_date}"
 
+
+class ExamSession(Session):
+    """Model Defination for ExamSession."""
+
+    status = models.CharField(
+        _("status"),
+        max_length=32,
+        choices=ExamSessionStatus.CHOICES,
+        default=ExamSessionStatus.INACTIVE,
+    )
+    exam = models.ForeignKey(
+        "exams.Exam",
+        verbose_name=_("exam"),
+        related_name="sessions",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        """Meta difination of ExamSession."""
+
+        verbose_name = "Exam Session"
+        verbose_name_plural = "Exam Sessions"
+
+    def __str__(self):
+        """Unicode representation of Exam Session."""
+        return self.status
+
     def __change_status(self, status):
         self.status = status
         self.save()
 
     def activate_session(self):
-        if self.status == SessionStatus.ACTIVE:
+        if self.status == ExamSessionStatus.ACTIVE:
             return
-        if self.status == SessionStatus.INACTIVE:
-            return self.__change_status(SessionStatus.ACTIVE)
+        if self.status == ExamSessionStatus.INACTIVE:
+            return self.__change_status(ExamSessionStatus.ACTIVE)
         raise StateTransitionError(f"Session cannot be activated from {self.status}")
 
     def end_session(self):
         if self.start_task:
             self.delete_tasks()
-        if self.status == SessionStatus.ENDED:
+        if self.status == ExamSessionStatus.ENDED:
             return
-        if self.status == SessionStatus.ACTIVE:
-            return self.__change_status(SessionStatus.ENDED)
+        if self.status == ExamSessionStatus.ACTIVE:
+            return self.__change_status(ExamSessionStatus.ENDED)
         raise StateTransitionError(f"Session cannot be ended from {self.status}")
 
     def publish_results(self):
-        if self.status == SessionStatus.RESULTSOUT:
+        if self.status == ExamSessionStatus.RESULTSOUT:
             return
-        if self.status == SessionStatus.ENDED:
-            return self.__change_status(SessionStatus.RESULTSOUT)
+        if self.status == ExamSessionStatus.ENDED:
+            return self.__change_status(ExamSessionStatus.RESULTSOUT)
         raise StateTransitionError(f"Session cannot be activated from {self.status}")
+
+
+class CourseSession(Session):
+    """Model Defination of CourseSession."""
+
+    status = models.CharField(
+        _("status"),
+        max_length=32,
+        choices=CourseSessionStatus.CHOICES,
+        default=CourseSessionStatus.INACTIVE,
+    )
+    course = models.ForeignKey(
+        "courses.Course",
+        verbose_name=_("course"),
+        related_name="sessions",
+        on_delete=models.CASCADE,
+    )
+    link = models.URLField()
+    password = models.CharField(max_length=50)
+
+    def __str__(self):
+        """Unicode representation of CourseSession."""
+        return self.exam
+
+    class Meta:
+        """Meta defination of Course Session."""
+
+        verbose_name = "Course Session"
+        verbose_name_plural = "Course Sessions"
+
+    def __change_status(self, status):
+        self.status = status
+        self.save()
+
+    def activate_session(self):
+        if self.status == CourseSessionStatus.ACTIVE:
+            return
+        if self.status == CourseSessionStatus.INACTIVE:
+            return self.__change_status(CourseSessionStatus.ACTIVE)
+        raise StateTransitionError(f"Session cannot be activated from {self.status}")
+
+    def end_session(self):
+        # if self.start_task:
+        # self.delete_tasks()
+        if self.status == CourseSessionStatus.ENDED:
+            return
+        if self.status == CourseSessionStatus.ACTIVE:
+            return self.__change_status(CourseSessionStatus.ENDED)
+        raise StateTransitionError(f"Session cannot be ended from {self.status}")
 
 
 class CourseEnrollmentStatus:
