@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework.generics import DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
@@ -23,6 +24,22 @@ class SessionUpdateAPIView(BaseCreatorUpdateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = Session.objects.all()
 
+    def can_update_object(self, obj):
+        """Check if the user can update the object.
+
+        Raises a PermissionDenied exception
+            if the user cannot update a session which is ended.
+        """
+        if obj.end_date < timezone.now():
+            self.permission_denied(
+                self.request, message="Cannot update a session which is ended."
+            )
+
+    def get_object(self):
+        obj = super().get_object()
+        self.can_update_object(obj)
+        return obj
+
 
 class SessionListAPIView(ListAPIView):
     """List all sessions for an exam."""
@@ -40,3 +57,20 @@ class SessionDeleteAPIView(DestroyAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = Session.objects.all()
+
+    def can_delete(self, object):
+        """Check if the user can delete the object.
+
+        Raises a PermissionDenied exception
+            if the user cannot delete a session which is ended.
+        """
+        if object.start_date < timezone.now():
+            self.permission_denied(
+                self.request,
+                message="Cannot delete a session that has already started.",
+            )
+
+    def get_object(self):
+        obj = super().get_object()
+        self.can_delete(obj)
+        return obj
