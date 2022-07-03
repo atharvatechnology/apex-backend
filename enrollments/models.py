@@ -151,7 +151,7 @@ class Session(PublishedModel, CreatorBaseModel):
         super().delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        """Set up tasks on create session."""
+        """Set up tasks only on create session."""
         if not self.id:
             super().save(*args, **kwargs)
             self.setup_tasks()
@@ -269,8 +269,8 @@ class ExamSession(Session):
         raise StateTransitionError(f"Session cannot be activated from {self.status}")
 
     def end_session(self):
-        if self.start_task:
-            super().delete_tasks()
+        # if self.start_task:
+        #     self.delete_tasks()
         if self.status == ExamSessionStatus.ENDED:
             return
         if self.status == ExamSessionStatus.ACTIVE:
