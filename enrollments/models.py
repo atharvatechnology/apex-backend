@@ -270,7 +270,7 @@ class ExamSession(Session):
 
     def end_session(self):
         if self.start_task:
-            self.delete_tasks()
+            super().delete_tasks()
         if self.status == ExamSessionStatus.ENDED:
             return
         if self.status == ExamSessionStatus.ACTIVE:
@@ -340,7 +340,6 @@ class CourseEnrollmentStatus:
     ONHOLD = "on-hold"  # If paused for certain time
     PROGRESS = "progress"  # Go with the flow or Continue the course
     CANCELED = "canceled"  # Unsubscribed/Stop/leave that course in between
-    FINALPHASE = "final phase"  # Stage after 75% completion
     COMPLETED = "completed"  # 100% course completion
 
     CHOICES = [
@@ -349,7 +348,6 @@ class CourseEnrollmentStatus:
         (ONHOLD, "on-hold"),
         (PROGRESS, "progress"),
         (CANCELED, "canceled"),
-        (FINALPHASE, "final phase"),
         (COMPLETED, "completed"),
     ]
 
