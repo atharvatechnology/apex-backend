@@ -72,6 +72,9 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         options = validated_data.pop("options", None)
+        num_correct_options = sum(option.get("correct", 0) for option in options)
+        if num_correct_options != 1:
+            raise serializers.ValidationError("Exactly one option must be correct.")
         if not options:
             raise serializers.ValidationError("Options are required.")
         question = Question.objects.create(**validated_data)
