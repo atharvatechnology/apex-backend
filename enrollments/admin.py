@@ -6,9 +6,9 @@ from common.admin import CreatorBaseModelAdmin
 from enrollments.models import (
     CourseThroughEnrollment,
     Enrollment,
+    ExamSession,
     ExamThroughEnrollment,
     QuestionEnrollment,
-    Session,
 )
 
 
@@ -70,13 +70,13 @@ class CustomAdminSplitDateTime(admin.widgets.AdminSplitDateTime):
         forms.MultiWidget.__init__(self, widgets, attrs)
 
 
-@admin.register(Session)
-class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
+@admin.register(ExamSession)
+class ExamSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Session admin."""
 
-    # list_display = ("exam", "start_date")These field were in list display
+    list_display = ("exam", "start_date")  # These field were in list display
     list_display = ("end_date", "is_published")
-    # list_filter = ("status", "exam")
+    list_filter = ("status", "exam")
     inlines = [ExamThroughEnrollmentInline]
     formfield_overrides = {
         models.DateTimeField: {
