@@ -402,7 +402,6 @@ class CourseThroughEnrollment(models.Model):
             return
         elif self.course_enroll_status in [
             CourseEnrollmentStatus.INITIATED,
-            CourseEnrollmentStatus.FINALPHASE,
             CourseEnrollmentStatus.ONHOLD,
         ]:
             return self.__change_course_enroll_status(CourseEnrollmentStatus.PROGRESS)
@@ -416,7 +415,6 @@ class CourseThroughEnrollment(models.Model):
         elif self.course_enroll_status in [
             CourseEnrollmentStatus.INITIATED,
             CourseEnrollmentStatus.PROGRESS,
-            CourseEnrollmentStatus.FINALPHASE,
             CourseEnrollmentStatus.ONHOLD,
         ]:
             return self.__change_course_enroll_status(CourseEnrollmentStatus.CANCELED)
@@ -430,7 +428,6 @@ class CourseThroughEnrollment(models.Model):
         elif self.course_enroll_status in [
             CourseEnrollmentStatus.INITIATED,
             CourseEnrollmentStatus.PROGRESS,
-            CourseEnrollmentStatus.FINALPHASE,
         ]:
             return self.__change_course_enroll_status(CourseEnrollmentStatus.ONHOLD)
         raise StateTransitionError(
@@ -441,7 +438,6 @@ class CourseThroughEnrollment(models.Model):
         if self.course_enroll_status == CourseEnrollmentStatus.COMPLETED:
             return
         elif self.course_enroll_status in [
-            CourseEnrollmentStatus.FINALPHASE,
             CourseEnrollmentStatus.PROGRESS,
         ]:
             return self.__change_course_enroll_status(CourseEnrollmentStatus.COMPLETED)
