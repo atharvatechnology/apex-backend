@@ -28,9 +28,9 @@ from enrollments.models import (
     CourseThroughEnrollment,
     Enrollment,
     ExamEnrollmentStatus,
+    ExamSessionStatus,
     ExamThroughEnrollment,
     PhysicalBookCourseEnrollment,
-    SessionStatus,
 )
 
 
@@ -113,7 +113,7 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         # if (
         #     # the exam is still in progress
         #     exam_enrollment.selected_session.status
-        #     == SessionStatus.ENDED
+        #     == ExamSessionStatus.ENDED
         # ) and (
         #     # the exam result has not been calculated yet
         #     exam_enrollment.status
@@ -121,9 +121,9 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         # ):
         selected_session = exam_enrollment.selected_session
         if selected_session.is_visible and (
-            selected_session.status == SessionStatus.RESULTSOUT
+            selected_session.status == ExamSessionStatus.RESULTSOUT
         ):
-            # if (selected_session.status == SessionStatus.RESULTSOUT):
+            # if (selected_session.status == ExamSessionStatus.RESULTSOUT):
             return super().retrieve(request, *args, **kwargs)
         if publish_date := selected_session.publish_date:
             error_detail = f"Your result will be published \
@@ -149,7 +149,7 @@ class ExamEnrollmentCheckpointRetrieveAPIView(RetrieveAPIView):
         if (
             # the exam is still in progress
             exam_enrollment.selected_session.status
-            == SessionStatus.ACTIVE
+            == ExamSessionStatus.ACTIVE
         ) and (
             # the exam result has not been calculated yet
             exam_enrollment.status
