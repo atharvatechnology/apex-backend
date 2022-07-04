@@ -49,6 +49,7 @@ api_admin_urls = [
     path("exams/", include("exams.api_admin.urls")),
     path("courses/", include("courses.api_admin.urls")),
     path("notes/", include("notes.api_admin.urls")),
+    path("enrollments/", include("enrollments.api_admin.urls")),
 ]
 
 urlpatterns += [

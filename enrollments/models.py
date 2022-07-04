@@ -151,24 +151,6 @@ class Session(PublishedModel, CreatorBaseModel):
         self.delete_tasks()
         super().delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
-        """Set up tasks only on create session."""
-        if not self.id:
-            super().save(*args, **kwargs)
-            self.setup_tasks()
-        # else:
-        #     # filter the tasks by session id
-        #     tasks = PeriodicTask.objects.filter(
-        #         name__in=[self.start_task, self.end_task]
-        #     )
-
-        #     # tasks = PeriodicTask.objects.filter(kwargs=json.dumps(
-        #     # {"session_id": f"{self.id}"}))
-        #     # delete the tasks
-        #     tasks.delete()
-        # self.setup_tasks()
-        super().save(*args, **kwargs)
-
     def setup_tasks(self):
         """Create the tasks for the session."""
 
@@ -225,6 +207,7 @@ class Session(PublishedModel, CreatorBaseModel):
 
         verbose_name = "Session"
         verbose_name_plural = "Sessions"
+        ordering = ["-id"]
 
     def __str__(self):
         """Unicode representation of Session."""

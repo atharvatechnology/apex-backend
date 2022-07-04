@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 
 from enrollments.api.views import (
     CourseEnrollementCreateAPIView,
@@ -17,93 +17,95 @@ from enrollments.api.views import (
     PhysicalBookCourseEnrollmentListAPIView,
     PhysicalBookCourseEnrollmentRetrieveAPIView,
     PhysicalBookCourseEnrollmentUpdateAPIView,
-    SessionCreateAPIView,
 )
 
-urlpatterns = [
-    path("session/create/", SessionCreateAPIView.as_view(), name="session-create"),
-]
-
-urlpatterns += [
+enrollment_urls = [
     path("create/", EnrollmentCreateAPIView.as_view(), name="enrollment-create"),
     path("list/", EnrollmentListAPIView.as_view(), name="enrollment-list"),
 ]
 
-urlpatterns += [
+exam_urls = [
     path(
-        "exam/submit/<int:pk>",
+        "submit/<int:pk>",
         ExamEnrollmentUpdateAPIView.as_view(),
         name="exam-enrollment-submit",
     ),
     path(
-        "exam/result/<int:pk>",
+        "result/<int:pk>",
         ExamEnrollmentRetrieveAPIView.as_view(),
         name="exam-enrollment-result",
     ),
     path(
-        "exam/result/<int:pk>/pool/",
+        "result/<int:pk>/pool/",
         ExamEnrollmentRetrievePoolAPIView.as_view(),
         name="exam-enrollment-result",
     ),
     path(
-        "exam/checkpoint/<int:pk>",
+        "checkpoint/<int:pk>",
         ExamEnrollmentCheckpointRetrieveAPIView.as_view(),
         name="exam-enrollment-checkpoint",
     ),
 ]
 
-urlpatterns += [
+physical_urls = [
     path(
-        "physical/list/",
+        "list/",
         PhysicalBookCourseEnrollmentListAPIView.as_view(),
         name="physicalbook-list",
     ),
     path(
-        "physical/create/",
+        "create/",
         PhysicalBookCourseEnrollmentCreateAPIView.as_view(),
         name="physicalbook-create",
     ),
     path(
-        "physical/update/<int:pk>/",
+        "update/<int:pk>/",
         PhysicalBookCourseEnrollmentUpdateAPIView.as_view(),
         name="physicalbook-create",
     ),
     path(
-        "physical/retrieve/<int:pk>/",
+        "retrieve/<int:pk>/",
         PhysicalBookCourseEnrollmentRetrieveAPIView.as_view(),
         name="physicalbook-retrieve",
     ),
     path(
-        "physical/delete/<int:pk>/",
+        "delete/<int:pk>/",
         PhysicalBookCourseEnrollmentDestroyAPIView.as_view(),
         name="physicalbook-destroy",
     ),
 ]
 
-urlpatterns += [
+course_enroll_urls = [
     path(
-        "course-enroll/list/",
+        "list/",
         CourseEnrollementListAPIView.as_view(),
         name="course-enroll-list",
     ),
     path(
-        "course-enroll/create/",
+        "create/",
         CourseEnrollementCreateAPIView.as_view(),
         name="course-enroll-create",
     ),
     path(
-        "course-enroll/update/<int:pk>/",
+        "update/<int:pk>/",
         CourseEnrollementUpdateAPIView.as_view(),
         name="course-enroll-update",
     ),
     path(
-        "course-enroll/retrieve/<int:pk>/",
+        "retrieve/<int:pk>/",
         CourseEnrollementRetrieveAPIView.as_view(),
         name="course-enroll-retrieve",
     ),
     path(
-        "course-enroll/destroy/<int:pk>/",
+        "destroy/<int:pk>/",
         CourseEnrollementDestroyAPIView.as_view(),
         name="course-enroll-destroy",
     ),
+]
+
+urlpatterns = [
+    path("", include(enrollment_urls)),
+    path("exam/", include(exam_urls)),
+    path("physical/", include(physical_urls)),
+    path("course-enroll/", include(course_enroll_urls)),
 ]

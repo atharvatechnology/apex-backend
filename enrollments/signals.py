@@ -22,7 +22,11 @@ def on_exam_attempt(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender="enrollments.Session")
-def on_exam_session_save(sender, instance, **kwargs):
+def on_exam_session_save(sender, instance, created, **kwargs):
+    if created:
+        instance.setup_tasks()
+        instance.save()
+
     if instance.status == SessionStatus.INACTIVE:
         print("session inactive")
         instance.exam.schedule_exam()

@@ -10,7 +10,6 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from common.api.views import BaseCreatorCreateAPIView
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
@@ -22,7 +21,6 @@ from enrollments.api.serializers import (
     ExamEnrollmentRetrieveSerializer,
     ExamEnrollmentUpdateSerializer,
     PhysicalBookCourseEnrollmentSerializer,
-    SessionSerializer,
 )
 from enrollments.models import (
     CourseThroughEnrollment,
@@ -32,12 +30,6 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
     SessionStatus,
 )
-
-
-class SessionCreateAPIView(BaseCreatorCreateAPIView):
-    """Create a new session for an exam."""
-
-    serializer_class = SessionSerializer
 
 
 class EnrollmentCreateAPIView(CreateAPIView):
