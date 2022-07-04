@@ -38,6 +38,7 @@ class NoteListAPIView(ListAPIView):
 
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get_queryset(self):
         course_id = self.kwargs.get("course_id")
@@ -60,6 +61,7 @@ class NoteRetrieveAPIView(RetrieveAPIView):
 
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 
 class NoteUpdateAPIView(BaseCreatorUpdateAPIView):
@@ -201,6 +203,7 @@ class RecordedVideoListAPIView(ListAPIView):
     queryset = RecordedVideo.objects.all()
     serializer_class = RecordedVideoSerializer
     pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get_queryset(self):
         course_id = self.kwargs.get("course_id")
@@ -223,6 +226,7 @@ class RecordedVideoRetrieveAPIView(RetrieveAPIView):
 
     queryset = RecordedVideo.objects.all()
     serializer_class = RecordedVideoSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 
 class RecordedVideoUpdateAPIView(BaseCreatorUpdateAPIView):
