@@ -1,14 +1,10 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from notes.api.serializers import (
-    ContentCreateSerializer,
     ContentSerializerAfterEnroll,
     ContentSerializerBeforeEnroll,
-    NoteCreateSerializer,
     NoteSerializerAfterEnroll,
     NoteSerializerBeforeEnroll,
 )
@@ -66,51 +62,6 @@ class NoteRetrieveAPIViewBeforeEnroll(RetrieveAPIView):
     serializer_class = NoteSerializerBeforeEnroll
 
 
-class NoteCreateAPIView(BaseCreatorCreateAPIView):
-    """allows to create note to the user.
-
-    Parameters
-    ----------
-    BaseCreatorCreateAPIView : cls
-        The view allows to create-only endpoint to the user
-
-    """
-
-    querset = Note.objects.all()
-    serializer_class = NoteCreateSerializer
-
-
-class NoteUpdateAPIView(BaseCreatorUpdateAPIView):
-    """allow to update note to the user.
-
-    Parameters
-    ----------
-    BaseCreatorUpdateAPIView : cls
-        The view allow update-only endpoint
-        for a single model instance
-
-    """
-
-    queryset = Note.objects.all()
-    serializer_class = NoteCreateSerializer
-
-
-class NoteDestroyAPIView(DestroyAPIView):
-    """allow to destroy content to the user.
-
-    Parameters
-    ----------
-    DestroyAPIView : cls
-        The view allow for delete-only
-        endpoints for a single model instance
-
-    """
-
-    queryset = Note.objects.all()
-    serializer_class = NoteCreateSerializer
-    permission_classes = [IsAuthenticated]
-
-
 # End Note API
 
 
@@ -164,48 +115,3 @@ class ContentRetrieveAPIViewAfterEnroll(RetrieveAPIView):
 
     queryset = Content.objects.all()
     serializer_class = ContentSerializerAfterEnroll
-
-
-class ContentCreateAPIView(BaseCreatorCreateAPIView):
-    """allows to create content to the user.
-
-    Parameters
-    ----------
-    BaseCreatorCreateAPIView : cls
-        The view allows to create-only endpoint to the user
-
-    """
-
-    queryset = Content.objects.all()
-    serializer_class = ContentCreateSerializer
-
-
-class ContentUpdateAPIView(BaseCreatorUpdateAPIView):
-    """allow to update content to the user.
-
-    Parameters
-    ----------
-    BaseCreatorUpdateAPIView : cls
-        The view allow update-only endpoint
-        for a single model instance
-
-    """
-
-    queryset = Content.objects.all()
-    serializer_class = ContentCreateSerializer
-
-
-class ContentDestroyAPIView(DestroyAPIView):
-    """allow to destroy content to the user.
-
-    Parameters
-    ----------
-    DestroyAPIView : cls
-        The view allow for delete-only endpoints
-        for a single model instance
-
-    """
-
-    queryset = Content.objects.all()
-    serializer_class = ContentCreateSerializer
-    permission_classes = [IsAuthenticated]
