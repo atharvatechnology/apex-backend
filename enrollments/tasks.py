@@ -2,7 +2,7 @@ from celery import shared_task
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
-from enrollments.models import ExamThroughEnrollment, Session
+from enrollments.models import ExamSession, ExamThroughEnrollment
 
 CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
 
@@ -90,7 +90,7 @@ def start_exam_session(session_id):
 
     """
     # activate session
-    session = Session.objects.get(id=session_id)
+    session = ExamSession.objects.get(id=session_id)
     session.activate_session()
 
 
@@ -107,5 +107,5 @@ def end_exam_session(session_id):
 
     """
     # deactivate session
-    session = Session.objects.get(id=session_id)
+    session = ExamSession.objects.get(id=session_id)
     session.end_session()

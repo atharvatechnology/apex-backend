@@ -123,6 +123,44 @@ class Session(PublishedModel, CreatorBaseModel):
     )
     end_task = models.CharField(_("end_task"), max_length=256, null=True, blank=True)
 
+    class Meta:
+        """Meta definition for Session."""
+
+        verbose_name = "Session"
+        verbose_name_plural = "Sessions"
+
+    def __str__(self):
+        """Unicode representation of Session."""
+        human_readable_date = self.created_at.strftime("%Y-%m-%d %H:%M %p")
+        return f"id - {self.id} - createdAt - {human_readable_date}"
+
+
+class ExamSession(Session):
+    """Model Defination for ExamSession."""
+
+    status = models.CharField(
+        _("status"),
+        max_length=32,
+        choices=ExamSessionStatus.CHOICES,
+        default=ExamSessionStatus.INACTIVE,
+    )
+    exam = models.ForeignKey(
+        "exams.Exam",
+        verbose_name=_("exam"),
+        related_name="sessions",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        """Meta difination of ExamSession."""
+
+        verbose_name = "Exam Session"
+        verbose_name_plural = "Exam Sessions"
+
+    def __str__(self):
+        """Unicode representation of Exam Session."""
+        return self.status
+
     def clean(self):
         super().clean()
         if self.start_date > self.end_date:
@@ -170,7 +208,6 @@ class Session(PublishedModel, CreatorBaseModel):
 
     def setup_tasks(self):
         """Create the tasks for the session."""
-
         start_date_aware = self.start_date
         end_date_aware = self.end_date
         if timezone.is_naive(self.start_date):
@@ -218,44 +255,6 @@ class Session(PublishedModel, CreatorBaseModel):
         self.start_task = start_task.name
         self.end_task = end_task.name
         # self.save()
-
-    class Meta:
-        """Meta definition for Session."""
-
-        verbose_name = "Session"
-        verbose_name_plural = "Sessions"
-
-    def __str__(self):
-        """Unicode representation of Session."""
-        human_readable_date = self.created_at.strftime("%Y-%m-%d %H:%M %p")
-        return f"id - {self.id} - createdAt - {human_readable_date}"
-
-
-class ExamSession(Session):
-    """Model Defination for ExamSession."""
-
-    status = models.CharField(
-        _("status"),
-        max_length=32,
-        choices=ExamSessionStatus.CHOICES,
-        default=ExamSessionStatus.INACTIVE,
-    )
-    exam = models.ForeignKey(
-        "exams.Exam",
-        verbose_name=_("exam"),
-        related_name="sessions",
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        """Meta difination of ExamSession."""
-
-        verbose_name = "Exam Session"
-        verbose_name_plural = "Exam Sessions"
-
-    def __str__(self):
-        """Unicode representation of Exam Session."""
-        return self.status
 
     def __change_status(self, status):
         self.status = status
