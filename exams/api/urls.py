@@ -1,26 +1,14 @@
 from django.urls import path
 
 from exams.api.views import (
-    ExamCreateAPIView,
-    ExamDeleteAPIView,
     ExamListAPIView,
     ExamPaperAPIView,
     ExamPaperPreviewAPIView,
     ExamRetrieveAPIView,
     ExamRetrievePoolAPIView,
-    ExamTemplateCreateAPIView,
-    ExamTemplateDeleteAPIView,
-    ExamTemplateListAPIView,
-    ExamTemplateRetrieveAPIView,
-    ExamTemplateUpdateAPIView,
-    ExamUpdateAPIView,
-    SectionCreateAPIView,
-    SectionDeleteAPIView,
-    SectionUpdateAPIView,
 )
 
 urlpatterns = [
-    path("create/", ExamCreateAPIView.as_view(), name="exam-create"),
     path("list/", ExamListAPIView.as_view(), name="exam-list"),
     path("retrieve/<int:pk>/", ExamRetrieveAPIView.as_view(), name="exam-retrieve"),
     path(
@@ -28,56 +16,10 @@ urlpatterns = [
         ExamRetrievePoolAPIView.as_view(),
         name="exam-retrieve-pool",
     ),
-    path("update/<int:pk>/", ExamUpdateAPIView.as_view(), name="exam-update"),
-    path("delete/<int:pk>/", ExamDeleteAPIView.as_view(), name="exam-delete"),
     path("paper/<int:pk>/", ExamPaperAPIView.as_view(), name="exam-paper"),
     path(
         "paper/preview/<int:pk>/",
         ExamPaperPreviewAPIView.as_view(),
         name="exam-paper-preview",
-    ),
-]
-
-urlpatterns += [
-    path(
-        "template/create/",
-        ExamTemplateCreateAPIView.as_view(),
-        name="exam-template-create",
-    ),
-    path(
-        "template/list/", ExamTemplateListAPIView.as_view(), name="exam-template-list"
-    ),
-    path(
-        "template/retrieve/<int:pk>/",
-        ExamTemplateRetrieveAPIView.as_view(),
-        name="exam-template-retrieve",
-    ),
-    path(
-        "template/update/<int:pk>/",
-        ExamTemplateUpdateAPIView.as_view(),
-        name="exam-template-update",
-    ),
-    path(
-        "template/delete/<int:pk>/",
-        ExamTemplateDeleteAPIView.as_view(),
-        name="exam-template-delete",
-    ),
-]
-
-urlpatterns += [
-    path(
-        "section/create",
-        SectionCreateAPIView.as_view(),
-        name="template-section-create",
-    ),
-    path(
-        "section/update/<int:pk>/",
-        SectionUpdateAPIView.as_view(),
-        name="template-section-update",
-    ),
-    path(
-        "section/delete/<int:pk>/",
-        SectionDeleteAPIView.as_view(),
-        name="template-section-delete",
     ),
 ]

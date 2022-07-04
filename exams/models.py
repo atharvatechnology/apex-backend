@@ -189,6 +189,17 @@ class Section(models.Model):
         """Unicode representation of Section."""
         return f"{self.name} ({self.template.name})"
 
+    def get_section_marks(self):
+        """Calculate total marks for this section.
+
+        Returns
+        -------
+        decimal
+            Total marks for this section.
+
+        """
+        return self.pos_marks * self.num_of_questions
+
 
 # class Section(models.Model):
 #     """Model definition for Section."""
@@ -231,7 +242,7 @@ class Question(models.Model):
     section = models.ForeignKey(
         Section,
         verbose_name=_("section"),
-        related_name=_("sections"),
+        related_name=_("questions"),
         on_delete=models.CASCADE,
     )
     feedback = models.TextField(_("feedback"), blank=True, null=True)

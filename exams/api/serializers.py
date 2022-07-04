@@ -4,26 +4,7 @@ from common.api.mixin import EnrolledSerializerMixin
 from common.api.serializers import CreatorSerializer
 from enrollments.api.serializers import ExamEnrollmentPaperSerializer, SessionSerializer
 from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
-from exams.models import Exam, ExamTemplate, Option, Question, Section
-
-
-class SectionSerializer(serializers.ModelSerializer):
-    section_marks = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Section
-        fields = (
-            "id",
-            "name",
-            "num_of_questions",
-            "pos_marks",
-            "neg_percentage",
-            "template",
-            "section_marks",
-        )
-
-    def get_section_marks(self, obj):
-        return obj.pos_marks * obj.num_of_questions
+from exams.models import Exam, ExamTemplate, Option, Question
 
 
 class ExamTemplateSerializer(CreatorSerializer):
@@ -41,32 +22,25 @@ class ExamTemplateSerializer(CreatorSerializer):
             "pass_marks",
             "duration",
             "display_num_questions",
+            # "status",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
-    def get_pass_marks(self, obj):
-        return obj.pass_percentage * obj.full_marks
-
-
-class ExamTemplateRetrieveSerializer(CreatorSerializer):
-    """Serializer to retrieve exam template."""
-
-    pass_marks = serializers.SerializerMethodField(read_only=True)
-    sections = SectionSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = ExamTemplate
-        fields = CreatorSerializer.Meta.fields + (
-            "name",
-            "description",
-            "full_marks",
-            "pass_percentage",
-            "pass_marks",
-            "duration",
-            "display_num_questions",
-            "sections",
-        )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields
+    # def update(self, instance, validated_data):
+    #     full_marks = validated_data.get("full_marks", instance.full_marks)
+    #     status = validated_data.get("status", instance.status)
+    #     total_section_marks = get_total_section_marks(instance)
+    #     print(f"full_marks: {full_marks}, total_section_marks: {total_section_marks}")
+    #     if (status == ExamTemplateStatus.COMPLETED) and (
+    #         full_marks != total_section_marks
+    #     ):
+    #         raise serializers.ValidationError(
+    #             (
+    #                 "Total marks should be equal to sum of section"
+    #                 + " marks on exam completion"
+    #             )
+    #         )
+    #     return super().update(instance, validated_data)
 
     def get_pass_marks(self, obj):
         return obj.pass_percentage * obj.full_marks

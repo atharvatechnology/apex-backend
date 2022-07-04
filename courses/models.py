@@ -25,7 +25,7 @@ class CourseCategory(models.Model):
         verbose_name = "CourseCategory"
 
         verbose_name = "CourseCategory"
-        verbose_name_plural = "CourseCategorys."
+        verbose_name_plural = "CourseCategories"
         ordering = ["id"]
 
     def __str__(self):
@@ -49,6 +49,10 @@ class CourseStatus:
 
 class Course(models.Model):
     """Model definition for Course."""
+
+    def course_image_path(self, filename):
+        """Return path for course image."""
+        return f"courses/{self.id}/{filename}"
 
     name = models.CharField(
         _("name"),
@@ -98,6 +102,13 @@ class Course(models.Model):
         max_digits=7,
         decimal_places=2,
         default=Decimal("0.0"),
+    )
+    duration = models.PositiveIntegerField(
+        _("Duration"),
+        default=0,
+    )
+    image = models.ImageField(
+        _("image"), default="default.png", upload_to=course_image_path
     )
 
     class Meta:
