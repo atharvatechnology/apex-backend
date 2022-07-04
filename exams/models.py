@@ -252,7 +252,7 @@ class Question(models.Model):
 
         verbose_name = "Question"
         verbose_name_plural = "Questions"
-        ordering = ["exam", "id"]
+        ordering = ["exam", "section", "id"]
 
     def __str__(self):
         """Unicode representation of Question."""
