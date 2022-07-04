@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
@@ -30,9 +32,11 @@ class ContentSerializer(CreatorSerializer):
     CreatorSerializer : cls
         inheritated serializer
         class which provides additional
-        field to ContentCreateSerializer
+        field to ContentSerializer
 
     """
+
+    file_name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Content
@@ -43,25 +47,44 @@ class ContentSerializer(CreatorSerializer):
             "file",
             "note",
             "content",
+            "file_name",
         ) + CreatorSerializer.Meta.fields
         read_only_fields = CreatorSerializer.Meta.read_only_fields
+        extra_kwargs = {
+            "type": {"required": True},
+        }
 
-    def validate(self, attrs):
-        if attrs["type"] == ContentType.PDF:
+    def get_file_name(self, obj):
+        return os.path.basename(obj.file.name) if obj.file else None
+
+    def validate_content(self, value):
+        if not value:
+            raise serializers.ValidationError("Content is required")
+        return value
+
+    def validate_file(self, value):
+        request = self.context["request"]
+        if (
+            "file" in request.FILES
+            and not request.FILES["file"]
+            or "file" not in request.FILES
+        ):
+            raise serializers.ValidationError("File is required")
+        return value
+
+    def validate_type(self, value):
+        if value == ContentType.PDF:
             if (
-                hasattr(attrs, "file")
+                self.instance is None
                 and not self.initial_data["file"]
-                or not hasattr(attrs, "file")
+                or self.instance is not None
+                and not self.instance.file
             ):
-                raise serializers.ValidationError("file is required")
-        elif attrs["type"] == ContentType.TEXT:
-            if (
-                hasattr(attrs, "content")
-                and not self.initial_data["content"]
-                or not hasattr(attrs, "content")
-            ):
-                raise serializers.ValidationError("content is required")
-        return attrs
+                raise serializers.ValidationError("File property is required")
+        elif value == ContentType.TEXT:
+            if not self.initial_data["content"]:
+                raise serializers.ValidationError("Content property is required")
+        return value
 
 
 class RecordedVideoSerializer(CreatorSerializer):
