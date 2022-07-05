@@ -84,11 +84,14 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
         },
     }
     date_hierarchy = "created_at"
+    readonly_fields = CreatorBaseModelAdmin.readonly_fields + ["end_date"]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
             return super().get_readonly_fields(request, obj)
-        return super().get_readonly_fields(request, obj) + ["status"]
+        return super().get_readonly_fields(request, obj) + [
+            "status",
+        ]
 
 
 @admin.register(ExamThroughEnrollment)
