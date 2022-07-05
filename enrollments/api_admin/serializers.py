@@ -54,3 +54,17 @@ class SessionAdminUpdateSerializer(SessionAdminSerializer):
             "end_date",
             "exam",
         )
+
+    def update(self, instance, validated_data):
+        """Update an existing Session.
+
+        checks full_clean of model and raises ValidationError if any errors
+        """
+        try:
+            instance = super().update(instance, validated_data)
+            instance.full_clean()
+        except ValidationError as error:
+            raise serializers.ValidationError(
+                serializers.as_serializer_error(error)
+            ) from error
+        return instance
