@@ -239,6 +239,7 @@ class ExamTemplateOnExamRetrievalSerializer(serializers.ModelSerializer):
             "name",
             "full_marks",
             "sections",
+            "duration",
         )
 
 
