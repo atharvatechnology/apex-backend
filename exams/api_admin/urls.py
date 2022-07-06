@@ -3,6 +3,7 @@ from django.urls import include, path
 from exams.api_admin.views import (
     ExamCreateAPIView,
     ExamDeleteAPIView,
+    ExamImageUploadAPIView,
     ExamListAPIView,
     ExamRetrieveAPIView,
     ExamTemplateCreateAPIView,
@@ -28,6 +29,11 @@ urlpatterns = [
     path("delete/<int:pk>/", ExamDeleteAPIView.as_view(), name="exam-delete"),
     path("list/", ExamListAPIView.as_view(), name="exam-list"),
     path("retrieve/<int:pk>/", ExamRetrieveAPIView.as_view(), name="exam-retrieve"),
+    path(
+        "upload/<int:exam_id>/",
+        ExamImageUploadAPIView.as_view(),
+        name="exam-image-upload",
+    ),
 ]
 
 option_urls = [

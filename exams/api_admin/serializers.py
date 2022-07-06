@@ -6,6 +6,7 @@ from enrollments.api.serializers import SessionSerializer
 from exams.api.serializers import ExamTemplateListSerializer
 from exams.models import (
     Exam,
+    ExamImage,
     ExamTemplate,
     ExamTemplateStatus,
     Option,
@@ -239,6 +240,7 @@ class ExamTemplateOnExamRetrievalSerializer(serializers.ModelSerializer):
             "name",
             "full_marks",
             "sections",
+            "duration",
         )
 
 
@@ -397,3 +399,25 @@ class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
             "sessions",
             "questions",
         )
+
+
+class ExamImageAdminSerializer(serializers.ModelSerializer):
+    """Serializer for Exam Image."""
+
+    url = serializers.SerializerMethodField(read_only=True)
+    uploaded = serializers.SerializerMethodField(read_only=True)
+    fileName = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = ExamImage
+        fields = ("id", "upload", "url", "uploaded", "fileName")
+
+    def get_url(self, obj):
+        request = self.context.get("request")
+        return request.build_absolute_uri(obj.upload.url)
+
+    def get_fileName(self, obj):
+        return obj.upload.name.split("/")[-1]
+
+    def get_uploaded(self, obj):
+        return 1

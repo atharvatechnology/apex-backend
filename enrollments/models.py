@@ -12,6 +12,7 @@ from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from common.errors import StateTransitionError
 from common.modelFields import ZeroSecondDateTimeField
 from common.models import CreatorBaseModel, PublishedModel, PublishedQueryset
+from common.utils import get_human_readable_date_time
 from common.validators import validate_date_time_gt_now
 
 User = get_user_model()
@@ -104,9 +105,7 @@ class Session(PublishedModel, CreatorBaseModel):
     start_date = ZeroSecondDateTimeField(
         _("start_date"), validators=[validate_date_time_gt_now]
     )
-    end_date = ZeroSecondDateTimeField(
-        _("end_date"), validators=[validate_date_time_gt_now]
-    )
+    end_date = ZeroSecondDateTimeField(_("end_date"))
     status = models.CharField(
         _("status"),
         max_length=32,
@@ -124,20 +123,34 @@ class Session(PublishedModel, CreatorBaseModel):
     )
     end_task = models.CharField(_("end_task"), max_length=256, null=True, blank=True)
 
-    def clean(self):
-        super().clean()
-        if self.start_date > self.end_date:
+    def calculate_end_date(self):
+        """Calculate the end date of the session from exam template duration."""
+        exam = self.exam
+        duration = exam.template.duration
+        return self.start_date + duration
+
+    def clean_publish_date(self):
+        """Clean the publish date."""
+        end_date = self.calculate_end_date()
+        if self.publish_date and self.publish_date < end_date:
+            humanize_end_date = get_human_readable_date_time(end_date)
             raise ValidationError(
-                _("Start_date should be less than End_date"), code="invalid_date"
-            )
-        if self.start_date == self.end_date:
-            raise ValidationError(
-                _("Start_date should not be same as End_date"), code="invalid_date"
+                {"publish_date": _(f"Publish date must be after {humanize_end_date}")}
             )
 
+    def save(self, *args, **kwargs):
+        """Save the session."""
+        self.end_date = self.calculate_end_date()
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        """Clean the session."""
+        super().clean()
+        self.clean_publish_date()
+
     def delete_tasks(self):
+        """Get periodic task of sessions and delete them."""
         tasks = PeriodicTask.objects.filter(name__in=[self.start_task, self.end_task])
-        # delete the tasks
         tasks.delete()
 
     # TODO: Add delete which deletes the tasks on session delete
@@ -200,7 +213,6 @@ class Session(PublishedModel, CreatorBaseModel):
         )
         self.start_task = start_task.name
         self.end_task = end_task.name
-        # self.save()
 
     class Meta:
         """Meta definition for Session."""
@@ -211,7 +223,7 @@ class Session(PublishedModel, CreatorBaseModel):
 
     def __str__(self):
         """Unicode representation of Session."""
-        human_readable_date = self.created_at.strftime("%Y-%m-%d %H:%M %p")
+        human_readable_date = get_human_readable_date_time(self.created_at)
         return f"id - {self.id} - createdAt - {human_readable_date}"
 
     def __change_status(self, status):
