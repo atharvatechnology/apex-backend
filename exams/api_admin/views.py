@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
@@ -15,6 +16,7 @@ from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Secti
 
 from .serializers import (
     ExamCreateSerializer,
+    ExamImageAdminSerializer,
     ExamListAdminSerializer,
     ExamRetrieveAdminSerializer,
     ExamTemplateCreateUpdateSerializer,
@@ -147,3 +149,13 @@ class ExamRetrieveAPIView(RetrieveAPIView):
     serializer_class = ExamRetrieveAdminSerializer
     queryset = Exam.objects.all()
     permission_classes = [IsAuthenticated, IsAdminUser]
+
+
+class ExamImageUploadAPIView(CreateAPIView):
+    serializer_class = ExamImageAdminSerializer
+    # permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def perform_create(self, serializer):
+        exam_id = self.kwargs.get("exam_id")
+        exam = get_object_or_404(Exam, id=exam_id)
+        return serializer.save(exam=exam)

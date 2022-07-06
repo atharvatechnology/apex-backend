@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.utils.html import mark_safe
 
 from common.admin import CreatorBaseModelAdmin
-from exams.models import Exam, ExamTemplate, Option, Question, Section
+from exams.models import Exam, ExamImage, ExamTemplate, Option, Question, Section
 
 
 class CustomStackedInline(nested_admin.NestedStackedInline):
@@ -128,4 +128,13 @@ class OptionAdmin(admin.ModelAdmin):
 
     list_display = ["id", "detail", "img", "question"]
     list_filter = ["question__exam"]
+    readonly_fields = ["id"]
+
+
+@admin.register(ExamImage)
+class ExamImageAdmin(admin.ModelAdmin):
+    """ExamImage Admin."""
+
+    list_display = ["id", "exam", "upload"]
+    list_filter = ["exam"]
     readonly_fields = ["id"]

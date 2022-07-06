@@ -282,3 +282,26 @@ class Option(models.Model):
     def __str__(self):
         """Unicode representation of Option."""
         return f"{self.question}_{self.id}"
+
+
+class ExamImage(models.Model):
+    """Model definition for Exam Related Image."""
+
+    def exam_image_path(self, filename):
+        return f"exams/{self.exam.id}/{filename}"
+
+    exam = models.ForeignKey(
+        Exam,
+        verbose_name=_("exam"),
+        related_name=_("images"),
+        on_delete=models.CASCADE,
+    )
+
+    upload = models.ImageField(_("img"), upload_to=exam_image_path)
+
+    class Meta:
+        ordering = ["exam", "id"]
+
+    def __str__(self):
+        """Unicode representation of ExamImage."""
+        return f"{self.exam}_{self.id}"

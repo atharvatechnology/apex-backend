@@ -1,4 +1,4 @@
-from django.utils import timezone
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer, PublishedSerializer
@@ -7,6 +7,8 @@ from enrollments.models import Session
 
 class SessionAdminSerializer(CreatorSerializer, PublishedSerializer):
     """Serializer for Session create."""
+
+    name = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = Session
@@ -18,22 +20,27 @@ class SessionAdminSerializer(CreatorSerializer, PublishedSerializer):
                 "end_date",
                 "status",
                 "exam",
+                "name",
             )
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields + (
+            "status",
+            "end_date",
+        )
 
-    def validate_publish_date(self, value):
-        """Validate publish date.
+    def create(self, validated_data):
+        """Create a new Session.
 
-        value cannnot be before current datetime.
-        value cannnot be before end_date.
+        checks full_clean of model and raises ValidationError if any errors
         """
-
-        if value < timezone.now():
-            raise serializers.ValidationError("Publish date cannot be in the past.")
-        if "end_date" in self.initial_data and value < self.initial_data["end_date"]:
-            raise serializers.ValidationError("Publish date cannot be before end date.")
-        return value
+        try:
+            instance = super().create(validated_data)
+            instance.full_clean()
+        except ValidationError as error:
+            raise serializers.ValidationError(
+                serializers.as_serializer_error(error)
+            ) from error
+        return instance
 
 
 class SessionAdminUpdateSerializer(SessionAdminSerializer):
@@ -48,13 +55,16 @@ class SessionAdminUpdateSerializer(SessionAdminSerializer):
             "exam",
         )
 
-    def validate_publish_date(self, value):
-        """Validate publish date.
+    def update(self, instance, validated_data):
+        """Update an existing Session.
 
-        imported other validation from validate_publish_date in SessionAdminSerializer.
-        value cannnot be before end_date.
+        checks full_clean of model and raises ValidationError if any errors
         """
-        value = super().validate_publish_date(value)
-        if hasattr(self.instance, "end_date") and value < self.instance.end_date:
-            raise serializers.ValidationError("Publish date cannot be before end date.")
-        return value
+        try:
+            instance = super().update(instance, validated_data)
+            instance.full_clean()
+        except ValidationError as error:
+            raise serializers.ValidationError(
+                serializers.as_serializer_error(error)
+            ) from error
+        return instance
