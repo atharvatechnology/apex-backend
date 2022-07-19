@@ -18,7 +18,7 @@ CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
 @receiver(post_save, sender="enrollments.ExamThroughEnrollment")
 def on_exam_attempt(sender, instance, **kwargs):
     if instance.status == ExamEnrollmentStatus.ATTEMPTED:
-        calculate_score.delay(instance.id)
+        calculate_score.apply_async(args=[instance.id], queue="low_priority")
 
 
 @receiver(post_save, sender="enrollments.Session")
