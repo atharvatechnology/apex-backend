@@ -1,16 +1,16 @@
 from django.urls import path
 
-from attendance.api.views import (
+from attendance.api.views import (  # TeacherAttendanceRetrieveAPIView,
     AttendanceCreateAPIView,
     AttendanceDeleteAPIView,
     AttendanceListAPIView,
     AttendanceRetrieveAPIView,
     AttendanceUpdateAPIView,
     TeacherAttendanceCreateAPIView,
-    TeacherAttendanceDeleteAPIView,
-    TeacherAttendanceListAPIView,
-    TeacherAttendanceRetrieveAPIView,
-    TeacherAttendanceUpdateAPIView,
+    TeacherAttendanceDetailDeleteAPIView,
+    TeacherAttendanceDetailListAPIView,
+    TeacherAttendanceDetailRetrieveAPIView,
+    TeacherAttendanceDetailUpdateAPIView,
 )
 
 urlpatterns = [
@@ -32,20 +32,24 @@ urlpatterns = [
         TeacherAttendanceCreateAPIView.as_view(),
         name="teacher-create",
     ),
-    path("teacher/list/", TeacherAttendanceListAPIView.as_view(), name="teacher-list"),
     path(
-        "teacher/<int:pk>/",
-        TeacherAttendanceRetrieveAPIView.as_view(),
-        name="teacher-retrieve",
+        "teacher/detail/list/",
+        TeacherAttendanceDetailListAPIView.as_view(),
+        name="teacher-detail-list",
     ),
     path(
-        "teacher/update/<int:pk>/",
-        TeacherAttendanceUpdateAPIView.as_view(),
-        name="teacher-update",
+        "teacher/detail/<int:pk>/",
+        TeacherAttendanceDetailRetrieveAPIView.as_view(),
+        name="teacher-detail-retrieve",
     ),
     path(
-        "teacher/delete/<int:pk>/",
-        TeacherAttendanceDeleteAPIView.as_view(),
-        name="teacher-delete",
+        "teacher/detail/update/<int:pk>/",
+        TeacherAttendanceDetailUpdateAPIView.as_view(),
+        name="teacher-detail-update",
+    ),
+    path(
+        "teacher/detail/delete/<int:pk>/",
+        TeacherAttendanceDetailDeleteAPIView.as_view(),
+        name="teacher-detail-delete",
     ),
 ]

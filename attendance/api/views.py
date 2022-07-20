@@ -8,20 +8,21 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from attendance.api.paginations import LargeResultsSetPagination
 from attendance.api.serializers import (
     AttendanceCreateSerializer,
     AttendanceDeleteSerializer,
     AttendanceRetrieveSerializer,
     AttendanceUpdateSerializer,
     TeacherAttendanceCreateSerializer,
-    TeacherAttendanceDetail,
     TeacherAttendanceDetailDeleteSerializer,
     TeacherAttendanceDetailRetrieveSerializer,
     TeacherAttendanceDetailUpdateSerializer,
+    TeacherAttendanceRetrieveSerializer,
+    TeacherAttendanceUpdateSerializer,
 )
-from attendance.models import Attendance
+from attendance.models import Attendance, TeacherAttendance, TeacherAttendanceDetail
 from common.api.views import BaseCreatorCreateAPIView
+from courses.api.paginations import LargeResultsSetPagination
 
 from ..filters import AttendanceFilter
 
@@ -68,7 +69,7 @@ class AttendanceDeleteAPIView(DestroyAPIView):
     queryset = Attendance.objects.all()
 
 
-class TeacherAttendanceListAPIView(ListAPIView):
+class TeacherAttendanceDetailListAPIView(ListAPIView):
     """View for listing teacher attendance."""
 
     permission_classes = [AllowAny]
@@ -84,6 +85,22 @@ class TeacherAttendanceCreateAPIView(BaseCreatorCreateAPIView):
 
 
 class TeacherAttendanceRetrieveAPIView(RetrieveAPIView):
+    """View for retriving teacher attendance."""
+
+    permission_classes = [AllowAny]
+    serializer_class = TeacherAttendanceRetrieveSerializer
+    queryset = TeacherAttendance.objects.all()
+
+
+class TeacherAttendanceUpdateAPIView(UpdateAPIView):
+    """View for updating teacher attendance."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = TeacherAttendanceUpdateSerializer
+    queryset = TeacherAttendance.objects.all()
+
+
+class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
     """View for retrieving teacher attendance."""
 
     permission_classes = [AllowAny]
@@ -91,7 +108,7 @@ class TeacherAttendanceRetrieveAPIView(RetrieveAPIView):
     queryset = TeacherAttendanceDetail.objects.all()
 
 
-class TeacherAttendanceUpdateAPIView(UpdateAPIView):
+class TeacherAttendanceDetailUpdateAPIView(UpdateAPIView):
     """View for updating teacher attendance."""
 
     permission_classes = [IsAuthenticated]
@@ -99,7 +116,7 @@ class TeacherAttendanceUpdateAPIView(UpdateAPIView):
     queryset = TeacherAttendanceDetail.objects.all()
 
 
-class TeacherAttendanceDeleteAPIView(DestroyAPIView):
+class TeacherAttendanceDetailDeleteAPIView(DestroyAPIView):
     """View for deleting teacher attendance."""
 
     permission_classes = [IsAuthenticated]

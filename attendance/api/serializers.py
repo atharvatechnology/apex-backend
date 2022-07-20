@@ -201,3 +201,17 @@ class TeacherAttendanceDetailDeleteSerializer(serializers.ModelSerializer):
             "status",
             "teacher_attendance",
         )
+
+
+class TeacherAttendanceRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving teacher attendance models."""
+
+    class Meta:
+        model = TeacherAttendance
+        field = (
+            "id",
+            "name",
+            "date",
+            "user",
+            "details",
+        )
