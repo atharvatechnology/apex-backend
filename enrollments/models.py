@@ -12,6 +12,7 @@ from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from common.errors import StateTransitionError
 from common.modelFields import ZeroSecondDateTimeField
 from common.models import CreatorBaseModel, PublishedModel, PublishedQueryset
+from common.utils import get_human_readable_date_time
 from common.validators import validate_date_time_gt_now
 
 User = get_user_model()
@@ -104,9 +105,7 @@ class Session(PublishedModel, CreatorBaseModel):
     start_date = ZeroSecondDateTimeField(
         _("start_date"), validators=[validate_date_time_gt_now]
     )
-    end_date = ZeroSecondDateTimeField(
-        _("end_date"), validators=[validate_date_time_gt_now]
-    )
+    end_date = ZeroSecondDateTimeField(_("end_date"))
     status = models.CharField(
         _("status"),
         max_length=32,
@@ -124,20 +123,34 @@ class Session(PublishedModel, CreatorBaseModel):
     )
     end_task = models.CharField(_("end_task"), max_length=256, null=True, blank=True)
 
-    def clean(self):
-        super().clean()
-        if self.start_date > self.end_date:
+    def calculate_end_date(self):
+        """Calculate the end date of the session from exam template duration."""
+        exam = self.exam
+        duration = exam.template.duration
+        return self.start_date + duration
+
+    def clean_publish_date(self):
+        """Clean the publish date."""
+        end_date = self.calculate_end_date()
+        if self.publish_date and self.publish_date < end_date:
+            humanize_end_date = get_human_readable_date_time(end_date)
             raise ValidationError(
-                _("Start_date should be less than End_date"), code="invalid_date"
-            )
-        if self.start_date == self.end_date:
-            raise ValidationError(
-                _("Start_date should not be same as End_date"), code="invalid_date"
+                {"publish_date": _(f"Publish date must be after {humanize_end_date}")}
             )
 
+    def save(self, *args, **kwargs):
+        """Save the session."""
+        self.end_date = self.calculate_end_date()
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        """Clean the session."""
+        super().clean()
+        self.clean_publish_date()
+
     def delete_tasks(self):
+        """Get periodic task of sessions and delete them."""
         tasks = PeriodicTask.objects.filter(name__in=[self.start_task, self.end_task])
-        # delete the tasks
         tasks.delete()
 
     # TODO: Add delete which deletes the tasks on session delete
@@ -150,23 +163,6 @@ class Session(PublishedModel, CreatorBaseModel):
         self.exam.finish_exam()
         self.delete_tasks()
         super().delete(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        """Set up tasks on create session."""
-        if not self.id:
-            super().save(*args, **kwargs)
-        else:
-            # filter the tasks by session id
-            tasks = PeriodicTask.objects.filter(
-                name__in=[self.start_task, self.end_task]
-            )
-
-            # tasks = PeriodicTask.objects.filter(kwargs=json.dumps(
-            # {"session_id": f"{self.id}"}))
-            # delete the tasks
-            tasks.delete()
-        self.setup_tasks()
-        super().save(*args, **kwargs)
 
     def setup_tasks(self):
         """Create the tasks for the session."""
@@ -217,17 +213,17 @@ class Session(PublishedModel, CreatorBaseModel):
         )
         self.start_task = start_task.name
         self.end_task = end_task.name
-        # self.save()
 
     class Meta:
         """Meta definition for Session."""
 
         verbose_name = "Session"
         verbose_name_plural = "Sessions"
+        ordering = ["-id"]
 
     def __str__(self):
         """Unicode representation of Session."""
-        human_readable_date = self.created_at.strftime("%Y-%m-%d %H:%M %p")
+        human_readable_date = get_human_readable_date_time(self.created_at)
         return f"id - {self.id} - createdAt - {human_readable_date}"
 
     def __change_status(self, status):
@@ -242,8 +238,8 @@ class Session(PublishedModel, CreatorBaseModel):
         raise StateTransitionError(f"Session cannot be activated from {self.status}")
 
     def end_session(self):
-        if self.start_task:
-            self.delete_tasks()
+        # if self.start_task:
+        #     self.delete_tasks()
         if self.status == SessionStatus.ENDED:
             return
         if self.status == SessionStatus.ACTIVE:
@@ -263,7 +259,7 @@ class CourseEnrollmentStatus:
     INITIATED = "initiated"  # Started the course
     ONHOLD = "on-hold"  # If paused for certain time
     PROGRESS = "progress"  # Go with the flow or Continue the course
-    DECLINED = "declined"  # Unsubscribed/Stop/leave that course in between
+    CANCELED = "canceled"  # Unsubscribed/Stop/leave that course in between
     FINALPHASE = "final phase"  # Stage after 75% completion
     COMPLETED = "completed"  # 100% course completion
 
@@ -272,7 +268,7 @@ class CourseEnrollmentStatus:
         (INITIATED, "initiated"),
         (ONHOLD, "on-hold"),
         (PROGRESS, "progress"),
-        (DECLINED, "declined"),
+        (CANCELED, "canceled"),
         (FINALPHASE, "final phase"),
         (COMPLETED, "completed"),
     ]
@@ -290,16 +286,90 @@ class CourseThroughEnrollment(models.Model):
     selected_session = models.ForeignKey(
         Session, related_name="course_enrolls", on_delete=models.CASCADE
     )
-    course_status = models.CharField(
+    course_enroll_status = models.CharField(
         max_length=50,
         choices=CourseEnrollmentStatus.CHOICES,
         default=CourseEnrollmentStatus.NEW,
     )
     completed_date = models.DateTimeField()
 
+    class Meta:
+        """Meta defination for CourseThroughEnrollment."""
+
+        verbose_name = "CourseThroughEnrollment"
+        verbose_name_plural = "CourseThroughEnrollments"
+
     def __str__(self):
         """Unicode representation of CourseEnrollment."""
         return f"course {self.course} for {self.enrollment}enrollment"
+
+    def __change_course_enroll_status(self, course_enroll_status):
+        self.course_enroll_status = course_enroll_status
+
+    @property
+    def current_course_enroll_status(self):
+        return self.course_enroll_status
+
+    def initiated_course(self):
+        if self.course_enroll_status == CourseEnrollmentStatus.INITIATED:
+            return
+        elif self.course_enroll_status == CourseEnrollmentStatus.NEW:
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.INITIATED)
+        raise StateTransitionError(
+            f"Cannot be enrolled to new course at {self.course_enroll_status} status"
+        )
+
+    def progress_course(self):
+        if self.course_enroll_status == CourseEnrollmentStatus.PROGRESS:
+            return
+        elif self.course_enroll_status in [
+            CourseEnrollmentStatus.INITIATED,
+            CourseEnrollmentStatus.FINALPHASE,
+            CourseEnrollmentStatus.ONHOLD,
+        ]:
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.PROGRESS)
+        raise StateTransitionError(
+            f"Cannot be able to initiated course at {self.course_enroll_status} status"
+        )
+
+    def cancel_course(self):
+        if self.course_enroll_status == CourseEnrollmentStatus.CANCELED:
+            return
+        elif self.course_enroll_status in [
+            CourseEnrollmentStatus.INITIATED,
+            CourseEnrollmentStatus.PROGRESS,
+            CourseEnrollmentStatus.FINALPHASE,
+            CourseEnrollmentStatus.ONHOLD,
+        ]:
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.CANCELED)
+        raise StateTransitionError(
+            f"Cannot get Cancel from course at {self.course_enroll_status} status"
+        )
+
+    def on_hold_course(self):
+        if self.course_enroll_status == CourseEnrollmentStatus.ONHOLD:
+            return
+        elif self.course_enroll_status in [
+            CourseEnrollmentStatus.INITIATED,
+            CourseEnrollmentStatus.PROGRESS,
+            CourseEnrollmentStatus.FINALPHASE,
+        ]:
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.ONHOLD)
+        raise StateTransitionError(
+            f"Cannot be at on hold state during {self.course_enroll_status} state"
+        )
+
+    def complete_course(self):
+        if self.course_enroll_status == CourseEnrollmentStatus.COMPLETED:
+            return
+        elif self.course_enroll_status in [
+            CourseEnrollmentStatus.FINALPHASE,
+            CourseEnrollmentStatus.PROGRESS,
+        ]:
+            return self.__change_course_enroll_status(CourseEnrollmentStatus.COMPLETED)
+        raise StateTransitionError(
+            f"Cannot complete course. Current status is {self.course_enroll_status}"
+        )
 
 
 class PhysicalBookCourseEnrollment(models.Model):

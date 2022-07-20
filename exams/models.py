@@ -10,11 +10,21 @@ from common.models import CreatorBaseModel
 from common.validators import validate_positive
 
 
+class ExamTemplateStatus:
+    DRAFT = "draft"
+    COMPLETED = "completed"
+
+    CHOICES = [
+        (DRAFT, _("Draft")),
+        (COMPLETED, _("Completed")),
+    ]
+
+
 class ExamTemplate(CreatorBaseModel):
     """Model definition for ExamTemplate."""
 
     name = models.CharField(_("name"), max_length=128)
-    # description = models.TextField(blank=True)
+    description = models.TextField(_("description"), default="No description available")
     duration = models.DurationField(
         _("Duration"), help_text=_("Enter duration in HH:MM:SS format")
     )
@@ -27,6 +37,12 @@ class ExamTemplate(CreatorBaseModel):
     )
     display_num_questions = models.PositiveIntegerField(
         _("Display Question Number"), default=1
+    )
+    status = models.CharField(
+        _("Status"),
+        max_length=16,
+        choices=ExamTemplateStatus.CHOICES,
+        default=ExamTemplateStatus.DRAFT,
     )
     # exam_type = models.CharField(max_length=10, choices=(
     #     ('S', 'SINGLE'), ('M', 'MULTIPLE')), default='S')
@@ -157,7 +173,10 @@ class Section(models.Model):
         _("Negative Percentage"), max_digits=3, decimal_places=2
     )
     template = models.ForeignKey(
-        ExamTemplate, verbose_name=_("Template"), on_delete=models.CASCADE
+        ExamTemplate,
+        verbose_name=_("Template"),
+        on_delete=models.CASCADE,
+        related_name="sections",
     )
 
     class Meta:
@@ -169,6 +188,17 @@ class Section(models.Model):
     def __str__(self):
         """Unicode representation of Section."""
         return f"{self.name} ({self.template.name})"
+
+    def get_section_marks(self):
+        """Calculate total marks for this section.
+
+        Returns
+        -------
+        decimal
+            Total marks for this section.
+
+        """
+        return self.pos_marks * self.num_of_questions
 
 
 # class Section(models.Model):
@@ -212,7 +242,7 @@ class Question(models.Model):
     section = models.ForeignKey(
         Section,
         verbose_name=_("section"),
-        related_name=_("sections"),
+        related_name=_("questions"),
         on_delete=models.CASCADE,
     )
     feedback = models.TextField(_("feedback"), blank=True, null=True)
@@ -222,7 +252,7 @@ class Question(models.Model):
 
         verbose_name = "Question"
         verbose_name_plural = "Questions"
-        ordering = ["exam", "id"]
+        ordering = ["exam", "section", "id"]
 
     def __str__(self):
         """Unicode representation of Question."""
@@ -252,3 +282,26 @@ class Option(models.Model):
     def __str__(self):
         """Unicode representation of Option."""
         return f"{self.question}_{self.id}"
+
+
+class ExamImage(models.Model):
+    """Model definition for Exam Related Image."""
+
+    def exam_image_path(self, filename):
+        return f"exams/{self.exam.id}/{filename}"
+
+    exam = models.ForeignKey(
+        Exam,
+        verbose_name=_("exam"),
+        related_name=_("images"),
+        on_delete=models.CASCADE,
+    )
+
+    upload = models.ImageField(_("img"), upload_to=exam_image_path)
+
+    class Meta:
+        ordering = ["exam", "id"]
+
+    def __str__(self):
+        """Unicode representation of ExamImage."""
+        return f"{self.exam}_{self.id}"

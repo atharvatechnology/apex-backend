@@ -4,6 +4,7 @@ from django.db import models
 
 from common.admin import CreatorBaseModelAdmin
 from enrollments.models import (
+    CourseThroughEnrollment,
     Enrollment,
     ExamThroughEnrollment,
     QuestionEnrollment,
@@ -17,6 +18,19 @@ class ExamThroughEnrollmentInline(admin.TabularInline):
     model = ExamThroughEnrollment
     extra = 1
     readonly_fields = ["status"]
+
+
+class CourseThroughEnrollmentInline(admin.TabularInline):
+    """CourseThroughEnrollment inline."""
+
+    model = CourseThroughEnrollment
+    extra = 1
+    readonly_fields = ["course_enroll_status"]
+
+
+@admin.register(CourseThroughEnrollment)
+class CourseThroughEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ["id", "enrollment"]
 
 
 class QuestionEnrollmentInline(admin.TabularInline):
@@ -35,7 +49,9 @@ class EnrollmentAdmin(admin.ModelAdmin):
     search_fields = ("student__username",)
     inlines = [
         ExamThroughEnrollmentInline,
+        CourseThroughEnrollmentInline,
     ]
+    date_hierarchy = "created_at"
 
     readonly_fields = []
 
@@ -67,23 +83,39 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
             "help_text": "Seconds doesnot matters",
         },
     }
+    date_hierarchy = "created_at"
+    readonly_fields = CreatorBaseModelAdmin.readonly_fields + ["end_date"]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
             return super().get_readonly_fields(request, obj)
-        return super().get_readonly_fields(request, obj) + ["status"]
+        return super().get_readonly_fields(request, obj) + [
+            "status",
+        ]
 
 
 @admin.register(ExamThroughEnrollment)
 class ExamThroughEnrollmentAdmin(admin.ModelAdmin):
     """Exam through enrollment admin."""
 
-    list_display = ("id", "enrollment", "exam", "selected_session", "score", "status")
-    list_filter = ("status", "enrollment", "exam", "selected_session")
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("enrollment", "exam")
+            .prefetch_related("question_states")
+        )
+
+    def question(self, obj):
+        return obj.question_states.all().count()
+
+    list_display = ("id", "enrollment", "exam", "question", "score", "status")
+    list_filter = ("status", "exam", "selected_session")
     inlines = [
         QuestionEnrollmentInline,
     ]
     readonly_fields = []
+    date_hierarchy = "enrollment__created_at"
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -96,4 +128,8 @@ class QuestionEnrollmentAdmin(admin.ModelAdmin):
     """Question enrollment admin."""
 
     list_display = ("exam_stat", "question", "selected_option", "updated_at")
-    list_filter = ("exam_stat", "question")
+    list_filter = ("question__exam",)
+    search_fields = (
+        "exam_stat__enrollment__student__first_name",
+        "exam_stat__enrollment__student__last_name",
+    )

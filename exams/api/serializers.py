@@ -10,18 +10,37 @@ from exams.models import Exam, ExamTemplate, Option, Question
 class ExamTemplateSerializer(CreatorSerializer):
     """Exam Template Serializer."""
 
-    pass_marks = serializers.SerializerMethodField()
+    pass_marks = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ExamTemplate
         fields = CreatorSerializer.Meta.fields + (
             "name",
+            "description",
             "full_marks",
+            "pass_percentage",
             "pass_marks",
             "duration",
             "display_num_questions",
+            # "status",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+    # def update(self, instance, validated_data):
+    #     full_marks = validated_data.get("full_marks", instance.full_marks)
+    #     status = validated_data.get("status", instance.status)
+    #     total_section_marks = get_total_section_marks(instance)
+    #     print(f"full_marks: {full_marks}, total_section_marks: {total_section_marks}")
+    #     if (status == ExamTemplateStatus.COMPLETED) and (
+    #         full_marks != total_section_marks
+    #     ):
+    #         raise serializers.ValidationError(
+    #             (
+    #                 "Total marks should be equal to sum of section"
+    #                 + " marks on exam completion"
+    #             )
+    #         )
+    #     return super().update(instance, validated_data)
 
     def get_pass_marks(self, obj):
         return obj.pass_percentage * obj.full_marks
@@ -32,8 +51,12 @@ class ExamTemplateListSerializer(serializers.ModelSerializer):
         model = ExamTemplate
         fields = (
             "id",
+            "name",
+            "description",
             "duration",
             "full_marks",
+            "pass_percentage",
+            "display_num_questions",
         )
 
 

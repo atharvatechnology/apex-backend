@@ -35,16 +35,28 @@ urlpatterns = [
     ),
 ]
 
+api_urls = [
+    path("accounts/", include("accounts.api.urls")),
+    path("auth/", include("dj_rest_auth.urls")),
+    path("courses/", include("courses.api.urls")),
+    path("notes/", include("notes.api.urls")),
+    path("exams/", include("exams.api.urls")),
+    path("enrollments/", include("enrollments.api.urls")),
+    path("physical-book/", include("physicalbook.api.urls")),
+]
+
+api_admin_urls = [
+    path("exams/", include("exams.api_admin.urls")),
+    path("courses/", include("courses.api_admin.urls")),
+    path("notes/", include("notes.api_admin.urls")),
+    path("enrollments/", include("enrollments.api_admin.urls")),
+]
+
 urlpatterns += [
     path("admin/", admin.site.urls),
-    path("api/accounts/", include("accounts.api.urls")),
-    path("api/auth/", include("dj_rest_auth.urls")),
-    path("api/courses/", include("courses.api.urls")),
-    path("api/notes/", include("notes.api.urls")),
-    path("api/exams/", include("exams.api.urls")),
-    path("api/enrollments/", include("enrollments.api.urls")),
-    path("api/physical-book/", include("physicalbook.api.urls")),
-    path("api/attendance/", include("attendance.api.urls")),
+    path("api/", include(api_urls)),
+    path("api/admin/", include(api_admin_urls)),
 ]
+
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

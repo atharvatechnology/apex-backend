@@ -22,7 +22,11 @@ def on_exam_attempt(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender="enrollments.Session")
-def on_exam_session_save(sender, instance, **kwargs):
+def on_exam_session_save(sender, instance, created, **kwargs):
+    if created:
+        instance.setup_tasks()
+        instance.save()
+
     if instance.status == SessionStatus.INACTIVE:
         print("session inactive")
         instance.exam.schedule_exam()
@@ -78,5 +82,9 @@ def on_exam_session_save(sender, instance, **kwargs):
         # broadcast that the results are out
         async_to_sync(channel_layer.group_send)(
             f"exam_{instance.exam.id}",
-            {"type": "get_session_status", "status": instance.status},
+            {
+                "type": "get_session_status",
+                "is_published": instance.is_visible
+                and (instance.status == SessionStatus.RESULTSOUT),
+            },
         )

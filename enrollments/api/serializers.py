@@ -3,10 +3,12 @@ from rest_framework import serializers
 from common.api.serializers import CreatorSerializer
 from enrollments.api.utils import is_enrolled
 from enrollments.models import (
+    CourseThroughEnrollment,
     Enrollment,
     EnrollmentStatus,
     ExamEnrollmentStatus,
     ExamThroughEnrollment,
+    PhysicalBookCourseEnrollment,
     QuestionEnrollment,
     Session,
 )
@@ -42,10 +44,69 @@ class ExamEnrollmentSerializer(serializers.ModelSerializer):
         )
 
 
+class PhysicalBookCourseEnrollmentSerializer(serializers.ModelSerializer):
+    """Physical book when user enrolls to course."""
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
+
+
+class CourseEnrollmentSerializer(serializers.ModelSerializer):
+    """Course when the user is enrolled."""
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+            "selected_session",
+            "completed_date",
+        )
+
+
+class CourseEnrollmentUpdateSerializer(serializers.ModelSerializer):
+    """Course Update serializer after the user is enrolled."""
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+            "enrollment",
+            "selected_session",
+            "course_enroll_status",
+            "completed_date",
+        )
+
+
+class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer when the user is retrieving an enrollment."""
+
+    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+            "enrollment",
+            "selected_session",
+            "course_enroll_status",
+            "completed_date",
+            "physical_books",
+        )
+
+
 class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when user is retrieving an enrollment."""
 
     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
+    courses = CourseEnrollmentSerializer(many=True)
 
     class Meta:
         model = Enrollment
@@ -54,6 +115,7 @@ class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "student",
             "status",
             "exams",
+            "courses",
         )
         read_only_fields = ("status",)
 
@@ -65,6 +127,9 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
     """
 
     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
+    courses = CourseEnrollmentSerializer(
+        many=True, source="course_enrolls", required=False
+    )
 
     class Meta:
         model = Enrollment
@@ -72,6 +137,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
             "id",
             # 'student',
             "exams",
+            "courses",
         )
 
     def create(self, validated_data):
@@ -95,10 +161,12 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
             other validation error
 
         """
+
         exams_data = validated_data.pop("exam_enrolls", None)
+        courses_data = validated_data.pop("course_enrolls", None)
         user = self.context["request"].user
         total_price = 0.0
-        if not (exams_data):
+        if not (exams_data or courses_data):
             raise serializers.ValidationError("Atleast one fields should be non-empty.")
 
         def batch_is_enrolled_and_price(enrolled_objs):
@@ -127,6 +195,15 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
                 selected_session = data.get("selected_session")
                 ExamThroughEnrollment(
                     enrollment=enrollment, exam=exam, selected_session=selected_session
+                ).save()
+        if courses_data:
+            for data in courses_data:
+                course = data.get("course")
+                selected_session = data.get("selected_session")
+                CourseThroughEnrollment(
+                    course=course,
+                    enrollment=enrollment,
+                    selected_session=selected_session,
                 ).save()
         if total_price == 0.0:
             enrollment.status = EnrollmentStatus.ACTIVE

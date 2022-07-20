@@ -176,7 +176,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Rest Framework Start
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "courses.api.paginations.CustomPagination",
+    # "DEFAULT_PAGINATION_CLASS": "courses.api.paginations.CustomPagination",
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
@@ -312,6 +312,10 @@ CKEDITOR_CONFIGS = {
                     "Mathjax",
                 ],
             },
+            {
+                "name": "source",
+                "items": ["Source", "Preview"],
+            },
         ],
         "toolbar": "Custom",
         "mathJaxLib": CKEDITOR_MATHJAX_URL,
@@ -322,6 +326,10 @@ CKEDITOR_CONFIGS = {
                 "mathjax",
             ]
         ),
+        "pasteFromWordRemoveFontStyles": True,
+        "pasteFromWordPromptCleanup": True,
+        "forcePasteAsPlainText": True,
+        "ignoreEmptyParagraph": True,
     },
 }
 # ckeditor settings end
