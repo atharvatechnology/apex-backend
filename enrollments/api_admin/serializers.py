@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer, PublishedSerializer
-from enrollments.models import Session
+from enrollments.models import ExamThroughEnrollment, Session
 
 
 class SessionAdminSerializer(CreatorSerializer, PublishedSerializer):
@@ -68,3 +68,19 @@ class SessionAdminUpdateSerializer(SessionAdminSerializer):
                 serializers.as_serializer_error(error)
             ) from error
         return instance
+
+
+class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
+    """Serializer for ExamThroughEnrollment List"""
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "enrollment",
+            "exam",
+            "score",
+            "status",
+        )
+
+
+        
