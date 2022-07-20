@@ -12,6 +12,8 @@ from enrollments.models import Session
 from enrollments.models import ExamThroughEnrollment
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
+from courses.api.paginations import StandardResultsSetPagination
+
 
 class SessionCreateAPIView(BaseCreatorCreateAPIView):
     """Create a new session for an exam."""
@@ -85,6 +87,7 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = ExamThroughEnrollment.objects.all()
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    pagination_class = StandardResultsSetPagination
     filterset_fields = ['exam']
     ordering_fields = ['status', 'score']
     search_fields = ['enrollment__student__username']
