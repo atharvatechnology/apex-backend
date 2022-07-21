@@ -121,7 +121,7 @@ class User(AbstractUser):
         otp = OTP.generateOTP(self.username, self.otp_counter)
         self.otp_generate_time = make_aware(datetime.now())
         self.otp = otp
-        OTP.sendOTP(self.username, otp)
+        OTP.sendOTP.apply_async(args=[self.username, otp], queue="high_priority")
         return otp
 
 
