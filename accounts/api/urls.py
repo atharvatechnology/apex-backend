@@ -7,6 +7,12 @@ from accounts.api.views import (
     UserResetPasswordOTPRequestAPIView,
     UserResetPasswordOTPVerifyAPIView,
 )
+from accounts.api_admin.views import (
+    UserCreateAdminAPIView,
+    UserListAdminAPIView,
+    UserRetrieveAdminAPIView,
+    UserUpdateAdminAPIView,
+)
 
 app_name = "accounts"
 
@@ -23,5 +29,18 @@ urlpatterns = [
         "reset/confirm/",
         UserResetPasswordConfirmAPIView.as_view(),
         name="reset-password-confirm",
+    ),
+]
+
+urlpatterns += [
+    path("admin/create/", UserCreateAdminAPIView.as_view(), name="admin-create"),
+    path("admin/list/", UserListAdminAPIView.as_view(), name="admin-list"),
+    path(
+        "admin/retrieve/<int:pk>/",
+        UserRetrieveAdminAPIView.as_view(),
+        name="admin-retrieve",
+    ),
+    path(
+        "admin/update/<int:pk>/", UserUpdateAdminAPIView.as_view(), name="admin-update"
     ),
 ]
