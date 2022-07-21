@@ -4,10 +4,15 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from enrollments.api_admin.serializers import (
+    ExamThroughEnrollmentAdminListSerializer,
     SessionAdminSerializer,
     SessionAdminUpdateSerializer,
 )
 from enrollments.models import Session
+from enrollments.models import ExamThroughEnrollment
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
+from courses.api.paginations import StandardResultsSetPagination
 
 
 class SessionCreateAPIView(BaseCreatorCreateAPIView):
@@ -74,3 +79,16 @@ class SessionDeleteAPIView(DestroyAPIView):
         obj = super().get_object()
         self.can_delete(obj)
         return obj
+
+
+class ExamThroughEnrollmentListAPIView(ListAPIView):
+    """List all student in Exam"""
+    serializer_class = ExamThroughEnrollmentAdminListSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = ExamThroughEnrollment.objects.all()
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    pagination_class = StandardResultsSetPagination
+    filterset_fields = ['exam']
+    ordering_fields = ['status', 'score']
+    search_fields = ['enrollment__student__username']
+
