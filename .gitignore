@@ -136,3 +136,5 @@ dmypy.json
 *.dat
 *.dir
 media/
+.env*
+static-live

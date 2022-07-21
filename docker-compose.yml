@@ -1,0 +1,91 @@
+version: '3'
+
+services:
+  api:
+    build: .
+    container_name: apex-api
+    image: apeximage
+    command: python manage.py runserver 0:8000
+    restart: always
+    env_file: 
+      - .env.backend
+    volumes: 
+      - apex-media:/home/app/web/media
+      - apex-static:/home/app/web/static
+      - ./data/gunicorn:/var/log/gunicorn
+      - ./data/gunicorn:/var/run/gunicorn
+      - ./:/home/app/web
+    networks:
+      - apex-network
+    ports:
+      - "8000:8000"
+  
+  db:
+    image: postgres
+    env_file:
+      - .env.db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - apex-network
+
+  rabbit:
+    image: rabbitmq:alpine
+    volumes:
+      - rabitmq-data:/var/lib/rabbitmq/
+      - rabitmq-log:/var/log/rabbitmq
+    networks:
+      - apex-network
+    
+  redis:
+    image: redis:alpine
+    volumes:
+      - apex-redis:/data
+    networks:
+      - apex-network
+
+  celery:
+    build: .
+    command: celery -A apex worker -l INFO -Q high_priority,low_priority,default
+    restart: always
+    env_file: 
+      - .env.backend
+    volumes:
+      - .:/app
+      - ./:/home/app/web
+    networks:
+      - apex-network
+    depends_on: 
+      - api
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A apex beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    restart: always
+    env_file: 
+      - .env.backend
+    volumes:
+      - .:/app
+      - ./:/home/app/web
+    networks:
+      - apex-network
+    depends_on: 
+      - api
+      - redis
+
+networks:
+  apex-network:
+    driver: bridge
+
+
+volumes:
+  apex-media:
+  apex-static:
+  db-data:
+  apex-redis:
+  rabitmq-data:
+  rabitmq-log:
+
+
+  

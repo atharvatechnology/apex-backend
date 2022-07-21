@@ -1,4 +1,5 @@
 import base64
+from celery import shared_task
 
 import pyotp
 import requests
@@ -54,6 +55,7 @@ class OTP:
         return False
 
     @staticmethod
+    @shared_task
     def sendOTP(phone, otp):
         sms_send_url = settings.OTP_SEND_URL
         platform = settings.OTP_SMS_PLATFORM
