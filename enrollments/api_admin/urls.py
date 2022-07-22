@@ -5,6 +5,7 @@ from .views import (
     SessionDeleteAPIView,
     SessionListAPIView,
     SessionUpdateAPIView,
+    ExamThroughEnrollmentListAPIView
 )
 
 session_urls = [
@@ -13,7 +14,12 @@ session_urls = [
     path("update/<int:pk>/", SessionUpdateAPIView.as_view(), name="session-update"),
     path("delete/<int:pk>/", SessionDeleteAPIView.as_view(), name="session-delete"),
 ]
+exam_through_enrollment_urls = [
+    path("list/", ExamThroughEnrollmentListAPIView.as_view(), name="exam-through-enrollment-list"),
+]
 
 urlpatterns = [
     path("session/", include(session_urls)),
+    path("examthroughenrollment/", include(exam_through_enrollment_urls)),
+
 ]
