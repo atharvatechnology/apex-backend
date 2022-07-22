@@ -1,12 +1,17 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from common.api.serializers import CreatorSerializer, PublishedSerializer
-from enrollments.api.serializers import QuestionEnrollmentSerializer
+from common.api.serializers import (
+    CreatorSerializer,
+    DynamicFieldsCategorySerializer,
+    PublishedSerializer,
+)
 from enrollments.models import ExamThroughEnrollment, Session
-from common.api.serializers import DynamicFieldsCategorySerializer
 
-class SessionAdminSerializer(CreatorSerializer, DynamicFieldsCategorySerializer, PublishedSerializer):
+
+class SessionAdminSerializer(
+    CreatorSerializer, DynamicFieldsCategorySerializer, PublishedSerializer
+):
     """Serializer for Session create."""
 
     name = serializers.CharField(max_length=255, read_only=True)
@@ -72,12 +77,13 @@ class SessionAdminUpdateSerializer(SessionAdminSerializer):
 
 
 class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
-    """Serializer for ExamThroughEnrollment List"""
+    """Serializer for ExamThroughEnrollment List."""
+
     question_states = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = ExamThroughEnrollment
-        
+
         fields = (
             "id",
             "enrollment",
@@ -86,10 +92,7 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
             "score",
             "status",
         )
+
     @staticmethod
     def get_question_states(obj):
         return obj.question_states.all().count()
-    
-
-
-        
