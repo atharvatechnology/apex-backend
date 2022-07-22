@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
 from enrollments.api.serializers import SessionSerializer
+from enrollments.api_admin.serializers import SessionAdminSerializer
 from exams.api.serializers import ExamTemplateListSerializer
 from exams.models import (
     Exam,
@@ -365,6 +366,15 @@ class ExamListAdminSerializer(serializers.ModelSerializer):
             "template",
         )
 
+
+class ExamAdminRetrieveSerializer(serializers.ModelSerializer):
+    sessions = SessionAdminSerializer(many=True, fields=['id', 'start_date'])
+    class Meta:
+        model = Exam
+        fields = (
+            'name',
+            'sessions',
+        )
 
 class ExamUpdateSerializer(CreatorSerializer):
     """Serializer when admin is updating an exam."""

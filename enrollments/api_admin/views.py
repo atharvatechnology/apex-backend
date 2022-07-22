@@ -88,7 +88,7 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     queryset = ExamThroughEnrollment.objects.all()
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     pagination_class = StandardResultsSetPagination
-    filterset_fields = ['exam']
-    ordering_fields = ['status', 'score']
     search_fields = ['enrollment__student__username']
+    ordering_fields = ['status', 'score']
+    filterset_fields = ['exam', "selected_session"]
 
