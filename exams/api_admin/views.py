@@ -15,8 +15,8 @@ from courses.api.paginations import StandardResultsSetPagination
 from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Section
 
 from .serializers import (
-    ExamAdminRetrieveSerializer,
     ExamCreateSerializer,
+    ExamDetailSerializer,
     ExamImageAdminSerializer,
     ExamListAdminSerializer,
     ExamRetrieveAdminSerializer,
@@ -161,7 +161,7 @@ class ExamImageUploadAPIView(CreateAPIView):
         exam = get_object_or_404(Exam, id=exam_id)
         return serializer.save(exam=exam)
 
-class ExamAdminRetrieveAPIView(RetrieveAPIView):
-    serializer_class = ExamAdminRetrieveSerializer
+class ExamDetailAPIView(RetrieveAPIView):
+    serializer_class = ExamDetailSerializer
     queryset = Exam.objects.all()
     permission_classes = [IsAuthenticated, IsAdminUser]

@@ -367,7 +367,7 @@ class ExamListAdminSerializer(serializers.ModelSerializer):
         )
 
 
-class ExamAdminRetrieveSerializer(serializers.ModelSerializer):
+class ExamDetailSerializer(serializers.ModelSerializer):
     sessions = SessionAdminSerializer(many=True, fields=['id', 'start_date'])
     class Meta:
         model = Exam

@@ -1,9 +1,9 @@
 from django.urls import include, path
 
 from exams.api_admin.views import (
-    ExamAdminRetrieveAPIView,
     ExamCreateAPIView,
     ExamDeleteAPIView,
+    ExamDetailAPIView,
     ExamImageUploadAPIView,
     ExamListAPIView,
     ExamRetrieveAPIView,
@@ -35,6 +35,7 @@ urlpatterns = [
         ExamImageUploadAPIView.as_view(),
         name="exam-image-upload",
     ),
+    path("detail/<int:pk>/", ExamDetailAPIView.as_view(), name="exam-overview"),
 ]
 
 option_urls = [
@@ -76,12 +77,7 @@ template_urls = [
     ),
 ]
 
-exam_admin_url = [
-    path("retrieve/<int:pk>/", ExamAdminRetrieveAPIView.as_view(), name="exam-overview"),
-]
-
 urlpatterns += [
     path("questions/", include(question_urls)),
     path("template/", include(template_urls)),
-    path("exams-session/",include(exam_admin_url)),
 ]

@@ -4,23 +4,7 @@ from rest_framework import serializers
 from common.api.serializers import CreatorSerializer, PublishedSerializer
 from enrollments.api.serializers import QuestionEnrollmentSerializer
 from enrollments.models import ExamThroughEnrollment, Session
-
-
-class DynamicFieldsCategorySerializer():
-    def __init__(self, *args, **kwargs):
-        # Don't pass the 'fields' arg up to the superclass
-        fields = kwargs.pop('fields', None)
-
-        # Instantiate the superclass normally
-        super().__init__(*args, **kwargs)
-
-        if fields is not None:
-            # Drop any fields that are not specified in the `fields` argument.
-            allowed = set(fields)
-            existing = set(self.fields)
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
-        
+from common.api.serializers import DynamicFieldsCategorySerializer
 
 class SessionAdminSerializer(CreatorSerializer, DynamicFieldsCategorySerializer, PublishedSerializer):
     """Serializer for Session create."""
@@ -90,7 +74,6 @@ class SessionAdminUpdateSerializer(SessionAdminSerializer):
 class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
     """Serializer for ExamThroughEnrollment List"""
     question_states = serializers.SerializerMethodField()
-    selected_session = serializers.SerializerMethodField()
     
     class Meta:
         model = ExamThroughEnrollment
@@ -100,7 +83,6 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
             "enrollment",
             "question_states",
             "exam",
-            "selected_session",
             "score",
             "status",
         )
@@ -108,9 +90,6 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
     def get_question_states(obj):
         return obj.question_states.all().count()
     
-    @staticmethod
-    def get_selected_session(obj):
-        return obj.selected_session.id
 
 
         
