@@ -5,9 +5,6 @@ from rest_framework import serializers
 from accounts.api.serializers import FullNameField
 from accounts.models import Profile
 
-# from common.api.serializers import CreatorSerializer
-
-
 User = get_user_model()
 
 
@@ -37,12 +34,19 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         # profile_data = None
-        # if "profile" in validated_data:
-        #     profile_data = validated_data.pop("profile")
+        if "profile" in validated_data:
+            profile_data = validated_data.pop("profile")
+
         instance = super().create(validated_data)
         instance.is_active = True
         instance.set_password(validated_data["username"])
+        instance.generate_otp()
         instance.save()
+
+        if profile_data:
+            for attr, value in profile_data.items():
+                setattr(instance.profile, attr, value)
+            instance.profile.save()
         return instance
 
 
@@ -99,4 +103,19 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
             "is_active",
         ]
 
-        # read_only_fields = CreatorSerializer.Meta.read_only_fields
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # profile = None
+        if "profile" in validated_data:
+            profile_data = validated_data.pop("profile")
+
+        instance = super().update(instance, validated_data)
+        instance.is_active = True
+
+        instance.save()
+
+        if profile_data:
+            for attr, value in profile_data.items():
+                setattr(instance.profile, attr, value)
+            instance.profile.save()
+        return instance
