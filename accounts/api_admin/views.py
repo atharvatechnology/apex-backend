@@ -1,6 +1,12 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics
+from rest_framework import filters
+from rest_framework.generics import (
+    CreateAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+)
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 
 from accounts.api_admin.serializers import (
@@ -15,7 +21,7 @@ from ..filters import UserFilter
 User = get_user_model()
 
 
-class UserCreateAdminAPIView(generics.CreateAPIView):
+class UserCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
     permission_classes = [AllowAny, IsAdminUser]
@@ -23,7 +29,7 @@ class UserCreateAdminAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
 
 
-class UserListAdminAPIView(generics.ListAPIView):
+class UserListAdminAPIView(ListAPIView):
     """User List API View."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -34,7 +40,7 @@ class UserListAdminAPIView(generics.ListAPIView):
     filterset_class = UserFilter
 
 
-class UserRetrieveAdminAPIView(generics.RetrieveAPIView):
+class UserRetrieveAdminAPIView(RetrieveAPIView):
     """User Retrieve API View."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -42,7 +48,7 @@ class UserRetrieveAdminAPIView(generics.RetrieveAPIView):
     queryset = User.objects.all()
 
 
-class UserUpdateAdminAPIView(generics.UpdateAPIView):
+class UserUpdateAdminAPIView(UpdateAPIView):
     """User Update API View."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
