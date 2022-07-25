@@ -33,7 +33,7 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        # profile_data = None
+        profile_data = None
         if "profile" in validated_data:
             profile_data = validated_data.pop("profile")
 
@@ -105,7 +105,7 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        # profile = None
+        profile_data = None
         if "profile" in validated_data:
             profile_data = validated_data.pop("profile")
 
