@@ -7,7 +7,7 @@ from accounts.api_admin.views import (
     UserUpdateAdminAPIView,
 )
 
-app_name = "accounts"
+app_name = "api.admin.accounts"
 
 urlpatterns = [
     path("create/", UserCreateAdminAPIView.as_view(), name="create"),
