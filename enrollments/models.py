@@ -446,6 +446,11 @@ class ExamThroughEnrollment(models.Model):
     )
     # submitted = models.BooleanField(_("submitted"), default=False)
 
+    @property
+    def rank(self):
+        count = ExamThroughEnrollment.objects.filter(score__gt=self.score).count()
+        return count + 1
+
     class Meta:
         """Meta definition for ExamThroughEnrollment."""
 

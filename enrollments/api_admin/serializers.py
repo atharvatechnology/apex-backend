@@ -6,7 +6,8 @@ from common.api.serializers import (
     DynamicFieldsCategorySerializer,
     PublishedSerializer,
 )
-from enrollments.models import ExamThroughEnrollment, Session
+from enrollments.api.serializers import ExamEnrollmentSerializer
+from enrollments.models import Enrollment, ExamThroughEnrollment, Session
 
 
 class SessionAdminSerializer(
@@ -80,6 +81,8 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
     """Serializer for ExamThroughEnrollment List."""
 
     question_states = serializers.SerializerMethodField()
+    rank = serializers.ReadOnlyField()
+    enrollment = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamThroughEnrollment
@@ -91,8 +94,31 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
             "exam",
             "score",
             "status",
+            "rank",
         )
+
+    @staticmethod
+    def get_enrollment(obj):
+        if obj.enrollment.student.last_name != "":
+            return (
+                obj.enrollment.student.first_name
+                + " "
+                + obj.enrollment.student.last_name
+            )
+        else:
+            return obj.enrollment.student.first_name
 
     @staticmethod
     def get_question_states(obj):
         return obj.question_states.all().count()
+
+
+class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
+    exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
+
+    class Meta:
+        model = Enrollment
+        fields = (
+            "student",
+            "exams",
+        )
