@@ -4,7 +4,7 @@ from accounts.models import User
 
 
 class UserFilter(django_filters.FilterSet):
-    """Filter for courses."""
+    """Filter for api_admin."""
 
     class Meta:
         model = User
