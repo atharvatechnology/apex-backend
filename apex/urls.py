@@ -43,6 +43,7 @@ api_urls = [
     path("exams/", include("exams.api.urls")),
     path("enrollments/", include("enrollments.api.urls")),
     path("physical-book/", include("physicalbook.api.urls")),
+    path("attendance/", include("attendance.api.urls")),
 ]
 
 api_admin_urls = [
@@ -57,6 +58,8 @@ urlpatterns += [
     path("admin/", admin.site.urls),
     path("api/", include(api_urls)),
     path("api/admin/", include(api_admin_urls)),
+    # path("student_urls/", include("student.api.urls")),
+    # path("teacher_urls/", include("teacher.api.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
