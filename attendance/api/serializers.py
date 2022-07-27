@@ -176,6 +176,7 @@ class TeacherAttendanceUpdateSerializer(CreatorSerializer):
                 **teacher_attendance_detail_data
             )
             instance.details = teacher_detail
+            instance.save()
         return instance
 
     def validate(self, attrs):
