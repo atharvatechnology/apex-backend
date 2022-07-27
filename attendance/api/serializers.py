@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from attendance.models import Attendance, TeacherAttendance, TeacherAttendanceDetail
@@ -181,7 +182,8 @@ class TeacherAttendanceUpdateSerializer(CreatorSerializer):
 
     def validate(self, attrs):
         details = attrs.get("details")
-        attrs["details"] = details
+        attrs["details"] = get_object_or_404(TeacherAttendanceDetail, details=details)
+        # attrs["details"] = details
         return attrs
 
 
