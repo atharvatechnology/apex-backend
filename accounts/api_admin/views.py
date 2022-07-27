@@ -7,7 +7,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from accounts.api_admin.serializers import (
     UserCreateAdminSerializer,
@@ -15,8 +15,7 @@ from accounts.api_admin.serializers import (
     UserRetrieveAdminSerializer,
     UserUpdateAdminSerializer,
 )
-
-from ..filters import UserFilter
+from accounts.filters import UserFilter
 
 User = get_user_model()
 
@@ -24,7 +23,7 @@ User = get_user_model()
 class UserCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [AllowAny, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = UserCreateAdminSerializer
     queryset = User.objects.all()
 
@@ -36,7 +35,7 @@ class UserListAdminAPIView(ListAPIView):
     serializer_class = UserListAdminSerializer
     queryset = User.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    search_fields = ["username"]
+    search_fields = ["username", "first_name", "last_name"]
     filterset_class = UserFilter
 
 

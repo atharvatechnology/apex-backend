@@ -40,7 +40,6 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
         instance = super().create(validated_data)
         instance.is_active = True
         instance.set_password(validated_data["username"])
-        instance.generate_otp()
         instance.save()
 
         if profile_data:
@@ -111,7 +110,6 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
 
         instance = super().update(instance, validated_data)
         instance.is_active = True
-
         instance.save()
 
         if profile_data:
