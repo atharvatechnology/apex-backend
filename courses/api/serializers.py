@@ -44,7 +44,7 @@ class CourseRetrieveSerializerAfterEnroll(serializers.ModelSerializer):
 class CourseCategoryRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving course categories."""
 
-    count = serializers.SerializerMethodField()
+    # count = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseCategory
@@ -52,13 +52,13 @@ class CourseCategoryRetrieveSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "description",
-            "count",
+            # "count",
         )
 
-    def get_count(self, obj):
-        cat1 = obj
-        count = cat1.courses.count()
-        return count
+    # def get_count(self, obj):
+    #     cat1 = obj
+    #     count = cat1.courses.count()
+    #     return count
 
 
 class CourseCategoryUpdateSerializer(serializers.ModelSerializer):
