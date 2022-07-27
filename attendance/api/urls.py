@@ -1,19 +1,17 @@
-from django.urls import path
+from django.urls import include, path
 
-from attendance.api.views import (  # TeacherAttendanceRetrieveAPIView,
+from attendance.api.views import (
     AttendanceCreateAPIView,
-    AttendanceDeleteAPIView,
     AttendanceListAPIView,
     AttendanceRetrieveAPIView,
     AttendanceUpdateAPIView,
     TeacherAttendanceCreateAPIView,
-    TeacherAttendanceDetailDeleteAPIView,
-    TeacherAttendanceDetailListAPIView,
-    TeacherAttendanceDetailRetrieveAPIView,
-    TeacherAttendanceDetailUpdateAPIView,
+    TeacherAttendanceListAPIView,
+    TeacherAttendanceRetrieveAPIView,
+    TeacherAttendanceUpdateAPIView,
 )
 
-urlpatterns = [
+student_urls = [
     path("list/", AttendanceListAPIView.as_view(), name="attendance-list"),
     path("create/", AttendanceCreateAPIView.as_view(), name="attendance-create"),
     path(
@@ -24,32 +22,27 @@ urlpatterns = [
     path(
         "update/<int:pk>/", AttendanceUpdateAPIView.as_view(), name="attendance-update"
     ),
+]
+
+teacher_urls = [
     path(
-        "delete/<int:pk>/", AttendanceDeleteAPIView.as_view(), name="attendance-delete"
-    ),
-    path(
-        "teacher/create/",
+        "create/",
         TeacherAttendanceCreateAPIView.as_view(),
         name="teacher-create",
     ),
+    path("list/", TeacherAttendanceListAPIView.as_view(), name="teacher-list"),
     path(
-        "teacher/detail/list/",
-        TeacherAttendanceDetailListAPIView.as_view(),
-        name="teacher-detail-list",
+        "retrieve/<int:pk>/",
+        TeacherAttendanceRetrieveAPIView.as_view(),
+        name="teacher-retrieve",
     ),
     path(
-        "teacher/detail/<int:pk>/",
-        TeacherAttendanceDetailRetrieveAPIView.as_view(),
-        name="teacher-detail-retrieve",
+        "update/<int:pk>/",
+        TeacherAttendanceUpdateAPIView.as_view(),
+        name="teacher-update",
     ),
-    path(
-        "teacher/detail/update/<int:pk>/",
-        TeacherAttendanceDetailUpdateAPIView.as_view(),
-        name="teacher-detail-update",
-    ),
-    path(
-        "teacher/detail/delete/<int:pk>/",
-        TeacherAttendanceDetailDeleteAPIView.as_view(),
-        name="teacher-detail-delete",
-    ),
+]
+urlpatterns = [
+    path("student/", include(student_urls)),
+    path("teacher/", include(teacher_urls)),
 ]
