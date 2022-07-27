@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 
 from attendance.models import Attendance, TeacherAttendance, TeacherAttendanceDetail
@@ -31,18 +32,6 @@ class AttendanceRetrieveSerializer(serializers.ModelSerializer):
 
 class AttendanceUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating attendance model."""
-
-    class Meta:
-        model = Attendance
-        fields = (
-            "id",
-            "date",
-            "user",
-        )
-
-
-class AttendanceDeleteSerializer(serializers.ModelSerializer):
-    """Serializer for deleting attendance model."""
 
     class Meta:
         model = Attendance
@@ -103,6 +92,7 @@ class TeacherAttendanceCreateSerializer(CreatorSerializer):
         )
         # read_only_fields = ("id", "date", "user")
 
+    @transaction.atomic
     def create(self, validated_data):
         teacher_attendance_detail_data = None
         if "details" in validated_data:
@@ -118,25 +108,23 @@ class TeacherAttendanceCreateSerializer(CreatorSerializer):
                 **teacher_attendance_detail_data
             )
             instance.details = teacher_detail
-            # for attr, value in teacher_attendance_detail_data.items():
-            #     setattr(instance.details, attr, value)
-            # instance.details.save()
+            instance.save()
         return instance
 
 
-class TeacherAttendanceDetailRetrieveSerializer(serializers.ModelSerializer):
-    """Serializer for retrieving teacher attendance detail model."""
+# class TeacherAttendanceDetailRetrieveSerializer(serializers.ModelSerializer):
+#     """Serializer for retrieving teacher attendance detail model."""
 
-    class Meta:
-        model = TeacherAttendanceDetail
-        fields = (
-            "id",
-            "number_of_period",
-            "message",
-            "remarks",
-            "status",
-            "teacher_attendance",
-        )
+#     class Meta:
+#         model = TeacherAttendanceDetail
+#         fields = (
+#             "id",
+#             "number_of_period",
+#             "message",
+#             "remarks",
+#             "status",
+#             "teacher_attendance",
+#         )
 
 
 class TeacherAttendanceDetailUpdateSerializer(CreatorSerializer):
@@ -170,8 +158,11 @@ class TeacherAttendanceUpdateSerializer(CreatorSerializer):
             "details",
         )
 
+    @transaction.atomic
     def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
         teacher_attendance_detail_data = None
+        # instance.detail = validated_data.get("details", instance.details)
         if "details" in validated_data:
             teacher_attendance_detail_data = validated_data.pop("details")
 
@@ -187,31 +178,24 @@ class TeacherAttendanceUpdateSerializer(CreatorSerializer):
             instance.details = teacher_detail
         return instance
 
-
-class TeacherAttendanceDetailDeleteSerializer(serializers.ModelSerializer):
-    """Serializer for deleting teacher attendance detail model."""
-
-    class Meta:
-        model = TeacherAttendanceDetail
-        fields = (
-            "id",
-            "number_of_period",
-            "message",
-            "remarks",
-            "status",
-            "teacher_attendance",
-        )
+    def validate(self, attrs):
+        details = attrs.get("details")
+        attrs["details"] = details
+        return attrs
 
 
 class TeacherAttendanceRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving teacher attendance models."""
 
+    details = TeacherAttendanceDetailCreateSerializer(required=False)
+
     class Meta:
         model = TeacherAttendance
-        field = (
-            "id",
-            "name",
-            "date",
-            "user",
-            "details",
-        )
+        # field = (
+        #     "id",
+        #     "name",
+        #     "date",
+        #     "user",
+        #     "details",
+        # )
+        fields = "__all__"

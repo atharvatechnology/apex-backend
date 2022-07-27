@@ -12,7 +12,7 @@ from attendance.api.serializers import (
     TeacherAttendanceUpdateSerializer,
 )
 from attendance.filters import AttendanceFilter
-from attendance.models import Attendance, TeacherAttendance, TeacherAttendanceDetail
+from attendance.models import Attendance, TeacherAttendance
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from courses.api.paginations import LargeResultsSetPagination
 
@@ -57,8 +57,8 @@ class TeacherAttendanceListAPIView(ListAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherAttendanceRetrieveSerializer
-    queryset = TeacherAttendanceDetail.objects.all()
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    queryset = TeacherAttendance.objects.all()
+    filter_backends = [filters.SearchFilter]
 
 
 class TeacherAttendanceCreateAPIView(BaseCreatorCreateAPIView):
