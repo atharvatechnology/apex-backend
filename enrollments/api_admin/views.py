@@ -12,6 +12,7 @@ from enrollments.api_admin.serializers import (
     SessionAdminSerializer,
     SessionAdminUpdateSerializer,
 )
+from enrollments.filters import ExamThroughEnrollmentFilter
 from enrollments.models import Enrollment, ExamThroughEnrollment, Session
 
 
@@ -82,6 +83,7 @@ class SessionDeleteAPIView(DestroyAPIView):
 
 
 class ExamEnrollmentCreateAPIView(CreateAPIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = ExamEnrollmentCreateSerializer
     queryset = Enrollment.objects.all()
 
@@ -101,7 +103,7 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     search_fields = [
         "enrollment__student__first_name",
         "enrollment__student__last_name",
-        "enrollment__student__user_name",
+        "enrollment__student__username",
     ]
     ordering_fields = ["status", "score"]
-    filterset_fields = ["exam", "selected_session"]
+    filterset_class = ExamThroughEnrollmentFilter

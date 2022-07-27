@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
-from enrollments.api.utils import is_enrolled
+from enrollments.api.utils import get_student_rank, is_enrolled
 from enrollments.models import (
     CourseThroughEnrollment,
     Enrollment,
@@ -363,27 +363,7 @@ class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
         )
 
     def get_rank(self, obj):
-        """Get the rank of the user in the exam.
-
-        This is based on the score of current exam takers.
-
-        Parameters
-        ----------
-        obj : ExamThroughEnrollment
-            exam enrollment.
-
-        Returns
-        -------
-        int
-            rank of the user in the exam.
-
-        """
-        all_examinee_states = ExamThroughEnrollment.objects.filter(exam=obj.exam)
-        num_examinee = all_examinee_states.count()
-        num_examinee_lower_score = all_examinee_states.filter(
-            score__lt=obj.score
-        ).count()
-        return num_examinee - num_examinee_lower_score
+        return get_student_rank(obj)
 
     # def get_exam(self):
     #     from exams.api.serializers import ExamPaperWOEnrollmentSeriaizer

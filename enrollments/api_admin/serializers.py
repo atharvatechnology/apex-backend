@@ -7,7 +7,13 @@ from common.api.serializers import (
     PublishedSerializer,
 )
 from enrollments.api.serializers import ExamEnrollmentSerializer
-from enrollments.models import Enrollment, ExamThroughEnrollment, Session
+from enrollments.api.utils import get_student_rank, is_enrolled
+from enrollments.models import (
+    Enrollment,
+    EnrollmentStatus,
+    ExamThroughEnrollment,
+    Session,
+)
 
 
 class SessionAdminSerializer(
@@ -81,15 +87,15 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
     """Serializer for ExamThroughEnrollment List."""
 
     question_states = serializers.SerializerMethodField()
-    rank = serializers.ReadOnlyField()
-    enrollment = serializers.SerializerMethodField()
+    rank = serializers.SerializerMethodField()
+    student = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamThroughEnrollment
 
         fields = (
             "id",
-            "enrollment",
+            "student",
             "question_states",
             "exam",
             "score",
@@ -97,16 +103,12 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
             "rank",
         )
 
+    def get_rank(self, obj):
+        return get_student_rank(obj)
+
     @staticmethod
-    def get_enrollment(obj):
-        if obj.enrollment.student.last_name != "":
-            return (
-                obj.enrollment.student.first_name
-                + " "
-                + obj.enrollment.student.last_name
-            )
-        else:
-            return obj.enrollment.student.first_name
+    def get_student(obj):
+        return obj.enrollment.student.__str__()
 
     @staticmethod
     def get_question_states(obj):
@@ -122,3 +124,37 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
             "student",
             "exams",
         )
+
+    def create(self, validated_data):
+        exams_data = validated_data.pop("exam_enrolls", None)
+        user = self.context["request"].user
+        total_price = 0.0
+        if not exams_data:
+            raise serializers.ValidationError("Field should not be empty")
+
+        def batch_is_enrolled_and_price(enrolled_objs):
+            sum_price = 0.0
+            for enrolled_obj in enrolled_objs:
+                sum_price += float(enrolled_obj.price)
+                if is_enrolled(enrolled_obj, user):
+                    raise serializers.ValidationError(
+                        f"{user} is already enrolled into {enrolled_obj}"
+                    )
+            return sum_price
+
+        if exams_data:
+            exams = [data.get("exam") for data in exams_data]
+            total_price += batch_is_enrolled_and_price(exams)
+        enrollment = super().create(validated_data)
+
+        if exams_data:
+            for data in exams_data:
+                exam = data.get("exam")
+                selected_session = data.get("selected_session")
+                ExamThroughEnrollment(
+                    enrollment=enrollment, exam=exam, selected_session=selected_session
+                ).save()
+        if total_price == 0.0:
+            enrollment.status = EnrollmentStatus.ACTIVE
+        enrollment.save()
+        return enrollment

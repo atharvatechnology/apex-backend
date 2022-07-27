@@ -1,4 +1,4 @@
-from enrollments.models import EnrollmentStatus
+from enrollments.models import EnrollmentStatus, ExamThroughEnrollment
 
 
 def is_enrolled(enrolled_obj, user):
@@ -49,3 +49,25 @@ def is_enrolled_active(enrolled_obj, user):
     if len(enrollments) > 0:
         return True
     return False
+
+
+def get_student_rank(obj):
+    """Get the rank of the user in the exam.
+
+    This is based on the score of current exam takers.
+
+    Parameters
+    ----------
+    obj : ExamThroughEnrollment
+        exam enrollment.
+
+    Returns
+    -------
+    int
+        rank of the user in the exam.
+
+    """
+    all_examinee_states = ExamThroughEnrollment.objects.filter(exam=obj.exam)
+    num_examinee = all_examinee_states.count()
+    num_examinee_lower_score = all_examinee_states.filter(score__lt=obj.score).count()
+    return num_examinee - num_examinee_lower_score
