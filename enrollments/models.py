@@ -6,12 +6,13 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.forms import ValidationError
 from django.utils import timezone
+from django.utils.timezone import localtime, now
 from django.utils.translation import gettext_lazy as _
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from common.errors import StateTransitionError
 from common.modelFields import ZeroSecondDateTimeField
-from common.models import CreatorBaseModel, PublishedModel, PublishedQueryset
+from common.models import CreatorBaseModel
 from common.utils import get_human_readable_date_time
 from common.validators import validate_date_time_gt_now
 
@@ -89,7 +90,7 @@ class SessionStatus:
     ]
 
 
-class SessionQuerySet(PublishedQueryset, models.QuerySet):
+class SessionQuerySet(models.QuerySet):
     def delete(self, *args, **kwargs):
         for obj in self:
             tasks = PeriodicTask.objects.filter(name__in=[obj.start_task, obj.end_task])
@@ -98,7 +99,7 @@ class SessionQuerySet(PublishedQueryset, models.QuerySet):
         super().delete(*args, **kwargs)
 
 
-class Session(PublishedModel, CreatorBaseModel):
+class Session(CreatorBaseModel):
     """Model definition for Session."""
 
     objects = SessionQuerySet.as_manager()
@@ -112,12 +113,12 @@ class Session(PublishedModel, CreatorBaseModel):
         choices=SessionStatus.CHOICES,
         default=SessionStatus.INACTIVE,
     )
-    exam = models.ForeignKey(
-        "exams.Exam",
-        verbose_name=_("exam"),
-        related_name="sessions",
-        on_delete=models.CASCADE,
-    )
+    # exam = models.ForeignKey(
+    #     "exams.Exam",
+    #     verbose_name=_("exam"),
+    #     related_name="sessions",
+    #     on_delete=models.CASCADE,
+    # )
     start_task = models.CharField(
         _("start_task"), max_length=256, null=True, blank=True
     )
@@ -245,6 +246,36 @@ class Session(PublishedModel, CreatorBaseModel):
         if self.status == SessionStatus.ACTIVE:
             return self.__change_status(SessionStatus.ENDED)
         raise StateTransitionError(f"Session cannot be ended from {self.status}")
+
+
+class ExamSession(Session):
+    """Exam session model."""
+
+    exam = models.ForeignKey(
+        "exams.Exam",
+        on_delete=models.CASCADE,
+        related_name="exam_sessions",
+        verbose_name=_("exam"),
+    )
+    result_is_published = models.BooleanField(default=False)
+    result_publish_date = models.DateTimeField(blank=True, null=True)
+
+    @property
+    def is_visible(self):
+        today = localtime(now())
+        return self.result_is_published or self.result_publish_date <= today
+
+    class Meta:
+        """Meta definition for ExamSession."""
+
+        verbose_name = "Exam Session"
+        verbose_name_plural = "Exam Sessions"
+        ordering = ["-session_ptr__id"]
+
+    # def __str__(self):
+    #     """Unicode representation of ExamSession."""
+    #     human_readable_date = get_human_readable_date_time(self.created_at)
+    #     return f"id - {self.id} - createdAt - {human_readable_date}"
 
     def publish_results(self):
         if self.status == SessionStatus.RESULTSOUT:
