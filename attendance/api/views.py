@@ -59,6 +59,7 @@ class TeacherAttendanceListAPIView(ListAPIView):
     serializer_class = TeacherAttendanceRetrieveSerializer
     queryset = TeacherAttendance.objects.all()
     filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
 
 
 class TeacherAttendanceCreateAPIView(BaseCreatorCreateAPIView):
