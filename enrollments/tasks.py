@@ -78,10 +78,10 @@ def calculate_score(exam_through_enrollment_id):
 
 
 @shared_task
-def start_exam_session(session_id):
-    """Start exam.
+def start_session(session_id):
+    """Start session.
 
-    Start the exam for a given session.
+    Start the exam/course for a given session.
 
     Parameters
     ----------
@@ -95,10 +95,10 @@ def start_exam_session(session_id):
 
 
 @shared_task
-def end_exam_session(session_id):
-    """Finish exam.
+def end_session(session_id):
+    """Finish session.
 
-    Finish the exam for a given session.
+    Finish the exam/course for a given session.
 
     Parameters
     ----------

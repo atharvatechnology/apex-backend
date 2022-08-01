@@ -201,14 +201,14 @@ class Session(CreatorBaseModel):
         start_task = PeriodicTask.objects.create(
             crontab=start_schedule,
             name=f"{self.exam.name}_{start_date_aware}_{self.id} start task",
-            task="enrollments.tasks.start_exam_session",
+            task="enrollments.tasks.start_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
         )
         end_task = PeriodicTask.objects.create(
             crontab=end_schedule,
             name=f"{self.exam.name}_{end_date_aware}_{self.id} end task",
-            task="enrollments.tasks.end_exam_session",
+            task="enrollments.tasks.end_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
         )
@@ -254,7 +254,7 @@ class ExamSession(Session):
     exam = models.ForeignKey(
         "exams.Exam",
         on_delete=models.CASCADE,
-        related_name="exam_sessions",
+        related_name="sessions",
         verbose_name=_("exam"),
     )
     result_is_published = models.BooleanField(default=False)
