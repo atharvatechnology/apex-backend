@@ -1,3 +1,5 @@
+from rest_framework import serializers
+
 from enrollments.models import EnrollmentStatus, ExamThroughEnrollment
 
 
@@ -71,3 +73,24 @@ def get_student_rank(obj):
     num_examinee = all_examinee_states.count()
     num_examinee_lower_score = all_examinee_states.filter(score__lt=obj.score).count()
     return num_examinee - num_examinee_lower_score
+
+
+def batch_is_enrolled_and_price(enrolled_objs, user):
+    sum_price = 0.0
+    for enrolled_obj in enrolled_objs:
+        sum_price += float(enrolled_obj.price)
+        if is_enrolled(enrolled_obj, user):
+            raise serializers.ValidationError(
+                f"{user} is already enrolled into {enrolled_obj}"
+            )
+    return sum_price
+
+
+def exam_data_save(exams_data, enrollment):
+    if exams_data:
+        for data in exams_data:
+            exam = data.get("exam")
+            selected_session = data.get("selected_session")
+            ExamThroughEnrollment(
+                enrollment=enrollment, exam=exam, selected_session=selected_session
+            ).save()
