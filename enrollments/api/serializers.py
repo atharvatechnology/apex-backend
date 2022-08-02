@@ -7,6 +7,7 @@ from enrollments.models import (
     Enrollment,
     EnrollmentStatus,
     ExamEnrollmentStatus,
+    ExamSession,
     ExamThroughEnrollment,
     PhysicalBookCourseEnrollment,
     QuestionEnrollment,
@@ -24,9 +25,18 @@ class SessionSerializer(CreatorSerializer):
             "start_date",
             "end_date",
             "status",
-            "exam",
+            # "exam",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+
+
+class ExamSessionSerializer(SessionSerializer):
+    """Serializer for ExamSession model."""
+
+    class Meta:
+        model = ExamSession
+        fields = SessionSerializer.Meta.fields + ("exam",)
+        read_only_fields = SessionSerializer.Meta.read_only_fields
 
 
 class ExamEnrollmentSerializer(serializers.ModelSerializer):
@@ -425,7 +435,7 @@ class ExamEnrollmentCheckPointRetrieveSerializer(serializers.ModelSerializer):
 class ExamEnrollmentPaperSerializer(serializers.ModelSerializer):
     """Serializer when user retrieves his latest exam schedule."""
 
-    selected_session = SessionSerializer()
+    selected_session = ExamSessionSerializer()
 
     class Meta:
         model = ExamThroughEnrollment
