@@ -130,15 +130,6 @@ class Session(CreatorBaseModel):
         duration = exam.template.duration
         return self.start_date + duration
 
-    def clean_publish_date(self):
-        """Clean the publish date."""
-        end_date = self.calculate_end_date()
-        if self.publish_date and self.publish_date < end_date:
-            humanize_end_date = get_human_readable_date_time(end_date)
-            raise ValidationError(
-                {"publish_date": _(f"Publish date must be after {humanize_end_date}")}
-            )
-
     def save(self, *args, **kwargs):
         """Save the session."""
         self.end_date = self.calculate_end_date()
@@ -147,7 +138,7 @@ class Session(CreatorBaseModel):
     def clean(self):
         """Clean the session."""
         super().clean()
-        self.clean_publish_date()
+        # self.clean_publish_date()
 
     def delete_tasks(self):
         """Get periodic task of sessions and delete them."""
@@ -276,6 +267,20 @@ class ExamSession(Session):
     #     """Unicode representation of ExamSession."""
     #     human_readable_date = get_human_readable_date_time(self.created_at)
     #     return f"id - {self.id} - createdAt - {human_readable_date}"
+
+    def clean_publish_date(self):
+        """Clean the publish date."""
+        end_date = self.calculate_end_date()
+        if self.result_publish_date and self.result_publish_date < end_date:
+            humanize_end_date = get_human_readable_date_time(end_date)
+            raise ValidationError(
+                {"publish_date": _(f"Publish date must be after {humanize_end_date}")}
+            )
+
+    def clean(self):
+        """Clean the session."""
+        super().clean()
+        self.clean_publish_date()
 
     def publish_results(self):
         if self.status == SessionStatus.RESULTSOUT:
