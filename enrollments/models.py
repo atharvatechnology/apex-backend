@@ -156,7 +156,7 @@ class Session(CreatorBaseModel):
         self.delete_tasks()
         super().delete(*args, **kwargs)
 
-    def setup_tasks(self):
+    def setup_tasks(self, sessioned_obj):
         """Create the tasks for the session."""
 
         start_date_aware = self.start_date
@@ -189,17 +189,20 @@ class Session(CreatorBaseModel):
             day_of_month=end_date_aware.day,
             month_of_year=end_date_aware.month,
         )
+        sessioned_obj_name = sessioned_obj._meta.verbose_name.lower()
         start_task = PeriodicTask.objects.create(
             crontab=start_schedule,
-            name=f"{self.exam.name}_{start_date_aware}_{self.id} start task",
-            task="enrollments.tasks.start_session",
+            name=f"{sessioned_obj_name}_{sessioned_obj.id}"
+            + f"_{start_date_aware}_{self.id} start task",
+            task=f"enrollments.tasks.start_{sessioned_obj_name}_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
         )
         end_task = PeriodicTask.objects.create(
             crontab=end_schedule,
-            name=f"{self.exam.name}_{end_date_aware}_{self.id} end task",
-            task="enrollments.tasks.end_session",
+            name=f"{sessioned_obj_name}_{sessioned_obj.id}"
+            + f"_{end_date_aware}_{self.id} end task",
+            task=f"enrollments.tasks.end_{sessioned_obj_name}_session",
             kwargs=json.dumps({"session_id": f"{self.id}"}),
             one_off=True,
         )
@@ -254,7 +257,7 @@ class ExamSession(Session):
     @property
     def is_visible(self):
         today = localtime(now())
-        return self.result_is_published or self.result_publish_date <= today
+        return self.result_is_published or (self.result_publish_date <= today)
 
     class Meta:
         """Meta definition for ExamSession."""
@@ -281,6 +284,10 @@ class ExamSession(Session):
         """Clean the session."""
         super().clean()
         self.clean_publish_date()
+
+    def __change_status(self, status):
+        self.status = status
+        self.save()
 
     def publish_results(self):
         if self.status == SessionStatus.RESULTSOUT:
