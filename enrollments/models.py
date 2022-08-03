@@ -290,6 +290,24 @@ class ExamSession(Session):
         raise StateTransitionError(f"Session cannot be activated from {self.status}")
 
 
+class CourseSession(Session):
+    """Course session model."""
+
+    course = models.ForeignKey(
+        "courses.Course",
+        on_delete=models.CASCADE,
+        related_name="sessions",
+        verbose_name=_("course"),
+    )
+
+    class Meta:
+        """Meta definition for CourseSession."""
+
+        verbose_name = "Course Session"
+        verbose_name_plural = "Course Sessions"
+        ordering = ["-session_ptr__id"]
+
+
 class CourseEnrollmentStatus:
     NEW = "new"  # 1st phase or recently enrolled
     INITIATED = "initiated"  # Started the course
