@@ -16,6 +16,7 @@ from accounts.api_admin.serializers import (
     UserUpdateAdminSerializer,
 )
 from accounts.filters import UserFilter
+from courses.api.paginations import LargeResultsSetPagination
 
 User = get_user_model()
 
@@ -37,6 +38,7 @@ class UserListAdminAPIView(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ["username", "first_name", "last_name"]
     filterset_class = UserFilter
+    pagination_class = LargeResultsSetPagination
 
 
 class UserRetrieveAdminAPIView(RetrieveAPIView):
