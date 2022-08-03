@@ -2,7 +2,7 @@ from celery import shared_task
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
-from enrollments.models import ExamThroughEnrollment, Session
+from enrollments.models import ExamSession, ExamThroughEnrollment
 
 CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
 
@@ -78,10 +78,10 @@ def calculate_score(exam_through_enrollment_id):
 
 
 @shared_task
-def start_session(session_id):
+def start_exam_session(session_id):
     """Start session.
 
-    Start the exam/course for a given session.
+    Start the exam for a given session.
 
     Parameters
     ----------
@@ -90,15 +90,15 @@ def start_session(session_id):
 
     """
     # activate session
-    session = Session.objects.get(id=session_id)
+    session = ExamSession.objects.get(id=session_id)
     session.activate_session()
 
 
 @shared_task
-def end_session(session_id):
+def end_exam_session(session_id):
     """Finish session.
 
-    Finish the exam/course for a given session.
+    Finish the exam for a given session.
 
     Parameters
     ----------
@@ -107,5 +107,5 @@ def end_session(session_id):
 
     """
     # deactivate session
-    session = Session.objects.get(id=session_id)
+    session = ExamSession.objects.get(id=session_id)
     session.end_session()
