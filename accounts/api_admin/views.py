@@ -16,7 +16,7 @@ from accounts.api_admin.serializers import (
     UserUpdateAdminSerializer,
 )
 from accounts.filters import UserFilter
-from courses.api.paginations import LargeResultsSetPagination
+from common.paginations import LargeResultsSetPagination
 
 User = get_user_model()
 

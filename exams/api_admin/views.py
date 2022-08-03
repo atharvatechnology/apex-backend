@@ -11,7 +11,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
-from courses.api.paginations import StandardResultsSetPagination
+from common.paginations import StandardResultsSetPagination
 from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Section
 
 from .serializers import (

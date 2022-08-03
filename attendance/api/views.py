@@ -14,7 +14,7 @@ from attendance.api.serializers import (
 from attendance.filters import AttendanceFilter
 from attendance.models import Attendance, TeacherAttendance
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
-from courses.api.paginations import LargeResultsSetPagination
+from common.paginations import LargeResultsSetPagination
 
 
 class AttendanceListAPIView(ListAPIView):
