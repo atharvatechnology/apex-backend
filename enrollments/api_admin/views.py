@@ -1,18 +1,17 @@
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.generics import DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.paginations import StandardResultsSetPagination
 from enrollments.api_admin.serializers import (
     ExamThroughEnrollmentAdminListSerializer,
     SessionAdminSerializer,
     SessionAdminUpdateSerializer,
 )
-from enrollments.models import Session
-from enrollments.models import ExamThroughEnrollment
-from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
-from courses.api.paginations import StandardResultsSetPagination
+from enrollments.models import ExamThroughEnrollment, Session
 
 
 class SessionCreateAPIView(BaseCreatorCreateAPIView):
@@ -82,13 +81,17 @@ class SessionDeleteAPIView(DestroyAPIView):
 
 
 class ExamThroughEnrollmentListAPIView(ListAPIView):
-    """List all student in Exam"""
+    """List all student in Exam."""
+
     serializer_class = ExamThroughEnrollmentAdminListSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = ExamThroughEnrollment.objects.all()
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
     pagination_class = StandardResultsSetPagination
-    search_fields = ['enrollment__student__username']
-    ordering_fields = ['status', 'score']
-    filterset_fields = ['exam', "selected_session"]
-
+    search_fields = ["enrollment__student__username"]
+    ordering_fields = ["status", "score"]
+    filterset_fields = ["exam", "selected_session"]
