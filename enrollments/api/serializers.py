@@ -435,7 +435,7 @@ class ExamEnrollmentCheckPointRetrieveSerializer(serializers.ModelSerializer):
 class ExamEnrollmentPaperSerializer(serializers.ModelSerializer):
     """Serializer when user retrieves his latest exam schedule."""
 
-    selected_session = SessionSerializer()
+    selected_session = ExamSessionSerializer()
 
     class Meta:
         model = ExamThroughEnrollment

@@ -491,7 +491,7 @@ class ExamThroughEnrollment(models.Model):
         on_delete=models.CASCADE,
     )
     selected_session = models.ForeignKey(
-        Session,
+        ExamSession,
         verbose_name=_("exam_session"),
         related_name="session_enrolls",
         on_delete=models.CASCADE,
