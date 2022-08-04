@@ -345,7 +345,7 @@ class CourseThroughEnrollment(models.Model):
         Enrollment, related_name="course_enrolls", on_delete=models.CASCADE
     )
     selected_session = models.ForeignKey(
-        Session, related_name="course_enrolls", on_delete=models.CASCADE
+        CourseSession, related_name="course_enrolls", on_delete=models.CASCADE
     )
     course_enroll_status = models.CharField(
         max_length=50,
