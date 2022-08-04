@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
-from enrollments.api.serializers import SessionSerializer
+from enrollments.api.serializers import ExamSessionSerializer
 from enrollments.api_admin.serializers import SessionAdminSerializer
 from exams.api.serializers import ExamTemplateListSerializer
 from exams.models import (
@@ -368,13 +368,15 @@ class ExamListAdminSerializer(serializers.ModelSerializer):
 
 
 class ExamDetailSerializer(serializers.ModelSerializer):
-    sessions = SessionAdminSerializer(many=True, fields=['id', 'start_date'])
+    sessions = SessionAdminSerializer(many=True, fields=["id", "start_date"])
+
     class Meta:
         model = Exam
         fields = (
-            'name',
-            'sessions',
+            "name",
+            "sessions",
         )
+
 
 class ExamUpdateSerializer(CreatorSerializer):
     """Serializer when admin is updating an exam."""
@@ -395,7 +397,7 @@ class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
 
     template = ExamTemplateOnExamRetrievalSerializer()
     questions = QuestionOnExamRetrievalSerializer(many=True)
-    sessions = SessionSerializer(many=True, read_only=True)
+    sessions = ExamSessionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Exam

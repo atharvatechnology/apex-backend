@@ -1,33 +1,28 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from common.api.serializers import (
-    CreatorSerializer,
-    DynamicFieldsCategorySerializer,
-    PublishedSerializer,
-)
-from enrollments.models import ExamThroughEnrollment, Session
+from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
+from enrollments.models import ExamSession, ExamThroughEnrollment
 
 
 class SessionAdminSerializer(
-    CreatorSerializer, DynamicFieldsCategorySerializer, PublishedSerializer
+    DynamicFieldsCategorySerializer,
+    CreatorSerializer,
 ):
     """Serializer for Session create."""
 
     name = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
-        model = Session
-        fields = (
-            CreatorSerializer.Meta.fields
-            + PublishedSerializer.Meta.fields
-            + (
-                "start_date",
-                "end_date",
-                "status",
-                "exam",
-                "name",
-            )
+        model = ExamSession
+        fields = CreatorSerializer.Meta.fields + (
+            "start_date",
+            "end_date",
+            "status",
+            "exam",
+            "name",
+            "result_is_published",
+            "result_publish_date",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields + (
             "status",
@@ -53,7 +48,7 @@ class SessionAdminUpdateSerializer(SessionAdminSerializer):
     """Serializer for Session update."""
 
     class Meta:
-        model = Session
+        model = ExamSession
         fields = SessionAdminSerializer.Meta.fields
         read_only_fields = SessionAdminSerializer.Meta.read_only_fields + (
             "start_date",
