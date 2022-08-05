@@ -4,7 +4,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from courses.api.paginations import StandardResultsSetPagination
+from common.paginations import StandardResultsSetPagination
 from exams.api.permissions import IsExamEnrolledActive
 from exams.models import Exam, ExamStatus
 

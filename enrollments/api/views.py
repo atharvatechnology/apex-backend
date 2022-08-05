@@ -117,7 +117,7 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         ):
             # if (selected_session.status == SessionStatus.RESULTSOUT):
             return super().retrieve(request, *args, **kwargs)
-        if publish_date := selected_session.publish_date:
+        if publish_date := selected_session.result_publish_date:
             error_detail = f"Your result will be published \
                 on {localtime(publish_date).strftime('%Y-%m-%d %H:%M:%S')}"
         else:

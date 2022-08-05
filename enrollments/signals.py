@@ -21,10 +21,10 @@ def on_exam_attempt(sender, instance, **kwargs):
         calculate_score.delay(instance.id)
 
 
-@receiver(post_save, sender="enrollments.Session")
+@receiver(post_save, sender="enrollments.ExamSession")
 def on_exam_session_save(sender, instance, created, **kwargs):
     if created:
-        instance.setup_tasks()
+        instance.setup_tasks(instance.exam)
         instance.save()
 
     if instance.status == SessionStatus.INACTIVE:

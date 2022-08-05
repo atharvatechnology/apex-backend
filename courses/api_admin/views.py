@@ -7,7 +7,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from courses.api.paginations import LargeResultsSetPagination
+from common.paginations import LargeResultsSetPagination
 from courses.api_admin.serializers import CourseCategorySerializer, CourseSerializer
 from courses.models import Course, CourseCategory
 
