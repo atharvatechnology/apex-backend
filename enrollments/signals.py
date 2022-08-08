@@ -28,11 +28,9 @@ def on_exam_session_save(sender, instance, created, **kwargs):
         instance.save()
 
     if instance.status == SessionStatus.INACTIVE:
-        print("session inactive")
         instance.exam.schedule_exam()
 
     elif instance.status == SessionStatus.ACTIVE:
-        print("session active")
         instance.exam.start_exam()
         async_to_sync(channel_layer.group_send)(
             # "clock",
@@ -41,7 +39,6 @@ def on_exam_session_save(sender, instance, created, **kwargs):
         )
 
     elif instance.status == SessionStatus.ENDED:
-        print("session ended")
         instance.exam.finish_exam()
         # prevent further enrollment into that session
         # prevent further submissions into that ExamEnrollment
@@ -75,7 +72,6 @@ def on_exam_session_save(sender, instance, created, **kwargs):
                 instance.publish_results()
 
     elif instance.status == SessionStatus.RESULTSOUT:
-        print("session results out")
         # clear the cache
         cache.delete(f"session_{instance.id}_total_results")
         cache.delete(f"session_{instance.id}_total_examinees")
