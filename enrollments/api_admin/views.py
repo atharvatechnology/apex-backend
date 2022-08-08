@@ -13,7 +13,7 @@ from enrollments.api_admin.serializers import (
     SessionAdminUpdateSerializer,
 )
 from enrollments.filters import ExamThroughEnrollmentFilter
-from enrollments.models import Enrollment, ExamThroughEnrollment, Session
+from enrollments.models import Enrollment, ExamSession, ExamThroughEnrollment
 
 
 class SessionCreateAPIView(BaseCreatorCreateAPIView):
@@ -28,7 +28,7 @@ class SessionUpdateAPIView(BaseCreatorUpdateAPIView):
 
     serializer_class = SessionAdminUpdateSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = Session.objects.all()
+    queryset = ExamSession.objects.all()
 
     def can_update_object(self, obj):
         """Check if the user can update the object.
@@ -52,7 +52,7 @@ class SessionListAPIView(ListAPIView):
 
     serializer_class = SessionAdminSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = Session.objects.all()
+    queryset = ExamSession.objects.all()
 
     def get_queryset(self):
         return super().get_queryset().filter(exam__id=self.kwargs["exam_id"])
@@ -62,7 +62,7 @@ class SessionDeleteAPIView(DestroyAPIView):
     """Delete an existing session for an exam."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = Session.objects.all()
+    queryset = ExamSession.objects.all()
 
     def can_delete(self, object):
         """Check if the user can delete the object.
