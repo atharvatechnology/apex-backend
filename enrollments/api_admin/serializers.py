@@ -9,6 +9,7 @@ from enrollments.api.utils import (
     get_student_rank,
 )
 from enrollments.models import (
+    CourseSession,
     Enrollment,
     EnrollmentStatus,
     ExamSession,
@@ -16,7 +17,7 @@ from enrollments.models import (
 )
 
 
-class SessionAdminSerializer(
+class ExamSessionAdminSerializer(
     DynamicFieldsCategorySerializer,
     CreatorSerializer,
 ):
@@ -55,13 +56,13 @@ class SessionAdminSerializer(
         return instance
 
 
-class SessionAdminUpdateSerializer(SessionAdminSerializer):
+class ExamSessionAdminUpdateSerializer(ExamSessionAdminSerializer):
     """Serializer for Session update."""
 
     class Meta:
         model = ExamSession
-        fields = SessionAdminSerializer.Meta.fields
-        read_only_fields = SessionAdminSerializer.Meta.read_only_fields + (
+        fields = ExamSessionAdminSerializer.Meta.fields
+        read_only_fields = ExamSessionAdminSerializer.Meta.read_only_fields + (
             "start_date",
             "end_date",
             "exam",
@@ -72,6 +73,57 @@ class SessionAdminUpdateSerializer(SessionAdminSerializer):
 
         checks full_clean of model and raises ValidationError if any errors
         """
+        try:
+            instance = super().update(instance, validated_data)
+            instance.full_clean()
+        except ValidationError as error:
+            raise serializers.ValidationError(
+                serializers.as_serializer_error(error)
+            ) from error
+        return instance
+
+
+class CourseSessionAdminSerializer(CreatorSerializer):
+    """Serializer for Session Create."""
+
+    class Meta:
+        model = CourseSession
+        fields = CreatorSerializer.Meta.fields + (
+            "start_date",
+            "end_date",
+            "status",
+            "course",
+        )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields + (
+            "status",
+            "end_date",
+        )
+
+        def create(self, validated_data):
+            """Create a new session."""
+            try:
+                instance = super().create(validated_data)
+                instance.full_clean()
+            except ValidationError as error:
+                raise serializers.ValidationError(
+                    serializers.as_serializer_error(error)
+                ) from error
+            return instance
+
+
+class CourseSessionAdminUpdateSerializer(CourseSessionAdminSerializer):
+    """Serializer for course session update."""
+
+    class Meta:
+        model = CourseSession
+        fields = CourseSessionAdminSerializer.Meta.fields
+        read_only_fields = CourseSessionAdminSerializer.Meta.read_only_fields + (
+            "start_date",
+            "end_date",
+        )
+
+    def update(self, instance, validated_data):
+        """Update an existing Session."""
         try:
             instance = super().update(instance, validated_data)
             instance.full_clean()

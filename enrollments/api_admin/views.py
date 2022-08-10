@@ -7,26 +7,33 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 from enrollments.api_admin.serializers import (
+    CourseSessionAdminSerializer,
+    CourseSessionAdminUpdateSerializer,
     ExamEnrollmentCreateSerializer,
+    ExamSessionAdminSerializer,
+    ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
-    SessionAdminSerializer,
-    SessionAdminUpdateSerializer,
 )
 from enrollments.filters import ExamThroughEnrollmentFilter
-from enrollments.models import Enrollment, ExamSession, ExamThroughEnrollment
+from enrollments.models import (
+    CourseSession,
+    Enrollment,
+    ExamSession,
+    ExamThroughEnrollment,
+)
 
 
-class SessionCreateAPIView(BaseCreatorCreateAPIView):
+class ExamSessionCreateAPIView(BaseCreatorCreateAPIView):
     """Create a new session for an exam."""
 
-    serializer_class = SessionAdminSerializer
+    serializer_class = ExamSessionAdminSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
 
 
-class SessionUpdateAPIView(BaseCreatorUpdateAPIView):
+class ExamSessionUpdateAPIView(BaseCreatorUpdateAPIView):
     """Update an existing session for an exam."""
 
-    serializer_class = SessionAdminUpdateSerializer
+    serializer_class = ExamSessionAdminUpdateSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = ExamSession.objects.all()
 
@@ -47,10 +54,10 @@ class SessionUpdateAPIView(BaseCreatorUpdateAPIView):
         return obj
 
 
-class SessionListAPIView(ListAPIView):
+class ExamSessionListAPIView(ListAPIView):
     """List all sessions for an exam."""
 
-    serializer_class = SessionAdminSerializer
+    serializer_class = ExamSessionAdminSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = ExamSession.objects.all()
 
@@ -58,7 +65,7 @@ class SessionListAPIView(ListAPIView):
         return super().get_queryset().filter(exam__id=self.kwargs["exam_id"])
 
 
-class SessionDeleteAPIView(DestroyAPIView):
+class ExamSessionDeleteAPIView(DestroyAPIView):
     """Delete an existing session for an exam."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -80,6 +87,78 @@ class SessionDeleteAPIView(DestroyAPIView):
         obj = super().get_object()
         self.can_delete(obj)
         return obj
+
+
+# Course Session starts
+
+
+class CourseSessionCreateAPIView(BaseCreatorCreateAPIView):
+    """Create a new session for an exam."""
+
+    serializer_class = CourseSessionAdminSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+
+class CourseSessionUpdateAPIView(BaseCreatorUpdateAPIView):
+    """Update an existing session for an exam."""
+
+    serializer_class = CourseSessionAdminUpdateSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = CourseSession.objects.all()
+
+    def can_update_object(self, obj):
+        """Check if the user can update the object.
+
+        Raises a PermissionDenied exception
+            if the user cannot update a session which is ended.
+        """
+        if obj.end_date < timezone.now():
+            self.permission_denied(
+                self.request, message="Cannot update a session which is ended."
+            )
+
+    def get_object(self):
+        obj = super().get_object()
+        self.can_update_object(obj)
+        return obj
+
+
+class CourseSessionListAPIView(ListAPIView):
+    """List all sessions for an exam."""
+
+    serializer_class = CourseSessionAdminSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = CourseSession.objects.all()
+
+    def get_queryset(self):
+        return super().get_queryset().filter(course__id=self.kwargs["course_id"])
+
+
+class CourseSessionDeleteAPIView(DestroyAPIView):
+    """Delete an existing session for an exam."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = CourseSession.objects.all()
+
+    def can_delete(self, object):
+        """Check if the user can delete the object.
+
+        Raises a PermissionDenied exception
+            if the user cannot delete a session which is ended.
+        """
+        if object.start_date < timezone.now():
+            self.permission_denied(
+                self.request,
+                message="Cannot delete a session that has already started.",
+            )
+
+    def get_object(self):
+        obj = super().get_object()
+        self.can_delete(obj)
+        return obj
+
+
+# course session ends
 
 
 class ExamEnrollmentCreateAPIView(CreateAPIView):

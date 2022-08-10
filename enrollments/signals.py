@@ -84,3 +84,19 @@ def on_exam_session_save(sender, instance, created, **kwargs):
                 and (instance.status == SessionStatus.RESULTSOUT),
             },
         )
+
+
+@receiver(post_save, sender="enrollments.CourseSession")
+def on_course_session_save(sender, instance, created, **kwargs):
+    if created:
+        instance.setup_tasks(instance.course)
+        instance.save()
+
+    if instance.status == SessionStatus.INACTIVE:
+        instance.course.schedule_course()
+
+    elif instance.status == SessionStatus.ACTIVE:
+        instance.course.start_course()
+
+    elif instance.status == SessionStatus.ENDED:
+        instance.course.finish_course()

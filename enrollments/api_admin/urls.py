@@ -1,20 +1,55 @@
 from django.urls import include, path
 
 from .views import (
+    CourseSessionCreateAPIView,
+    CourseSessionDeleteAPIView,
+    CourseSessionListAPIView,
+    CourseSessionUpdateAPIView,
     ExamEnrollmentCreateAPIView,
+    ExamSessionCreateAPIView,
+    ExamSessionDeleteAPIView,
+    ExamSessionListAPIView,
+    ExamSessionUpdateAPIView,
     ExamThroughEnrollmentListAPIView,
-    SessionCreateAPIView,
-    SessionDeleteAPIView,
-    SessionListAPIView,
-    SessionUpdateAPIView,
 )
 
-session_urls = [
-    path("create/", SessionCreateAPIView.as_view(), name="session-create"),
-    path("list/<int:exam_id>/", SessionListAPIView.as_view(), name="session-list"),
-    path("update/<int:pk>/", SessionUpdateAPIView.as_view(), name="session-update"),
-    path("delete/<int:pk>/", SessionDeleteAPIView.as_view(), name="session-delete"),
+exam_session_urls = [
+    path("create/", ExamSessionCreateAPIView.as_view(), name="exam-session-create"),
+    path(
+        "list/<int:exam_id>/",
+        ExamSessionListAPIView.as_view(),
+        name="exam-session-list",
+    ),
+    path(
+        "update/<int:pk>/",
+        ExamSessionUpdateAPIView.as_view(),
+        name="exam-session-update",
+    ),
+    path(
+        "delete/<int:pk>/",
+        ExamSessionDeleteAPIView.as_view(),
+        name="exam-session-delete",
+    ),
 ]
+course_session_urls = [
+    path("create/", CourseSessionCreateAPIView.as_view(), name="course-session-create"),
+    path(
+        "list/<int:course_id>/",
+        CourseSessionListAPIView.as_view(),
+        name="course-session-list",
+    ),
+    path(
+        "update/<int:pk>/",
+        CourseSessionUpdateAPIView.as_view(),
+        name="course-session-update",
+    ),
+    path(
+        "delete/<int:pk>/",
+        CourseSessionDeleteAPIView.as_view(),
+        name="course-session-delete",
+    ),
+]
+
 exam_through_enrollment_urls = [
     path(
         "list/",
@@ -30,7 +65,8 @@ exam_enroll_url = [
 
 
 urlpatterns = [
-    path("session/", include(session_urls)),
+    path("session/exam/", include(exam_session_urls)),
+    path("session/course/", include(course_session_urls)),
     path("examthroughenrollment/", include(exam_through_enrollment_urls)),
     path("exam-enroll/", include(exam_enroll_url)),
 ]
