@@ -125,10 +125,7 @@ class Session(CreatorBaseModel):
     end_task = models.CharField(_("end_task"), max_length=256, null=True, blank=True)
 
     def calculate_end_date(self):
-        """Calculate the end date of the session from exam template duration."""
-        exam = self.exam
-        duration = exam.template.duration
-        return self.start_date + duration
+        raise NotImplementedError("calculate_end_date method must be implemented")
 
     def save(self, *args, **kwargs):
         """Save the session."""
@@ -152,7 +149,7 @@ class Session(CreatorBaseModel):
         # tasks = PeriodicTask.objects.filter(kwargs={"session_id": self.id})
         # alternatively you can do this
         # # filter the tasks by task names
-        self.exam.finish_exam()
+        # self.exam.finish_exam()
         self.delete_tasks()
         super().delete(*args, **kwargs)
 
@@ -259,6 +256,21 @@ class ExamSession(Session):
         today = localtime(now())
         return self.result_is_published or (self.result_publish_date <= today)
 
+    def delete(self, *args, **kwargs):
+        """Delete the tasks on session delete."""
+        # filter the tasks by the session id
+        # tasks = PeriodicTask.objects.filter(kwargs={"session_id": self.id})
+        # alternatively you can do this
+        # # filter the tasks by task names
+        self.exam.finish_exam()
+        super().delete(*args, **kwargs)
+
+    def calculate_end_date(self):
+        """Calculate the end date of the session from exam template duration."""
+        exam = self.exam
+        duration = exam.template.duration
+        return self.start_date + duration
+
     class Meta:
         """Meta definition for ExamSession."""
 
@@ -306,6 +318,21 @@ class CourseSession(Session):
         related_name="sessions",
         verbose_name=_("course"),
     )
+
+    def delete(self, *args, **kwargs):
+        """Delete the tasks on session delete."""
+        # filter the tasks by the session id
+        # tasks = PeriodicTask.objects.filter(kwargs={"session_id": self.id})
+        # alternatively you can do this
+        # # filter the tasks by task names
+        self.course.finish_course()
+        super().delete(*args, **kwargs)
+
+    def calculate_end_date(self):
+        """Calculate the end date of the session from exam template duration."""
+        course = self.course
+        duration = course.duration
+        return self.start_date + duration
 
     class Meta:
         """Meta definition for CourseSession."""

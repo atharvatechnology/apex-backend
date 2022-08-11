@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
 from enrollments.api.serializers import ExamSessionSerializer
-from enrollments.api_admin.serializers import SessionAdminSerializer
+from enrollments.api_admin.serializers import ExamSessionAdminSerializer
 from exams.api.serializers import ExamTemplateListSerializer
 from exams.models import (
     Exam,
@@ -368,7 +368,7 @@ class ExamListAdminSerializer(serializers.ModelSerializer):
 
 
 class ExamDetailSerializer(serializers.ModelSerializer):
-    sessions = SessionAdminSerializer(many=True, fields=["id", "start_date"])
+    sessions = ExamSessionAdminSerializer(many=True, fields=["id", "start_date"])
 
     class Meta:
         model = Exam
