@@ -8,6 +8,7 @@ from enrollments.api.utils import (
     get_student_rank,
 )
 from enrollments.models import (
+    CourseSession,
     CourseThroughEnrollment,
     Enrollment,
     EnrollmentStatus,
@@ -42,6 +43,12 @@ class ExamSessionSerializer(SessionSerializer):
         model = ExamSession
         fields = SessionSerializer.Meta.fields + ("exam",)
         read_only_fields = SessionSerializer.Meta.read_only_fields
+
+
+class CourseSessionSerializer(SessionSerializer):
+    class Meta:
+        model = CourseSession
+        fields = SessionSerializer.Meta.fields + ("course",)
 
 
 class ExamEnrollmentSerializer(serializers.ModelSerializer):

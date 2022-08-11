@@ -4,19 +4,18 @@ from courses.api.views import (
     CourseCategoryListAPIView,
     CourseCategoryRetrieveAPIView,
     CourseListAPIView,
-    CourseRetrieveAPIViewAfterEnroll,
     CourseRetrieveAPIViewBeforeEnroll,
 )
 
 urlpatterns = [
     path("list/", CourseListAPIView.as_view(), name="course-list"),
+    # path(
+    #     "retrieve/<int:pk>/",
+    #     CourseRetrieveAPIViewAfterEnroll.as_view(),
+    #     name="course-retrieve-after-enroll",
+    # ),
     path(
-        "get/after/<int:pk>/",
-        CourseRetrieveAPIViewAfterEnroll.as_view(),
-        name="course-retrieve-after-enroll",
-    ),
-    path(
-        "get/before/<int:pk>/",
+        "retrieve/<int:pk>/",
         CourseRetrieveAPIViewBeforeEnroll.as_view(),
         name="course-retrieve-before-enroll",
     ),
