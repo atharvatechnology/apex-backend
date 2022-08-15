@@ -372,8 +372,6 @@ class CourseThroughEnrollment(models.Model):
         Enrollment,
         related_name="course_enrolls",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )
     selected_session = models.ForeignKey(
         CourseSession, related_name="course_enrolls", on_delete=models.CASCADE

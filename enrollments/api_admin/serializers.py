@@ -43,7 +43,7 @@ class ExamSessionAdminSerializer(
         )
 
     def validate(self, data):
-        """Check if the session with same time."""
+        """Filter based on ExamSession and check if obj exists."""
         obj = self.Meta.model.objects.filter(exam=data["exam"])
 
         if obj.exists():
