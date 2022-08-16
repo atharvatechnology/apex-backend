@@ -4,8 +4,10 @@ from django.db import models
 
 from common.admin import CreatorBaseModelAdmin
 from enrollments.models import (
+    CourseSession,
     CourseThroughEnrollment,
     Enrollment,
+    ExamSession,
     ExamThroughEnrollment,
     QuestionEnrollment,
     Session,
@@ -74,9 +76,58 @@ class CustomAdminSplitDateTime(admin.widgets.AdminSplitDateTime):
 class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Session admin."""
 
-    list_display = ("exam", "status", "start_date", "end_date", "is_published")
-    list_filter = ("status", "exam")
+    list_display = ("status", "start_date", "end_date")
+    # , "is_published")
+    list_filter = ("status",)
+    # inlines = [ExamThroughEnrollmentInline]
+    formfield_overrides = {
+        models.DateTimeField: {
+            "widget": CustomAdminSplitDateTime(),
+            "help_text": "Seconds doesnot matters",
+        },
+    }
+    date_hierarchy = "created_at"
+    readonly_fields = CreatorBaseModelAdmin.readonly_fields + ["end_date"]
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return super().get_readonly_fields(request, obj)
+        return super().get_readonly_fields(request, obj) + [
+            "status",
+        ]
+
+
+@admin.register(ExamSession)
+class ExamSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
+    """Exam Session admin."""
+
+    list_display = ("status", "start_date", "end_date", "result_is_published")
+    list_filter = ("status",)
     inlines = [ExamThroughEnrollmentInline]
+    formfield_overrides = {
+        models.DateTimeField: {
+            "widget": CustomAdminSplitDateTime(),
+            "help_text": "Seconds doesnot matters",
+        },
+    }
+    date_hierarchy = "created_at"
+    readonly_fields = CreatorBaseModelAdmin.readonly_fields + ["end_date"]
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return super().get_readonly_fields(request, obj)
+        return super().get_readonly_fields(request, obj) + [
+            "status",
+        ]
+
+
+@admin.register(CourseSession)
+class CourseSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
+    """Exam Session admin."""
+
+    list_display = ("status", "start_date", "end_date")
+    list_filter = ("status",)
+    inlines = [CourseThroughEnrollmentInline]
     formfield_overrides = {
         models.DateTimeField: {
             "widget": CustomAdminSplitDateTime(),

@@ -2,7 +2,10 @@ from rest_framework import serializers
 
 from common.api.mixin import EnrolledSerializerMixin
 from common.api.serializers import CreatorSerializer
-from enrollments.api.serializers import ExamEnrollmentPaperSerializer, SessionSerializer
+from enrollments.api.serializers import (
+    ExamEnrollmentPaperSerializer,
+    ExamSessionSerializer,
+)
 from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
 from exams.models import Exam, ExamTemplate, Option, Question
 
@@ -75,7 +78,7 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
     """Serializer when user is retrieving an exam."""
 
     template = ExamTemplateSerializer()
-    sessions = SessionSerializer(many=True)
+    sessions = ExamSessionSerializer(many=True)
     exam_enroll = serializers.SerializerMethodField()
 
     class Meta:

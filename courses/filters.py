@@ -8,4 +8,4 @@ class CourseFilter(django_filters.FilterSet):
 
     class Meta:
         model = Course
-        fields = {"price": ["gt", "lt"], "category": ["exact"]}
+        fields = {"price": ["gt", "lt"], "category": ["exact"], "name": ["icontains"]}

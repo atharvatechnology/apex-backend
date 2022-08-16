@@ -21,18 +21,16 @@ def on_exam_attempt(sender, instance, **kwargs):
         calculate_score.delay(instance.id)
 
 
-@receiver(post_save, sender="enrollments.Session")
+@receiver(post_save, sender="enrollments.ExamSession")
 def on_exam_session_save(sender, instance, created, **kwargs):
     if created:
-        instance.setup_tasks()
+        instance.setup_tasks(instance.exam)
         instance.save()
 
     if instance.status == SessionStatus.INACTIVE:
-        print("session inactive")
         instance.exam.schedule_exam()
 
     elif instance.status == SessionStatus.ACTIVE:
-        print("session active")
         instance.exam.start_exam()
         async_to_sync(channel_layer.group_send)(
             # "clock",
@@ -41,7 +39,6 @@ def on_exam_session_save(sender, instance, created, **kwargs):
         )
 
     elif instance.status == SessionStatus.ENDED:
-        print("session ended")
         instance.exam.finish_exam()
         # prevent further enrollment into that session
         # prevent further submissions into that ExamEnrollment
@@ -75,7 +72,6 @@ def on_exam_session_save(sender, instance, created, **kwargs):
                 instance.publish_results()
 
     elif instance.status == SessionStatus.RESULTSOUT:
-        print("session results out")
         # clear the cache
         cache.delete(f"session_{instance.id}_total_results")
         cache.delete(f"session_{instance.id}_total_examinees")
@@ -88,3 +84,19 @@ def on_exam_session_save(sender, instance, created, **kwargs):
                 and (instance.status == SessionStatus.RESULTSOUT),
             },
         )
+
+
+@receiver(post_save, sender="enrollments.CourseSession")
+def on_course_session_save(sender, instance, created, **kwargs):
+    if created:
+        instance.setup_tasks(instance.course)
+        instance.save()
+
+    if instance.status == SessionStatus.INACTIVE:
+        instance.course.schedule_course()
+
+    elif instance.status == SessionStatus.ACTIVE:
+        instance.course.start_course()
+
+    elif instance.status == SessionStatus.ENDED:
+        instance.course.finish_course()

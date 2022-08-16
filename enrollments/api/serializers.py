@@ -1,12 +1,19 @@
+from django.db import transaction
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
-from enrollments.api.utils import is_enrolled
+from enrollments.api.utils import (
+    batch_is_enrolled_and_price,
+    exam_data_save,
+    get_student_rank,
+)
 from enrollments.models import (
+    CourseSession,
     CourseThroughEnrollment,
     Enrollment,
     EnrollmentStatus,
     ExamEnrollmentStatus,
+    ExamSession,
     ExamThroughEnrollment,
     PhysicalBookCourseEnrollment,
     QuestionEnrollment,
@@ -24,9 +31,24 @@ class SessionSerializer(CreatorSerializer):
             "start_date",
             "end_date",
             "status",
-            "exam",
+            # "exam",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+
+
+class ExamSessionSerializer(SessionSerializer):
+    """Serializer for ExamSession model."""
+
+    class Meta:
+        model = ExamSession
+        fields = SessionSerializer.Meta.fields + ("exam",)
+        read_only_fields = SessionSerializer.Meta.read_only_fields
+
+
+class CourseSessionSerializer(SessionSerializer):
+    class Meta:
+        model = CourseSession
+        fields = SessionSerializer.Meta.fields + ("course",)
 
 
 class ExamEnrollmentSerializer(serializers.ModelSerializer):
@@ -140,6 +162,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
             "courses",
         )
 
+    @transaction.atomic
     def create(self, validated_data):
         """Create an enrollment.
 
@@ -168,42 +191,26 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
         total_price = 0.0
         if not (exams_data or courses_data):
             raise serializers.ValidationError("Atleast one fields should be non-empty.")
-
-        def batch_is_enrolled_and_price(enrolled_objs):
-            sum_price = 0.0
-            for enrolled_obj in enrolled_objs:
-                sum_price += float(enrolled_obj.price)
-                # if he_is_enrolled := is_enrolled(enrolled_obj, user):
-                if is_enrolled(enrolled_obj, user):
-                    raise serializers.ValidationError(
-                        f"{user} is already enrolled into {enrolled_obj}"
-                    )
-            return sum_price
-
         # if parts:
         #     total_price += batch_is_enrolled_and_price(parts)
         # if notes:
         #     total_price += batch_is_enrolled_and_price(notes)
         if exams_data:
             exams = [data.get("exam") for data in exams_data]
-            total_price += batch_is_enrolled_and_price(exams)
+            total_price += batch_is_enrolled_and_price(exams, user)
         enrollment = super().create(validated_data)
 
-        if exams_data:
-            for data in exams_data:
-                exam = data.get("exam")
-                selected_session = data.get("selected_session")
-                ExamThroughEnrollment(
-                    enrollment=enrollment, exam=exam, selected_session=selected_session
-                ).save()
+        exam_data_save(exams_data, enrollment)
         if courses_data:
             for data in courses_data:
                 course = data.get("course")
                 selected_session = data.get("selected_session")
+                completed_date = data.get("completed_date")
                 CourseThroughEnrollment(
                     course=course,
                     enrollment=enrollment,
                     selected_session=selected_session,
+                    completed_date=completed_date,
                 ).save()
         if total_price == 0.0:
             enrollment.status = EnrollmentStatus.ACTIVE
@@ -363,27 +370,7 @@ class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
         )
 
     def get_rank(self, obj):
-        """Get the rank of the user in the exam.
-
-        This is based on the score of current exam takers.
-
-        Parameters
-        ----------
-        obj : ExamThroughEnrollment
-            exam enrollment.
-
-        Returns
-        -------
-        int
-            rank of the user in the exam.
-
-        """
-        all_examinee_states = ExamThroughEnrollment.objects.filter(exam=obj.exam)
-        num_examinee = all_examinee_states.count()
-        num_examinee_lower_score = all_examinee_states.filter(
-            score__lt=obj.score
-        ).count()
-        return num_examinee - num_examinee_lower_score
+        return get_student_rank(obj)
 
     # def get_exam(self):
     #     from exams.api.serializers import ExamPaperWOEnrollmentSeriaizer
@@ -425,7 +412,7 @@ class ExamEnrollmentCheckPointRetrieveSerializer(serializers.ModelSerializer):
 class ExamEnrollmentPaperSerializer(serializers.ModelSerializer):
     """Serializer when user retrieves his latest exam schedule."""
 
-    selected_session = SessionSerializer()
+    selected_session = ExamSessionSerializer()
 
     class Meta:
         model = ExamThroughEnrollment

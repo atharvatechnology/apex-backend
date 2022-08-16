@@ -27,6 +27,8 @@ class CourseSerializer(serializers.ModelSerializer):
             "price",
             "category",
             "description",
+            "password",
+            "link",
             "image",
             "duration",
         )

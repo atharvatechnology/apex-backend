@@ -3,7 +3,7 @@ from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
-from courses.api.paginations import LargeResultsSetPagination
+from common.paginations import LargeResultsSetPagination
 from courses.api.serializers import (
     CourseCategoryRetrieveSerializer,
     CourseRetrieveSerializerAfterEnroll,
