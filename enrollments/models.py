@@ -369,7 +369,9 @@ class CourseThroughEnrollment(models.Model):
         "courses.Course", related_name="course_enrolls", on_delete=models.CASCADE
     )
     enrollment = models.ForeignKey(
-        Enrollment, related_name="course_enrolls", on_delete=models.CASCADE
+        Enrollment,
+        related_name="course_enrolls",
+        on_delete=models.CASCADE,
     )
     selected_session = models.ForeignKey(
         CourseSession, related_name="course_enrolls", on_delete=models.CASCADE
@@ -393,6 +395,7 @@ class CourseThroughEnrollment(models.Model):
 
     def __change_course_enroll_status(self, course_enroll_status):
         self.course_enroll_status = course_enroll_status
+        self.save()
 
     @property
     def current_course_enroll_status(self):

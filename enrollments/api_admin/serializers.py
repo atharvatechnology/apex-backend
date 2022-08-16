@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
@@ -41,6 +42,16 @@ class ExamSessionAdminSerializer(
             "end_date",
         )
 
+    def validate(self, data):
+        """Filter based on ExamSession and check if obj exists."""
+        obj = self.Meta.model.objects.filter(exam=data["exam"])
+
+        if obj.exists():
+            raise serializers.ValidationError("Exam cannot have more than one session.")
+
+        return data
+
+    @transaction.atomic
     def create(self, validated_data):
         """Create a new Session.
 
