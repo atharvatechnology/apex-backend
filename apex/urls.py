@@ -60,6 +60,7 @@ urlpatterns += [
     path("api/admin/", include(api_admin_urls)),
     # path("student_urls/", include("student.api.urls")),
     # path("teacher_urls/", include("teacher.api.urls")),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

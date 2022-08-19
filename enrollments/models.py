@@ -35,6 +35,21 @@ class EnrollmentStatus:
     ]
 
 
+class EnrollmentManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related(
+                "student",
+            )
+            .prefetch_related(
+                "exams",
+                "courses",
+            )
+        )
+
+
 class Enrollment(models.Model):
     """Model definition for Enrollment."""
 
@@ -64,6 +79,8 @@ class Enrollment(models.Model):
         blank=True,
         through="ExamThroughEnrollment",
     )
+
+    objects = EnrollmentManager()
 
     class Meta:
         """Meta definition for Enrollment."""
@@ -99,10 +116,18 @@ class SessionQuerySet(models.QuerySet):
         super().delete(*args, **kwargs)
 
 
+class SessionManager(models.Manager):
+    def get_queryset(self):
+        return SessionQuerySet(self.model, using=self._db).select_related(
+            "created_by",
+            "updated_by",
+        )
+
+
 class Session(CreatorBaseModel):
     """Model definition for Session."""
 
-    objects = SessionQuerySet.as_manager()
+    objects = SessionManager()
     start_date = ZeroSecondDateTimeField(
         _("start_date"), validators=[validate_date_time_gt_now]
     )
@@ -239,6 +264,17 @@ class Session(CreatorBaseModel):
         raise StateTransitionError(f"Session cannot be ended from {self.status}")
 
 
+class ExamSessionManager(SessionManager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related(
+                "exam",
+            )
+        )
+
+
 class ExamSession(Session):
     """Exam session model."""
 
@@ -250,6 +286,8 @@ class ExamSession(Session):
     )
     result_is_published = models.BooleanField(default=False)
     result_publish_date = models.DateTimeField(blank=True, null=True)
+
+    objects = ExamSessionManager()
 
     @property
     def is_visible(self):
@@ -505,6 +543,20 @@ class ExamEnrollmentStatus:
     ]
 
 
+class ExamThroughEnrollmentManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related(
+                "exam",
+                "enrollment",
+                "selected_session",
+                "enrollment__student",
+            )
+        )
+
+
 class ExamThroughEnrollment(models.Model):
     """Model definition for ExamThroughEnrollment."""
 
@@ -536,6 +588,8 @@ class ExamThroughEnrollment(models.Model):
         default=ExamEnrollmentStatus.CREATED,
     )
     # submitted = models.BooleanField(_("submitted"), default=False)
+
+    objects = ExamThroughEnrollmentManager()
 
     class Meta:
         """Meta definition for ExamThroughEnrollment."""
