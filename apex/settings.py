@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "ckeditor",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -89,6 +90,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apex.middleware.MoveJWTCookieIntoTheBody",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "apex.urls"
@@ -381,3 +383,7 @@ CACHES = {
 
 # Cache time to live is 2 days
 CACHE_TTL = 60 * 60 * 24 * 2
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

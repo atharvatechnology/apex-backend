@@ -50,6 +50,7 @@ class ExamTemplate(CreatorBaseModel):
     class Meta:
         verbose_name = _("Exam Template")
         verbose_name_plural = _("Exam Templates")
+        ordering = ["-id"]
 
     def __str__(self):
         return self.name
