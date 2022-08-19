@@ -210,14 +210,6 @@ class CourseEnrollementListAPIView(ListAPIView):
     serializer_class = CourseEnrollmentSerializer
 
 
-class CourseEnrollementCreateAPIView(CreateAPIView):
-    """create view for course enrollment."""
-
-    permission_classes = [IsAuthenticated]
-    queryset = CourseThroughEnrollment.objects.all()
-    serializer_class = CourseEnrollmentSerializer
-
-
 class CourseEnrollementUpdateAPIView(UpdateAPIView):
     """Update view for course enrollment."""
 

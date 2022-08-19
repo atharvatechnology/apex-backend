@@ -1,7 +1,6 @@
 from django.urls import include, path
 
 from enrollments.api.views import (
-    CourseEnrollementCreateAPIView,
     CourseEnrollementDestroyAPIView,
     CourseEnrollementListAPIView,
     CourseEnrollementRetrieveAPIView,
@@ -80,11 +79,6 @@ course_enroll_urls = [
         "list/",
         CourseEnrollementListAPIView.as_view(),
         name="course-enroll-list",
-    ),
-    path(
-        "create/",
-        CourseEnrollementCreateAPIView.as_view(),
-        name="course-enroll-create",
     ),
     path(
         "update/<int:pk>/",

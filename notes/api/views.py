@@ -2,13 +2,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
+from courses.api.permissions import IsCourseEnrolledActive
 from notes.api.serializers import (
     ContentSerializerAfterEnroll,
     ContentSerializerBeforeEnroll,
     NoteSerializerAfterEnroll,
     NoteSerializerBeforeEnroll,
+    RecordedVideoDetailSerializer,
+    RecordedVideoListSerializer,
 )
-from notes.models import Content, Note
+from notes.models import Content, Note, RecordedVideo
 
 
 # Start Note API
@@ -42,6 +45,7 @@ class NoteRetrieveAPIViewAfterEnroll(RetrieveAPIView):
 
     """
 
+    permission_classes = [IsCourseEnrolledActive]
     queryset = Note.objects.all()
     serializer_class = NoteSerializerAfterEnroll
 
@@ -97,6 +101,7 @@ class ContentRetrieveAPIViewBeforeEnroll(RetrieveAPIView):
 
     """
 
+    permission_classes = [IsCourseEnrolledActive]
     queryset = Content.objects.all()
     serializer_class = ContentSerializerBeforeEnroll
 
@@ -113,5 +118,17 @@ class ContentRetrieveAPIViewAfterEnroll(RetrieveAPIView):
 
     """
 
+    permission_classes = [IsCourseEnrolledActive]
     queryset = Content.objects.all()
     serializer_class = ContentSerializerAfterEnroll
+
+
+class RecordedVideoListAPIView(ListAPIView):
+    serializer_class = RecordedVideoListSerializer
+    queryset = RecordedVideo.objects.all()
+
+
+class RecordedVideoRetrieveAPIView(RetrieveAPIView):
+    permission_classes = [IsCourseEnrolledActive]
+    serializer_class = RecordedVideoDetailSerializer
+    queryset = RecordedVideo.objects.all()
