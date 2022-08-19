@@ -88,7 +88,7 @@ class User(AbstractUser):
         ),
         validators=[username_validator],
         error_messages={
-            "unique": _("A user with that username already exists."),
+            "unique": _("A user with that phone already exists."),
         },
     )
     otp_counter = models.PositiveIntegerField(default=0)
