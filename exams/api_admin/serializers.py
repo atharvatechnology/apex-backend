@@ -367,6 +367,37 @@ class ExamListAdminSerializer(serializers.ModelSerializer):
         )
 
 
+class ExamListOverviewAdminSerializer(serializers.ModelSerializer):
+    """Serializer for Exam List Overview."""
+
+    exam_date = serializers.SerializerMethodField(read_only=True)
+    examinees = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Exam
+        fields = ("id", "name", "exam_date", "examinees")
+
+    def get_exam_date(self, obj):
+        exam_sessions = obj.sessions.all()
+        return ", ".join(
+            [
+                exam_session.start_date.strftime("%d %b %Y")
+                for exam_session in exam_sessions
+            ]
+        )
+
+    def get_examinees(self, obj):
+        exam_enrolls = obj.exam_enrolls.all().order_by("selected_session")
+        exam_sessions = obj.sessions.all()
+        examinees = []
+        for exam_session in exam_sessions:
+            exam_enrolls_count = exam_enrolls.filter(
+                selected_session=exam_session
+            ).count()
+            examinees.append(exam_enrolls_count)
+        return ", ".join([str(examinee) for examinee in examinees])
+
+
 class ExamDetailSerializer(serializers.ModelSerializer):
     sessions = ExamSessionAdminSerializer(many=True, fields=["id", "start_date"])
 

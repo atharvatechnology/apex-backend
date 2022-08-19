@@ -101,7 +101,7 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
 class ExamSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Exam Session admin."""
 
-    list_display = ("status", "start_date", "end_date", "result_is_published")
+    list_display = ("exam", "status", "start_date", "end_date", "result_is_published")
     list_filter = ("status",)
     inlines = [ExamThroughEnrollmentInline]
     formfield_overrides = {
@@ -160,7 +160,15 @@ class ExamThroughEnrollmentAdmin(admin.ModelAdmin):
     def question(self, obj):
         return obj.question_states.all().count()
 
-    list_display = ("id", "enrollment", "exam", "question", "score", "status")
+    list_display = (
+        "id",
+        "enrollment",
+        "exam",
+        "selected_session",
+        "question",
+        "score",
+        "status",
+    )
     list_filter = ("status", "exam", "selected_session")
     inlines = [
         QuestionEnrollmentInline,
