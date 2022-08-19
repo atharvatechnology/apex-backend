@@ -19,6 +19,7 @@ from .serializers import (
     ExamDetailSerializer,
     ExamImageAdminSerializer,
     ExamListAdminSerializer,
+    ExamListOverviewAdminSerializer,
     ExamRetrieveAdminSerializer,
     ExamTemplateCreateUpdateSerializer,
     ExamTemplateMiniSerializer,
@@ -146,6 +147,10 @@ class ExamListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
 
+class ExamListOverviewAPIView(ExamListAPIView):
+    serializer_class = ExamListOverviewAdminSerializer
+
+
 class ExamRetrieveAPIView(RetrieveAPIView):
     serializer_class = ExamRetrieveAdminSerializer
     queryset = Exam.objects.all()
@@ -160,6 +165,7 @@ class ExamImageUploadAPIView(CreateAPIView):
         exam_id = self.kwargs.get("exam_id")
         exam = get_object_or_404(Exam, id=exam_id)
         return serializer.save(exam=exam)
+
 
 class ExamDetailAPIView(RetrieveAPIView):
     serializer_class = ExamDetailSerializer
