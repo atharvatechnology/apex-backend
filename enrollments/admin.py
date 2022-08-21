@@ -110,7 +110,7 @@ class ExamSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
         "end_date",
         "result_is_published",
     )
-    list_editable = ("exam",)
+    # list_editable = ("exam",)
     list_filter = ("status",)
     inlines = [ExamThroughEnrollmentInline]
     formfield_overrides = {
