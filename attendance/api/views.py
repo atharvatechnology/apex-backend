@@ -14,7 +14,7 @@ from attendance.api.serializers import (
 from attendance.filters import AttendanceFilter
 from attendance.models import Attendance, TeacherAttendance
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
-from common.paginations import LargeResultsSetPagination
+from common.paginations import StandardResultsSetPagination
 
 
 class AttendanceListAPIView(ListAPIView):
@@ -26,7 +26,7 @@ class AttendanceListAPIView(ListAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     filterset_class = AttendanceFilter
-    pagination_class = LargeResultsSetPagination
+    pagination_class = StandardResultsSetPagination
 
 
 class AttendanceCreateAPIView(BaseCreatorCreateAPIView):
