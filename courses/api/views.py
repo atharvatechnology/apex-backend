@@ -3,7 +3,7 @@ from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
-from common.paginations import LargeResultsSetPagination
+from common.paginations import StandardResultsSetPagination
 from courses.api.serializers import (
     CourseCategoryRetrieveSerializer,
     CourseRetrieveSerializerAfterEnroll,
@@ -23,7 +23,7 @@ class CourseListAPIView(ListAPIView):
     search_fields = ["name"]
     queryset = Course.objects.all()
     filterset_class = CourseFilter
-    pagination_class = LargeResultsSetPagination
+    pagination_class = StandardResultsSetPagination
     # filterset_fields = ['price', 'category']
     # ordering = ['course']
 

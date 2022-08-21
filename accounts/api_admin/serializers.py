@@ -64,6 +64,7 @@ class UserListAdminSerializer(serializers.ModelSerializer):
             "fullName",
             "profile",
             "is_active",
+            "date_joined",
         ]
 
 
