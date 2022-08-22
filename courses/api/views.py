@@ -1,24 +1,25 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 from common.paginations import StandardResultsSetPagination
+from courses.api.permissions import IsCourseEnrolledActive
 from courses.api.serializers import (
     CourseCategoryRetrieveSerializer,
+    CourseListSerializer,
     CourseRetrieveSerializerAfterEnroll,
     CourseRetrieveSerializerBeforeEnroll,
 )
+from courses.filters import CourseFilter
 from courses.models import Course, CourseCategory
-
-from ..filters import CourseFilter
 
 
 class CourseListAPIView(ListAPIView):
     """View for listing courses."""
 
-    permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializerAfterEnroll
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = Course.objects.all()
@@ -28,26 +29,26 @@ class CourseListAPIView(ListAPIView):
     # ordering = ['course']
 
 
-class CourseRetrieveAPIViewBeforeEnroll(RetrieveAPIView):
+class CourseRetrieveAPIAfterEnrollView(RetrieveAPIView):
     """View for retrieving courses."""
 
-    permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializerBeforeEnroll
+    permission_classes = [IsAuthenticated, IsCourseEnrolledActive]
+    serializer_class = CourseRetrieveSerializerAfterEnroll
     queryset = Course.objects.all()
 
 
-class CourseRetrieveAPIViewAfterEnroll(RetrieveAPIView):
+class CourseRetrieveAPIBeforeEnrollView(RetrieveAPIView):
     """View for retrieving courses."""
 
-    permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializerAfterEnroll
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseRetrieveSerializerBeforeEnroll
     queryset = Course.objects.all()
 
 
 class CourseCategoryListAPIView(ListAPIView):
     """View for listing course categories."""
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseCategoryRetrieveSerializer
     queryset = CourseCategory.objects.all()
 
@@ -55,6 +56,6 @@ class CourseCategoryListAPIView(ListAPIView):
 class CourseCategoryRetrieveAPIView(RetrieveAPIView):
     """View for retrieving course categories."""
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseCategoryRetrieveSerializer
     queryset = CourseCategory.objects.all()
