@@ -23,7 +23,10 @@ def calculate_score(exam_through_enrollment_id):
     exam_through_enrollment = ExamThroughEnrollment.objects.get(
         id=exam_through_enrollment_id
     )
-    exam_through_enrollment.score = exam_through_enrollment.calculate_score()
+    (
+        exam_through_enrollment.score,
+        exam_through_enrollment.negative_score,
+    ) = exam_through_enrollment.calculate_score()
     # exam_through_enrollment.save()
     pass_marks = (
         exam_through_enrollment.exam.template.pass_percentage
