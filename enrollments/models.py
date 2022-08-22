@@ -577,6 +577,9 @@ class ExamThroughEnrollment(models.Model):
     score = models.DecimalField(
         _("score"), max_digits=5, decimal_places=2, default=Decimal("0.0")
     )
+    negative_score = models.DecimalField(
+        _("Negative Score"), max_digits=5, decimal_places=2, default=Decimal("0.0")
+    )
     status = models.CharField(
         _("status"),
         max_length=32,
@@ -661,7 +664,8 @@ class ExamThroughEnrollment(models.Model):
             else:
                 neg_marks = question.section.neg_percentage * question.section.pos_marks
                 neg_score += neg_marks
-        return pos_score - neg_score
+
+        return pos_score - neg_score, neg_score
 
 
 # TODO: add course enrollment model here after course app is created
