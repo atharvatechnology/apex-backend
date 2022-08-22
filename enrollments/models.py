@@ -43,10 +43,6 @@ class EnrollmentManager(models.Manager):
             .select_related(
                 "student",
             )
-            .prefetch_related(
-                "exams",
-                "courses",
-            )
         )
 
 

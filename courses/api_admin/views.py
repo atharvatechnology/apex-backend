@@ -7,7 +7,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from common.paginations import LargeResultsSetPagination
+from common.paginations import StandardResultsSetPagination
 from courses.api_admin.serializers import CourseCategorySerializer, CourseSerializer
 from courses.models import Course, CourseCategory
 
@@ -63,7 +63,7 @@ class CourseListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
-    pagination_class = LargeResultsSetPagination
+    pagination_class = StandardResultsSetPagination
 
 
 class CourseRetrieveAPIView(RetrieveAPIView):

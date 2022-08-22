@@ -101,7 +101,16 @@ class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
 class ExamSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Exam Session admin."""
 
-    list_display = ("exam", "status", "start_date", "end_date", "result_is_published")
+    list_display = (
+        "id",
+        "exam",
+        "start_task",
+        "status",
+        "start_date",
+        "end_date",
+        "result_is_published",
+    )
+    # list_editable = ("exam",)
     list_filter = ("status",)
     inlines = [ExamThroughEnrollmentInline]
     formfield_overrides = {
