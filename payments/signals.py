@@ -5,12 +5,7 @@ from payments import PaymentStatus
 
 
 @receiver(post_save, sender="payments.OnlinePayment")
-def on_online_payment(sender, instance, **kwargs):
-    if instance.status == PaymentStatus.PAID:
-        instance.enrollment.activate_enrollment()
-
-
 @receiver(post_save, sender="payments.BankPayment")
-def on_bank_payment(sender, instance, **kwargs):
+def on_online_payment(sender, instance, **kwargs):
     if instance.status == PaymentStatus.PAID:
         instance.enrollment.activate_enrollment()
