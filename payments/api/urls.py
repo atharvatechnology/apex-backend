@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 
 from ..api.views import (
     BankPaymentCreateAPIView,
@@ -6,14 +6,17 @@ from ..api.views import (
     OnlinePaymentUpdateAPIView,
 )
 
-urlpatterns = [
+bank_urls = [path("create/", BankPaymentCreateAPIView.as_view(), name="bank-create")]
+
+online_urls = [
+    path("create/", OnlinePaymentCreateAPIView.as_view(), name="online-create"),
     path(
-        "onlinepay/create", OnlinePaymentCreateAPIView.as_view(), name="online-create"
-    ),
-    path(
-        "onlinepay/update/<int:pk>/",
+        "update/<int:pk>/",
         OnlinePaymentUpdateAPIView.as_view(),
         name="online-update",
     ),
-    path("bankpay/create", BankPaymentCreateAPIView.as_view(), name="bank-create"),
+]
+urlpatterns = [
+    path("onlinepay/", include(online_urls)),
+    path("bankpay/", include(bank_urls)),
 ]
