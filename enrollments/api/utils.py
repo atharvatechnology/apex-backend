@@ -69,10 +69,15 @@ def get_student_rank(obj):
         rank of the user in the exam.
 
     """
-    all_examinee_states = ExamThroughEnrollment.objects.filter(exam=obj.exam)
-    num_examinee = all_examinee_states.count()
-    num_examinee_lower_score = all_examinee_states.filter(score__lt=obj.score).count()
-    return num_examinee - num_examinee_lower_score
+    if obj.selected_session.status == "resultsout":
+        all_examinee_states = ExamThroughEnrollment.objects.filter(exam=obj.exam)
+        num_examinee = all_examinee_states.count()
+        num_examinee_lower_score = all_examinee_states.filter(
+            score__lt=obj.score
+        ).count()
+        return num_examinee - num_examinee_lower_score
+    else:
+        return None
 
 
 def batch_is_enrolled_and_price(enrolled_objs, user):

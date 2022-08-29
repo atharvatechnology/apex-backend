@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "attendance",
     "clock",
     "physicalbook",
+    "payments",
     # third party
     "drf_yasg",
     "corsheaders",

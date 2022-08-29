@@ -7,6 +7,8 @@ from notes.api.views import (
     NoteListAPIVew,
     NoteRetrieveAPIViewAfterEnroll,
     NoteRetrieveAPIViewBeforeEnroll,
+    RecordedVideoListAPIView,
+    RecordedVideoRetrieveAPIView,
 )
 
 app_name = "notes"
@@ -39,7 +41,17 @@ content_urls = [
     ),
 ]
 
+recorded_video_urls = [
+    path("list/", RecordedVideoListAPIView.as_view(), name="recorded-video-list"),
+    path(
+        "retrieve/<int:pk>/",
+        RecordedVideoRetrieveAPIView.as_view(),
+        name="recorded-video-retrieve",
+    ),
+]
+
 urlpatterns = [
     path("", include(note_urls)),
     path("content/", include(content_urls)),
+    path("recorded-video/", include(recorded_video_urls)),
 ]

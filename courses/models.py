@@ -69,7 +69,7 @@ class Course(models.Model):
         null=True,
     )
     description = models.CharField(
-        _("password"),
+        _("description"),
         max_length=100,
         blank=True,
         null=True,

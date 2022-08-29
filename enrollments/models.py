@@ -89,6 +89,42 @@ class Enrollment(models.Model):
         # TODO: make this more readable for admin panel
         return f"{self.student.__str__()} at {self.created_at}"
 
+    def __change_status(self, status):
+        self.status = status
+        self.save()
+
+    @property
+    def current_status(self):
+        return self.status
+
+    def activate_enrollment(self):
+        if self.status == EnrollmentStatus.ACTIVE:
+            return
+
+        elif self.status in [EnrollmentStatus.INACTIVE, EnrollmentStatus.PENDING]:
+            return self.__change_status(EnrollmentStatus.ACTIVE)
+        raise StateTransitionError(
+            f"Cannot be changed to inactive state at {self.status} status."
+        )
+
+    def end_enrollment(self):
+        if self.status == EnrollmentStatus.INACTIVE:
+            return
+        elif self.status == EnrollmentStatus.ACTIVE:
+            return self.__change_status(EnrollmentStatus.INACTIVE)
+        raise StateTransitionError(
+            f"Cannot be changed to inactive state at {self.status} status."
+        )
+
+    def cancel_enrollment(self):
+        if self.status == EnrollmentStatus.CANCELLED:
+            return
+        elif self.status == EnrollmentStatus.ACTIVE:
+            return self.__change_status(EnrollmentStatus.CANCELLED)
+        raise StateTransitionError(
+            f"Cannot be changed to cancelled state at {self.status} status."
+        )
+
 
 class SessionStatus:
     ACTIVE = "active"  # session is active
@@ -577,6 +613,9 @@ class ExamThroughEnrollment(models.Model):
     score = models.DecimalField(
         _("score"), max_digits=5, decimal_places=2, default=Decimal("0.0")
     )
+    negative_score = models.DecimalField(
+        _("Negative Score"), max_digits=5, decimal_places=2, default=Decimal("0.0")
+    )
     status = models.CharField(
         _("status"),
         max_length=32,
@@ -661,7 +700,8 @@ class ExamThroughEnrollment(models.Model):
             else:
                 neg_marks = question.section.neg_percentage * question.section.pos_marks
                 neg_score += neg_marks
-        return pos_score - neg_score
+
+        return pos_score - neg_score, neg_score
 
 
 # TODO: add course enrollment model here after course app is created
