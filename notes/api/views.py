@@ -124,6 +124,7 @@ class ContentRetrieveAPIViewAfterEnroll(RetrieveAPIView):
 
 
 class RecordedVideoListAPIView(ListAPIView):
+    permission_classes = [IsCourseEnrolledActive]
     serializer_class = RecordedVideoListSerializer
     queryset = RecordedVideo.objects.all()
 
