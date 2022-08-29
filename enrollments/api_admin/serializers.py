@@ -161,6 +161,7 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
             "question_states",
             "exam",
             "score",
+            "negative_score",
             "status",
             "rank",
         )

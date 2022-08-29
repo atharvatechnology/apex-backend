@@ -202,6 +202,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
 
         exam_data_save(exams_data, enrollment)
         if courses_data:
+
             for data in courses_data:
                 course = data.get("course")
                 selected_session = data.get("selected_session")
@@ -365,6 +366,7 @@ class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "exam",
             "question_states",
             "score",
+            "negative_score",
             "rank",
             "status",
         )
