@@ -1,7 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from common.paginations import StandardResultsSetPagination
 from courses.api.permissions import IsCourseEnrolledActive
@@ -18,7 +18,7 @@ from courses.models import Course, CourseCategory
 class CourseListAPIView(ListAPIView):
     """View for listing courses."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = CourseListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
@@ -48,7 +48,7 @@ class CourseRetrieveAPIBeforeEnrollView(RetrieveAPIView):
 class CourseCategoryListAPIView(ListAPIView):
     """View for listing course categories."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = CourseCategoryRetrieveSerializer
     queryset = CourseCategory.objects.all()
 
@@ -56,6 +56,6 @@ class CourseCategoryListAPIView(ListAPIView):
 class CourseCategoryRetrieveAPIView(RetrieveAPIView):
     """View for retrieving course categories."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = CourseCategoryRetrieveSerializer
     queryset = CourseCategory.objects.all()
