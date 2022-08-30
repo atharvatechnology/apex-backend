@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.api.otp import OTP
 from accounts.validators import PhoneNumberValidator
+from common.utils import generate_qrcode
 
 
 class UserManager(BaseUserManager):
@@ -132,15 +133,26 @@ class Profile(models.Model):
         """To upload profile image."""
         return f"profile/{self.user.username}/{filename}"
 
+    def qr_code_image_upload(self, filename):
+        """To upload qr code image."""
+        return f"qr_code/{self.user.username}/{filename}"
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     college_name = models.CharField(max_length=100, null=True, blank=True)
     image = models.FileField(upload_to=profile_image_upload, null=True, blank=True)
+    qr_code = models.FileField(upload_to=qr_code_image_upload, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     faculty = models.CharField(max_length=100, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         ordering = ["user"]
+
+    def save(self, *args, **kwargs):
+        usr_name = self.user.username
+        qr_path = generate_qrcode(usr_name)
+        self.qr_code = qr_path
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username}"

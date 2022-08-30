@@ -1,3 +1,6 @@
+import os
+
+import segno
 from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
@@ -5,22 +8,24 @@ from django.utils.html import strip_tags
 
 from apex.celery import app
 
-# import cv2
-# import qrcode
 
+def generate_qrcode(data):
+    """Generate qr code for data.
 
-# def generate_qrcode(data, file_path):
-#     """Generate qr code for data.
+    Parameters
+    ----------
+    data : str
+        data to be encoded in qr code.
+    file_path : str
+        path to file
 
-#     Parameters
-#     ----------
-#     data : str
-#         data to be encoded in qr code.
-#     file_path : str
-#         path to file
-#     """
-#     img = qrcode.make(data)
-#     img.save(file_path)
+    """
+    qr_img = segno.make(data)
+    media_path = f"qr_code/{data}"
+    base_path = os.path.join(settings.BASE_DIR, f"media/{media_path}")
+    os.makedirs(base_path, exist_ok=True)
+    qr_img.save(f"{base_path}/qr.svg", scale=10)
+    return f"{media_path}/qr.svg"
 
 
 # def read_qrcode(file_path):
