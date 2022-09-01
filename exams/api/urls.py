@@ -6,6 +6,7 @@ from exams.api.views import (
     ExamPaperPreviewAPIView,
     ExamRetrieveAPIView,
     ExamRetrievePoolAPIView,
+    ExamGeneratorListAPIView
 )
 
 urlpatterns = [
@@ -22,4 +23,6 @@ urlpatterns = [
         ExamPaperPreviewAPIView.as_view(),
         name="exam-paper-preview",
     ),
+    path("generator/list/",ExamGeneratorListAPIView.as_view(),name="generator-exam"),    
+    
 ]

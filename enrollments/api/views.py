@@ -30,8 +30,7 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
     SessionStatus,
 )
-
-
+from common.utils import excelgenerator
 class EnrollmentCreateAPIView(CreateAPIView):
     """Create a new enrollment for a student."""
 
@@ -232,3 +231,17 @@ class CourseEnrollementDestroyAPIView(DestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
+
+
+class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
+    # permission_classes = [IsAuthenticated]
+    queryset = ExamThroughEnrollment.objects.all()
+    serializer_class = ExamEnrollmentRetrievePoolSerializer
+    model = ExamThroughEnrollment
+    
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        excelgenerator(self.model.__name__,queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

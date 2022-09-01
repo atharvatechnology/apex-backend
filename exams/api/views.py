@@ -14,6 +14,7 @@ from .serializers import (  # ExamUpdateSerializer,
     ExamRetrievePoolSerializer,
     ExamRetrieveSerializer,
 )
+from common.utils import excelgenerator
 
 # class ExamCreateAPIView(BaseCreatorCreateAPIView):
 #     serializer_class = ExamCreateSerializer
@@ -63,3 +64,17 @@ class ExamPaperPreviewAPIView(RetrieveAPIView):
     serializer_class = ExamPaperSerializer
     permission_classes = [IsAdminUser]
     queryset = Exam.objects.all()
+
+
+class ExamGeneratorListAPIView(ListAPIView):
+    # permission_classes = [IsAuthenticated]
+    queryset = Exam.objects.all()
+    serializer_class = ExamListSerializer
+    model = Exam
+    
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        excelgenerator(self.model.__name__,queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
