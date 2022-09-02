@@ -2,6 +2,7 @@ import os
 
 import segno
 from django.conf import settings
+from django.core import signing
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.utils.html import strip_tags
@@ -20,7 +21,9 @@ def generate_qrcode(data):
         path to file
 
     """
-    qr_img = segno.make(data)
+    secret_generator = signing.Signer(salt=settings.SECRET_KEY)
+    encripted_user = secret_generator.sign_object(data)
+    qr_img = segno.make(encripted_user, micro=False)
     media_path = f"qr_code/{data}"
     base_path = os.path.join(settings.BASE_DIR, f"media/{media_path}")
     os.makedirs(base_path, exist_ok=True)
