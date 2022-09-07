@@ -67,39 +67,50 @@ def async_send_mail(subject, text_content, from_email, to, html_content):
     msg.send()
 
 
-
-
 def excelgenerator(models,obj):
-    print(obj[0].status)
     import xlsxwriter
 
     if models == "ExamThroughEnrollment":
         workbook = xlsxwriter.Workbook('enrollment.xlsx')
         worksheet = workbook.add_worksheet('task')
-        worksheet.write('A1', 'Enrollment')
-        worksheet.write('B1', 'Exam')
-        worksheet.write('C1', 'Score')
-        worksheet.write('D1', 'Negative Score')
-        worksheet.write('E1', 'Status')    
-        worksheet.write('A2', obj[0].enrollment.status)
-        worksheet.write('B2', "Exam")
-        worksheet.write('C2', str(obj[0].score))
-        worksheet.write('D2', str(obj[0].negative_score))
-        worksheet.write('E2', obj[0].status)        
-        worksheet.write('A3', obj[1].enrollment.status)
-        worksheet.write('B3', "Exam")
-        worksheet.write('C3', str(obj[1].score))
-        worksheet.write('D3', str(obj[1].negative_score))
-        worksheet.write('E3', obj[1].status) 
+        worksheet.write(0, 0,'S.No')
+        worksheet.write(0, 1,'Student Name')
+        worksheet.write(0, 2,'Exam')
+        worksheet.write(0, 3,'Selected Session')
+        worksheet.write(0, 4,'Question')
+        worksheet.write(0, 5,'Score')
+        worksheet.write(0, 6,'Status')
+
+        for index, entry in enumerate(obj):
+            question = entry.exam.questions.all()
+            worksheet.write(index+1, 0, str(index))
+            worksheet.write(index+1, 1, str(entry.enrollment.student.first_name)+str(entry.enrollment.student.last_name))
+            worksheet.write(index+1, 2, entry.exam.name)
+            worksheet.write(index+1, 3, str(entry.selected_session.start_date))
+            for i in question:
+                worksheet.write(index+1, 4, len(question))
+            worksheet.write(index+1, 5, entry.score)
+            worksheet.write(index+1, 6, entry.status)
+    
+        workbook.close()
+
     elif models == "Exam":
         workbook = xlsxwriter.Workbook('exam.xlsx')
         worksheet = workbook.add_worksheet('task')
-        worksheet.write('A1', 'Name')
-        worksheet.write('B1', 'Status')
-        worksheet.write('C1', 'Price')
-        worksheet.write('A2', obj[0].name)
-        worksheet.write('B2', obj[0].status)
-        worksheet.write('C2', str(obj[0].price))
+        worksheet.write(0, 0, 's.no')
+        worksheet.write(0, 1, 'Name')
+        worksheet.write(0, 2, 'Category')
+        worksheet.write(0, 3, 'Status')
+        worksheet.write(0, 4, 'Price')
+        for index, entry in enumerate(obj):
+            print('fbhgj',entry.category.name)
+            worksheet.write(index+1, 0, str(index))
+            worksheet.write(index+1, 1, entry.name)
+            worksheet.write(index+1, 2, entry.category.name)
+            worksheet.write(index+1, 3, entry.status)
+            worksheet.write(index+1, 4, entry.price)
+        workbook.close()
+
     else:
         pass   
     workbook.close()

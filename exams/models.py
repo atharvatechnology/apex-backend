@@ -69,7 +69,6 @@ class ExamStatus:
         (IN_PROGRESS, "In Progress"),
     ]
 
-
 # Create your models here.
 
 
