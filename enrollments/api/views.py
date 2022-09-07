@@ -31,6 +31,8 @@ from enrollments.models import (
     SessionStatus,
 )
 from common.utils import excelgenerator
+from django_filters.rest_framework import DjangoFilterBackend
+
 class EnrollmentCreateAPIView(CreateAPIView):
     """Create a new enrollment for a student."""
 
@@ -238,10 +240,17 @@ class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentRetrievePoolSerializer
     model = ExamThroughEnrollment
-    
-    
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        "exam",
+    ]    
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        id = request.GET.get('pk')
+        if id:
+            data = self.get_queryset().filter(id=id)
+            queryset = data
+        else:    
+            queryset = self.filter_queryset(self.get_queryset())
         excelgenerator(self.model.__name__,queryset)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
