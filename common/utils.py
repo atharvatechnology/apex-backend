@@ -103,7 +103,6 @@ def excelgenerator(models,obj):
         worksheet.write(0, 3, 'Status')
         worksheet.write(0, 4, 'Price')
         for index, entry in enumerate(obj):
-            print('fbhgj',entry.category.name)
             worksheet.write(index+1, 0, str(index))
             worksheet.write(index+1, 1, entry.name)
             worksheet.write(index+1, 2, entry.category.name)
