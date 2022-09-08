@@ -86,7 +86,7 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
         fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "is_enrolled",
             "is_enrolled_active",
@@ -130,7 +130,7 @@ class ExamRetrievePoolSerializer(serializers.ModelSerializer):
         model = Exam
         fields = (
             "id",
-            "status",
+            # "status",
         )
 
 
@@ -142,11 +142,11 @@ class ExamCreateSerializer(CreatorSerializer):
         fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "template",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
 class ExamListSerializer(serializers.ModelSerializer):
@@ -160,7 +160,7 @@ class ExamListSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "template",
         )
@@ -174,10 +174,10 @@ class ExamUpdateSerializer(CreatorSerializer):
         fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
-            "status",
+            # "status",
             "price",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -215,7 +215,7 @@ class ExamPaperSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "questions",
             "template",

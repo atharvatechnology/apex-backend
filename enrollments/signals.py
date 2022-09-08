@@ -28,18 +28,19 @@ def on_exam_session_save(sender, instance, created, **kwargs):
         instance.save()
 
     if instance.status == SessionStatus.INACTIVE:
-        instance.exam.schedule_exam()
+        # instance.exam.schedule_exam()
+        pass
 
     elif instance.status == SessionStatus.ACTIVE:
-        instance.exam.start_exam()
+        # instance.exam.start_exam()
         async_to_sync(channel_layer.group_send)(
             # "clock",
             f"exam_{instance.exam.id}",
-            {"type": "get_exam", "status": instance.exam.status},
+            {"type": "get_exam", "status": "Exam Provided"},
         )
 
     elif instance.status == SessionStatus.ENDED:
-        instance.exam.finish_exam()
+        # instance.exam.finish_exam()
         # prevent further enrollment into that session
         # prevent further submissions into that ExamEnrollment
         # start the calculation of the score
