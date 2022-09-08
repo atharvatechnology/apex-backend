@@ -9,7 +9,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from .tasks import Excelcelery
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
@@ -251,6 +251,9 @@ class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
             queryset = data
         else:    
             queryset = self.filter_queryset(self.get_queryset())
-        excelgenerator(self.model.__name__,queryset)
+        qs= list(queryset.values_list("id", flat=True))
+        Excelcelery.delay(self.model.__name__,qs)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+    # queryset = self.filter_queryset(self.get_queryset().values_list('id',flat=True))
