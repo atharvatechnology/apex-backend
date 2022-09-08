@@ -90,6 +90,7 @@ def excelgenerator(models,obj):
         worksheet.write(0, 6,'Status')
 
         for index, entry in enumerate(obj):
+            # print('dude',index,entry)
             question = entry.exam.questions.all()
             worksheet.write(index+1, 0, str(index))
             worksheet.write(index+1, 1, str(entry.enrollment.student.first_name)+str(entry.enrollment.student.last_name))
