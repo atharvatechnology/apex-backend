@@ -1,6 +1,7 @@
 from django.urls import include, path
 
 from enrollments.api.views import (
+    CheckIfStudentInCourse,
     CourseEnrollementDestroyAPIView,
     CourseEnrollementListAPIView,
     CourseEnrollementRetrieveAPIView,
@@ -95,6 +96,7 @@ course_enroll_urls = [
         CourseEnrollementDestroyAPIView.as_view(),
         name="course-enroll-destroy",
     ),
+    path("student-enroll/", CheckIfStudentInCourse.as_view(), name="stu-enroll"),
 ]
 
 urlpatterns = [

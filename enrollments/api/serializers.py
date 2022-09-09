@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
+from common.utils import decode_user
 from enrollments.api.utils import (
     batch_is_enrolled_and_price,
     exam_data_save,
@@ -109,7 +110,7 @@ class CourseEnrollmentUpdateSerializer(serializers.ModelSerializer):
 class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when the user is retrieving an enrollment."""
 
-    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
+    # physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
 
     class Meta:
         model = CourseThroughEnrollment
@@ -120,7 +121,7 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "selected_session",
             "course_enroll_status",
             "completed_date",
-            "physical_books",
+            # "physical_books",
         )
 
 
@@ -423,3 +424,29 @@ class ExamEnrollmentPaperSerializer(serializers.ModelSerializer):
             "selected_session",
             "exam",
         )
+
+
+class StudentEnrollmentSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100)
+    course = serializers.IntegerField()
+    session = serializers.IntegerField()
+
+    def validate(self, data):
+        usr_name = data["username"]
+        course_id = data["course"]
+        session_id = data["session"]
+        decorded_data = decode_user(usr_name)
+
+        queryset = (
+            CourseThroughEnrollment.objects.filter(
+                enrollment__student__username=decorded_data,
+                course__id=course_id,
+                selected_session__id=session_id,
+            )
+            or None
+        )
+        if queryset is None:
+            raise serializers.ValidationError({"msg": "Enrollment Required."})
+        else:
+            raise serializers.ValidationError({"msg": "You are enrolled."})
+        return data
