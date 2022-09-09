@@ -435,11 +435,11 @@ class StudentEnrollmentSerializer(serializers.Serializer):
         usr_name = data["username"]
         course_id = data["course"]
         session_id = data["session"]
-        decorded_data = decode_user(usr_name)
+        decoded_data = decode_user(usr_name)
 
         queryset = (
             CourseThroughEnrollment.objects.filter(
-                enrollment__student__username=decorded_data,
+                enrollment__student__username=decoded_data,
                 course__id=course_id,
                 selected_session__id=session_id,
             )
