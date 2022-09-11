@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "clock",
     "physicalbook",
     "payments",
+    "meetings",
     # third party
     "drf_yasg",
     "corsheaders",

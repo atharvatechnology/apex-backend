@@ -44,6 +44,7 @@ api_urls = [
     path("enrollments/", include("enrollments.api.urls")),
     path("physical-book/", include("physicalbook.api.urls")),
     path("attendance/", include("attendance.api.urls")),
+    path("meetings/", include("meetings.api.urls")),
 ]
 
 api_admin_urls = [
