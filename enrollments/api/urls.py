@@ -96,6 +96,9 @@ course_enroll_urls = [
         CourseEnrollementDestroyAPIView.as_view(),
         name="course-enroll-destroy",
     ),
+]
+
+check_enroll_urls = [
     path("student-enroll/", CheckIfStudentInCourse.as_view(), name="stu-enroll"),
 ]
 
@@ -104,4 +107,5 @@ urlpatterns = [
     path("exam/", include(exam_urls)),
     path("physical/", include(physical_urls)),
     path("course-enroll/", include(course_enroll_urls)),
+    path("check/", include(check_enroll_urls)),
 ]

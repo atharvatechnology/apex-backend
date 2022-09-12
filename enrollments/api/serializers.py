@@ -449,4 +449,3 @@ class StudentEnrollmentSerializer(serializers.Serializer):
             raise serializers.ValidationError({"msg": "Enrollment Required."})
         else:
             raise serializers.ValidationError({"msg": "You are enrolled."})
-        return data
