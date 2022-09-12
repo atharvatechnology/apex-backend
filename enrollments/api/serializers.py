@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.response import Response
 
 from common.api.serializers import CreatorSerializer
 from common.utils import decode_user
@@ -447,5 +448,4 @@ class StudentEnrollmentSerializer(serializers.Serializer):
         )
         if queryset is None:
             raise serializers.ValidationError({"msg": "Enrollment Required."})
-        else:
-            raise serializers.ValidationError({"msg": "You are enrolled."})
+        return Response({"msg": "You are enrolled."})
