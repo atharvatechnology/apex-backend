@@ -64,7 +64,7 @@ class ExamPaperAPIView(RetrieveAPIView):
         if enrollment:
             if enrollment.selected_session.status == SessionStatus.ACTIVE:
                 return super().retrieve(request, *args, **kwargs)
-            return Response({"detail": "Exam is not Active"}, status=400)
+            return Response({"detail": "Exam Session is not Active"}, status=400)
         return Response(
             "Student is not enrolled to {} exam session.".format(
                 self.kwargs["session_id"]
