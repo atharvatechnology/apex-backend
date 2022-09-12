@@ -59,12 +59,17 @@ class ExamPaperAPIView(RetrieveAPIView):
             exam=instance, id=self.kwargs["session_id"]
         ).first()
         enrollment = ExamThroughEnrollment.objects.filter(
-            selected_session=exam_session
+            selected_session=exam_session, enrollment__student=self.request.user
         ).first()
         if enrollment:
             if enrollment.selected_session.status == SessionStatus.ACTIVE:
                 return super().retrieve(request, *args, **kwargs)
-        return Response({"detail": "Exam is not Active"}, status=400)
+            return Response({"detail": "Exam is not Active"}, status=400)
+        return Response(
+            "Student is not enrolled to {} exam session.".format(
+                self.kwargs["session_id"]
+            )
+        )
 
 
 class ExamPaperPreviewAPIView(RetrieveAPIView):
