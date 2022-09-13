@@ -61,6 +61,7 @@ api_admin_urls = [
 
 fcm_urls = [
     path("", include(router.urls)),
+    path("send/", include("notifications.api_admin.urls")),
 ]
 
 urlpatterns += [
