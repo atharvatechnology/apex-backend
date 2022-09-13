@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     "ckeditor",
     "debug_toolbar",
     "fcm_django",
+    "notifications",
 ]
 
 MIDDLEWARE = [
