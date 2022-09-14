@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from .providers.register import provider_factory
+
 
 class Subject(models.Model):
     """Model definition for Subject."""
@@ -18,13 +20,25 @@ class Subject(models.Model):
         return self.name
 
 
+class MeetingProviderVariants:
+    keys = provider_factory.get_providers()
+    CHOICES = [(key, key) for key in keys]
+
+
 class Meeting(models.Model):
     """Model definition for Meeting."""
 
+    meeting_id = models.CharField(max_length=200)
+    variant = models.CharField(
+        _("variant"),
+        choices=MeetingProviderVariants.CHOICES,
+        max_length=32,
+        default="zoom",
+    )
     host_id = models.CharField(_("host_id"), max_length=255)
     host_email = models.EmailField(_("host_email"))
     topic = models.CharField(_("topic"), max_length=255)
-    type = models.IntegerField(_("type"))
+    meeting_type = models.IntegerField(_("meeting_type"))
     occurence_status = models.CharField(_("occurence_status"), max_length=64)
     start_time = models.DateTimeField(_("start_time"))
     password = models.CharField(_("password"), max_length=255)
