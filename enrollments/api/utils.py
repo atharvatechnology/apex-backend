@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from enrollments.models import EnrollmentStatus, ExamThroughEnrollment
+from enrollments.models import EnrollmentStatus, ExamThroughEnrollment, SessionStatus
+from exams.models import ExamStatus
 
 
 def is_enrolled(enrolled_obj, user):
@@ -70,7 +71,9 @@ def get_student_rank(obj):
 
     """
     if obj.selected_session.status == "resultsout":
-        all_examinee_states = ExamThroughEnrollment.objects.filter(exam=obj.exam)
+        all_examinee_states = ExamThroughEnrollment.objects.filter(
+            exam=obj.exam, selected_session=obj.selected_session
+        )
         num_examinee = all_examinee_states.count()
         num_examinee_lower_score = all_examinee_states.filter(
             score__lt=obj.score
@@ -99,3 +102,11 @@ def exam_data_save(exams_data, enrollment):
             ExamThroughEnrollment(
                 enrollment=enrollment, exam=exam, selected_session=selected_session
             ).save()
+
+
+def retrieve_exam_status(exam_session):
+    if exam_session.status == SessionStatus.INACTIVE:
+        return ExamStatus.SCHEDULED
+    elif exam_session.status == SessionStatus.ACTIVE:
+        return ExamStatus.IN_PROGRESS
+    return ExamStatus.CREATED
