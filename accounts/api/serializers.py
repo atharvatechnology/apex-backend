@@ -175,11 +175,18 @@ class UserResetPasswordConfirmSerializer(serializers.ModelSerializer):
 
 
 class UserCustomDetailsSerializer(UserDetailsSerializer):
-    full_name = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField(read_only=True)
+    admin_user = serializers.SerializerMethodField(read_only=True)
 
     class Meta(UserDetailsSerializer.Meta):
-        extra_fields = UserDetailsSerializer.Meta.extra_fields + ["full_name"]
-        fields = list(UserDetailsSerializer.Meta.fields) + ["full_name"]
+        extra_fields = UserDetailsSerializer.Meta.extra_fields + [
+            "full_name",
+            "admin_user",
+        ]
+        fields = list(UserDetailsSerializer.Meta.fields) + ["full_name", "admin_user"]
 
     def get_full_name(self, obj):
         return obj.get_full_name()
+
+    def get_admin_user(self, obj):
+        return obj.is_superuser

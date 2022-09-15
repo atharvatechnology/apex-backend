@@ -346,7 +346,10 @@ vars().update(EMAIL_CONFIG)
 
 # server Bug tracker settings start
 SERVER_EMAIL = EMAIL_CONFIG["EMAIL_HOST_USER"]
-ADMINS = [("Apex Error", "sushilk.calcgen@gmail.com")]
+ADMINS = [
+    ("Apex Error", "sushilk.calcgen@gmail.com"),
+    ("Apex Error", "raj.shrestha778@gmail.com"),
+]
 # server Bug tracker settings end
 
 # For providing https route start
