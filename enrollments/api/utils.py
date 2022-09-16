@@ -1,6 +1,11 @@
 from rest_framework import serializers
 
-from enrollments.models import EnrollmentStatus, ExamThroughEnrollment, SessionStatus
+from enrollments.models import (
+    EnrollmentStatus,
+    ExamSession,
+    ExamThroughEnrollment,
+    SessionStatus,
+)
 from exams.models import ExamStatus
 
 
@@ -104,9 +109,22 @@ def exam_data_save(exams_data, enrollment):
             ).save()
 
 
-def retrieve_exam_status(exam_session):
-    if exam_session.status == SessionStatus.INACTIVE:
-        return ExamStatus.SCHEDULED
-    elif exam_session.status == SessionStatus.ACTIVE:
-        return ExamStatus.IN_PROGRESS
+# TODO Need to be discussed. Status send in List.
+def retrieve_exam_status(self, obj):
+    user = self.context["request"].user
+    if not user.is_authenticated:
+        return None
+    enrollment = ExamThroughEnrollment.objects.filter(
+        enrollment__student=user,
+        exam=obj,
+    ).first()
+    if enrollment:
+        session_id = enrollment.selected_session.id
+        exam_session = ExamSession.objects.filter(id=session_id).first()
+        if exam_session:
+            if exam_session.status == SessionStatus.INACTIVE:
+                return ExamStatus.SCHEDULED
+            elif exam_session.status == SessionStatus.ACTIVE:
+                return ExamStatus.IN_PROGRESS
+        return ExamStatus.CREATED
     return ExamStatus.CREATED

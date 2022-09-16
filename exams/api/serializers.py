@@ -7,8 +7,8 @@ from enrollments.api.serializers import (
     ExamSessionSerializer,
 )
 from enrollments.api.utils import retrieve_exam_status
-from enrollments.models import ExamEnrollmentStatus, ExamSession, ExamThroughEnrollment
-from exams.models import Exam, ExamStatus, ExamTemplate, Option, Question
+from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
+from exams.models import Exam, ExamTemplate, Option, Question
 
 
 class ExamTemplateSerializer(CreatorSerializer):
@@ -138,11 +138,7 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
         return None
 
     def get_status(self, obj):
-        session_id = self.get_session_id(obj)
-        exam_session = ExamSession.objects.filter(id=session_id).first()
-        if exam_session:
-            return retrieve_exam_status(exam_session)
-        return ExamStatus.CREATED
+        return retrieve_exam_status(self, obj)
 
 
 class ExamRetrievePoolSerializer(serializers.ModelSerializer):
@@ -176,8 +172,9 @@ class ExamCreateSerializer(CreatorSerializer):
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
+    # TODO Need to be discussed.
     def get_status(self, obj):
-        return ExamStatus.CREATED
+        return retrieve_exam_status(self, obj)
 
 
 class ExamListSerializer(serializers.ModelSerializer):
@@ -198,20 +195,7 @@ class ExamListSerializer(serializers.ModelSerializer):
         )
 
     def get_status(self, obj):
-        user = self.context["request"].user
-        if not user.is_authenticated:
-            return None
-        enrollment = ExamThroughEnrollment.objects.filter(
-            enrollment__student=self.context["request"].user,
-            exam=obj,
-        ).first()
-        if enrollment:
-            session_id = enrollment.selected_session.id
-            exam_session = ExamSession.objects.filter(id=session_id).first()
-            if exam_session:
-                return retrieve_exam_status(exam_session)
-            return ExamStatus.CREATED
-        return ExamStatus.CREATED
+        return retrieve_exam_status(self, obj)
 
 
 class ExamUpdateSerializer(CreatorSerializer):
@@ -230,7 +214,7 @@ class ExamUpdateSerializer(CreatorSerializer):
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
     def get_status(self, obj):
-        return ExamStatus.CREATED
+        return retrieve_exam_status(self, obj)
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -287,7 +271,7 @@ class ExamPaperSerializer(serializers.ModelSerializer):
                 ).data
 
     def get_status(self, obj):
-        return ExamStatus.IN_PROGRESS
+        return retrieve_exam_status(self, obj)
 
 
 # class ExamPaperWOEnrollmentSeriaizer(serializers.ModelSerializer):
