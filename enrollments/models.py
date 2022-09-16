@@ -332,7 +332,7 @@ class ExamSession(Session):
         # tasks = PeriodicTask.objects.filter(kwargs={"session_id": self.id})
         # alternatively you can do this
         # # filter the tasks by task names
-        self.exam.finish_exam()
+        # self.exam.finish_exam()
         super().delete(*args, **kwargs)
 
     def calculate_end_date(self):
