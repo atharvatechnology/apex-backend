@@ -7,6 +7,8 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from exams.models import ExamStatus
+
 from .models import ExamEnrollmentStatus, SessionStatus
 from .tasks import calculate_score
 
@@ -28,18 +30,20 @@ def on_exam_session_save(sender, instance, created, **kwargs):
         instance.save()
 
     if instance.status == SessionStatus.INACTIVE:
-        instance.exam.schedule_exam()
+        # return ExamStatus.SCHEDULED
+        # instance.exam.schedule_exam()
+        pass
 
     elif instance.status == SessionStatus.ACTIVE:
-        instance.exam.start_exam()
+        # instance.exam.start_exam()
         async_to_sync(channel_layer.group_send)(
             # "clock",
             f"exam_{instance.exam.id}",
-            {"type": "get_exam", "status": instance.exam.status},
+            {"type": "get_exam", "status": ExamStatus.IN_PROGRESS},
         )
 
     elif instance.status == SessionStatus.ENDED:
-        instance.exam.finish_exam()
+        # instance.exam.finish_exam()
         # prevent further enrollment into that session
         # prevent further submissions into that ExamEnrollment
         # start the calculation of the score
