@@ -110,6 +110,7 @@ def exam_data_save(exams_data, enrollment):
 
 
 # TODO Need to be discussed. Status send in List.
+# TODO Change self to user. since user is only used.
 def retrieve_exam_status(self, obj):
     user = self.context["request"].user
     if not user.is_authenticated:
