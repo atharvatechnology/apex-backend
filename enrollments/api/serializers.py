@@ -111,7 +111,7 @@ class CourseEnrollmentUpdateSerializer(serializers.ModelSerializer):
 class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when the user is retrieving an enrollment."""
 
-    # physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
+    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
 
     class Meta:
         model = CourseThroughEnrollment
@@ -122,7 +122,7 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "selected_session",
             "course_enroll_status",
             "completed_date",
-            # "physical_books",
+            "physical_books",
         )
 
 
