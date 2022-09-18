@@ -1,5 +1,4 @@
 import json
-from urllib.error import HTTPError
 from urllib.parse import urljoin
 
 import requests
@@ -27,7 +26,11 @@ class ZoomProvider(BasicProvider):
     def get_access_token(self):
         url = (
             "https://zoom.us/oauth/token?grant_type=account_credentials"
-            + f"&account_id=${self.account_id}"
+            + f"&account_id={self.account_id}"
+        )
+        url = (
+            "https://zoom.us/oauth/token?grant_type=account_credentials"
+            + "&account_id=9cR1iFnhQTGeirfFdqQD2w"
         )
 
         payload = {}
@@ -38,11 +41,12 @@ class ZoomProvider(BasicProvider):
 
         try:
             res = requests.request("POST", url, headers=headers, data=payload)
+            print(res.text)
             if res.status_code != 200:
                 raise ConnectionError("Error connecting to zoom")
         except Exception as e:
             print(e)
-            raise HTTPError("Error connecting to zoom") from e
+            raise ConnectionError("Error connecting to zoom") from e
 
         data = res.text
         json_data = json.loads(data)
@@ -57,7 +61,7 @@ class ZoomProvider(BasicProvider):
                 status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         data = res.text
-        json_data = json.loads(data)
+        json_data = json.loads(data) if data else None
         return res, json_data
 
     def attempt_zoom_connection(self, request_type, url, headers, payload):
@@ -65,9 +69,9 @@ class ZoomProvider(BasicProvider):
             res, json_data = self.send_request(request_type, url, headers, payload)
             if res.status_code == 401 and json_data.get("code") == 124:
                 self.get_access_token()
-            elif res.status_code in [200, 201]:
+            elif res.status_code in [200, 201, 204]:
                 return json_data
-        raise HTTPError("Error connecting to zoom")
+        raise ConnectionError("Error connecting to zoom")
 
     def get_meetings(self):
         print("inside list meet")
@@ -91,7 +95,7 @@ class ZoomProvider(BasicProvider):
     #     json_data = json.loads(data)
     #     return res, json_data
 
-    def create_meetings(self, meeting_config):
+    def create_meeting(self, meeting_config):
         print("inside create meet")
         url = urljoin(self.api_url, "users/me/meetings")
         meeting_time = meeting_config["start_time"]
@@ -128,7 +132,7 @@ class ZoomProvider(BasicProvider):
                 "start_time": meeting_time,
                 "template_id": "Dv4YdINdTk+Z5RToadh5ug==",
                 "timezone": "Asia/Kathmandu",
-                "topic": "Apex first class",
+                "topic": meeting_config["title"],
                 "type": 2,
             }
         )
