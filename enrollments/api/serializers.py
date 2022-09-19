@@ -130,7 +130,7 @@ class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when user is retrieving an enrollment."""
 
     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
-    courses = CourseEnrollmentSerializer(many=True)
+    courses = CourseEnrollmentSerializer(many=True, source="course_enrolls")
 
     class Meta:
         model = Enrollment
