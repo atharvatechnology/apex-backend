@@ -67,6 +67,7 @@ class ZoomProvider(BasicProvider):
     def attempt_zoom_connection(self, request_type, url, headers, payload):
         for _ in range(self.retry_attempts):
             res, json_data = self.send_request(request_type, url, headers, payload)
+            print(res, json_data)
             if res.status_code == 401 and json_data.get("code") == 124:
                 self.get_access_token()
             elif res.status_code in [200, 201, 204]:
@@ -133,9 +134,17 @@ class ZoomProvider(BasicProvider):
                 "template_id": "Dv4YdINdTk+Z5RToadh5ug==",
                 "timezone": "Asia/Kathmandu",
                 "topic": meeting_config["title"],
-                "type": 3,
+                "type": 8,
+                "recurrence": {
+                    "type": meeting_config["repeat_type"],
+                    "end_date_time": meeting_config["end_date_time"],
+                    "repeat_interval": meeting_config["repeat_interval"],
+                    "monthly_day": meeting_config["monthly_day"],
+                    "weekly_days": meeting_config["weekly_days"],
+                },
             }
         )
+        print(payload)
 
         headers = {
             "Authorization": f"Bearer {self.access_token}",

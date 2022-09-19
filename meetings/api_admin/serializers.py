@@ -1,3 +1,4 @@
+import pytz
 from rest_framework import serializers
 
 from meetings.providers.register import provider_factory
@@ -18,9 +19,14 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
             "password",
             # "agenda",
             "duration",
-            "course",
+            "course_session",
             "subject",
             "variant",
+            "end_date_time",
+            "repeat_type",
+            "repeat_interval",
+            "monthly_day",
+            "weekly_days",
         )
 
     def create(self, validated_data):
@@ -28,6 +34,11 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         variant = validated_data.get("variant")
         duration = validated_data.get("duration")
         start_time = validated_data.get("start_time")
+        end_date_time = validated_data.get("end_date_time")
+        repeat_type = validated_data.get("repeat_type")
+        repeat_interval = validated_data.get("repeat_interval")
+        monthly_day = validated_data.get("monthly_day")
+        weekly_days = validated_data.get("weekly_days")
         duration_in_minutes = duration.total_seconds() / 60.0
 
         meeting_provider = provider_factory.get_provider(
@@ -38,11 +49,27 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
             "duration": int(duration_in_minutes),
             "password": validated_data.get("password"),
             "start_time": start_time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "end_date_time": end_date_time.astimezone(pytz.UTC).strftime(
+                "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
+            if end_date_time
+            else None,
+            "repeat_type": repeat_type,
+            "repeat_interval": repeat_interval,
+            "monthly_day": monthly_day,
+            "weekly_days": weekly_days,
         }
         meeting_details = meeting_provider.create_meeting(meeting_config)
         meeting_instance = Meeting(
             variant=variant,
-            course=validated_data.get("course"),
+            start_time=start_time,
+            duration=duration,
+            end_date_time=end_date_time,
+            repeat_type=repeat_type,
+            repeat_interval=repeat_interval,
+            monthly_day=monthly_day,
+            weekly_days=weekly_days,
+            course_session=validated_data.get("course_session"),
             subject=validated_data.get("subject"),
             meeting_id=meeting_details.get("id"),
             host_id=meeting_details.get("host_id"),
@@ -50,11 +77,9 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
             topic=meeting_details.get("topic"),
             meeting_type=meeting_details.get("type"),
             occurence_status=meeting_details.get("status"),
-            start_time=start_time,
             password=meeting_details.get("password"),
             created_at=meeting_details.get("created_at"),
             agenda=meeting_details.get("agenda"),
-            duration=duration,
         )
         meeting_instance.save()
         return meeting_instance
