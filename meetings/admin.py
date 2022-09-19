@@ -12,7 +12,7 @@ class MeetingAdmin(admin.ModelAdmin):
         "host_email",
         "variant",
         "start_time",
-        "course",
+        "course_session",
         "created_at",
         "topic",
         "duration",

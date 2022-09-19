@@ -45,9 +45,9 @@ class Meeting(models.Model):
     created_at = models.DateTimeField(_("createdAt"))
     agenda = models.CharField(_("agenda"), max_length=255)
     duration = models.DurationField(_("duration"))
-    course = models.ForeignKey(
-        "courses.Course",
-        verbose_name=_("course"),
+    course_session = models.ForeignKey(
+        "enrollments.CourseSession",
+        verbose_name=_("course_session"),
         related_name="meetings",
         on_delete=models.CASCADE,
     )
@@ -58,6 +58,13 @@ class Meeting(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
+    )
+    end_date_time = models.DateTimeField(_("end_date_time"), null=True, blank=True)
+    monthly_day = models.PositiveIntegerField(_("monthly_day"), null=True, blank=True)
+    repeat_interval = models.PositiveIntegerField(_("repeat_interval"), default=1)
+    repeat_type = models.PositiveIntegerField(_("repeat_type"), default=1)
+    weekly_days = models.CharField(
+        _("weekly_days"), max_length=255, null=True, blank=True
     )
 
     def __str__(self):
