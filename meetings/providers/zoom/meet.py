@@ -133,7 +133,7 @@ class ZoomProvider(BasicProvider):
                 "template_id": "Dv4YdINdTk+Z5RToadh5ug==",
                 "timezone": "Asia/Kathmandu",
                 "topic": meeting_config["title"],
-                "type": 2,
+                "type": 3,
             }
         )
 
