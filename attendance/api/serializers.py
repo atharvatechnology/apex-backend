@@ -3,6 +3,9 @@ from rest_framework import serializers
 
 from attendance.models import Attendance, TeacherAttendance, TeacherAttendanceDetail
 from common.api.serializers import CreatorSerializer
+from common.utils import decode_user
+from enrollments.models import Enrollment
+from courses.models import CourseStatus
 
 
 class AttendanceCreateSerializer(CreatorSerializer):
@@ -17,7 +20,18 @@ class AttendanceCreateSerializer(CreatorSerializer):
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
-
+    def validate_user(self, value):
+        usr_name = value["user"]
+        print(usr_name)
+        decoded_user = decode_user(usr_name)
+        if decoded_user is not None:
+            enrolled_student = Enrollment.objects.filter(
+                student__username=decoded_user, courses=CourseStatus.INSESSION
+            ) or None
+            if enrolled_student is not None:
+                return value
+        raise serializers.ValidationError("Invalid user")
+        
 class AttendanceRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving attendance model."""
 
