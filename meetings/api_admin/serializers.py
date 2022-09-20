@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from meetings.providers.register import provider_factory
 
-from ..models import Meeting
+from ..models import Meeting, Subject
 
 
 class MeetingCreateSerializer(serializers.ModelSerializer):
@@ -83,3 +83,11 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         )
         meeting_instance.save()
         return meeting_instance
+
+
+class SubjectCRUDSerializer(serializers.ModelSerializer):
+    """Serializer for CRUD of subject."""
+
+    class Meta:
+        model = Subject
+        fields = ("id", "name")
