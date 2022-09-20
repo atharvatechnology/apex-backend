@@ -16,7 +16,11 @@ urlpatterns = [
         ExamRetrievePoolAPIView.as_view(),
         name="exam-retrieve-pool",
     ),
-    path("paper/<int:pk>/", ExamPaperAPIView.as_view(), name="exam-paper"),
+    path(
+        "paper/<int:pk>/<int:session_id>/",
+        ExamPaperAPIView.as_view(),
+        name="exam-paper",
+    ),
     path(
         "paper/preview/<int:pk>/",
         ExamPaperPreviewAPIView.as_view(),

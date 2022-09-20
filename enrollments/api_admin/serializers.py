@@ -42,14 +42,14 @@ class ExamSessionAdminSerializer(
             "end_date",
         )
 
-    def validate(self, data):
-        """Filter based on ExamSession and check if obj exists."""
-        obj = self.Meta.model.objects.filter(exam=data["exam"])
+    # def validate(self, data):
+    #     """Filter based on ExamSession and check if obj exists."""
+    #     obj = self.Meta.model.objects.filter(exam=data["exam"])
 
-        if obj.exists():
-            raise serializers.ValidationError("Exam cannot have more than one session.")
+    #     if obj.exists():
+    #         raise serializers.ValidationError("Exam cannot be more than one session.")
 
-        return data
+    #     return data
 
     @transaction.atomic
     def create(self, validated_data):

@@ -83,14 +83,14 @@ class ExamAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     def question(self, obj):
         return obj.questions.all().count()
 
-    list_display = ["id", "name", "status", "price", "question", "template", "preview"]
-    list_filter = ["status", "template"]
+    list_display = ["id", "name", "price", "question", "template", "preview"]
+    list_filter = ["template"]
     inlines = [
         QuestionInline,
     ]
     readonly_fields = CreatorBaseModelAdmin.readonly_fields + ["id"]
     save_on_top = True
-    list_editable = ["status"]
+    # list_editable = ["status"]
 
 
 @admin.register(Section)

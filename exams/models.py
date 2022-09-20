@@ -4,7 +4,6 @@ from ckeditor.fields import RichTextField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.errors import StateTransitionError
 from common.modelFields import PercentageField
 from common.models import CreatorBaseModel
 from common.validators import validate_positive
@@ -93,12 +92,12 @@ class Exam(CreatorBaseModel):
     #                            on_delete=models.SET_NULL,
     #                            null=True,
     #                            blank=True)
-    status = models.CharField(
-        _("status"),
-        max_length=16,
-        choices=ExamStatus.CHOICES,
-        default=ExamStatus.CREATED,
-    )
+    # status = models.CharField(
+    #     _("status"),
+    #     max_length=16,
+    #     choices=ExamStatus.CHOICES,
+    #     default=ExamStatus.CREATED,
+    # )
     price = models.DecimalField(
         _("price"),
         max_digits=5,
@@ -126,39 +125,39 @@ class Exam(CreatorBaseModel):
         """Unicode representation of Exam."""
         return self.name
 
-    def __change_status(self, status):
-        self.status = status
-        self.save()
+    # def __change_status(self, status):
+    #     self.status = status
+    #     self.save()
 
-    @property
-    def current_status(self):
-        return self.status
+    # @property
+    # def current_status(self):
+    #     return self.status
 
-    # FSM State transition methods
-    def start_exam(self):
-        if self.status == ExamStatus.IN_PROGRESS:
-            return
-        if self.status == ExamStatus.SCHEDULED:
-            return self.__change_status(ExamStatus.IN_PROGRESS)
-        raise StateTransitionError(f"Exam cannot be started from {self.status} state")
+    # # FSM State transition methods
+    # def start_exam(self):
+    #     if self.status == ExamStatus.IN_PROGRESS:
+    #         return
+    #     if self.status == ExamStatus.SCHEDULED:
+    #         return self.__change_status(ExamStatus.IN_PROGRESS)
+    #     raise StateTransitionError(f"Exam cannot be started from {self.status} state")
 
-    def finish_exam(self):
-        if self.status == ExamStatus.CREATED:
-            return
-        # GO back to default state
-        if self.status in [ExamStatus.IN_PROGRESS, ExamStatus.SCHEDULED]:
-            return self.__change_status(ExamStatus.CREATED)
-        raise StateTransitionError(f"Exam cannot be finished from {self.status} state")
+    # def finish_exam(self):
+    #     if self.status == ExamStatus.CREATED:
+    #         return
+    #     # GO back to default state
+    #     if self.status in [ExamStatus.IN_PROGRESS, ExamStatus.SCHEDULED]:
+    #         return self.__change_status(ExamStatus.CREATED)
+    # raise StateTransitionError(f"Exam cannot be finished from {self.status} state")
 
-    def schedule_exam(self):
-        if self.status == ExamStatus.SCHEDULED:
-            return
-        if self.status in ExamStatus.CREATED:
-            return self.__change_status(ExamStatus.SCHEDULED)
-        raise StateTransitionError(f"Exam cannot be scheduled from {self.status} state")
+    # def schedule_exam(self):
+    #     if self.status == ExamStatus.SCHEDULED:
+    #         return
+    #     if self.status in ExamStatus.CREATED:
+    #         return self.__change_status(ExamStatus.SCHEDULED)
+    # raise StateTransitionError(f"Exam cannot be scheduled from {self.status} state")
 
-    def cancel_exam(self):
-        self.__change_status(ExamStatus.CANCELLED)
+    # def cancel_exam(self):
+    #     self.__change_status(ExamStatus.CANCELLED)
 
 
 # class SectionTemplate(models.Model):

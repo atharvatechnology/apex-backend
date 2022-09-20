@@ -343,11 +343,11 @@ class ExamCreateSerializer(CreatorSerializer):
         fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "template",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
 class ExamListAdminSerializer(serializers.ModelSerializer):
@@ -361,7 +361,7 @@ class ExamListAdminSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "template",
         )
@@ -417,10 +417,10 @@ class ExamUpdateSerializer(CreatorSerializer):
         fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
-            "status",
+            # "status",
             "price",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
 class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
@@ -436,7 +436,7 @@ class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "template",
             "sessions",
