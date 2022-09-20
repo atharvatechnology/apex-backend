@@ -20,6 +20,7 @@ from enrollments.models import (
     Session,
 )
 from exams.models import Exam, Option, Question
+from meetings.api.serializers import MeetingOnCourseEnrolledSerializer
 
 
 class SessionSerializer(CreatorSerializer):
@@ -49,6 +50,19 @@ class CourseSessionSerializer(SessionSerializer):
     class Meta:
         model = CourseSession
         fields = SessionSerializer.Meta.fields + ("course",)
+
+
+class SelectedCourseSessionSerializer(SessionSerializer):
+    """Serializer for retrieving selected course session after enrollment."""
+
+    meetings = MeetingOnCourseEnrolledSerializer(many=True)
+
+    class Meta:
+        model = CourseSession
+        fields = SessionSerializer.Meta.fields + (
+            "course",
+            "meetings",
+        )
 
 
 class ExamEnrollmentSerializer(serializers.ModelSerializer):
