@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import Meeting
+from ..models import Meeting, Subject
 
 
 class GenerateSignatureSerializer(serializers.Serializer):
@@ -13,8 +13,18 @@ class GenerateSignatureSerializer(serializers.Serializer):
         fields = ("meeting_id", "role")
 
 
+class SubjectSerializer(serializers.ModelSerializer):
+    """Serializer for subject on meeting retrieval."""
+
+    class Meta:
+        model = Subject
+        fields = ("id", "name")
+
+
 class MeetingOnCourseEnrolledSerializer(serializers.ModelSerializer):
     """Serializer for meeting on course enrolled."""
+
+    subject = SubjectSerializer()
 
     class Meta:
         model = Meeting
@@ -25,4 +35,5 @@ class MeetingOnCourseEnrolledSerializer(serializers.ModelSerializer):
             "password",
             "start_time",
             "duration",
+            "subject",
         )

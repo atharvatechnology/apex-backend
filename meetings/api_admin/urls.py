@@ -3,6 +3,7 @@ from django.urls import path
 from meetings.api_admin.views import (
     MeetingCreateAPIView,
     MeetingDeleteAPIView,
+    MeetingListAPIView,
     SubjectCreateAPIView,
     SubjectDeleteAPIView,
     SubjectListAPIView,
@@ -13,6 +14,7 @@ from meetings.api_admin.views import (
 urlpatterns = [
     path("create/", MeetingCreateAPIView.as_view(), name="meeting-create"),
     path("delete/<int:pk>/", MeetingDeleteAPIView.as_view(), name="meeting-delete"),
+    path("list/<int:session_id>", MeetingListAPIView.as_view(), name="meeting-list"),
 ]
 
 subject_urlpatterns = [

@@ -6,14 +6,15 @@ from meetings.providers.register import provider_factory
 from ..models import Meeting, Subject
 
 
-class MeetingCreateSerializer(serializers.ModelSerializer):
-    """Serializer when admin is creating a meeting."""
+class MeetingSerializer(serializers.ModelSerializer):
+    """Base meeting serializer."""
 
     class Meta:
         model = Meeting
         fields = (
             "id",
             "topic",
+            "meeting_id",
             # "type",
             "start_time",
             "password",
@@ -28,6 +29,16 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
             "monthly_day",
             "weekly_days",
         )
+        read_only_fields = ("id", "meeting_id")
+
+
+class MeetingCreateSerializer(MeetingSerializer):
+    """Serializer when admin is creating a meeting."""
+
+    class Meta:
+        model = Meeting
+        fields = MeetingSerializer.Meta.fields
+        read_only_fields = MeetingSerializer.Meta.read_only_fields
 
     def create(self, validated_data):
         """Create a meeting."""

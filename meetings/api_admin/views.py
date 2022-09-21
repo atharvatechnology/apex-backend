@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from meetings.api_admin.serializers import (
     MeetingCreateSerializer,
+    MeetingSerializer,
     SubjectCRUDSerializer,
 )
 from meetings.models import Meeting, Subject
@@ -32,6 +33,15 @@ class MeetingDeleteAPIView(DestroyAPIView):
         delete_info = meeting_provider.delete_meeting(instance.meeting_id)
         print(delete_info)
         return super().perform_destroy(instance)
+
+
+class MeetingListAPIView(ListAPIView):
+    queryset = Meeting.objects.all()
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = MeetingSerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(course_session=self.kwargs["session_id"])
 
 
 class SubjectCreateAPIView(CreateAPIView):
