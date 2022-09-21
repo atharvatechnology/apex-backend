@@ -72,6 +72,8 @@ class ZoomProvider(BasicProvider):
                 self.get_access_token()
             elif res.status_code in [200, 201, 204]:
                 return json_data
+            elif res.status_code == 404 and json_data.get("code") == 3001:
+                return json_data
         raise ConnectionError("Error connecting to zoom")
 
     def get_meetings(self):
