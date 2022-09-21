@@ -2,7 +2,10 @@ from rest_framework import serializers
 
 from common.api.mixin import EnrolledSerializerMixin
 from courses.models import Course, CourseCategory
-from enrollments.api.serializers import CourseSessionSerializer
+from enrollments.api.serializers import (
+    CourseSessionSerializer,
+    SelectedCourseSessionSerializer,
+)
 from enrollments.models import CourseEnrollmentStatus, CourseThroughEnrollment
 from notes.api.serializers import (
     NoteSerializerAfterEnroll,
@@ -14,11 +17,14 @@ from physicalbook.api.serializers import PhysicalBookSerializerBeforeEnroll
 class CourseEnrollmentCourseRetrieveSerializer(serializers.ModelSerializer):
     """Serializer of ExamEnroll when user is retrieving an exam."""
 
+    selected_session = SelectedCourseSessionSerializer()
+
     class Meta:
         model = CourseThroughEnrollment
         fields = (
             "id",
             "course_enroll_status",
+            "selected_session",
         )
 
 
