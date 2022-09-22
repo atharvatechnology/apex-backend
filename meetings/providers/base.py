@@ -1,7 +1,4 @@
 class BasicProvider:
-    def __init__(self, config):
-        self.name = config["name"]
-
     def get_meetings(self):
         raise NotImplementedError
 

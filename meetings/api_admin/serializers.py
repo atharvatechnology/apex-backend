@@ -40,6 +40,9 @@ class MeetingCreateSerializer(MeetingSerializer):
         fields = MeetingSerializer.Meta.fields
         read_only_fields = MeetingSerializer.Meta.read_only_fields
 
+    def validate(self, attrs):
+        return super().validate(attrs)
+
     def create(self, validated_data):
         """Create a meeting."""
         variant = validated_data.get("variant")
@@ -52,9 +55,7 @@ class MeetingCreateSerializer(MeetingSerializer):
         weekly_days = validated_data.get("weekly_days")
         duration_in_minutes = duration.total_seconds() / 60.0
 
-        meeting_provider = provider_factory.get_provider(
-            variant, name=f"{variant} meeting"
-        )
+        meeting_provider = provider_factory.get_provider(variant)
         meeting_config = {
             "title": validated_data.get("topic"),
             "duration": int(duration_in_minutes),

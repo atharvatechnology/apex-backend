@@ -2,6 +2,7 @@ import json
 from urllib.parse import urljoin
 
 import requests
+from django.conf import settings
 from django.http import HttpResponse
 from rest_framework import status
 
@@ -9,18 +10,12 @@ from meetings.providers.base import BasicProvider
 
 
 class ZoomProvider(BasicProvider):
-    def __init__(self, config):
-        super().__init__(config)
-        self.api_url = config.get("zoom_api", "https://api.zoom.us/v2/")
-        self.account_id = config.get("zoom_account_id", "9cR1iFnhQTGeirfFdqQD2w")
-        self.client_id = config.get("zoom_client_id", "")
-        self.client_secret = config.get("zoom_client_secret", "")
-        self.key = config.get(
-            "zoom_key",
-            "aV9VV25SSThTQmVDclAwYWd4YW9JZzpuc0o3dX"
-            + "lUZld0VjJtVE1CMXpJbUo1MFN0Z3Z0UzdBdw==",
-        )
-        self.retry_attempts = config.get("zoom_retry_attempts", 2)
+    def __init__(self):
+        config = settings.ZOOM_CONFIGS
+        self.api_url = config["zoom_api"]
+        self.account_id = config["zoom_account_id"]
+        self.key = config["zoom_key"]
+        self.retry_attempts = config["zoom_retry_attempts"]
         self.get_access_token()
 
     def get_access_token(self):
@@ -28,11 +23,6 @@ class ZoomProvider(BasicProvider):
             "https://zoom.us/oauth/token?grant_type=account_credentials"
             + f"&account_id={self.account_id}"
         )
-        url = (
-            "https://zoom.us/oauth/token?grant_type=account_credentials"
-            + "&account_id=9cR1iFnhQTGeirfFdqQD2w"
-        )
-
         payload = {}
         headers = {
             "Authorization": f"Basic {self.key}",

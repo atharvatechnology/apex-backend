@@ -27,9 +27,7 @@ class MeetingDeleteAPIView(DestroyAPIView):
 
     def perform_destroy(self, instance):
         variant = instance.variant
-        meeting_provider = provider_factory.get_provider(
-            variant, name=f"{variant} meeting"
-        )
+        meeting_provider = provider_factory.get_provider(variant)
         delete_info = meeting_provider.delete_meeting(instance.meeting_id)
         print(delete_info)
         return super().perform_destroy(instance)

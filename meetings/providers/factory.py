@@ -7,7 +7,7 @@ class ProviderFactory:
 
     def get_provider(self, key, **kwargs):
         if provider := self._providers.get(key):
-            return provider(kwargs)
+            return provider()
         else:
             raise ValueError(f"{key} is not registered.")
 
