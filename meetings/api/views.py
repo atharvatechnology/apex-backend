@@ -1,6 +1,7 @@
 from time import time
 
 import jwt
+from django.conf import settings
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -13,7 +14,8 @@ def generate_signature(data):
     iat = round(time()) - 30
     exp = iat + 60 * 60 * 2
     header_dict = {"alg": "HS256", "typ": "JWT"}
-    zoom_sdk_key = "1Pdmz2ex00PWc2Pj9F1Fb0hzH4sq8SmuFZVm"
+    zoom_conf = settings.ZOOM_CONFIGS
+    zoom_sdk_key = zoom_conf["zoom_sdk_key"]
     payload_dict = {
         "sdkKey": zoom_sdk_key,
         "mn": data["meeting_id"],
@@ -23,7 +25,7 @@ def generate_signature(data):
         "appKey": zoom_sdk_key,
         "tokenExp": iat + 60 * 60 * 2,
     }
-    zoom_secret_key = "3EWQHADjLwHeHWOG8E0V85nXRlbgJ032dTNV"
+    zoom_secret_key = zoom_conf["zoom_secret_key"]
     return jwt.encode(
         payload=payload_dict,
         headers=header_dict,
