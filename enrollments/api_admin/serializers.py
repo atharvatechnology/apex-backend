@@ -1,8 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
+from common.utils import decode_user
+from courses.models import Course, CourseStatus
 from enrollments.api.serializers import ExamEnrollmentSerializer
 from enrollments.api.utils import (
     batch_is_enrolled_and_price,
@@ -11,11 +14,14 @@ from enrollments.api.utils import (
 )
 from enrollments.models import (
     CourseSession,
+    CourseThroughEnrollment,
     Enrollment,
     EnrollmentStatus,
     ExamSession,
     ExamThroughEnrollment,
 )
+
+User = get_user_model()
 
 
 class ExamSessionAdminSerializer(
@@ -205,3 +211,43 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
             enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment
+
+
+class StudentEnrollmentCheckSerializer(serializers.Serializer):
+    """Student Enrollment check against course."""
+
+    user = serializers.CharField()
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+
+    def validate_user(self, value):
+        decoded_username = decode_user(value)
+        if decoded_username is not None:
+            user = User.objects.filter(username=decoded_username).first()
+            enrolled_student = (
+                CourseThroughEnrollment.objects.filter(
+                    enrollment__student=user, course__status=CourseStatus.INSESSION
+                )
+                or None
+            )
+            if enrolled_student is not None:
+                return user
+            else:
+                raise serializers.ValidationError(
+                    "Student is not enrolled in any course."
+                )
+        raise serializers.ValidationError("Invalid user")
+
+    def validate(self, attrs):
+        user = attrs.get("user")
+        course = attrs.get("course")
+        enrolled_student = (
+            CourseThroughEnrollment.objects.filter(
+                enrollment__student=user,
+                course=course,
+                course__status=CourseStatus.INSESSION,
+            )
+            or None
+        )
+        if enrolled_student is not None:
+            return super().validate(attrs)
+        raise serializers.ValidationError(f"Student is not enrolled in {course}.")

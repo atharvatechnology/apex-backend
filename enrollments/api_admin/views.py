@@ -1,8 +1,14 @@
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    DestroyAPIView,
+    GenericAPIView,
+    ListAPIView,
+)
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
@@ -13,6 +19,7 @@ from enrollments.api_admin.serializers import (
     ExamSessionAdminSerializer,
     ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
+    StudentEnrollmentCheckSerializer,
 )
 from enrollments.filters import ExamThroughEnrollmentFilter
 from enrollments.models import (
@@ -186,3 +193,17 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     ]
     ordering_fields = ["status", "score"]
     filterset_class = ExamThroughEnrollmentFilter
+
+
+class StudentCourseCheckView(GenericAPIView):
+    """View for checking if student is enrolled in a course."""
+
+    permission_classes = []
+    serializer_class = StudentEnrollmentCheckSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(
+            {"status": "success", "message": "Student is enrolled in the course."}
+        )
