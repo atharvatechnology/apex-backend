@@ -41,16 +41,61 @@ class MeetingCreateSerializer(MeetingSerializer):
         read_only_fields = MeetingSerializer.Meta.read_only_fields
 
     def validate(self, attrs):
-        return super().validate(attrs)
+        validated_data = super().validate(attrs)
+        repeat_type = validated_data.get(
+            "repeat_type", Meeting.repeat_type.field.default
+        )
+        repeat_interval = validated_data.get(
+            "repeat_interval",
+            Meeting.repeat_interval.field.default,
+        )
+        monthly_day = validated_data.get("monthly_day")
+        weekly_days = validated_data.get("weekly_days")
+        if repeat_type == 3:
+            if not monthly_day:
+                raise serializers.ValidationError(
+                    f"Repeat type {repeat_type} can't have "
+                    + f"monthly_day value {monthly_day}."
+                )
+            if repeat_interval > 3:
+                raise serializers.ValidationError(
+                    f"Repeat interval {repeat_interval} can't be greater than 3 months."
+                )
+        elif repeat_type == 2:
+            if not weekly_days:
+                raise serializers.ValidationError(
+                    f"Repeat type {repeat_type} can't"
+                    + f"have weekly_days value {weekly_days}."
+                )
+            weekly_days_set = {int(s_int) for s_int in weekly_days.split(",")}
+            seven_day_set = set(range(1, 8))
+            if not weekly_days_set.issubset(seven_day_set):
+                raise serializers.ValidationError(
+                    f"Repeat type {repeat_type} can't have "
+                    + f"weekly_days value {weekly_days}."
+                )
+            if repeat_interval > 12:
+                raise serializers.ValidationError(
+                    f"Repeat interval {repeat_interval} can't be greater than 12 weeks."
+                )
+        elif repeat_type == 1:
+            if repeat_interval > 90:
+                raise serializers.ValidationError(
+                    f"Repeat interval {repeat_interval} can't be greater than 90 days."
+                )
+        return validated_data
 
     def create(self, validated_data):
         """Create a meeting."""
-        variant = validated_data.get("variant")
+        variant = validated_data.get("variant", "zoom")
         duration = validated_data.get("duration")
         start_time = validated_data.get("start_time")
         end_date_time = validated_data.get("end_date_time")
-        repeat_type = validated_data.get("repeat_type")
-        repeat_interval = validated_data.get("repeat_interval")
+        repeat_type = validated_data.get("repeat_type", Meeting.repeat_type.default)
+        repeat_interval = validated_data.get(
+            "repeat_interval",
+            Meeting.repeat_interval.field.default,
+        )
         monthly_day = validated_data.get("monthly_day")
         weekly_days = validated_data.get("weekly_days")
         duration_in_minutes = duration.total_seconds() / 60.0

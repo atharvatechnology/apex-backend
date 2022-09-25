@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -60,9 +61,18 @@ class Meeting(models.Model):
         blank=True,
     )
     end_date_time = models.DateTimeField(_("end_date_time"), null=True, blank=True)
-    monthly_day = models.PositiveIntegerField(_("monthly_day"), null=True, blank=True)
+    monthly_day = models.PositiveIntegerField(
+        _("monthly_day"),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(31)],
+    )
     repeat_interval = models.PositiveIntegerField(_("repeat_interval"), default=1)
-    repeat_type = models.PositiveIntegerField(_("repeat_type"), default=1)
+    repeat_type = models.PositiveIntegerField(
+        _("repeat_type"),
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(3)],
+    )
     weekly_days = models.CharField(
         _("weekly_days"), max_length=255, null=True, blank=True
     )
