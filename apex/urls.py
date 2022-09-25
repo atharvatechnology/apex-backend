@@ -6,6 +6,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from meetings.api_admin.urls import subject_urlpatterns
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Snippets API",
@@ -45,6 +47,7 @@ api_urls = [
     path("physical-book/", include("physicalbook.api.urls")),
     path("attendance/", include("attendance.api.urls")),
     path("meetings/", include("meetings.api.urls")),
+    path("payments/", include("payments.api.urls")),
 ]
 
 api_admin_urls = [
@@ -54,6 +57,7 @@ api_admin_urls = [
     path("enrollments/", include("enrollments.api_admin.urls")),
     path("accounts/", include("accounts.api_admin.urls")),
     path("meetings/", include("meetings.api_admin.urls")),
+    path("subjects/", include(subject_urlpatterns)),
 ]
 
 urlpatterns += [
