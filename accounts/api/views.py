@@ -3,14 +3,16 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from accounts.api.serializers import (
     UserCreateOTPVerifySerializer,
     UserCreateSerializer,
+    UserDetailSerializer,
     UserResetPasswordConfirmSerializer,
     UserResetPasswordOTPRequestSerializer,
     UserResetPasswordOTPVerifySerializer,
+    UserUpdateSerializer,
 )
 
 User = get_user_model()
@@ -174,3 +176,25 @@ class UserResetPasswordConfirmAPIView(UpdateModelMixin, LoginView):
 
         self.login()
         return self.get_response()
+
+
+class UserUpdateAPIView(generics.UpdateAPIView):
+    """User Detail Update API View."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserUpdateSerializer
+    queryset = User.objects.all()
+
+    def get_object(self):
+        return self.request.user
+
+
+class UserDetailAPIView(generics.RetrieveAPIView):
+    """User Detail API View."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserDetailSerializer
+    queryset = User.objects.all()
+
+    def get_object(self):
+        return self.request.user

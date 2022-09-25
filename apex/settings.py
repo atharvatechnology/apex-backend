@@ -14,6 +14,7 @@ from pathlib import Path
 
 import environ
 from corsheaders.defaults import default_headers, default_methods
+from firebase_admin import initialize_app
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,6 +81,8 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "ckeditor",
     "debug_toolbar",
+    "fcm_django",
+    "notifications",
 ]
 
 MIDDLEWARE = [
@@ -401,3 +404,15 @@ ZOOM_CONFIGS = {
     "zoom_sdk_key": env("ZOOM_SDK_KEY"),
     "zoom_secret_key": env("ZOOM_SECRET_KEY"),
 }
+# firebase notification
+FIREBASE_APP = initialize_app()
+FCM_DJANGO_SETTINGS = {
+    "APP_VERBOSE_NAME": "Apex",
+    "ONE_DEVICE_PER_USER": True,
+    "DELETE_INACTIVE_DEVICES": True,
+    "UPDATE_ON_DUPLICATE_REG_ID": True,
+}
+GOOGLE_APPLICATION_CREDENTIALS = BASE_DIR / env(
+    "GOOGLE_APPLICATION_CREDENTIALS", default="apex-education-firebase.json"
+)
+# Firebase notification end
