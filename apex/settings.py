@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "clock",
     "physicalbook",
     "payments",
+    "meetings",
     # third party
     "drf_yasg",
     "corsheaders",
@@ -395,6 +396,14 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+ZOOM_CONFIGS = {
+    "zoom_key": env("ZOOM_KEY"),
+    "zoom_account_id": env("ZOOM_ACCOUNT_ID"),
+    "zoom_api": env("ZOOM_API_URL", default="https://api.zoom.us/v2/"),
+    "zoom_retry_attempts": env("ZOOM_RETRY_ATTEMPTS", default=3),
+    "zoom_sdk_key": env("ZOOM_SDK_KEY"),
+    "zoom_secret_key": env("ZOOM_SECRET_KEY"),
+}
 # firebase notification
 FIREBASE_APP = initialize_app()
 FCM_DJANGO_SETTINGS = {
