@@ -49,6 +49,7 @@ api_urls = [
     path("enrollments/", include("enrollments.api.urls")),
     path("physical-book/", include("physicalbook.api.urls")),
     path("attendance/", include("attendance.api.urls")),
+    path("meetings/", include("meetings.api.urls")),
 ]
 
 api_admin_urls = [
@@ -57,6 +58,7 @@ api_admin_urls = [
     path("notes/", include("notes.api_admin.urls")),
     path("enrollments/", include("enrollments.api_admin.urls")),
     path("accounts/", include("accounts.api_admin.urls")),
+    path("meetings/", include("meetings.api_admin.urls")),
 ]
 
 fcm_urls = [

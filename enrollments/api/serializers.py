@@ -22,6 +22,7 @@ from enrollments.models import (
     Session,
 )
 from exams.models import Exam, Option, Question
+from meetings.api.serializers import MeetingOnCourseEnrolledSerializer
 
 
 class SessionSerializer(CreatorSerializer):
@@ -33,6 +34,7 @@ class SessionSerializer(CreatorSerializer):
             "start_date",
             "end_date",
             "status",
+            "name",
             # "exam",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
@@ -51,6 +53,19 @@ class CourseSessionSerializer(SessionSerializer):
     class Meta:
         model = CourseSession
         fields = SessionSerializer.Meta.fields + ("course",)
+
+
+class SelectedCourseSessionSerializer(SessionSerializer):
+    """Serializer for retrieving selected course session after enrollment."""
+
+    meetings = MeetingOnCourseEnrolledSerializer(many=True)
+
+    class Meta:
+        model = CourseSession
+        fields = SessionSerializer.Meta.fields + (
+            "course",
+            "meetings",
+        )
 
 
 class ExamEnrollmentSerializer(serializers.ModelSerializer):

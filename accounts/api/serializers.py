@@ -33,6 +33,23 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
         fields = ["college_name", "image", "date_of_birth", "faculty"]
 
 
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for the Profile model Update."""
+
+    college_name = serializers.CharField(required=True)
+    date_of_birth = serializers.DateField(required=True)
+
+    class Meta:
+        model = Profile
+        fields = [
+            "college_name",
+            "image",
+            "date_of_birth",
+            "faculty",
+            "address",
+        ]
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
     """User Create Serializer."""
 
@@ -190,3 +207,46 @@ class UserCustomDetailsSerializer(UserDetailsSerializer):
 
     def get_admin_user(self, obj):
         return obj.is_superuser
+
+
+class UserDetailSerializer(UserCustomDetailsSerializer):
+    """User Details Serializer."""
+
+    profile = ProfileUpdateSerializer(required=False)
+
+    class Meta(UserCustomDetailsSerializer.Meta):
+        fields = list(UserCustomDetailsSerializer.Meta.fields) + ["profile"]
+        extra_fields = list(UserCustomDetailsSerializer.Meta.extra_fields) + [
+            "profile",
+        ]
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    """User Update Serializer."""
+
+    fullName = FullNameField(source="*")
+    profile = ProfileUpdateSerializer(required=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "email",
+            "fullName",
+            "profile",
+        ]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        profile_data = None
+        if "profile" in validated_data:
+            profile_data = validated_data.pop("profile")
+
+        instance = super().update(instance, validated_data)
+        instance.save()
+
+        if profile_data:
+            for attr, value in profile_data.items():
+                setattr(instance.profile, attr, value)
+            instance.profile.save()
+        return instance
