@@ -31,7 +31,7 @@ class ZoomProvider(BasicProvider):
 
         try:
             res = requests.request("POST", url, headers=headers, data=payload)
-            print(res.text)
+            # print(res.text)
             if res.status_code != 200:
                 raise ConnectionError("Error connecting to zoom")
         except Exception as e:
@@ -51,7 +51,10 @@ class ZoomProvider(BasicProvider):
                 status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         data = res.text
+        print(res.status_code)
+        # print(res.text)
         json_data = json.loads(data) if data else None
+        print(json_data)
         return res, json_data
 
     def attempt_zoom_connection(self, request_type, url, headers, payload):
@@ -136,7 +139,7 @@ class ZoomProvider(BasicProvider):
                 },
             }
         )
-        print(payload)
+        # print(payload)
 
         headers = {
             "Authorization": f"Bearer {self.access_token}",
