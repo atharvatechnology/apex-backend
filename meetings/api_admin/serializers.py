@@ -91,7 +91,9 @@ class MeetingCreateSerializer(MeetingSerializer):
         duration = validated_data.get("duration")
         start_time = validated_data.get("start_time")
         end_date_time = validated_data.get("end_date_time")
-        repeat_type = validated_data.get("repeat_type", Meeting.repeat_type.default)
+        repeat_type = validated_data.get(
+            "repeat_type", Meeting.repeat_type.field.default
+        )
         repeat_interval = validated_data.get(
             "repeat_interval",
             Meeting.repeat_interval.field.default,
