@@ -44,6 +44,7 @@ teacher_urls = [
         name="teacher-update",
     ),
 ]
+
 urlpatterns = [
     path("student/", include(student_urls)),
     path("teacher/", include(teacher_urls)),

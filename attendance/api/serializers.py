@@ -35,7 +35,7 @@ class StudentAttendanceCreateSerializer(CreatorSerializer):
             user = User.objects.filter(username=decoded_user).first()
             enrolled_student = (
                 CourseThroughEnrollment.objects.filter(
-                    enrollment__student=user, courses__status=CourseStatus.INSESSION
+                    enrollment__student=user, course__status=CourseStatus.INSESSION
                 )
                 or None
             )
@@ -99,16 +99,22 @@ class TeacherAttendanceCreateSerializer(CreatorSerializer):
     """Serializer for creating teacher attendance model."""
 
     details = TeacherAttendanceDetailCreateSerializer(required=False)
+    user = serializers.CharField()
 
     class Meta:
         model = TeacherAttendance
         fields = (
             "id",
-            "name",
             "date",
             "user",
             "details",
         )
+
+    def validate_user(self, value):
+        decoded_user = decode_user(value)
+        if decoded_user is not None:
+            return User.objects.filter(username=decoded_user).first()
+        raise serializers.ValidationError("Invalid user")
 
     @transaction.atomic
     def create(self, validated_data):
@@ -170,10 +176,13 @@ class TeacherAttendanceUpdateSerializer(CreatorSerializer):
         model = TeacherAttendance
         fields = (
             "id",
-            "name",
             "date",
             "user",
             "details",
+        )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields + (
+            "user",
+            "date",
         )
 
     @transaction.atomic
