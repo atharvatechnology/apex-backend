@@ -164,6 +164,7 @@ class Session(CreatorBaseModel):
         _("start_date"), validators=[validate_date_time_gt_now]
     )
     end_date = ZeroSecondDateTimeField(_("end_date"))
+    name = models.CharField(_("name"), max_length=255, default="NewSession")
     status = models.CharField(
         _("status"),
         max_length=32,

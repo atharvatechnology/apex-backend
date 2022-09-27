@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.errors import StateTransitionError
+# from common.errors import StateTransitionError
 
 
 # Create your models here.
@@ -134,22 +134,23 @@ class Course(models.Model):
             return
         if self.status == CourseStatus.UPCOMING:
             return self.__change_status(CourseStatus.INSESSION)
-        raise StateTransitionError(f"Course cannot be started from {self.status} state")
+        # raise StateTransitionError(f"Course cannot
+        # be started from {self.status} state")
 
     def schedule_course(self):
         if self.status == CourseStatus.UPCOMING:
             return
         if self.status == CourseStatus.ENDED:
             return self.__change_status(CourseStatus.UPCOMING)
-        raise StateTransitionError(
-            f"Course cannot be scheduled from {self.status} state"
-        )
+        # raise StateTransitionError(
+        #     f"Course cannot be scheduled from {self.status} state"
+        # )
 
     def finish_course(self):
         if self.status == CourseStatus.ENDED:
             return
         if self.status == CourseStatus.INSESSION:
             return self.__change_status(CourseStatus.ENDED)
-        raise StateTransitionError(
-            f"Course cannot be finished from {self.status} state"
-        )
+        # raise StateTransitionError(
+        #     f"Course cannot be finished from {self.status} state"
+        # )

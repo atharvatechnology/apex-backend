@@ -4,7 +4,14 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from rest_framework import permissions
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r"devices", FCMDeviceAuthorizedViewSet)
+
+from meetings.api_admin.urls import subject_urlpatterns
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -44,6 +51,8 @@ api_urls = [
     path("enrollments/", include("enrollments.api.urls")),
     path("physical-book/", include("physicalbook.api.urls")),
     path("attendance/", include("attendance.api.urls")),
+    path("meetings/", include("meetings.api.urls")),
+    path("payments/", include("payments.api.urls")),
 ]
 
 api_admin_urls = [
@@ -52,12 +61,20 @@ api_admin_urls = [
     path("notes/", include("notes.api_admin.urls")),
     path("enrollments/", include("enrollments.api_admin.urls")),
     path("accounts/", include("accounts.api_admin.urls")),
+    path("meetings/", include("meetings.api_admin.urls")),
+    path("subjects/", include(subject_urlpatterns)),
+]
+
+fcm_urls = [
+    path("", include(router.urls)),
+    path("send/", include("notifications.api_admin.urls")),
 ]
 
 urlpatterns += [
     path("admin/", admin.site.urls),
     path("api/", include(api_urls)),
     path("api/admin/", include(api_admin_urls)),
+    path("api/fcm/", include(fcm_urls)),
     # path("student_urls/", include("student.api.urls")),
     # path("teacher_urls/", include("teacher.api.urls")),
     path("__debug__/", include("debug_toolbar.urls")),

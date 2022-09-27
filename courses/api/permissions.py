@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from enrollments.models import CourseEnrollmentStatus
+from enrollments.models import EnrollmentStatus
 
 
 def is_course_enrolled_active(enrolled_obj, user):
@@ -23,10 +23,12 @@ def is_course_enrolled_active(enrolled_obj, user):
         student_enrollments = enrolled_obj.enrolls.all().filter(student=user)
     if student_enrollments.count() > 0:
         student_enrollment = student_enrollments.first()
-        course_enrollment = (
-            student_enrollment.course_enrolls.all().filter(course=enrolled_obj).first()
-        )
-        if course_enrollment.course_enroll_status == CourseEnrollmentStatus.NEW:
+        # course_enrollment = (
+        #     student_enrollment.course_enrolls.all().filter(course=enrolled_obj).first()
+        # )
+        # if course_enrollment.course_enroll_status == CourseEnrollmentStatus.NEW:
+        #     return True
+        if student_enrollment.status == EnrollmentStatus.ACTIVE:
             return True
     return False
 

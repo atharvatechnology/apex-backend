@@ -24,7 +24,7 @@ class ExamSessionAdminSerializer(
 ):
     """Serializer for Session create."""
 
-    name = serializers.CharField(max_length=255, read_only=True)
+    # name = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = ExamSession
@@ -104,6 +104,7 @@ class CourseSessionAdminSerializer(CreatorSerializer):
             "end_date",
             "status",
             "course",
+            "name",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields + (
             "status",
