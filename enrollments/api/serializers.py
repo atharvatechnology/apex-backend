@@ -222,6 +222,14 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
                 course = data.get("course")
                 selected_session = data.get("selected_session")
                 completed_date = data.get("completed_date")
+                student = enrollment.student
+                course_enrollment = CourseThroughEnrollment.objects.filter(
+                    course=course, enrollment__student=student
+                )
+                if course_enrollment:
+                    raise serializers.ValidationError(
+                        "User is already enrolled to the course"
+                    )
                 CourseThroughEnrollment(
                     course=course,
                     enrollment=enrollment,
