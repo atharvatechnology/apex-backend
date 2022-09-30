@@ -15,7 +15,7 @@ from enrollments.api.serializers import (
     CourseEnrollmentSerializer,
     CourseEnrollmentUpdateSerializer,
     EnrollmentCreateSerializer,
-    EnrollmentRetrieveSerializer,
+    EnrollmentListSerializer,
     ExamEnrollmentCheckPointRetrieveSerializer,
     ExamEnrollmentRetrievePoolSerializer,
     ExamEnrollmentRetrieveSerializer,
@@ -60,7 +60,7 @@ class EnrollmentListAPIView(ListAPIView):
     """List all enrollments for a student."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = EnrollmentRetrieveSerializer
+    serializer_class = EnrollmentListSerializer
     queryset = Enrollment.objects.all()
 
     def get_queryset(self):
