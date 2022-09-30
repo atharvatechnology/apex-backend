@@ -66,11 +66,11 @@ api_admin_urls = [
     path("meetings/", include("meetings.api_admin.urls")),
     path("subjects/", include(subject_urlpatterns)),
     path("infocenter/", include("infocenter.api_admin.urls")),
+    path("notifications/", include("notifications.api_admin.urls")),
 ]
 
 fcm_urls = [
     path("", include(router.urls)),
-    path("send/", include("notifications.api_admin.urls")),
 ]
 
 urlpatterns += [

@@ -1,7 +1,10 @@
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.response import Response
 
 from common.api.serializers import CreatorSerializer
+from common.utils import decode_user
+from courses.models import Course
 from enrollments.api.utils import (
     batch_is_enrolled_and_price,
     exam_data_save,
@@ -19,7 +22,7 @@ from enrollments.models import (
     QuestionEnrollment,
     Session,
 )
-from exams.models import Exam, Option, Question
+from exams.models import Exam, ExamTemplate, Option, Question
 from meetings.api.serializers import MeetingOnCourseEnrolledSerializer
 
 
@@ -66,6 +69,44 @@ class SelectedCourseSessionSerializer(SessionSerializer):
         )
 
 
+class TemplateSerializer(CreatorSerializer):
+    """Exam Template Serializer."""
+
+    pass_marks = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = ExamTemplate
+        fields = CreatorSerializer.Meta.fields + (
+            "name",
+            "description",
+            "full_marks",
+            "pass_percentage",
+            "pass_marks",
+            "duration",
+            "display_num_questions",
+        )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+    def get_pass_marks(self, obj):
+        return obj.pass_percentage * obj.full_marks
+
+
+class ExamInfoSerializer(serializers.ModelSerializer):
+    """Serializer for Exam Info."""
+
+    template = TemplateSerializer()
+
+    class Meta:
+        model = Exam
+        fields = (
+            "id",
+            "name",
+            "category",
+            "price",
+            "template",
+        )
+
+
 class ExamEnrollmentSerializer(serializers.ModelSerializer):
     """Serializer when user enrolls to an exam.
 
@@ -81,6 +122,30 @@ class ExamEnrollmentSerializer(serializers.ModelSerializer):
         )
 
 
+# new changes
+class ExamEnrollmentListSerializer(serializers.ModelSerializer):
+    """Serializer when user enrolls to an exam.
+
+    This is also used when user retrieves their exam enrollment.
+    """
+
+    exam = ExamInfoSerializer()
+    start_date = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "exam",
+            "start_date",
+            "selected_session",
+        )
+
+    def get_start_date(self, obj):
+        return obj.selected_session.start_date
+
+
+# -------------
 class PhysicalBookCourseEnrollmentSerializer(serializers.ModelSerializer):
     """Physical book when user enrolls to course."""
 
@@ -91,6 +156,29 @@ class PhysicalBookCourseEnrollmentSerializer(serializers.ModelSerializer):
             "course_enrollment",
             "status_provided",
         )
+
+
+class CourseInfoSerializer(serializers.ModelSerializer):
+    enrollment_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Course
+        fields = (
+            "id",
+            "name",
+            "category",
+            "description",
+            "link",
+            "password",
+            "status",
+            "price",
+            "duration",
+            "image",
+            "enrollment_count",
+        )
+
+    def get_enrollment_count(self, obj):
+        return {"course_enroll_count": obj.course_enrolls.all().count()}
 
 
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
@@ -104,6 +192,25 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
             "selected_session",
             "completed_date",
         )
+
+
+# new changes
+class CourseEnrollmentListSerializer(serializers.ModelSerializer):
+    """Course when the user is enrolled."""
+
+    course = CourseInfoSerializer()
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+            "selected_session",
+            "completed_date",
+        )
+
+
+# ------------------
 
 
 class CourseEnrollmentUpdateSerializer(serializers.ModelSerializer):
@@ -139,11 +246,32 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
         )
 
 
+# class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
+#     """Serializer when user is retrieving an enrollment."""
+
+#     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
+#     courses = CourseEnrollmentSerializer(many=True, source="course_enrolls")
+
+#     class Meta:
+#         model = Enrollment
+#         fields = (
+#             "id",
+#             "student",
+#             "status",
+#             "exams",
+#             "courses",
+#         )
+#         read_only_fields = ("status",)
+
+
+# new changes
+
+
 class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when user is retrieving an enrollment."""
 
-    exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
-    courses = CourseEnrollmentSerializer(many=True, source="course_enrolls")
+    exams = ExamEnrollmentListSerializer(many=True, source="exam_enrolls")
+    courses = CourseEnrollmentListSerializer(many=True, source="course_enrolls")
 
     class Meta:
         model = Enrollment
@@ -155,6 +283,9 @@ class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "courses",
         )
         read_only_fields = ("status",)
+
+
+# new change
 
 
 class EnrollmentCreateSerializer(serializers.ModelSerializer):
@@ -447,3 +578,27 @@ class ExamEnrollmentPaperSerializer(serializers.ModelSerializer):
             "selected_session",
             "exam",
         )
+
+
+class StudentEnrollmentSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100)
+    course = serializers.IntegerField()
+    session = serializers.IntegerField()
+
+    def validate(self, data):
+        usr_name = data["username"]
+        course_id = data["course"]
+        session_id = data["session"]
+        decoded_data = decode_user(usr_name)
+
+        queryset = (
+            CourseThroughEnrollment.objects.filter(
+                enrollment__student__username=decoded_data,
+                course__id=course_id,
+                selected_session__id=session_id,
+            )
+            or None
+        )
+        if queryset is None:
+            raise serializers.ValidationError({"msg": "Enrollment Required."})
+        return Response({"msg": "You are enrolled."})

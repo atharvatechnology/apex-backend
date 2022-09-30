@@ -4,52 +4,52 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from attendance.api.serializers import (
-    AttendanceCreateSerializer,
-    AttendanceRetrieveSerializer,
-    AttendanceUpdateSerializer,
+    StudentAttendanceCreateSerializer,
+    StudentAttendanceRetrieveSerializer,
+    StudentAttendanceUpdateSerializer,
     TeacherAttendanceCreateSerializer,
     TeacherAttendanceRetrieveSerializer,
     TeacherAttendanceUpdateSerializer,
 )
 from attendance.filters import AttendanceFilter
-from attendance.models import Attendance, TeacherAttendance
+from attendance.models import StudentAttendance, TeacherAttendance
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 
 
-class AttendanceListAPIView(ListAPIView):
+class StudentAttendanceListAPIView(ListAPIView):
     """View for listing attendance."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = AttendanceRetrieveSerializer
-    queryset = Attendance.objects.all()
+    serializer_class = StudentAttendanceRetrieveSerializer
+    queryset = StudentAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     filterset_class = AttendanceFilter
     pagination_class = StandardResultsSetPagination
 
 
-class AttendanceCreateAPIView(BaseCreatorCreateAPIView):
+class StudentAttendanceCreateAPIView(BaseCreatorCreateAPIView):
     """View for creating attendance."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = AttendanceCreateSerializer
+    serializer_class = StudentAttendanceCreateSerializer
 
 
-class AttendanceRetrieveAPIView(RetrieveAPIView):
+class StudentAttendanceRetrieveAPIView(RetrieveAPIView):
     """View for retrieving attendance."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = AttendanceRetrieveSerializer
-    queryset = Attendance.objects.all()
+    serializer_class = StudentAttendanceRetrieveSerializer
+    queryset = StudentAttendance.objects.all()
 
 
-class AttendanceUpdateAPIView(BaseCreatorUpdateAPIView):
+class StudentAttendanceUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for updating attendance."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = AttendanceUpdateSerializer
-    queryset = Attendance.objects.all()
+    serializer_class = StudentAttendanceUpdateSerializer
+    queryset = StudentAttendance.objects.all()
 
 
 class TeacherAttendanceListAPIView(ListAPIView):

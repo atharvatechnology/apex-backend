@@ -1,4 +1,5 @@
 import os
+from typing import Union
 
 import segno
 from django.conf import settings
@@ -31,24 +32,37 @@ def generate_qrcode(data):
     return f"{media_path}/qr.svg"
 
 
+def decode_user(email: str) -> Union[str, None]:
+    """Return decrypted email and error if any."""
+
+    signer = signing.Signer(salt=settings.SECRET_KEY)  # salt needs to be same
+    try:
+        enc = signer.unsign_object(email)
+        return enc
+    except signing.BadSignature:
+        return None
+
+
 # def read_qrcode(file_path):
-#     """read the image and return the data.
+#     """Read the image and return the data.
 
-#         Parameters
-#         ----------
-#         file_path : str
-#             path to file
+#     Parameters
+#     ----------
+#     file_path : str
+#         path to file
 
-#     #     Returns
-#     #     -------
-#     #     _data: str
-#     #         detect the qr code from img and return the data.
-#     #"""
+#     Returns
+#     -------
+#     _data: str
+#         detect the qr code from img and return the data.
+#     """
 
 #     img = cv2.imread(file_path)
 #     detector = cv2.QRCodeDetector()
 #     data, bbox, straight_qrcode = detector.detectAndDecode(img)
 #     return data
+
+
 """file contains utility functions for the project."""
 
 
