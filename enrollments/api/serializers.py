@@ -217,7 +217,8 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
 
         exam_data_save(exams_data, enrollment)
         if courses_data:
-
+            courses_all = [data.get("course") for data in courses_data]
+            total_price += batch_is_enrolled_and_price(courses_all, user)
             for data in courses_data:
                 course = data.get("course")
                 selected_session = data.get("selected_session")
