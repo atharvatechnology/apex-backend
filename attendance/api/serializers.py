@@ -1,15 +1,27 @@
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
 
-from attendance.models import Attendance, TeacherAttendance, TeacherAttendanceDetail
+from attendance.models import (
+    StudentAttendance,
+    TeacherAttendance,
+    TeacherAttendanceDetail,
+)
 from common.api.serializers import CreatorSerializer
+from common.utils import decode_user
+from courses.models import CourseStatus
+from enrollments.models import CourseThroughEnrollment
+
+User = get_user_model()
 
 
-class AttendanceCreateSerializer(CreatorSerializer):
+class StudentAttendanceCreateSerializer(CreatorSerializer):
     """Serializer for creating attendance model."""
 
+    user = serializers.CharField()
+
     class Meta:
-        model = Attendance
+        model = StudentAttendance
         fields = (
             "id",
             "date",
@@ -17,12 +29,38 @@ class AttendanceCreateSerializer(CreatorSerializer):
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
+    def validate_user(self, value):
+        decoded_user = decode_user(value)
+        if decoded_user is not None:
+            user = User.objects.filter(username=decoded_user).first()
+            enrolled_student = (
+                CourseThroughEnrollment.objects.filter(
+                    enrollment__student=user, course__status=CourseStatus.INSESSION
+                )
+                or None
+            )
+            if enrolled_student is not None:
+                return user
+            else:
+                raise serializers.ValidationError(
+                    "Student is not enrolled in any course."
+                )
+        raise serializers.ValidationError("Invalid user")
 
-class AttendanceRetrieveSerializer(serializers.ModelSerializer):
+    def validate(self, value):
+        attendance = StudentAttendance.objects.filter(
+            user=value["user"], date__date=value["date"]
+        )
+        if attendance.exists():
+            raise serializers.ValidationError("Attendance already exists.")
+        return value
+
+
+class StudentAttendanceRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving attendance model."""
 
     class Meta:
-        model = Attendance
+        model = StudentAttendance
         fields = (
             "id",
             "date",
@@ -30,11 +68,11 @@ class AttendanceRetrieveSerializer(serializers.ModelSerializer):
         )
 
 
-class AttendanceUpdateSerializer(serializers.ModelSerializer):
+class StudentAttendanceUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating attendance model."""
 
     class Meta:
-        model = Attendance
+        model = StudentAttendance
         fields = (
             "id",
             "date",
@@ -61,16 +99,22 @@ class TeacherAttendanceCreateSerializer(CreatorSerializer):
     """Serializer for creating teacher attendance model."""
 
     details = TeacherAttendanceDetailCreateSerializer(required=False)
+    user = serializers.CharField()
 
     class Meta:
         model = TeacherAttendance
         fields = (
             "id",
-            "name",
             "date",
             "user",
             "details",
         )
+
+    def validate_user(self, value):
+        decoded_user = decode_user(value)
+        if decoded_user is not None:
+            return User.objects.filter(username=decoded_user).first()
+        raise serializers.ValidationError("Invalid user")
 
     @transaction.atomic
     def create(self, validated_data):
@@ -132,10 +176,13 @@ class TeacherAttendanceUpdateSerializer(CreatorSerializer):
         model = TeacherAttendance
         fields = (
             "id",
-            "name",
             "date",
             "user",
             "details",
+        )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields + (
+            "user",
+            "date",
         )
 
     @transaction.atomic

@@ -1,10 +1,10 @@
 from django.urls import include, path
 
 from attendance.api.views import (
-    AttendanceCreateAPIView,
-    AttendanceListAPIView,
-    AttendanceRetrieveAPIView,
-    AttendanceUpdateAPIView,
+    StudentAttendanceCreateAPIView,
+    StudentAttendanceListAPIView,
+    StudentAttendanceRetrieveAPIView,
+    StudentAttendanceUpdateAPIView,
     TeacherAttendanceCreateAPIView,
     TeacherAttendanceListAPIView,
     TeacherAttendanceRetrieveAPIView,
@@ -12,15 +12,17 @@ from attendance.api.views import (
 )
 
 student_urls = [
-    path("list/", AttendanceListAPIView.as_view(), name="attendance-list"),
-    path("create/", AttendanceCreateAPIView.as_view(), name="attendance-create"),
+    path("list/", StudentAttendanceListAPIView.as_view(), name="attendance-list"),
+    path("create/", StudentAttendanceCreateAPIView.as_view(), name="attendance-create"),
     path(
         "retrieve/<int:pk>/",
-        AttendanceRetrieveAPIView.as_view(),
+        StudentAttendanceRetrieveAPIView.as_view(),
         name="attendance-retrieve",
     ),
     path(
-        "update/<int:pk>/", AttendanceUpdateAPIView.as_view(), name="attendance-update"
+        "update/<int:pk>/",
+        StudentAttendanceUpdateAPIView.as_view(),
+        name="attendance-update",
     ),
 ]
 
@@ -42,6 +44,7 @@ teacher_urls = [
         name="teacher-update",
     ),
 ]
+
 urlpatterns = [
     path("student/", include(student_urls)),
     path("teacher/", include(teacher_urls)),

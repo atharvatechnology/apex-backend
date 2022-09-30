@@ -11,6 +11,7 @@ from .views import (
     ExamSessionListAPIView,
     ExamSessionUpdateAPIView,
     ExamThroughEnrollmentListAPIView,
+    StudentCourseCheckView,
 )
 
 exam_session_urls = [
@@ -31,6 +32,7 @@ exam_session_urls = [
         name="exam-session-delete",
     ),
 ]
+
 course_session_urls = [
     path("create/", CourseSessionCreateAPIView.as_view(), name="course-session-create"),
     path(
@@ -47,6 +49,11 @@ course_session_urls = [
         "delete/<int:pk>/",
         CourseSessionDeleteAPIView.as_view(),
         name="course-session-delete",
+    ),
+    path(
+        "check/",
+        StudentCourseCheckView.as_view(),
+        name="student-course-check",
     ),
 ]
 
