@@ -19,7 +19,14 @@ class AttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
 class StudentAttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Student Attendance Admin panel."""
 
-    list_display = ("date", "user")
+    list_display = ("date", "user", "created_at", "created_by")
+    search_fields = (
+        "user__username",
+        "user__email",
+        "user__first_name",
+        "user__last_name",
+    )
+    date_hierarchy = "date"
 
 
 class TeacherAttendanceDetailInline(admin.TabularInline):

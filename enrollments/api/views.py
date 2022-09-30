@@ -21,6 +21,7 @@ from enrollments.api.serializers import (
     ExamEnrollmentRetrieveSerializer,
     ExamEnrollmentUpdateSerializer,
     PhysicalBookCourseEnrollmentSerializer,
+    StudentEnrollmentSerializer,
 )
 from enrollments.models import (
     CourseThroughEnrollment,
@@ -232,3 +233,7 @@ class CourseEnrollementDestroyAPIView(DestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
+
+
+class CheckIfStudentInCourse(CreateAPIView):
+    serializer_class = StudentEnrollmentSerializer
