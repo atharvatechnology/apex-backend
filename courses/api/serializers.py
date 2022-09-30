@@ -6,7 +6,7 @@ from enrollments.api.serializers import (
     CourseSessionSerializer,
     SelectedCourseSessionSerializer,
 )
-from enrollments.models import CourseEnrollmentStatus, CourseThroughEnrollment
+from enrollments.models import CourseThroughEnrollment
 from notes.api.serializers import (
     NoteSerializerAfterEnroll,
     RecordedVideoDetailSerializer,
@@ -71,6 +71,8 @@ class CourseRetrieveSerializerAfterEnroll(EnrolledSerializerMixin):
             "sessions",
             "recorded_videos",
             "notes",
+            "is_enrolled",
+            "is_enrolled_active",
         )
 
     def get_enrollment_count(self, obj):
@@ -84,8 +86,8 @@ class CourseRetrieveSerializerAfterEnroll(EnrolledSerializerMixin):
         if len(enrollments) > 0:
             enrollment = enrollments.first()
             course_enrollment = enrollment.course_enrolls.filter(course=obj).first()
-            if course_enrollment.course_enroll_status != CourseEnrollmentStatus.NEW:
-                return CourseEnrollmentCourseRetrieveSerializer(course_enrollment).data
+            # if course_enrollment.course_enroll_status != CourseEnrollmentStatus.NEW:
+            return CourseEnrollmentCourseRetrieveSerializer(course_enrollment).data
         return None
 
 
@@ -111,6 +113,8 @@ class CourseRetrieveSerializerBeforeEnroll(EnrolledSerializerMixin):
             "sessions",
             "enrollment_count",
             "image",
+            "is_enrolled",
+            "is_enrolled_active",
         )
 
     def get_enrollment_count(self, obj):
