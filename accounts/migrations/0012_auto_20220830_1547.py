@@ -19,7 +19,7 @@ def create_qrcode_for_all_users(apps, schema_editor):
         base_path = os.path.join(settings.BASE_DIR, f"media/{media_path}")
         os.makedirs(base_path, exist_ok=True)
         qr_img.save(f"{base_path}/qr.svg", scale=10)
-        obj.qr_img = f"{media_path}/qr.svg"
+        obj.qr_code = f"{media_path}/qr.svg"
         obj.save()
 
 

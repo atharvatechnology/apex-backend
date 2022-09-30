@@ -8,10 +8,11 @@ from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 
+from meetings.api_admin.urls import subject_urlpatterns
+
 router = DefaultRouter()
 router.register(r"devices", FCMDeviceAuthorizedViewSet)
 
-from meetings.api_admin.urls import subject_urlpatterns
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -53,6 +54,7 @@ api_urls = [
     path("attendance/", include("attendance.api.urls")),
     path("meetings/", include("meetings.api.urls")),
     path("payments/", include("payments.api.urls")),
+    path("infocenter/", include("infocenter.api.urls")),
 ]
 
 api_admin_urls = [
@@ -63,11 +65,12 @@ api_admin_urls = [
     path("accounts/", include("accounts.api_admin.urls")),
     path("meetings/", include("meetings.api_admin.urls")),
     path("subjects/", include(subject_urlpatterns)),
+    path("infocenter/", include("infocenter.api_admin.urls")),
+    path("notifications/", include("notifications.api_admin.urls")),
 ]
 
 fcm_urls = [
     path("", include(router.urls)),
-    path("send/", include("notifications.api_admin.urls")),
 ]
 
 urlpatterns += [

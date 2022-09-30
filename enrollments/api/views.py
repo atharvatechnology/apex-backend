@@ -15,12 +15,13 @@ from enrollments.api.serializers import (
     CourseEnrollmentSerializer,
     CourseEnrollmentUpdateSerializer,
     EnrollmentCreateSerializer,
-    EnrollmentListSerializer,
+    EnrollmentRetrieveSerializer,
     ExamEnrollmentCheckPointRetrieveSerializer,
     ExamEnrollmentRetrievePoolSerializer,
     ExamEnrollmentRetrieveSerializer,
     ExamEnrollmentUpdateSerializer,
     PhysicalBookCourseEnrollmentSerializer,
+    StudentEnrollmentSerializer,
 )
 from enrollments.models import (
     CourseThroughEnrollment,
@@ -60,7 +61,7 @@ class EnrollmentListAPIView(ListAPIView):
     """List all enrollments for a student."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = EnrollmentListSerializer
+    serializer_class = EnrollmentRetrieveSerializer
     queryset = Enrollment.objects.all()
 
     def get_queryset(self):
@@ -232,3 +233,7 @@ class CourseEnrollementDestroyAPIView(DestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
+
+
+class CheckIfStudentInCourse(CreateAPIView):
+    serializer_class = StudentEnrollmentSerializer

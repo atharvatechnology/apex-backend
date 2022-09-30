@@ -1,7 +1,9 @@
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.response import Response
 
 from common.api.serializers import CreatorSerializer
+from common.utils import decode_user
 from courses.models import Course
 from enrollments.api.utils import (
     batch_is_enrolled_and_price,
@@ -244,28 +246,28 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
         )
 
 
-class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
-    """Serializer when user is retrieving an enrollment."""
+# class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
+#     """Serializer when user is retrieving an enrollment."""
 
-    exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
-    courses = CourseEnrollmentSerializer(many=True, source="course_enrolls")
+#     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
+#     courses = CourseEnrollmentSerializer(many=True, source="course_enrolls")
 
-    class Meta:
-        model = Enrollment
-        fields = (
-            "id",
-            "student",
-            "status",
-            "exams",
-            "courses",
-        )
-        read_only_fields = ("status",)
+#     class Meta:
+#         model = Enrollment
+#         fields = (
+#             "id",
+#             "student",
+#             "status",
+#             "exams",
+#             "courses",
+#         )
+#         read_only_fields = ("status",)
 
 
 # new changes
 
 
-class EnrollmentListSerializer(serializers.ModelSerializer):
+class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when user is retrieving an enrollment."""
 
     exams = ExamEnrollmentListSerializer(many=True, source="exam_enrolls")
@@ -575,3 +577,27 @@ class ExamEnrollmentPaperSerializer(serializers.ModelSerializer):
             "selected_session",
             "exam",
         )
+
+
+class StudentEnrollmentSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100)
+    course = serializers.IntegerField()
+    session = serializers.IntegerField()
+
+    def validate(self, data):
+        usr_name = data["username"]
+        course_id = data["course"]
+        session_id = data["session"]
+        decoded_data = decode_user(usr_name)
+
+        queryset = (
+            CourseThroughEnrollment.objects.filter(
+                enrollment__student__username=decoded_data,
+                course__id=course_id,
+                selected_session__id=session_id,
+            )
+            or None
+        )
+        if queryset is None:
+            raise serializers.ValidationError({"msg": "Enrollment Required."})
+        return Response({"msg": "You are enrolled."})
