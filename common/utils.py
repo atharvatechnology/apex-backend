@@ -87,3 +87,54 @@ def async_send_mail(subject, text_content, from_email, to, html_content):
     msg = EmailMultiAlternatives(subject, text_content, from_email, to)
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+
+
+
+def excelgenerator(models,obj):
+    import xlsxwriter
+
+    if models == "ExamThroughEnrollment":
+        workbook = xlsxwriter.Workbook('enrollment.xlsx')
+        worksheet = workbook.add_worksheet('task')
+        worksheet.write(0, 0,'S.No')
+        worksheet.write(0, 1,'Student Name')
+        worksheet.write(0, 2,'Exam')
+        worksheet.write(0, 3,'Selected Session')
+        worksheet.write(0, 4,'Question')
+        worksheet.write(0, 5,'Score')
+        worksheet.write(0, 6,'Status')
+
+        for index, entry in enumerate(obj):
+            # print('dude',index,entry)
+            question = entry.exam.questions.all()
+            worksheet.write(index+1, 0, str(index))
+            worksheet.write(index+1, 1, str(entry.enrollment.student.first_name)+str(entry.enrollment.student.last_name))
+            worksheet.write(index+1, 2, entry.exam.name)
+            worksheet.write(index+1, 3, str(entry.selected_session.start_date))
+            for i in question:
+                worksheet.write(index+1, 4, len(question))
+            worksheet.write(index+1, 5, entry.score)
+            worksheet.write(index+1, 6, entry.status)
+
+        workbook.close()
+
+    elif models == "Exam":
+        workbook = xlsxwriter.Workbook('exam.xlsx')
+        worksheet = workbook.add_worksheet('task')
+        worksheet.write(0, 0, 's.no')
+        worksheet.write(0, 1, 'Name')
+        worksheet.write(0, 2, 'Category')
+        worksheet.write(0, 3, 'Status')
+        worksheet.write(0, 4, 'Price')
+        for index, entry in enumerate(obj):
+            worksheet.write(index+1, 0, str(index))
+            worksheet.write(index+1, 1, entry.name)
+            worksheet.write(index+1, 2, entry.category.name)
+            worksheet.write(index+1, 3, entry.status)
+            worksheet.write(index+1, 4, entry.price)
+        workbook.close()
+
+    else:
+        pass   
+    workbook.close()
+

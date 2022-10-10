@@ -17,11 +17,14 @@ from enrollments.api.views import (
     PhysicalBookCourseEnrollmentListAPIView,
     PhysicalBookCourseEnrollmentRetrieveAPIView,
     PhysicalBookCourseEnrollmentUpdateAPIView,
+    ExamThroughEnrollmentGeneratorAPIView,
+    dynamic_excel_generator
 )
 
 enrollment_urls = [
     path("create/", EnrollmentCreateAPIView.as_view(), name="enrollment-create"),
     path("list/", EnrollmentListAPIView.as_view(), name="enrollment-list"),
+    path("generator/list/", ExamThroughEnrollmentGeneratorAPIView.as_view(), name="generator-enrollment"),   
 ]
 
 exam_urls = [
@@ -108,4 +111,5 @@ urlpatterns = [
     path("physical/", include(physical_urls)),
     path("course-enroll/", include(course_enroll_urls)),
     path("check/", include(check_enroll_urls)),
+    path("dynamic/", dynamic_excel_generator,)
 ]
