@@ -32,4 +32,6 @@ class CourseSerializer(PublishedSerializer):
             "link",
             "image",
             "duration",
+            "overview_detail",
+            "feature_detail",
         )

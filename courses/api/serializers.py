@@ -95,6 +95,8 @@ class CourseRetrieveSerializerAfterEnroll(
             "notes",
             "is_enrolled",
             "is_enrolled_active",
+            "feature_detail",
+            "overview_detail",
         )
 
     def get_enrollment_count(self, obj):
@@ -139,6 +141,8 @@ class CourseRetrieveSerializerBeforeEnroll(
             "image",
             "is_enrolled",
             "is_enrolled_active",
+            "feature_detail",
+            "overview_detail",
         )
 
     def get_enrollment_count(self, obj):
