@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from common.models import PublishedModel
+
 # from common.errors import StateTransitionError
 
 
@@ -47,7 +49,7 @@ class CourseStatus:
     ]
 
 
-class Course(models.Model):
+class Course(PublishedModel):
     """Model definition for Course."""
 
     def course_image_path(self, filename):
@@ -74,7 +76,6 @@ class Course(models.Model):
         blank=True,
         null=True,
     )
-
     link = models.URLField(
         _("link"),
         max_length=150,
