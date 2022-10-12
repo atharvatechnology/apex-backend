@@ -76,6 +76,16 @@ class Course(PublishedModel):
         blank=True,
         null=True,
     )
+    overview_detail = models.TextField(
+        _("overview_detail"),
+        blank=True,
+        null=True,
+    )
+    feature_detail = models.TextField(
+        _("feature_detail"),
+        blank=True,
+        null=True,
+    )
     link = models.URLField(
         _("link"),
         max_length=150,
@@ -108,7 +118,7 @@ class Course(PublishedModel):
         _("Duration"),
     )
     image = models.ImageField(
-        _("image"), default="default.png", upload_to=course_image_path
+        _("image"), upload_to=course_image_path, null=True, blank=True
     )
 
     class Meta:
