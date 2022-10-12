@@ -73,7 +73,16 @@ class UserCreateSerializer(serializers.ModelSerializer):
         if "profile" in validated_data:
             profile_data = validated_data.pop("profile")
 
-        instance = super().create(validated_data)
+        # instance = super().create(validated_data)
+        ModelClass = self.Meta.model
+
+        instance, _ = ModelClass._default_manager.get_or_create(
+            **validated_data,
+            defaults={
+                "username": validated_data["username"],
+            },
+        )
+
         instance.is_active = False
         instance.set_password(validated_data["password"])
         instance.generate_otp()
