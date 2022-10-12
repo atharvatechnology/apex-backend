@@ -23,11 +23,7 @@ class CreatorBaseModel(models.Model):
 class PublishedQueryset(models.QuerySet):
     def published(self):
         today = localtime(now())
-        return (
-            super()
-            .get_queryset()
-            .filter(is_published=True or Q(publish_date__lte=today))
-        )
+        return self.filter(is_published=True or Q(publish_date__lte=today))
 
 
 class PublishedModel(models.Model):

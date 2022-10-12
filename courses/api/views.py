@@ -3,6 +3,7 @@ from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from common.api.mixin import PublishableModelMixin
 from common.paginations import StandardResultsSetPagination
 from courses.api.permissions import IsCourseEnrolledActive
 from courses.api.serializers import (
@@ -15,7 +16,7 @@ from courses.filters import CourseFilter
 from courses.models import Course, CourseCategory
 
 
-class CourseListAPIView(ListAPIView):
+class CourseListAPIView(PublishableModelMixin, ListAPIView):
     """View for listing courses."""
 
     permission_classes = [AllowAny]
@@ -29,7 +30,7 @@ class CourseListAPIView(ListAPIView):
     # ordering = ['course']
 
 
-class CourseRetrieveAPIAfterEnrollView(RetrieveAPIView):
+class CourseRetrieveAPIAfterEnrollView(PublishableModelMixin, RetrieveAPIView):
     """View for retrieving courses."""
 
     permission_classes = [IsAuthenticated, IsCourseEnrolledActive]
@@ -37,7 +38,7 @@ class CourseRetrieveAPIAfterEnrollView(RetrieveAPIView):
     queryset = Course.objects.all()
 
 
-class CourseRetrieveAPIBeforeEnrollView(RetrieveAPIView):
+class CourseRetrieveAPIBeforeEnrollView(PublishableModelMixin, RetrieveAPIView):
     """View for retrieving courses."""
 
     permission_classes = [IsAuthenticated]
