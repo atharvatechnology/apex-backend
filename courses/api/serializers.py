@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from common.api.mixin import EnrolledSerializerMixin
+from common.api.serializers import PublishedSerializer
 from courses.models import Course, CourseCategory
 from enrollments.api.serializers import (
     CourseSessionSerializer,
@@ -12,6 +13,19 @@ from notes.api.serializers import (
     RecordedVideoDetailSerializer,
 )
 from physicalbook.api.serializers import PhysicalBookSerializerBeforeEnroll
+
+
+class CourseBaseSerializer(PublishedSerializer):
+    """Base serializer for the course model."""
+
+    class Meta:
+        model = Course
+        fields = PublishedSerializer.Meta.fields + ("id",)
+        read_only_fields = (
+            "id",
+            "is_published",
+            "publish_date",
+        )
 
 
 class CourseEnrollmentCourseRetrieveSerializer(serializers.ModelSerializer):
@@ -28,7 +42,7 @@ class CourseEnrollmentCourseRetrieveSerializer(serializers.ModelSerializer):
         )
 
 
-class CourseListSerializer(serializers.ModelSerializer):
+class CourseListSerializer(CourseBaseSerializer):
     """serializer when user is listing course."""
 
     enrollment_count = serializers.SerializerMethodField()
@@ -36,14 +50,22 @@ class CourseListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ["id", "name", "enrollment_count", "image", "sessions"]
+        fields = CourseBaseSerializer.Meta.fields + (
+            "name",
+            "enrollment_count",
+            "image",
+            "sessions",
+        )
+        read_only_fields = CourseBaseSerializer.Meta.read_only_fields
 
     @staticmethod
     def get_enrollment_count(obj):
         return {"course_enroll_count": obj.course_enrolls.all().count()}
 
 
-class CourseRetrieveSerializerAfterEnroll(EnrolledSerializerMixin):
+class CourseRetrieveSerializerAfterEnroll(
+    CourseBaseSerializer, EnrolledSerializerMixin
+):
     """Serializer for retrieving courses."""
 
     sessions = CourseSessionSerializer(many=True)
@@ -91,7 +113,9 @@ class CourseRetrieveSerializerAfterEnroll(EnrolledSerializerMixin):
         return None
 
 
-class CourseRetrieveSerializerBeforeEnroll(EnrolledSerializerMixin):
+class CourseRetrieveSerializerBeforeEnroll(
+    CourseBaseSerializer, EnrolledSerializerMixin
+):
     """Serializer for retrieving courses."""
 
     sessions = CourseSessionSerializer(many=True)

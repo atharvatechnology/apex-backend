@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from common.api.serializers import PublishedSerializer
 from courses.models import Course, CourseCategory
 
 
@@ -15,12 +16,12 @@ class CourseCategorySerializer(serializers.ModelSerializer):
         )
 
 
-class CourseSerializer(serializers.ModelSerializer):
+class CourseSerializer(PublishedSerializer):
     """Serializer for creating courses."""
 
     class Meta:
         model = Course
-        fields = (
+        fields = PublishedSerializer.Meta.fields + (
             "id",
             "name",
             "status",
