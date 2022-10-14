@@ -89,6 +89,6 @@ class ExamGeneratorListAPIView(ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        excelgenerator(self.model.__name__,queryset)
+        dynamic_excel_generator(self.model.__name__,queryset)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

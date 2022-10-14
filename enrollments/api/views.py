@@ -25,6 +25,7 @@ from enrollments.api.serializers import (
     StudentEnrollmentSerializer,
 )
 from enrollments.api.tasks import Excelcelery
+from enrollments.filters import ExamThroughEnrollmentFilter
 
 from enrollments.models import (
     CourseThroughEnrollment,
@@ -34,7 +35,7 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
     SessionStatus,
 )
-from common.utils import excelgenerator
+from common.utils import dynamic_excel_generator
 from django_filters.rest_framework import DjangoFilterBackend
 
 class EnrollmentCreateAPIView(CreateAPIView):
@@ -248,18 +249,14 @@ class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
     serializer_class = ExamEnrollmentRetrievePoolSerializer
     model = ExamThroughEnrollment
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = [
-        "exam",
-    ]    
+    filterset_class = ExamThroughEnrollmentFilter
+    
     def list(self, request, *args, **kwargs):
-        id = request.GET.get('pk')
-        if id:
-            data = self.get_queryset().filter(id=id)
-            queryset = data
-        else:    
-            queryset = self.filter_queryset(self.get_queryset())
-        qs= list(queryset.values_list("id", flat=True))
-        Excelcelery(self.model.__name__,qs)
+        model_fields = request.GET.get('model_fields')
+        model_name = request.GET.get('model_name')
+        # model_fields = ["enrollment", "exam", "selected_session", "score", "negative_score", "status"]
+        qs= list(self.get_queryset().values_list("id", flat=True))
+        Excelcelery(model_name,model_fields)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -267,41 +264,25 @@ class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
 import xlsxwriter
 import io
 from django.http import HttpResponse
-
+from enrollments.report import ExamThroughEnrollmentTableData
 
 def dynamic_excel_generator(request):
     # Create a workbook and add a worksheet.
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-    worksheet = workbook.add_worksheet('Reporte3a5')
+    worksheet = workbook.add_worksheet('report')
     bold = workbook.add_format({'bold': True})
     # Some data we want to write to the worksheet.
-    reporte = ExamThroughEnrollment.objects.all() #my model
-    pass
-    # Start from the first cell. Rows and columns are zero indexed.
-    worksheet.write(0, 0,'S.No')
-    worksheet.write(0, 1,'Student Name')
-    worksheet.write(0, 2,'Exam')
-    worksheet.write(0, 3,'Selected Session')
-    row = 1
-    col = 0
-
-    # Iterate over the data and write it out row by row.
-    for linea in reporte:
-        worksheet.write(row, col, row)
-        worksheet.write(row, col + 1, str(linea.enrollment.student.first_name)+str(linea.enrollment.student.last_name))
-        worksheet.write(row, col + 2, linea.exam.name)
-        worksheet.write(row, col + 3, str(linea.selected_session.start_date))
-        row += 1
-
-    # Write the title for every column in bold
-    # worksheet.write('A1', 'Priority', bold)
-    # worksheet.write('B1', 'Code', bold)
-
+    # passing field names received from front-end
+    
+    model_fields = ["enrollment", "exam", "selected_session", "exam_questions","score", "negative_score", "status"]
+    # get model names and it correcponding headers needed in report.
+    exam_through_enrollment = ExamThroughEnrollmentTableData(model_fields,ExamThroughEnrollment.objects.all(), worksheet)
+    worksheet = exam_through_enrollment.generate_report()
     workbook.close()
 
     output.seek(0)
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response['Content-Disposition'] = "attachment; filename=Reporte3a5.xlsx"
+    response['Content-Disposition'] = "attachment; filename=report.xlsx"
 
     return response

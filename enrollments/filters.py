@@ -8,4 +8,7 @@ class ExamThroughEnrollmentFilter(django_filters.FilterSet):
 
     class Meta:
         model = ExamThroughEnrollment
-        fields = {"exam", "selected_session"}
+        fields = {
+            "exam":["exact"], 
+            "selected_session__start_date":["exact"]
+            }

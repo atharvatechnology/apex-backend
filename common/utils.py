@@ -10,6 +10,8 @@ from django.utils.html import strip_tags
 
 from apex.celery import app
 
+from enrollments.report import ExamThroughEnrollmentTableData
+
 
 def generate_qrcode(data):
     """Generate qr code for data.
@@ -138,3 +140,28 @@ def excelgenerator(models,obj):
         pass   
     workbook.close()
 
+
+def dynamic_excel_generator(model_name, model_fields):
+    import xlsxwriter
+    import io
+    # Create a workbook and add a worksheet.
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet('report')
+    bold = workbook.add_format({'bold': True})
+    # Some data we want to write to the worksheet.
+    # passing field names received from front-end
+    
+    # get model names and it correcponding headers needed in report.
+    if model_name == "ExamThroughEnrollment":
+        exam_through_enrollment = ExamThroughEnrollmentTableData(model_fields, worksheet)
+        worksheet = exam_through_enrollment.generate_report()
+    elif model_name == "Exam":
+        pass
+    workbook.close()
+
+    # output.seek(0)
+    # response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    # response['Content-Disposition'] = "attachment; filename=report.xlsx"
+
+    # return response
