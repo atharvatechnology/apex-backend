@@ -250,3 +250,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 setattr(instance.profile, attr, value)
             instance.profile.save()
         return instance
+
+
+class StudentQRSerializer(serializers.ModelSerializer):
+    """Serializer to provide QR of student."""
+
+    class Meta:
+        model = Profile
+        fields = ["qr_code"]

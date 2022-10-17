@@ -13,8 +13,9 @@ from accounts.api.serializers import (
     UserResetPasswordOTPRequestSerializer,
     UserResetPasswordOTPVerifySerializer,
     UserUpdateSerializer,
+    StudentQRSerializer
 )
-
+from accounts.models import Profile
 User = get_user_model()
 
 
@@ -198,3 +199,14 @@ class UserDetailAPIView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class StudentQRView(generics.RetrieveAPIView):
+    """Student QR API View."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = StudentQRSerializer
+    queryset = Profile.objects.all()
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
