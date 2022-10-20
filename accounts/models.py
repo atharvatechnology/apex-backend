@@ -11,6 +11,20 @@ from accounts.api.otp import OTP
 from accounts.validators import PhoneNumberValidator
 from common.utils import generate_qrcode
 
+SUPER_ADMIN = 1
+TEACHER = 2
+DIRECTOR = 3
+STUDENT = 4
+
+
+role_choices = (
+    (SUPER_ADMIN, "SUPER_ADMIN"),
+    (TEACHER, "GENERAL TEACHER"),
+    (DIRECTOR, "GENERAL DIRECTOR"),
+    (STUDENT, "STUDENT"),
+
+)
+
 
 class UserManager(BaseUserManager):
     """Custom User Manager."""
@@ -77,6 +91,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     """Custom User model."""
+    role = models.PositiveIntegerField(choices=role_choices, blank=True, null=True)
 
     username_validator = PhoneNumberValidator()
 

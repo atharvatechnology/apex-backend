@@ -26,6 +26,8 @@ class UserCreateAPIView(generics.CreateAPIView):
     serializer_class = UserCreateSerializer
     queryset = User.objects.all()
 
+    def perform_create(self, serializer):
+        serializer.save(role=4)
 
 class UserCreateOTPVerifyAPIView(UpdateModelMixin, LoginView):
     """User Create OTP Verify Patch API View."""
