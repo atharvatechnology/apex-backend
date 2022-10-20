@@ -111,5 +111,5 @@ urlpatterns = [
     path("physical/", include(physical_urls)),
     path("course-enroll/", include(course_enroll_urls)),
     path("check/", include(check_enroll_urls)),
-    path("dynamic/", dynamic_excel_generator,)
+    # path("dynamic/", dynamic_excel_generator,)
 ]

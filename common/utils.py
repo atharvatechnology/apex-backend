@@ -154,14 +154,16 @@ def dynamic_excel_generator(model_name, model_fields):
     
     # get model names and it correcponding headers needed in report.
     if model_name == "ExamThroughEnrollment":
-        exam_through_enrollment = ExamThroughEnrollmentTableData(model_fields, worksheet)
+        model_fields = ["enrollment", "exam", "selected_session", "exam_questions","score", "negative_score", "status"]
+        # get model names and it correcponding headers needed in report.
+        exam_through_enrollment = ExamThroughEnrollmentTableData(model_fields,ExamThroughEnrollment.objects.all(), worksheet)
         worksheet = exam_through_enrollment.generate_report()
     elif model_name == "Exam":
         pass
     workbook.close()
 
-    # output.seek(0)
-    # response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    # response['Content-Disposition'] = "attachment; filename=report.xlsx"
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename=report.xlsx"
 
-    # return response
+    return response

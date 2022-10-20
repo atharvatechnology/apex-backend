@@ -9,6 +9,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 from enrollments.api.serializers import (
@@ -243,22 +244,23 @@ class CourseEnrollementDestroyAPIView(DestroyAPIView):
 class CheckIfStudentInCourse(CreateAPIView):
     serializer_class = StudentEnrollmentSerializer
 
-class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
-    # permission_classes = [IsAuthenticated]
-    queryset = ExamThroughEnrollment.objects.all()
-    serializer_class = ExamEnrollmentRetrievePoolSerializer
-    model = ExamThroughEnrollment
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ExamThroughEnrollmentFilter
+
+# class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
+#     # permission_classes = [IsAuthenticated]
+#     # queryset = ExamThroughEnrollment.objects.all()
+#     # serializer_class = ExamEnrollmentRetrievePoolSerializer
+#     # model = ExamThroughEnrollment
+#     # filter_backends = [DjangoFilterBackend]
+#     # filterset_class = ExamThroughEnrollmentFilter
     
-    def list(self, request, *args, **kwargs):
-        model_fields = request.GET.get('model_fields')
-        model_name = request.GET.get('model_name')
-        # model_fields = ["enrollment", "exam", "selected_session", "score", "negative_score", "status"]
-        qs= list(self.get_queryset().values_list("id", flat=True))
-        Excelcelery(model_name,model_fields)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+#     def list(self, request, *args, **kwargs):
+#         model_fields = request.GET.get('model_fields')
+#         model_name = request.GET.get('model_name')
+#         # model_fields = ["enrollment", "exam", "selected_session", "score", "negative_score", "status"]
+#         qs= list(self.get_queryset().values_list("id", flat=True))
+#         Excelcelery(model_name,model_fields)
+#         serializer = self.get_serializer(queryset, many=True)
+#         return Response(serializer.data)
 
 
 import xlsxwriter
@@ -266,7 +268,7 @@ import io
 from django.http import HttpResponse
 from enrollments.report import ExamThroughEnrollmentTableData
 
-def dynamic_excel_generator(request):
+def dynamic_excel_generator():
     # Create a workbook and add a worksheet.
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -286,3 +288,15 @@ def dynamic_excel_generator(request):
     response['Content-Disposition'] = "attachment; filename=report.xlsx"
 
     return response
+
+class ExamThroughEnrollmentGeneratorAPIView(APIView):
+
+    def get(self, request):
+        # dynamic_excel_generator(self.model.__name__,queryset)
+        queryset = ExamThroughEnrollment.objects.all()
+        response = dynamic_excel_generator()
+        # file_handle = queryset.file.path
+        # document = open(file_handle, 'rb')
+        # response = HttpResponse(FileWrapper(document), content_type='')
+        # response['Content-Disposition'] = 'attachment; filename="%s"' % queryset.file.name
+        return response
