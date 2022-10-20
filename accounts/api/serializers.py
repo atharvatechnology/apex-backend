@@ -196,15 +196,8 @@ class UserCustomDetailsSerializer(UserDetailsSerializer):
     admin_user = serializers.SerializerMethodField(read_only=True)
     role = serializers.SerializerMethodField()
 
-    def get_role(self, obj):
-        safasf
-        if obj['user'].role:
-            return [
-                    role_value
-                    for role_id, role_value in role_choices
-                    if role_id == obj['user'].role
-                ][0]
-                
+    
+
     class Meta(UserDetailsSerializer.Meta):
         extra_fields = UserDetailsSerializer.Meta.extra_fields + [
             "full_name",
@@ -212,6 +205,9 @@ class UserCustomDetailsSerializer(UserDetailsSerializer):
             "role"
         ]
         fields = list(UserDetailsSerializer.Meta.fields) + ["full_name", "admin_user", "role"]
+
+    def get_role(self, obj):
+        return obj.get_role()
 
     def get_full_name(self, obj):
         return obj.get_full_name()

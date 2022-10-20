@@ -19,8 +19,8 @@ STUDENT = 4
 
 role_choices = (
     (SUPER_ADMIN, "SUPER_ADMIN"),
-    (TEACHER, "GENERAL TEACHER"),
-    (DIRECTOR, "GENERAL DIRECTOR"),
+    (TEACHER, "TEACHER"),
+    (DIRECTOR, "DIRECTOR"),
     (STUDENT, "STUDENT"),
 
 )
@@ -140,6 +140,15 @@ class User(AbstractUser):
         OTP.sendOTP(self.username, otp)
         return otp
 
+    def get_role(self):
+        if self.role:
+            return [
+                    role_value
+                    for role_id, role_value in role_choices
+                    if role_id == self.role
+                    ][0]
+        else:
+            return None
 
 class Profile(models.Model):
     """Custom Profile model."""
