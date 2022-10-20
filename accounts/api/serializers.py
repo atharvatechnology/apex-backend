@@ -4,7 +4,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from accounts.models import Profile, role_choices
+from accounts.models import Profile
 
 User = get_user_model()
 

@@ -15,7 +15,7 @@ from accounts.api.serializers import (
     UserUpdateSerializer,
     StudentQRSerializer
 )
-from accounts.models import Profile
+from accounts.models import Profile, UserRoles
 User = get_user_model()
 
 
@@ -27,7 +27,7 @@ class UserCreateAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(role=4)
+        serializer.save(role=UserRoles.STUDENT)
 
 class UserCreateOTPVerifyAPIView(UpdateModelMixin, LoginView):
     """User Create OTP Verify Patch API View."""
