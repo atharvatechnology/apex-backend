@@ -194,13 +194,20 @@ class UserResetPasswordConfirmSerializer(serializers.ModelSerializer):
 class UserCustomDetailsSerializer(UserDetailsSerializer):
     full_name = serializers.SerializerMethodField(read_only=True)
     admin_user = serializers.SerializerMethodField(read_only=True)
+    role = serializers.SerializerMethodField()
+
+    
 
     class Meta(UserDetailsSerializer.Meta):
         extra_fields = UserDetailsSerializer.Meta.extra_fields + [
             "full_name",
             "admin_user",
+            "role"
         ]
-        fields = list(UserDetailsSerializer.Meta.fields) + ["full_name", "admin_user"]
+        fields = list(UserDetailsSerializer.Meta.fields) + ["full_name", "admin_user", "role"]
+
+    def get_role(self, obj):
+        return obj.get_role()
 
     def get_full_name(self, obj):
         return obj.get_full_name()
@@ -250,3 +257,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 setattr(instance.profile, attr, value)
             instance.profile.save()
         return instance
+
+
+class StudentQRSerializer(serializers.ModelSerializer):
+    """Serializer to provide QR of student."""
+
+    class Meta:
+        model = Profile
+        fields = ["qr_code"]

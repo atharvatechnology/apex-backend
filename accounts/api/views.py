@@ -13,8 +13,9 @@ from accounts.api.serializers import (
     UserResetPasswordOTPRequestSerializer,
     UserResetPasswordOTPVerifySerializer,
     UserUpdateSerializer,
+    StudentQRSerializer
 )
-
+from accounts.models import Profile, UserRoles
 User = get_user_model()
 
 
@@ -25,6 +26,8 @@ class UserCreateAPIView(generics.CreateAPIView):
     serializer_class = UserCreateSerializer
     queryset = User.objects.all()
 
+    def perform_create(self, serializer):
+        serializer.save(role=UserRoles.STUDENT)
 
 class UserCreateOTPVerifyAPIView(UpdateModelMixin, LoginView):
     """User Create OTP Verify Patch API View."""
@@ -198,3 +201,14 @@ class UserDetailAPIView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class StudentQRView(generics.RetrieveAPIView):
+    """Student QR API View."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = StudentQRSerializer
+    queryset = Profile.objects.all()
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
