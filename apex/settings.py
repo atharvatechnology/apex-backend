@@ -9,6 +9,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -123,11 +124,11 @@ WSGI_APPLICATION = "apex.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-import os
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
 
@@ -230,6 +231,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Headers",
     "Access-Control-Allow-Methods",
     "Access-Control-Allow-Credentials",
+    "responseType",
 ]
 
 
