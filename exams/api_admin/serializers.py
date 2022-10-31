@@ -350,21 +350,30 @@ class ExamCreateSerializer(CreatorSerializer):
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
-class ExamListAdminSerializer(serializers.ModelSerializer):
+class ExamListAdminSerializer(CreatorSerializer):
     """Serializer when user is listing exams."""
 
     template = ExamTemplateListSerializer()
 
     class Meta:
         model = Exam
-        fields = (
-            "id",
+        fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
             # "status",
             "price",
             "template",
         )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+
+class ExamOnCourseRetrieveSerializer(ExamListAdminSerializer):
+    """Serializer when user is retrieving a course."""
+
+    class Meta:
+        model = Exam
+        fields = ExamListAdminSerializer.Meta.fields
+        read_only_fields = ExamListAdminSerializer.Meta.read_only_fields
 
 
 class ExamListOverviewAdminSerializer(serializers.ModelSerializer):

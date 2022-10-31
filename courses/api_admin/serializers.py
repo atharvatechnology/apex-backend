@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from common.api.serializers import PublishedSerializer
 from courses.models import Course, CourseCategory
+from exams.api_admin.serializers import ExamOnCourseRetrieveSerializer
 
 
 class CourseCategorySerializer(serializers.ModelSerializer):
@@ -19,6 +20,8 @@ class CourseCategorySerializer(serializers.ModelSerializer):
 class CourseSerializer(PublishedSerializer):
     """Serializer for creating courses."""
 
+    exams = ExamOnCourseRetrieveSerializer(many=True, source="exams_exam_related")
+
     class Meta:
         model = Course
         fields = PublishedSerializer.Meta.fields + (
@@ -34,4 +37,5 @@ class CourseSerializer(PublishedSerializer):
             "duration",
             "overview_detail",
             "feature_detail",
+            "exams",
         )
