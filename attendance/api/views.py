@@ -1,9 +1,11 @@
+from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from attendance.api.serializers import (
+    AttendanceCreateSerializer,
     StudentAttendanceCreateSerializer,
     StudentAttendanceRetrieveSerializer,
     StudentAttendanceUpdateSerializer,
@@ -15,6 +17,9 @@ from attendance.filters import AttendanceFilter
 from attendance.models import StudentAttendance, TeacherAttendance
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
+from common.utils import decode_user
+
+User = get_user_model()
 
 
 class StudentAttendanceListAPIView(ListAPIView):
@@ -27,6 +32,10 @@ class StudentAttendanceListAPIView(ListAPIView):
     search_fields = ["name"]
     filterset_class = AttendanceFilter
     pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        """Get the queryset."""
+        return super().get_queryset().filter(user=self.request.user)
 
 
 class StudentAttendanceCreateAPIView(BaseCreatorCreateAPIView):
@@ -61,6 +70,9 @@ class TeacherAttendanceListAPIView(ListAPIView):
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
 
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
 
 class TeacherAttendanceCreateAPIView(BaseCreatorCreateAPIView):
     """View for creating teacher attendance."""
@@ -83,6 +95,27 @@ class TeacherAttendanceUpdateAPIView(BaseCreatorUpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherAttendanceUpdateSerializer
     queryset = TeacherAttendance.objects.all()
+
+
+class AttendanceCreateAPIView(BaseCreatorCreateAPIView):
+    """View for creating attendance."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = AttendanceCreateSerializer
+
+    def get_serializer_class(self):
+        """Get the serializer class."""
+        user = self.request.data.get("user")
+        decoded_user = decode_user(user)
+        user_object = None
+        if decoded_user is not None:
+            user_object = User.objects.filter(username=decoded_user).first()
+        if user_object and user_object.is_student:
+            return StudentAttendanceCreateSerializer
+        elif user_object and user_object.is_teacher:
+            return TeacherAttendanceCreateSerializer
+        else:
+            return AttendanceCreateSerializer
 
 
 # class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):

@@ -8,6 +8,7 @@ from accounts.api.views import (
     UserResetPasswordOTPRequestAPIView,
     UserResetPasswordOTPVerifyAPIView,
     UserUpdateAPIView,
+    StudentQRView
 )
 
 app_name = "accounts"
@@ -28,4 +29,6 @@ urlpatterns = [
         name="reset-password-confirm",
     ),
     path("update/me/", UserUpdateAPIView.as_view(), name="update"),
+
+    path("qr/", StudentQRView.as_view(), name="qrretrive"),
 ]

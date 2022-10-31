@@ -85,13 +85,15 @@ class Exam(CreatorBaseModel):
     )
     # TODO: Add course field here after course app is created
     # Also how to relate course to exams?
-    # course = models.ForeignKey("courses.Course",
-    #                            verbose_name=_("course"),
-    #                            related_name="%(app_label)s_%(class)s_related",
-    #                            related_query_name="%(app_label)s_%(class)ss",
-    #                            on_delete=models.SET_NULL,
-    #                            null=True,
-    #                            blank=True)
+    course = models.ForeignKey(
+        "courses.Course",
+        verbose_name=_("course"),
+        related_name="%(app_label)s_%(class)s_related",
+        related_query_name="%(app_label)s_%(class)ss",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     # status = models.CharField(
     #     _("status"),
     #     max_length=16,

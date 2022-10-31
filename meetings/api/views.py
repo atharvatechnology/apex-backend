@@ -3,9 +3,13 @@ from time import time
 import jwt
 from django.conf import settings
 from rest_framework import status
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from enrollments.models import CourseThroughEnrollment, SessionStatus
+from meetings.api_admin.serializers import MeetingSerializer
+from meetings.models import Meeting
 
 from .serializers import GenerateSignatureSerializer
 
@@ -45,3 +49,24 @@ class GenerateSignatureAPIView(GenericAPIView):
             print(signature)
             return Response({"signature": signature})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MeetingListView(ListAPIView):
+    queryset = Meeting.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = MeetingSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            enrollment = CourseThroughEnrollment.objects.filter(
+                enrollment__student=self.request.user,
+                selected_session__status=SessionStatus.ACTIVE,
+            )
+            if enrollment:
+                meeting = Meeting.objects.none()
+                for enroll in enrollment:
+                    session = enroll.selected_session
+                    meeting_session = Meeting.objects.filter(course_session=session)
+                    meeting = meeting | meeting_session
+                return meeting
+        return None
