@@ -37,3 +37,29 @@ class MeetingOnCourseEnrolledSerializer(serializers.ModelSerializer):
             "duration",
             "subject",
         )
+
+
+class MeetingSerializer(serializers.ModelSerializer):
+    """Base meeting serializer."""
+
+    class Meta:
+        model = Meeting
+        fields = (
+            "id",
+            "topic",
+            "meeting_id",
+            # "type",
+            "start_time",
+            "password",
+            # "agenda",
+            "duration",
+            "course_session",
+            "subject",
+            "variant",
+            "end_date_time",
+            "repeat_type",
+            "repeat_interval",
+            "monthly_day",
+            "weekly_days",
+        )
+        read_only_fields = ("id", "meeting_id")

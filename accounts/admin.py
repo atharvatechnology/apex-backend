@@ -85,7 +85,7 @@ class UserAdmin(BaseUserAdmin):
         "username",
         "email",
         "is_active",
-        "is_staff",
+        "role",
         "last_login",
         "date_joined",
         "view_profile",
@@ -95,6 +95,7 @@ class UserAdmin(BaseUserAdmin):
         "is_superuser",
         "is_active",
         "groups",
+        "role",
     )
     search_fields = ("username", "first_name", "last_name", "email")
     ordering = ("username",)
@@ -112,6 +113,7 @@ class UserAdmin(BaseUserAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "role",
                     "otp",
                     "otp_counter",
                     "otp_generate_time",

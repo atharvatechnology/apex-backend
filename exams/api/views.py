@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from common.paginations import StandardResultsSetPagination
 from enrollments.models import ExamSession, ExamThroughEnrollment, SessionStatus
 from exams.api.permissions import IsExamEnrolledActive
+from exams.filters import ExamFilter
 from exams.models import Exam
 
 from .serializers import (  # ExamUpdateSerializer,
@@ -26,9 +27,9 @@ from common.utils import excelgenerator
 class ExamListAPIView(ListAPIView):
     serializer_class = ExamListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
     permission_classes = [AllowAny]
     queryset = Exam.objects.all()
+    filterset_class = ExamFilter
     pagination_class = StandardResultsSetPagination
 
 
