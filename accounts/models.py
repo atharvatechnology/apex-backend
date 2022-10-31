@@ -11,6 +11,7 @@ from accounts.api.otp import OTP
 from accounts.validators import PhoneNumberValidator
 from common.utils import generate_qrcode
 
+
 class UserRoles:
     SUPER_ADMIN = 1
     TEACHER = 2
@@ -21,7 +22,6 @@ class UserRoles:
         (TEACHER, "TEACHER"),
         (DIRECTOR, "DIRECTOR"),
         (STUDENT, "STUDENT"),
-
     )
 
 
@@ -90,7 +90,10 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     """Custom User model."""
-    role = models.PositiveIntegerField(choices=UserRoles.role_choices, blank=True, null=True)
+
+    role = models.PositiveIntegerField(
+        choices=UserRoles.role_choices, blank=True, null=True
+    )
 
     username_validator = PhoneNumberValidator()
 
@@ -142,12 +145,29 @@ class User(AbstractUser):
     def get_role(self):
         if self.role:
             return [
-                    role_value
-                    for role_id, role_value in UserRoles.role_choices
-                    if role_id == self.role
-                    ][0]
+                role_value
+                for role_id, role_value in UserRoles.role_choices
+                if role_id == self.role
+            ][0]
         else:
             return None
+
+    @property
+    def is_student(self):
+        return self.role == UserRoles.STUDENT
+
+    @property
+    def is_teacher(self):
+        return self.role == UserRoles.TEACHER
+
+    @property
+    def is_director(self):
+        return self.role == UserRoles.DIRECTOR
+
+    @property
+    def is_super_admin(self):
+        return self.role == UserRoles.SUPER_ADMIN or self.is_superuser
+
 
 class Profile(models.Model):
     """Custom Profile model."""

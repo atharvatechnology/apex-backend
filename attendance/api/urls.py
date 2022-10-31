@@ -1,6 +1,7 @@
 from django.urls import include, path
 
 from attendance.api.views import (
+    AttendanceCreateAPIView,
     StudentAttendanceCreateAPIView,
     StudentAttendanceListAPIView,
     StudentAttendanceRetrieveAPIView,
@@ -46,6 +47,7 @@ teacher_urls = [
 ]
 
 urlpatterns = [
+    path("create/", AttendanceCreateAPIView.as_view(), name="attendance-create"),
     path("student/", include(student_urls)),
     path("teacher/", include(teacher_urls)),
 ]
