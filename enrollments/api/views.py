@@ -2,7 +2,6 @@ import base64
 import io
 
 import xlsxwriter
-from django.http import HttpResponse
 from django.utils.timezone import localtime
 from rest_framework import status
 from rest_framework.generics import (
@@ -15,7 +14,8 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 # from common.utils import dynamic_excel_generator
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
@@ -32,7 +32,7 @@ from enrollments.api.serializers import (
 )
 
 # from enrollments.api.tasks import Excelcelery
-# from enrollments.filters import ExamThroughEnrollmentFilter
+from enrollments.filters import ExamThroughEnrollmentFilter
 from enrollments.models import (
     CourseThroughEnrollment,
     Enrollment,
@@ -41,8 +41,7 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
     SessionStatus,
 )
-from enrollments.report import ExamThroughEnrollmentTableData
-
+from enrollments.api.utils import dynamic_excel_generator
 
 class EnrollmentCreateAPIView(CreateAPIView):
     """Create a new enrollment for a student."""
@@ -250,71 +249,13 @@ class CheckIfStudentInCourse(CreateAPIView):
     serializer_class = StudentEnrollmentSerializer
 
 
-# class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
-#     # permission_classes = [IsAuthenticated]
-#     # queryset = ExamThroughEnrollment.objects.all()
-#     # serializer_class = ExamEnrollmentRetrievePoolSerializer
-#     # model = ExamThroughEnrollment
-#     # filter_backends = [DjangoFilterBackend]
-#     # filterset_class = ExamThroughEnrollmentFilter
+class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = ExamThroughEnrollment.objects.all()
+    filterset_class = ExamThroughEnrollmentFilter
 
-#     def list(self, request, *args, **kwargs):
-#         model_fields = request.GET.get('model_fields')
-#         model_name = request.GET.get('model_name')
-# model_fields = [
-#     "enrollment",
-#     "exam",
-#     "selected_session",
-#     "score",
-#     "negative_score",
-#     "status"
-# ]
-#         qs= list(self.get_queryset().values_list("id", flat=True))
-#         Excelcelery(model_name,model_fields)
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response(serializer.data)
-
-
-def dynamic_excel_generator():
-    # Create a workbook and add a worksheet.
-    output = io.BytesIO()
-    workbook = xlsxwriter.Workbook(output, {"in_memory": True})
-    worksheet = workbook.add_worksheet("report")
-    # bold = workbook.add_format({"bold": True})
-    # Some data we want to write to the worksheet.
-    # passing field names received from front-end
-
-    model_fields = [
-        "enrollment",
-        "exam",
-        "selected_session",
-        "exam_questions",
-        "score",
-        "negative_score",
-        "status",
-    ]
-    # get model names and it correcponding headers needed in report.
-    exam_through_enrollment = ExamThroughEnrollmentTableData(
-        model_fields, ExamThroughEnrollment.objects.all(), worksheet
-    )
-    worksheet = exam_through_enrollment.generate_report()
-    workbook.close()
-
-    output.seek(0)
-
-    blob = base64.b64encode(output.read())
-    response = HttpResponse(blob, content_type="application/ms-excel")
-    response["Content-Disposition"] = "attachment; filename=report.xlsx"
-
-    return response
-
-
-class ExamThroughEnrollmentGeneratorAPIView(APIView):
     def get(self, request):
-        # dynamic_excel_generator(self.model.__name__,queryset)
-        # queryset = ExamThroughEnrollment.objects.all()
-        # file_handle = queryset.file.path
-        # document = open(file_handle, 'rb')
-        # response = HttpResponse(FileWrapper(document), content_type='')
-        # response['Content-Disposition']=f'attachment; filename="{queryset.file.name}"'
-        return HttpResponse()
+        filtered_data = self.filter_queryset(self.get_queryset())
+        response = dynamic_excel_generator(filtered_data)
+        return response

@@ -129,3 +129,50 @@ def retrieve_exam_status(self, obj):
                 return ExamStatus.IN_PROGRESS
         return ExamStatus.CREATED
     return ExamStatus.CREATED
+
+
+def dynamic_excel_generator(queryset):
+    import xlsxwriter
+    import io
+    from enrollments.report import ExamThroughEnrollmentTableData
+    from django.http import HttpResponse
+
+    # Create a workbook and add a worksheet.
+
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output, {"in_memory": True})
+    worksheet = workbook.add_worksheet("report")
+    # bold = workbook.add_format({"bold": True})
+    # Some data we want to write to the worksheet.
+    # passing field names received from front-end
+
+    model_fields = [
+        "enrollment",
+        "exam",
+        "selected_session",
+        "rank",
+        "score",
+        "negative_score",
+        "status",
+    ]
+    # get model names and it correcponding headers needed in report.
+    exam_through_enrollment = ExamThroughEnrollmentTableData(
+        model_fields, queryset, worksheet
+    )
+    worksheet = exam_through_enrollment.generate_report()
+    workbook.close()
+
+    output.seek(0)
+    """
+    For testing without front-end
+    """
+    # response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    # response['Content-Disposition'] = "attachment; filename=report.xlsx"
+    """
+    To send actual xlsx file.
+    """
+    blob = base64.b64encode(output.read())
+    response = HttpResponse(blob, content_type="application/ms-excel")
+    response["Content-Disposition"] = "attachment; filename=report.xlsx"
+
+    return response

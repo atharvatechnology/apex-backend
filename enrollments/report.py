@@ -6,7 +6,7 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
         "enrollment": 'Student\'s Name',
         "exam": "Exam",
         "selected_session": "Selected Session",
-        # "rank": "Rank",
+        "rank": "Rank",
         "score": "Score",
         "negative_score": "Negative Score",
         "status": "Status"
@@ -25,15 +25,12 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
         return str(linea.score)
     
     def get_negative_score(self, linea):
-        print("111111111111111")
         return str(linea.negative_score)
 
     def get_status(self, linea):
-        print(linea.status)
         return linea.status
     
     def get_rank(self, linea):
-        print("passed1")
         return get_student_rank(linea)
 
     def get_values_from_fields(self, field_name, linea):
