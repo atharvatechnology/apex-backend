@@ -1,9 +1,6 @@
-import base64
-import io
-
-import xlsxwriter
 from django.utils.timezone import localtime
-from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -13,9 +10,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+
 # from common.utils import dynamic_excel_generator
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
@@ -30,8 +25,7 @@ from enrollments.api.serializers import (
     PhysicalBookCourseEnrollmentSerializer,
     StudentEnrollmentSerializer,
 )
-
-# from enrollments.api.tasks import Excelcelery
+from enrollments.api.tasks import excelcelery
 from enrollments.filters import ExamThroughEnrollmentFilter
 from enrollments.models import (
     CourseThroughEnrollment,
@@ -41,7 +35,7 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
     SessionStatus,
 )
-from enrollments.api.utils import dynamic_excel_generator
+
 
 class EnrollmentCreateAPIView(CreateAPIView):
     """Create a new enrollment for a student."""
@@ -257,5 +251,7 @@ class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
 
     def get(self, request):
         filtered_data = self.filter_queryset(self.get_queryset())
-        response = dynamic_excel_generator(filtered_data)
-        return response
+        excelcelery.delay(
+            list(filtered_data.values_list("pk", flat=True)), "ExamThroughEnrollment"
+        )
+        return Response({"msg": "Your will be notified after your file is ready."})

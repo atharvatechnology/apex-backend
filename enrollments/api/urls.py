@@ -12,19 +12,22 @@ from enrollments.api.views import (
     ExamEnrollmentRetrieveAPIView,
     ExamEnrollmentRetrievePoolAPIView,
     ExamEnrollmentUpdateAPIView,
+    ExamThroughEnrollmentGeneratorAPIView,
     PhysicalBookCourseEnrollmentCreateAPIView,
     PhysicalBookCourseEnrollmentDestroyAPIView,
     PhysicalBookCourseEnrollmentListAPIView,
     PhysicalBookCourseEnrollmentRetrieveAPIView,
     PhysicalBookCourseEnrollmentUpdateAPIView,
-    ExamThroughEnrollmentGeneratorAPIView,
-    dynamic_excel_generator
 )
 
 enrollment_urls = [
     path("create/", EnrollmentCreateAPIView.as_view(), name="enrollment-create"),
     path("list/", EnrollmentListAPIView.as_view(), name="enrollment-list"),
-    path("generator/list/", ExamThroughEnrollmentGeneratorAPIView.as_view(), name="generator-enrollment"),   
+    path(
+        "generator/list/",
+        ExamThroughEnrollmentGeneratorAPIView.as_view(),
+        name="generator-enrollment",
+    ),
 ]
 
 exam_urls = [

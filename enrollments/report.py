@@ -1,20 +1,23 @@
 from common.report import BaseDynamicTableData
 from enrollments.api.utils import get_student_rank
 
+
 class ExamThroughEnrollmentTableData(BaseDynamicTableData):
     field_to_header_names = {
-        "enrollment": 'Student\'s Name',
+        "enrollment": "Student's Name",
         "exam": "Exam",
         "selected_session": "Selected Session",
         "rank": "Rank",
         "score": "Score",
         "negative_score": "Negative Score",
-        "status": "Status"
+        "status": "Status",
     }
 
     def get_students_name(self, linea):
-        return str(linea.enrollment.student.first_name)+str(linea.enrollment.student.last_name)
-    
+        return str(linea.enrollment.student.first_name) + str(
+            linea.enrollment.student.last_name
+        )
+
     def get_exam_name(self, linea):
         return linea.exam.name
 
@@ -23,13 +26,13 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
 
     def get_score(self, linea):
         return str(linea.score)
-    
+
     def get_negative_score(self, linea):
         return str(linea.negative_score)
 
     def get_status(self, linea):
         return linea.status
-    
+
     def get_rank(self, linea):
         return get_student_rank(linea)
 
@@ -41,7 +44,6 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
             "rank": self.get_rank,
             "score": self.get_score,
             "negative_score": self.get_negative_score,
-            "status": self.get_status
+            "status": self.get_status,
         }
         return fields_and_values[field_name](linea)
-    

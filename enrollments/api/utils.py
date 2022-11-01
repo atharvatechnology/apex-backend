@@ -131,11 +131,14 @@ def retrieve_exam_status(self, obj):
     return ExamStatus.CREATED
 
 
-def dynamic_excel_generator(queryset):
-    import xlsxwriter
+def dynamic_excel_generator(queryset_id, data):
+    # import base64
     import io
+
+    import xlsxwriter
+
+    # from django.http import HttpResponse
     from enrollments.report import ExamThroughEnrollmentTableData
-    from django.http import HttpResponse
 
     # Create a workbook and add a worksheet.
 
@@ -155,24 +158,33 @@ def dynamic_excel_generator(queryset):
         "negative_score",
         "status",
     ]
-    # get model names and it correcponding headers needed in report.
-    exam_through_enrollment = ExamThroughEnrollmentTableData(
-        model_fields, queryset, worksheet
-    )
+    if data == "ExamThroughEnrollment":
+        # get model names and it correcponding headers needed in report.
+        queryset = ExamThroughEnrollment.objects.filter(id__in=queryset_id)
+        exam_through_enrollment = ExamThroughEnrollmentTableData(
+            model_fields, queryset, worksheet
+        )
     worksheet = exam_through_enrollment.generate_report()
     workbook.close()
+    return True
 
-    output.seek(0)
     """
-    For testing without front-end
+    if need to send file to front-end
     """
-    # response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    # response['Content-Disposition'] = "attachment; filename=report.xlsx"
-    """
-    To send actual xlsx file.
-    """
-    blob = base64.b64encode(output.read())
-    response = HttpResponse(blob, content_type="application/ms-excel")
-    response["Content-Disposition"] = "attachment; filename=report.xlsx"
+    # output.seek(0)
+    # """
+    # For testing without front-end
+    # """
+    # response = HttpResponse(
+    #     output.read(),
+    #     content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    # )
+    # # response['Content-Disposition'] = "attachment; filename=report.xlsx"
+    # """
+    # To send actual xlsx file.
+    # """
+    # blob = base64.b64encode(output.read())
+    # response = HttpResponse(blob, content_type="application/ms-excel")
+    # response["Content-Disposition"] = "attachment; filename=report.xlsx"
 
-    return response
+    # return response
