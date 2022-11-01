@@ -17,7 +17,7 @@ from .serializers import (  # ExamUpdateSerializer,
     ExamRetrieveSerializer,
 )
 
-from common.utils import excelgenerator
+# from common.utils import excelgenerator
 
 # class ExamCreateAPIView(BaseCreatorCreateAPIView):
 #     serializer_class = ExamCreateSerializer

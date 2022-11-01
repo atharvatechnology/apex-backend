@@ -10,5 +10,6 @@ class ExamThroughEnrollmentFilter(django_filters.FilterSet):
         model = ExamThroughEnrollment
         fields = {
             "exam":["exact"], 
-            "selected_session__start_date":["exact"]
+            "selected_session__start_date":["exact"],
+            "selected_session":["exact"]
             }

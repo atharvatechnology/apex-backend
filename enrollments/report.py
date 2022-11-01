@@ -1,11 +1,12 @@
 from common.report import BaseDynamicTableData
+from enrollments.api.utils import get_student_rank
 
 class ExamThroughEnrollmentTableData(BaseDynamicTableData):
     field_to_header_names = {
         "enrollment": 'Student\'s Name',
         "exam": "Exam",
         "selected_session": "Selected Session",
-        "exam_questions": "Exam Questions",
+        # "rank": "Rank",
         "score": "Score",
         "negative_score": "Negative Score",
         "status": "Status"
@@ -24,26 +25,26 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
         return str(linea.score)
     
     def get_negative_score(self, linea):
+        print("111111111111111")
         return str(linea.negative_score)
 
     def get_status(self, linea):
+        print(linea.status)
         return linea.status
-
-    def get_exam_questions(self, linea):
-        questions_list = ""
-        for questions in linea.exam.questions.all():
-            questions_list+= questions.detail + "\n"
-        return questions_list
+    
+    def get_rank(self, linea):
+        print("passed1")
+        return get_student_rank(linea)
 
     def get_values_from_fields(self, field_name, linea):
         fields_and_values = {
-            "enrollment": self.get_students_name(linea),
-            "exam": self.get_exam_name(linea),
-            "selected_session": self.get_session(linea),
-            "exam_questions": self.get_exam_questions(linea),
-            "score": self.get_score(linea),
-            "negative_score": self.get_negative_score(linea),
-            "status": self.get_status(linea)
+            "enrollment": self.get_students_name,
+            "exam": self.get_exam_name,
+            "selected_session": self.get_session,
+            "rank": self.get_rank,
+            "score": self.get_score,
+            "negative_score": self.get_negative_score,
+            "status": self.get_status
         }
-        return fields_and_values[field_name]
+        return fields_and_values[field_name](linea)
     
