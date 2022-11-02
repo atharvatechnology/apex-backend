@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from enrollments.models import (
@@ -131,19 +132,26 @@ def retrieve_exam_status(self, obj):
     return ExamStatus.CREATED
 
 
-def dynamic_excel_generator(queryset_id, data):
-    # import base64
-    import io
+def dynamic_excel_generator(queryset_id, data, user_id):
+    import os
+    from pathlib import Path
 
     import xlsxwriter
+    from django.conf import settings
 
-    # from django.http import HttpResponse
-    from enrollments.report import ExamThroughEnrollmentTableData
+    from report.models import GeneratedReport
+    from report.views import ExamThroughEnrollmentTableData
 
+    User = get_user_model()
     # Create a workbook and add a worksheet.
+    user = User.objects.get(id=1)
+    media_path = f"reports/{user.username}"
+    base_path = os.path.join(settings.BASE_DIR, f"media/{media_path}")
+    os.makedirs(base_path, exist_ok=True)
 
-    output = io.BytesIO()
-    workbook = xlsxwriter.Workbook(output, {"in_memory": True})
+    filename = get_random_string()
+    p = Path(f"{base_path}/{filename}.xlsx")
+    workbook = xlsxwriter.Workbook(p)
     worksheet = workbook.add_worksheet("report")
     # bold = workbook.add_format({"bold": True})
     # Some data we want to write to the worksheet.
@@ -161,12 +169,13 @@ def dynamic_excel_generator(queryset_id, data):
     if data == "ExamThroughEnrollment":
         # get model names and it correcponding headers needed in report.
         queryset = ExamThroughEnrollment.objects.filter(id__in=queryset_id)
-        exam_through_enrollment = ExamThroughEnrollmentTableData(
-            model_fields, queryset, worksheet
-        )
-    worksheet = exam_through_enrollment.generate_report()
+        report = ExamThroughEnrollmentTableData(model_fields, queryset, worksheet)
+    worksheet = report.generate_report()
     workbook.close()
-    return True
+
+    GeneratedReport.objects.create(
+        created_by=user, updated_by=user, report_file=f"{media_path}/{filename}.xlsx"
+    )
 
     """
     if need to send file to front-end
@@ -188,3 +197,12 @@ def dynamic_excel_generator(queryset_id, data):
     # response["Content-Disposition"] = "attachment; filename=report.xlsx"
 
     # return response
+
+
+def get_random_string():
+    import random
+    import string
+
+    # With combination of lower and upper case
+    result_str = "".join(random.choice(string.ascii_letters) for i in range(7))
+    return result_str

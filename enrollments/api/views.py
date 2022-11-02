@@ -252,6 +252,8 @@ class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
     def get(self, request):
         filtered_data = self.filter_queryset(self.get_queryset())
         excelcelery.delay(
-            list(filtered_data.values_list("pk", flat=True)), "ExamThroughEnrollment"
+            list(filtered_data.values_list("pk", flat=True)),
+            "ExamThroughEnrollment",
+            request.user.id,
         )
         return Response({"msg": "Your will be notified after your file is ready."})

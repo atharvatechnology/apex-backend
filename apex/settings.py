@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "fcm_django",
     "notifications",
+    "report",
 ]
 
 MIDDLEWARE = [

@@ -4,5 +4,5 @@ from enrollments.api.utils import dynamic_excel_generator
 
 
 @shared_task
-def excelcelery(filtered_data, data):
-    dynamic_excel_generator(filtered_data, data)
+def excelcelery(filtered_data, data, user_id):
+    dynamic_excel_generator(filtered_data, data, user_id)
