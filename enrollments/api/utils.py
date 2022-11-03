@@ -140,15 +140,17 @@ def dynamic_excel_generator(queryset_id, data, user_id):
     import xlsxwriter
     from django.conf import settings
 
+    from accounts.models import Profile
     from report.models import GeneratedReport
     from report.views import (
         CourseThroughEnrollmentTableData,
         ExamThroughEnrollmentTableData,
+        StudentTableData,
     )
 
     User = get_user_model()
     # Create a workbook and add a worksheet.
-    user = User.objects.get(id=user_id)
+    user = User.objects.get(id=1)
     media_path = f"reports/{user.username}"
     base_path = os.path.join(settings.BASE_DIR, f"media/{media_path}")
     os.makedirs(base_path, exist_ok=True)
@@ -184,7 +186,16 @@ def dynamic_excel_generator(queryset_id, data, user_id):
         ]
         queryset = CourseThroughEnrollment.objects.filter(id__in=queryset_id)
         report = CourseThroughEnrollmentTableData(model_fields, queryset, worksheet)
-
+    elif data == "StudentProfile":
+        model_fields = [
+            "username",
+            "fullname",
+            "email",
+            "college_name",
+            "faculty",
+        ]
+        queryset = Profile.objects.filter(id__in=queryset_id)
+        report = StudentTableData(model_fields, queryset, worksheet)
     worksheet = report.generate_report()
     workbook.close()
 

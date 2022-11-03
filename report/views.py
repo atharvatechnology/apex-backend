@@ -14,8 +14,10 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
     }
 
     def get_students_name(self, linea):
-        return str(linea.enrollment.student.first_name) + str(
-            linea.enrollment.student.last_name
+        return (
+            str(linea.enrollment.student.first_name)
+            + " "
+            + str(linea.enrollment.student.last_name)
         )
 
     def get_exam_name(self, linea):
@@ -82,5 +84,40 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
             "selected_session": self.get_session,
             "course_enroll_status": self.get_status,
             "completed_date": self.get_completed_date,
+        }
+        return fields_and_values[field_name](linea)
+
+
+class StudentTableData(BaseDynamicTableData):
+    field_to_header_names = {
+        "username": "Phone Number/Username",
+        "fullname": "Full Name",
+        "email": "Email",
+        "college_name": "College Name",
+        "faculty": "Faculty",
+    }
+
+    def get_fullname(self, linea):
+        return str(linea.user.first_name) + " " + str(linea.user.last_name)
+
+    def get_username(self, linea):
+        return str(linea.user.username)
+
+    def get_email(self, linea):
+        return linea.user.email
+
+    def get_college_name(self, linea):
+        return linea.college_name
+
+    def get_faculty(self, linea):
+        return linea.faculty
+
+    def get_values_from_fields(self, field_name, linea):
+        fields_and_values = {
+            "username": self.get_username,
+            "fullname": self.get_fullname,
+            "email": self.get_email,
+            "college_name": self.get_college_name,
+            "faculty": self.get_faculty,
         }
         return fields_and_values[field_name](linea)
