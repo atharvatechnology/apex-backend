@@ -39,3 +39,40 @@ class CourseSerializer(PublishedSerializer):
             "feature_detail",
             "exams",
         )
+
+
+class CourseUpdateSerializer(PublishedSerializer):
+    """Serializer for updating courses."""
+
+    class Meta:
+        model = Course
+        fields = PublishedSerializer.Meta.fields + (
+            "id",
+            "name",
+            "status",
+            "price",
+            "category",
+            "description",
+            "password",
+            "link",
+            "image",
+            "duration",
+            "overview_detail",
+            "feature_detail",
+            "exams_exam_related",
+        )
+
+
+class CourseMiniSerializer(serializers.ModelSerializer):
+    """Serializer for droplisting courses."""
+
+    class Meta:
+        model = Course
+        fields = ("id", "name")
+
+
+class ExamInCourseDeleteSerializer(serializers.Serializer):
+    """Serializer for deleting exams in courses."""
+
+    exam_id = serializers.IntegerField()
+    course_id = serializers.IntegerField()
