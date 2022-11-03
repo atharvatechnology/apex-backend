@@ -346,6 +346,7 @@ class ExamCreateSerializer(CreatorSerializer):
             # "status",
             "price",
             "template",
+            "course",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
@@ -435,9 +436,12 @@ class ExamUpdateSerializer(CreatorSerializer):
 class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
     """Serializer when admin is retrieving an exam."""
 
+    from courses.api_admin.serializers import CourseMiniSerializer
+
     template = ExamTemplateOnExamRetrievalSerializer()
     questions = QuestionOnExamRetrievalSerializer(many=True)
     sessions = ExamSessionSerializer(many=True, read_only=True)
+    course = CourseMiniSerializer()
 
     class Meta:
         model = Exam
@@ -450,6 +454,7 @@ class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
             "template",
             "sessions",
             "questions",
+            "course",
         )
 
 
