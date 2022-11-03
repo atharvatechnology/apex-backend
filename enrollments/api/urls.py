@@ -6,6 +6,7 @@ from enrollments.api.views import (
     CourseEnrollementListAPIView,
     CourseEnrollementRetrieveAPIView,
     CourseEnrollementUpdateAPIView,
+    CourseThroughEnrollmentGeneratorAPIView,
     EnrollmentCreateAPIView,
     EnrollmentListAPIView,
     ExamEnrollmentCheckpointRetrieveAPIView,
@@ -101,6 +102,11 @@ course_enroll_urls = [
         "destroy/<int:pk>/",
         CourseEnrollementDestroyAPIView.as_view(),
         name="course-enroll-destroy",
+    ),
+    path(
+        "generator/list/",
+        CourseThroughEnrollmentGeneratorAPIView.as_view(),
+        name="generator-course",
     ),
 ]
 

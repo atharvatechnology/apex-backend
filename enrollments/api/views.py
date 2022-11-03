@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 # from common.utils import dynamic_excel_generator
+from common.api.views import BaseReportGeneratorAPIView
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
@@ -25,8 +26,10 @@ from enrollments.api.serializers import (
     PhysicalBookCourseEnrollmentSerializer,
     StudentEnrollmentSerializer,
 )
-from enrollments.api.tasks import excelcelery
-from enrollments.filters import ExamThroughEnrollmentFilter
+from enrollments.filters import (
+    CourseThroughEnrollmentFilter,
+    ExamThroughEnrollmentFilter,
+)
 from enrollments.models import (
     CourseThroughEnrollment,
     Enrollment,
@@ -243,17 +246,17 @@ class CheckIfStudentInCourse(CreateAPIView):
     serializer_class = StudentEnrollmentSerializer
 
 
-class ExamThroughEnrollmentGeneratorAPIView(ListAPIView):
+class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = ExamThroughEnrollment.objects.all()
     filterset_class = ExamThroughEnrollmentFilter
+    model_name = "ExamThroughEnrollment"
 
-    def get(self, request):
-        filtered_data = self.filter_queryset(self.get_queryset())
-        excelcelery.delay(
-            list(filtered_data.values_list("pk", flat=True)),
-            "ExamThroughEnrollment",
-            request.user.id,
-        )
-        return Response({"msg": "Your will be notified after your file is ready."})
+
+class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = CourseThroughEnrollment.objects.all()
+    filterset_class = CourseThroughEnrollmentFilter
+    model_name = "CourseThroughEnrollment"

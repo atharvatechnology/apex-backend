@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from enrollments.models import (
+    CourseThroughEnrollment,
     EnrollmentStatus,
     ExamSession,
     ExamThroughEnrollment,
@@ -140,11 +141,14 @@ def dynamic_excel_generator(queryset_id, data, user_id):
     from django.conf import settings
 
     from report.models import GeneratedReport
-    from report.views import ExamThroughEnrollmentTableData
+    from report.views import (
+        CourseThroughEnrollmentTableData,
+        ExamThroughEnrollmentTableData,
+    )
 
     User = get_user_model()
     # Create a workbook and add a worksheet.
-    user = User.objects.get(id=1)
+    user = User.objects.get(id=user_id)
     media_path = f"reports/{user.username}"
     base_path = os.path.join(settings.BASE_DIR, f"media/{media_path}")
     os.makedirs(base_path, exist_ok=True)
@@ -157,19 +161,30 @@ def dynamic_excel_generator(queryset_id, data, user_id):
     # Some data we want to write to the worksheet.
     # passing field names received from front-end
 
-    model_fields = [
-        "enrollment",
-        "exam",
-        "selected_session",
-        "rank",
-        "score",
-        "negative_score",
-        "status",
-    ]
     if data == "ExamThroughEnrollment":
         # get model names and it correcponding headers needed in report.
+        model_fields = [
+            "enrollment",
+            "exam",
+            "selected_session",
+            "rank",
+            "score",
+            "negative_score",
+            "status",
+        ]
         queryset = ExamThroughEnrollment.objects.filter(id__in=queryset_id)
         report = ExamThroughEnrollmentTableData(model_fields, queryset, worksheet)
+    elif data == "CourseThroughEnrollment":
+        model_fields = [
+            "enrollment",
+            "course_name",
+            "selected_session",
+            "course_enroll_status",
+            "completed_date",
+        ]
+        queryset = CourseThroughEnrollment.objects.filter(id__in=queryset_id)
+        report = CourseThroughEnrollmentTableData(model_fields, queryset, worksheet)
+
     worksheet = report.generate_report()
     workbook.close()
 
