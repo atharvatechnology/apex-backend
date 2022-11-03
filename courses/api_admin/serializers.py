@@ -20,7 +20,9 @@ class CourseCategorySerializer(serializers.ModelSerializer):
 class CourseSerializer(PublishedSerializer):
     """Serializer for creating courses."""
 
-    exams = ExamOnCourseRetrieveSerializer(many=True, source="exams_exam_related")
+    exams = ExamOnCourseRetrieveSerializer(
+        many=True, source="exams_exam_related", required=False
+    )
 
     class Meta:
         model = Course
