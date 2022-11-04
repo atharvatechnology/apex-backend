@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
+from courses.api_common.serializers import CourseMinSerializer
 from enrollments.api.serializers import ExamSessionSerializer
 from enrollments.api_admin.serializers import ExamSessionAdminSerializer
 from exams.api.serializers import ExamTemplateListSerializer
@@ -429,6 +430,7 @@ class ExamUpdateSerializer(CreatorSerializer):
             "category",
             # "status",
             "price",
+            "course",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
@@ -436,12 +438,10 @@ class ExamUpdateSerializer(CreatorSerializer):
 class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
     """Serializer when admin is retrieving an exam."""
 
-    from courses.api_admin.serializers import CourseMiniSerializer
-
     template = ExamTemplateOnExamRetrievalSerializer()
     questions = QuestionOnExamRetrievalSerializer(many=True)
     sessions = ExamSessionSerializer(many=True, read_only=True)
-    course = CourseMiniSerializer()
+    course = CourseMinSerializer()
 
     class Meta:
         model = Exam

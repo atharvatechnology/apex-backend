@@ -65,14 +65,6 @@ class CourseUpdateSerializer(PublishedSerializer):
         )
 
 
-class CourseMiniSerializer(serializers.ModelSerializer):
-    """Serializer for droplisting courses."""
-
-    class Meta:
-        model = Course
-        fields = ("id", "name")
-
-
 class ExamInCourseDeleteSerializer(serializers.Serializer):
     """Serializer for deleting exams in courses."""
 

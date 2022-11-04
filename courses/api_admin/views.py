@@ -14,11 +14,11 @@ from rest_framework.response import Response
 from common.paginations import StandardResultsSetPagination
 from courses.api_admin.serializers import (
     CourseCategorySerializer,
-    CourseMiniSerializer,
     CourseSerializer,
     CourseUpdateSerializer,
     ExamInCourseDeleteSerializer,
 )
+from courses.api_common.serializers import CourseMinSerializer
 from courses.models import Course, CourseCategory
 
 
@@ -103,7 +103,7 @@ class CourseDropdownListAPIView(ListAPIView):
     """View for listing courses for dropdown."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    serializer_class = CourseMiniSerializer
+    serializer_class = CourseMinSerializer
     queryset = Course.objects.all()
 
 
