@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
 from common.utils import decode_user
+from courses.api_common.serializers import CourseMinSerializer
 from courses.models import Course, CourseStatus
 from enrollments.api.serializers import ExamEnrollmentSerializer
 from enrollments.api.utils import (
@@ -20,6 +21,8 @@ from enrollments.models import (
     ExamSession,
     ExamThroughEnrollment,
 )
+from exams.api_common.serializers import ExamMiniSerializer
+from payments.api_common.serializers import PaymentSerializer
 
 User = get_user_model()
 
@@ -152,37 +155,124 @@ class CourseSessionAdminUpdateSerializer(CourseSessionAdminSerializer):
         return instance
 
 
-class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
+class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
+    """Base Serializer for ExamThroughEnrollment."""
+
+    exam = ExamMiniSerializer()
+    student = serializers.SerializerMethodField()
+    selected_session = ExamSessionAdminSerializer()
+    created_at = serializers.SerializerMethodField()
+    payment = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "selected_session",
+            "student",
+            "status",
+            "score",
+            "negative_score",
+            "exam",
+            "payment",
+        )
+        read_only_fields = (
+            "status",
+            "score",
+        )
+
+    def get_student(self, obj):
+        """Get student username."""
+        return {
+            "name": obj.enrollment.student.__str__(),
+            "phone": obj.enrollment.student.username,
+        }
+
+    def get_created_at(self, obj):
+        """Get created_at."""
+        return obj.enrollment.created_at
+
+    def get_payment(self, obj):
+        """Get payment."""
+        data = PaymentSerializer(
+            obj.enrollment.payments_payment_related.all(), many=True
+        ).data
+        return data
+
+    def get_status(self, obj):
+        """Get enrollment status."""
+        return obj.enrollment.status
+
+
+class ExamThroughEnrollmentAdminListSerializer(
+    ExamThroughEnrollmentAdminBaseSerializer
+):
     """Serializer for ExamThroughEnrollment List."""
 
     question_states = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()
-    student = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamThroughEnrollment
-
-        fields = (
-            "id",
-            "student",
+        fields = ExamThroughEnrollmentAdminBaseSerializer.Meta.fields + (
             "question_states",
-            "exam",
-            "score",
-            "negative_score",
-            "status",
             "rank",
         )
 
     def get_rank(self, obj):
         return get_student_rank(obj)
 
-    @staticmethod
-    def get_student(obj):
-        return obj.enrollment.student.__str__()
+    # @staticmethod
+    # def get_student(obj):
+    #     return obj.enrollment.student.__str__()
 
     @staticmethod
     def get_question_states(obj):
         return obj.question_states.all().count()
+
+
+class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
+    """Base Serializer for CourseThroughEnrollment."""
+
+    course = CourseMinSerializer()
+    student = serializers.SerializerMethodField()
+    selected_session = CourseSessionAdminSerializer()
+    created_at = serializers.SerializerMethodField()
+    payment = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "selected_session",
+            "student",
+            "course",
+            "payment",
+            "created_at",
+            "status",
+        )
+        read_only_fields = ("status",)
+
+    def get_student(self, obj):
+        """Get student username."""
+        return {
+            "name": obj.enrollment.student.__str__(),
+            "phone": obj.enrollment.student.username,
+        }
+
+    def get_status(self, obj):
+        """Get enrollment status."""
+        return obj.enrollment.status
+
+    def get_created_at(self, obj):
+        """Get created_at."""
+        return obj.enrollment.created_at
+
+    def get_payment(self, obj):
+        """Get payment."""
+        return PaymentSerializer(
+            obj.enrollment.payments_payment_related.all(), many=True
+        ).data
 
 
 class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):

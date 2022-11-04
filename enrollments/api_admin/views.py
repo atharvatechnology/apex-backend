@@ -15,15 +15,20 @@ from common.paginations import StandardResultsSetPagination
 from enrollments.api_admin.serializers import (
     CourseSessionAdminSerializer,
     CourseSessionAdminUpdateSerializer,
+    CourseThroughEnrollmentAdminBaseSerializer,
     ExamEnrollmentCreateSerializer,
     ExamSessionAdminSerializer,
     ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
     StudentEnrollmentCheckSerializer,
 )
-from enrollments.filters import ExamThroughEnrollmentFilter
+from enrollments.filters import (
+    CourseThroughEnrollmentFilter,
+    ExamThroughEnrollmentFilter,
+)
 from enrollments.models import (
     CourseSession,
+    CourseThroughEnrollment,
     Enrollment,
     ExamSession,
     ExamThroughEnrollment,
@@ -193,6 +198,27 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     ]
     ordering_fields = ["status", "score"]
     filterset_class = ExamThroughEnrollmentFilter
+
+
+class CourseThroughEnrollmentListAPIView(ListAPIView):
+    """List all student in Course."""
+
+    serializer_class = CourseThroughEnrollmentAdminBaseSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
+    pagination_class = StandardResultsSetPagination
+    search_fields = [
+        "enrollment__student__first_name",
+        "enrollment__student__last_name",
+        "enrollment__student__username",
+    ]
+    # ordering_fields = ["status", "score"]
+    filterset_class = CourseThroughEnrollmentFilter
 
 
 class StudentCourseCheckView(GenericAPIView):

@@ -5,6 +5,7 @@ from .views import (
     CourseSessionDeleteAPIView,
     CourseSessionListAPIView,
     CourseSessionUpdateAPIView,
+    CourseThroughEnrollmentListAPIView,
     ExamEnrollmentCreateAPIView,
     ExamSessionCreateAPIView,
     ExamSessionDeleteAPIView,
@@ -70,6 +71,14 @@ exam_enroll_url = [
     ),
 ]
 
+course_through_enrollment_urls = [
+    path(
+        "list/",
+        CourseThroughEnrollmentListAPIView.as_view(),
+        name="course-through-enrollment-list",
+    ),
+]
+
 session_urls = [
     path("exam/", include(exam_session_urls)),
     path("course/", include(course_session_urls)),
@@ -78,5 +87,6 @@ session_urls = [
 urlpatterns = [
     path("session/", include(session_urls)),
     path("examthroughenrollment/", include(exam_through_enrollment_urls)),
+    path("coursethroughenrollment/", include(course_through_enrollment_urls)),
     path("exam-enroll/", include(exam_enroll_url)),
 ]
