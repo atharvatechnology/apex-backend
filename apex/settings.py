@@ -14,6 +14,7 @@ from pathlib import Path
 
 import environ
 from corsheaders.defaults import default_headers, default_methods
+from firebase_admin import initialize_app
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -62,8 +63,12 @@ INSTALLED_APPS = [
     "courses",
     "exams",
     "enrollments",
+    "attendance",
     "clock",
     "physicalbook",
+    "payments",
+    "meetings",
+    "infocenter",
     # third party
     "drf_yasg",
     "corsheaders",
@@ -76,6 +81,10 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "ckeditor",
+    "debug_toolbar",
+    "fcm_django",
+    "notifications",
+    "report",
 ]
 
 MIDDLEWARE = [
@@ -88,6 +97,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apex.middleware.MoveJWTCookieIntoTheBody",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "apex.urls"
@@ -113,6 +123,7 @@ WSGI_APPLICATION = "apex.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+
 
 DATABASES = {"default": env.db()}
 
@@ -215,6 +226,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Headers",
     "Access-Control-Allow-Methods",
     "Access-Control-Allow-Credentials",
+    "responseType",
 ]
 
 
@@ -250,7 +262,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(
         minutes=env.int("REFRESH_EXPIRY_TIME", default=1440)
     ),
-    "ROTATE_REFRESH_TOKENS": False,
+    "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
@@ -285,7 +297,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 # Celery settings
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379")
-CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="django-db")
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -342,7 +354,10 @@ vars().update(EMAIL_CONFIG)
 
 # server Bug tracker settings start
 SERVER_EMAIL = EMAIL_CONFIG["EMAIL_HOST_USER"]
-ADMINS = [("Apex Error", "sushilk.calcgen@gmail.com")]
+ADMINS = [
+    ("Apex Error", "sushilk.calcgen@gmail.com"),
+    ("Apex Error", "raj.shrestha778@gmail.com"),
+]
 # server Bug tracker settings end
 
 # For providing https route start
@@ -380,3 +395,28 @@ CACHES = {
 
 # Cache time to live is 2 days
 CACHE_TTL = 60 * 60 * 24 * 2
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+ZOOM_CONFIGS = {
+    "zoom_key": env("ZOOM_KEY"),
+    "zoom_account_id": env("ZOOM_ACCOUNT_ID"),
+    "zoom_api": env("ZOOM_API_URL", default="https://api.zoom.us/v2/"),
+    "zoom_retry_attempts": env("ZOOM_RETRY_ATTEMPTS", default=3),
+    "zoom_sdk_key": env("ZOOM_SDK_KEY"),
+    "zoom_secret_key": env("ZOOM_SECRET_KEY"),
+}
+# firebase notification
+FIREBASE_APP = initialize_app()
+FCM_DJANGO_SETTINGS = {
+    "APP_VERBOSE_NAME": "Apex",
+    "ONE_DEVICE_PER_USER": True,
+    "DELETE_INACTIVE_DEVICES": True,
+    "UPDATE_ON_DUPLICATE_REG_ID": True,
+}
+GOOGLE_APPLICATION_CREDENTIALS = BASE_DIR / env(
+    "GOOGLE_APPLICATION_CREDENTIALS", default="apex-education-firebase.json"
+)
+# Firebase notification end

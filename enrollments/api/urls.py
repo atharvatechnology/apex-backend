@@ -1,17 +1,19 @@
 from django.urls import include, path
 
 from enrollments.api.views import (
-    CourseEnrollementCreateAPIView,
+    CheckIfStudentInCourse,
     CourseEnrollementDestroyAPIView,
     CourseEnrollementListAPIView,
     CourseEnrollementRetrieveAPIView,
     CourseEnrollementUpdateAPIView,
+    CourseThroughEnrollmentGeneratorAPIView,
     EnrollmentCreateAPIView,
     EnrollmentListAPIView,
     ExamEnrollmentCheckpointRetrieveAPIView,
     ExamEnrollmentRetrieveAPIView,
     ExamEnrollmentRetrievePoolAPIView,
     ExamEnrollmentUpdateAPIView,
+    ExamThroughEnrollmentGeneratorAPIView,
     PhysicalBookCourseEnrollmentCreateAPIView,
     PhysicalBookCourseEnrollmentDestroyAPIView,
     PhysicalBookCourseEnrollmentListAPIView,
@@ -22,6 +24,11 @@ from enrollments.api.views import (
 enrollment_urls = [
     path("create/", EnrollmentCreateAPIView.as_view(), name="enrollment-create"),
     path("list/", EnrollmentListAPIView.as_view(), name="enrollment-list"),
+    path(
+        "report/generate/",
+        ExamThroughEnrollmentGeneratorAPIView.as_view(),
+        name="generator-enrollment",
+    ),
 ]
 
 exam_urls = [
@@ -82,11 +89,6 @@ course_enroll_urls = [
         name="course-enroll-list",
     ),
     path(
-        "create/",
-        CourseEnrollementCreateAPIView.as_view(),
-        name="course-enroll-create",
-    ),
-    path(
         "update/<int:pk>/",
         CourseEnrollementUpdateAPIView.as_view(),
         name="course-enroll-update",
@@ -101,6 +103,15 @@ course_enroll_urls = [
         CourseEnrollementDestroyAPIView.as_view(),
         name="course-enroll-destroy",
     ),
+    path(
+        "report/generate/",
+        CourseThroughEnrollmentGeneratorAPIView.as_view(),
+        name="generator-course",
+    ),
+]
+
+check_enroll_urls = [
+    path("student-enroll/", CheckIfStudentInCourse.as_view(), name="stu-enroll"),
 ]
 
 urlpatterns = [
@@ -108,4 +119,6 @@ urlpatterns = [
     path("exam/", include(exam_urls)),
     path("physical/", include(physical_urls)),
     path("course-enroll/", include(course_enroll_urls)),
+    path("check/", include(check_enroll_urls)),
+    # path("dynamic/", dynamic_excel_generator,)
 ]

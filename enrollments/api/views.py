@@ -1,5 +1,6 @@
 from django.utils.timezone import localtime
-from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -10,6 +11,10 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from common.api.serializers import ModelFieldsSerializer
+
+# from common.utils import dynamic_excel_generator
+from common.api.views import BaseReportGeneratorAPIView
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
@@ -21,6 +26,11 @@ from enrollments.api.serializers import (
     ExamEnrollmentRetrieveSerializer,
     ExamEnrollmentUpdateSerializer,
     PhysicalBookCourseEnrollmentSerializer,
+    StudentEnrollmentSerializer,
+)
+from enrollments.filters import (
+    CourseThroughEnrollmentFilter,
+    ExamThroughEnrollmentFilter,
 )
 from enrollments.models import (
     CourseThroughEnrollment,
@@ -117,7 +127,7 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         ):
             # if (selected_session.status == SessionStatus.RESULTSOUT):
             return super().retrieve(request, *args, **kwargs)
-        if publish_date := selected_session.publish_date:
+        if publish_date := selected_session.result_publish_date:
             error_detail = f"Your result will be published \
                 on {localtime(publish_date).strftime('%Y-%m-%d %H:%M:%S')}"
         else:
@@ -210,14 +220,6 @@ class CourseEnrollementListAPIView(ListAPIView):
     serializer_class = CourseEnrollmentSerializer
 
 
-class CourseEnrollementCreateAPIView(CreateAPIView):
-    """create view for course enrollment."""
-
-    permission_classes = [IsAuthenticated]
-    queryset = CourseThroughEnrollment.objects.all()
-    serializer_class = CourseEnrollmentSerializer
-
-
 class CourseEnrollementUpdateAPIView(UpdateAPIView):
     """Update view for course enrollment."""
 
@@ -240,3 +242,32 @@ class CourseEnrollementDestroyAPIView(DestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
+
+
+class CheckIfStudentInCourse(CreateAPIView):
+    serializer_class = StudentEnrollmentSerializer
+
+
+class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = ExamThroughEnrollment.objects.all()
+    filterset_class = ExamThroughEnrollmentFilter
+    model_name = "ExamThroughEnrollment"
+    serializer_class = ModelFieldsSerializer
+    # {"model_fields":
+    #     ["enrollment","exam","selected_session","rank","score","negative_score","status"]
+    # }
+
+
+class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = CourseThroughEnrollment.objects.all()
+    filterset_class = CourseThroughEnrollmentFilter
+    model_name = "CourseThroughEnrollment"
+    serializer_class = ModelFieldsSerializer
+
+    # {
+    # "model_fields"=["enrollment","course_name","selected_session","course_enroll_status","completed_date"]
+    # }

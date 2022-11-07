@@ -4,9 +4,11 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from courses.api.paginations import StandardResultsSetPagination
+from common.paginations import StandardResultsSetPagination
+from enrollments.models import ExamSession, ExamThroughEnrollment, SessionStatus
 from exams.api.permissions import IsExamEnrolledActive
-from exams.models import Exam, ExamStatus
+from exams.filters import ExamFilter
+from exams.models import Exam
 
 from .serializers import (  # ExamUpdateSerializer,
     ExamListSerializer,
@@ -14,6 +16,8 @@ from .serializers import (  # ExamUpdateSerializer,
     ExamRetrievePoolSerializer,
     ExamRetrieveSerializer,
 )
+
+# from common.utils import excelgenerator
 
 # class ExamCreateAPIView(BaseCreatorCreateAPIView):
 #     serializer_class = ExamCreateSerializer
@@ -23,9 +27,9 @@ from .serializers import (  # ExamUpdateSerializer,
 class ExamListAPIView(ListAPIView):
     serializer_class = ExamListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
     permission_classes = [AllowAny]
     queryset = Exam.objects.all()
+    filterset_class = ExamFilter
     pagination_class = StandardResultsSetPagination
 
 
@@ -54,9 +58,21 @@ class ExamPaperAPIView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.status == ExamStatus.IN_PROGRESS:
-            return super().retrieve(request, *args, **kwargs)
-        return Response({"detail": "Exam is not in progress"}, status=400)
+        exam_session = ExamSession.objects.filter(
+            exam=instance, id=self.kwargs["session_id"]
+        ).first()
+        enrollment = ExamThroughEnrollment.objects.filter(
+            selected_session=exam_session, enrollment__student=self.request.user
+        ).first()
+        if enrollment:
+            if enrollment.selected_session.status == SessionStatus.ACTIVE:
+                return super().retrieve(request, *args, **kwargs)
+            return Response({"detail": "Exam Session is not Active"}, status=400)
+        return Response(
+            "Student is not enrolled to {} exam session.".format(
+                self.kwargs["session_id"]
+            )
+        )
 
 
 class ExamPaperPreviewAPIView(RetrieveAPIView):

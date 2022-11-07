@@ -2,7 +2,7 @@ from celery import shared_task
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
-from enrollments.models import ExamThroughEnrollment, Session
+from enrollments.models import CourseSession, ExamSession, ExamThroughEnrollment
 
 CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
 
@@ -23,7 +23,10 @@ def calculate_score(exam_through_enrollment_id):
     exam_through_enrollment = ExamThroughEnrollment.objects.get(
         id=exam_through_enrollment_id
     )
-    exam_through_enrollment.score = exam_through_enrollment.calculate_score()
+    (
+        exam_through_enrollment.score,
+        exam_through_enrollment.negative_score,
+    ) = exam_through_enrollment.calculate_score()
     # exam_through_enrollment.save()
     pass_marks = (
         exam_through_enrollment.exam.template.pass_percentage
@@ -79,7 +82,7 @@ def calculate_score(exam_through_enrollment_id):
 
 @shared_task
 def start_exam_session(session_id):
-    """Start exam.
+    """Start session.
 
     Start the exam for a given session.
 
@@ -90,13 +93,13 @@ def start_exam_session(session_id):
 
     """
     # activate session
-    session = Session.objects.get(id=session_id)
+    session = ExamSession.objects.get(id=session_id)
     session.activate_session()
 
 
 @shared_task
 def end_exam_session(session_id):
-    """Finish exam.
+    """Finish session.
 
     Finish the exam for a given session.
 
@@ -107,5 +110,17 @@ def end_exam_session(session_id):
 
     """
     # deactivate session
-    session = Session.objects.get(id=session_id)
+    session = ExamSession.objects.get(id=session_id)
+    session.end_session()
+
+
+@shared_task
+def start_course_session(session_id):
+    session = CourseSession.objects.get(id=session_id)
+    session.activate_session()
+
+
+@shared_task
+def end_course_session(session_id):
+    session = CourseSession.objects.get(id=session_id)
     session.end_session()

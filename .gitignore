@@ -138,3 +138,4 @@ dmypy.json
 media/
 .env*
 static-live
+apex-education-firebase.json

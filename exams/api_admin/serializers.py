@@ -2,7 +2,8 @@ from django.db import transaction
 from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer
-from enrollments.api.serializers import SessionSerializer
+from enrollments.api.serializers import ExamSessionSerializer
+from enrollments.api_admin.serializers import ExamSessionAdminSerializer
 from exams.api.serializers import ExamTemplateListSerializer
 from exams.models import (
     Exam,
@@ -342,27 +343,78 @@ class ExamCreateSerializer(CreatorSerializer):
         fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "template",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
-class ExamListAdminSerializer(serializers.ModelSerializer):
+class ExamListAdminSerializer(CreatorSerializer):
     """Serializer when user is listing exams."""
 
     template = ExamTemplateListSerializer()
 
     class Meta:
         model = Exam
-        fields = (
-            "id",
+        fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "template",
+        )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+
+class ExamOnCourseRetrieveSerializer(ExamListAdminSerializer):
+    """Serializer when user is retrieving a course."""
+
+    class Meta:
+        model = Exam
+        fields = ExamListAdminSerializer.Meta.fields
+        read_only_fields = ExamListAdminSerializer.Meta.read_only_fields
+
+
+class ExamListOverviewAdminSerializer(serializers.ModelSerializer):
+    """Serializer for Exam List Overview."""
+
+    exam_date = serializers.SerializerMethodField(read_only=True)
+    examinees = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Exam
+        fields = ("id", "name", "exam_date", "examinees")
+
+    def get_exam_date(self, obj):
+        exam_sessions = obj.sessions.all()
+        return ", ".join(
+            [
+                exam_session.start_date.strftime("%d %b %Y")
+                for exam_session in exam_sessions
+            ]
+        )
+
+    def get_examinees(self, obj):
+        exam_enrolls = obj.exam_enrolls.all().order_by("selected_session")
+        exam_sessions = obj.sessions.all()
+        examinees = []
+        for exam_session in exam_sessions:
+            exam_enrolls_count = exam_enrolls.filter(
+                selected_session=exam_session
+            ).count()
+            examinees.append(exam_enrolls_count)
+        return ", ".join([str(examinee) for examinee in examinees])
+
+
+class ExamDetailSerializer(serializers.ModelSerializer):
+    sessions = ExamSessionAdminSerializer(many=True, fields=["id", "start_date"])
+
+    class Meta:
+        model = Exam
+        fields = (
+            "name",
+            "sessions",
         )
 
 
@@ -374,10 +426,10 @@ class ExamUpdateSerializer(CreatorSerializer):
         fields = CreatorSerializer.Meta.fields + (
             "name",
             "category",
-            "status",
+            # "status",
             "price",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
 class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
@@ -385,7 +437,7 @@ class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
 
     template = ExamTemplateOnExamRetrievalSerializer()
     questions = QuestionOnExamRetrievalSerializer(many=True)
-    sessions = SessionSerializer(many=True, read_only=True)
+    sessions = ExamSessionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Exam
@@ -393,7 +445,7 @@ class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
-            "status",
+            # "status",
             "price",
             "template",
             "sessions",

@@ -2,7 +2,11 @@ from rest_framework import serializers
 
 from common.api.mixin import EnrolledSerializerMixin
 from common.api.serializers import CreatorSerializer
-from enrollments.api.serializers import ExamEnrollmentPaperSerializer, SessionSerializer
+from enrollments.api.serializers import (
+    ExamEnrollmentPaperSerializer,
+    ExamSessionSerializer,
+)
+from enrollments.api.utils import retrieve_exam_status
 from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
 from exams.models import Exam, ExamTemplate, Option, Question
 
@@ -75,8 +79,10 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
     """Serializer when user is retrieving an exam."""
 
     template = ExamTemplateSerializer()
-    sessions = SessionSerializer(many=True)
+    sessions = ExamSessionSerializer(many=True)
     exam_enroll = serializers.SerializerMethodField()
+    session_id = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -90,6 +96,7 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
             "sessions",
             "template",
             "exam_enroll",
+            "session_id",
         )
 
     def get_exam_enroll(self, obj):
@@ -119,20 +126,40 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
                 return ExamEnrollmentExamRetrieveSerializer(exam_enrollment).data
         return None
 
+    def get_session_id(self, obj):
+        user = self.context["request"].user
+        if user.is_authenticated:
+            enrollment = ExamThroughEnrollment.objects.filter(
+                enrollment__student=self.context["request"].user,
+                exam=obj,
+            ).first()
+            if enrollment:
+                return enrollment.selected_session.id
+        return None
+
+    def get_status(self, obj):
+        return retrieve_exam_status(self, obj)
+
 
 class ExamRetrievePoolSerializer(serializers.ModelSerializer):
     """Serializer when user is retrieving an exam for pooling."""
 
+    # status = serializers.SerializerMethodField()
     class Meta:
         model = Exam
         fields = (
             "id",
-            "status",
+            # "status",
         )
+
+    # def get_status(self, obj):
+    #     return
 
 
 class ExamCreateSerializer(CreatorSerializer):
     """Serializer when admin is creating an exam."""
+
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -143,13 +170,18 @@ class ExamCreateSerializer(CreatorSerializer):
             "price",
             "template",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+    # TODO Need to be discussed.
+    def get_status(self, obj):
+        return retrieve_exam_status(self, obj)
 
 
 class ExamListSerializer(serializers.ModelSerializer):
     """Serializer when user is listing exams."""
 
     template = ExamTemplateListSerializer()
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -162,9 +194,14 @@ class ExamListSerializer(serializers.ModelSerializer):
             "template",
         )
 
+    def get_status(self, obj):
+        return retrieve_exam_status(self, obj)
+
 
 class ExamUpdateSerializer(CreatorSerializer):
     """Serializer when admin is updating an exam."""
+
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -174,7 +211,10 @@ class ExamUpdateSerializer(CreatorSerializer):
             "status",
             "price",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+    def get_status(self, obj):
+        return retrieve_exam_status(self, obj)
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -205,6 +245,7 @@ class ExamPaperSerializer(serializers.ModelSerializer):
     template = ExamTemplateSerializer()
     questions = QuestionSerializer(many=True)
     exam_enroll = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -228,6 +269,9 @@ class ExamPaperSerializer(serializers.ModelSerializer):
                 return ExamEnrollmentPaperSerializer(
                     student_enrollments[0].exam_enrolls.filter(exam=obj).first()
                 ).data
+
+    def get_status(self, obj):
+        return retrieve_exam_status(self, obj)
 
 
 # class ExamPaperWOEnrollmentSeriaizer(serializers.ModelSerializer):

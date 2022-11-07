@@ -2,7 +2,7 @@ from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
-from courses.api.paginations import StandardResultsSetPagination
+from common.paginations import StandardResultsSetPagination
 from notes.api_admin.serializers import (
     ContentSerializer,
     NoteSerializer,

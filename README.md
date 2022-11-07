@@ -20,3 +20,8 @@ pip install -r requirements.txt
 ```shell
 pre-commit install
 ```
+#### Run Celery for Periodic Task
+- command
+```shell
+celery -A apex worker --beat --scheduler django -l info
+```

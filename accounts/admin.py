@@ -78,12 +78,14 @@ class UserAdmin(BaseUserAdmin):
             f"{obj.profile}</a>"
         )
 
+    actions = ["make_active"]
+
     list_display = [
         "name",
         "username",
         "email",
         "is_active",
-        "is_staff",
+        "role",
         "last_login",
         "date_joined",
         "view_profile",
@@ -93,6 +95,7 @@ class UserAdmin(BaseUserAdmin):
         "is_superuser",
         "is_active",
         "groups",
+        "role",
     )
     search_fields = ("username", "first_name", "last_name", "email")
     ordering = ("username",)
@@ -110,6 +113,7 @@ class UserAdmin(BaseUserAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "role",
                     "otp",
                     "otp_counter",
                     "otp_generate_time",
@@ -162,6 +166,10 @@ class UserAdmin(BaseUserAdmin):
         if not user.is_superuser and db_field.name == "groups":
             kwargs["queryset"] = Group.objects.exclude(name__in=["Admin", "Manager"])
         return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+    @admin.action(description="Mark selected students active")
+    def make_active(self, request, queryset):
+        queryset.update(is_active=True)
 
 
 @admin.register(Profile)

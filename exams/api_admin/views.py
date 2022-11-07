@@ -11,13 +11,16 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
-from courses.api.paginations import StandardResultsSetPagination
+from common.paginations import StandardResultsSetPagination
+from exams.filters import ExamOnCourseFilter
 from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Section
 
 from .serializers import (
     ExamCreateSerializer,
+    ExamDetailSerializer,
     ExamImageAdminSerializer,
     ExamListAdminSerializer,
+    ExamListOverviewAdminSerializer,
     ExamRetrieveAdminSerializer,
     ExamTemplateCreateUpdateSerializer,
     ExamTemplateMiniSerializer,
@@ -140,9 +143,14 @@ class ExamListAPIView(ListAPIView):
     serializer_class = ExamListAdminSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
+    filterset_class = ExamOnCourseFilter
     queryset = Exam.objects.all()
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsAuthenticated, IsAdminUser]
+
+
+class ExamListOverviewAPIView(ExamListAPIView):
+    serializer_class = ExamListOverviewAdminSerializer
 
 
 class ExamRetrieveAPIView(RetrieveAPIView):
@@ -159,3 +167,9 @@ class ExamImageUploadAPIView(CreateAPIView):
         exam_id = self.kwargs.get("exam_id")
         exam = get_object_or_404(Exam, id=exam_id)
         return serializer.save(exam=exam)
+
+
+class ExamDetailAPIView(RetrieveAPIView):
+    serializer_class = ExamDetailSerializer
+    queryset = Exam.objects.all()
+    permission_classes = [IsAuthenticated, IsAdminUser]

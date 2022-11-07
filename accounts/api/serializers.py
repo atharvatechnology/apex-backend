@@ -33,6 +33,23 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
         fields = ["college_name", "image", "date_of_birth", "faculty"]
 
 
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for the Profile model Update."""
+
+    college_name = serializers.CharField(required=True)
+    date_of_birth = serializers.DateField(required=True)
+
+    class Meta:
+        model = Profile
+        fields = [
+            "college_name",
+            "image",
+            "date_of_birth",
+            "faculty",
+            "address",
+        ]
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
     """User Create Serializer."""
 
@@ -175,11 +192,76 @@ class UserResetPasswordConfirmSerializer(serializers.ModelSerializer):
 
 
 class UserCustomDetailsSerializer(UserDetailsSerializer):
-    full_name = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField(read_only=True)
+    admin_user = serializers.SerializerMethodField(read_only=True)
+    role = serializers.SerializerMethodField()
+
+    
 
     class Meta(UserDetailsSerializer.Meta):
-        extra_fields = UserDetailsSerializer.Meta.extra_fields + ["full_name"]
-        fields = list(UserDetailsSerializer.Meta.fields) + ["full_name"]
+        extra_fields = UserDetailsSerializer.Meta.extra_fields + [
+            "full_name",
+            "admin_user",
+            "role"
+        ]
+        fields = list(UserDetailsSerializer.Meta.fields) + ["full_name", "admin_user", "role"]
+
+    def get_role(self, obj):
+        return obj.get_role()
 
     def get_full_name(self, obj):
         return obj.get_full_name()
+
+    def get_admin_user(self, obj):
+        return obj.is_superuser
+
+
+class UserDetailSerializer(UserCustomDetailsSerializer):
+    """User Details Serializer."""
+
+    profile = ProfileUpdateSerializer(required=False)
+
+    class Meta(UserCustomDetailsSerializer.Meta):
+        fields = list(UserCustomDetailsSerializer.Meta.fields) + ["profile"]
+        extra_fields = list(UserCustomDetailsSerializer.Meta.extra_fields) + [
+            "profile",
+        ]
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    """User Update Serializer."""
+
+    fullName = FullNameField(source="*")
+    profile = ProfileUpdateSerializer(required=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "email",
+            "fullName",
+            "profile",
+        ]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        profile_data = None
+        if "profile" in validated_data:
+            profile_data = validated_data.pop("profile")
+
+        instance = super().update(instance, validated_data)
+        instance.save()
+
+        if profile_data:
+            for attr, value in profile_data.items():
+                setattr(instance.profile, attr, value)
+            instance.profile.save()
+        return instance
+
+
+class StudentQRSerializer(serializers.ModelSerializer):
+    """Serializer to provide QR of student."""
+
+    class Meta:
+        model = Profile
+        fields = ["qr_code"]

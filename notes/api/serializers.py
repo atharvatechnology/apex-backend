@@ -1,5 +1,5 @@
 from common.api.serializers import CreatorSerializer
-from notes.models import Content, Note
+from notes.models import Content, Note, RecordedVideo
 
 
 class ContentCreateSerializer(CreatorSerializer):
@@ -106,11 +106,9 @@ class NoteSerializerBeforeEnroll(CreatorSerializer):
 
     """
 
-    contents = ContentSerializerBeforeEnroll(many=True)
-
     class Meta:
         model = Note
-        fields = CreatorSerializer.Meta.fields + ("title", "contents")
+        fields = CreatorSerializer.Meta.fields + ("title",)
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
@@ -131,4 +129,18 @@ class NoteSerializerAfterEnroll(CreatorSerializer):
     class Meta:
         model = Note
         fields = CreatorSerializer.Meta.fields + ("title", "contents")
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+
+class RecordedVideoListSerializer(CreatorSerializer):
+    class Meta:
+        model = RecordedVideo
+        fields = CreatorSerializer.Meta.fields + ("date", "link", "course")
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+
+class RecordedVideoDetailSerializer(CreatorSerializer):
+    class Meta:
+        model = RecordedVideo
+        fields = CreatorSerializer.Meta.fields + ("date", "link", "course")
         read_only_fields = CreatorSerializer.Meta.read_only_fields

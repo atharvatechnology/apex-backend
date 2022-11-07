@@ -9,6 +9,20 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.api.otp import OTP
 from accounts.validators import PhoneNumberValidator
+from common.utils import generate_qrcode
+
+
+class UserRoles:
+    SUPER_ADMIN = 1
+    TEACHER = 2
+    DIRECTOR = 3
+    STUDENT = 4
+    role_choices = (
+        (SUPER_ADMIN, "SUPER_ADMIN"),
+        (TEACHER, "TEACHER"),
+        (DIRECTOR, "DIRECTOR"),
+        (STUDENT, "STUDENT"),
+    )
 
 
 class UserManager(BaseUserManager):
@@ -77,6 +91,10 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     """Custom User model."""
 
+    role = models.PositiveIntegerField(
+        choices=UserRoles.role_choices, blank=True, null=True
+    )
+
     username_validator = PhoneNumberValidator()
 
     username = models.CharField(
@@ -88,7 +106,7 @@ class User(AbstractUser):
         ),
         validators=[username_validator],
         error_messages={
-            "unique": _("A user with that username already exists."),
+            "unique": _("A user with that phone already exists."),
         },
     )
     otp_counter = models.PositiveIntegerField(default=0)
@@ -124,6 +142,32 @@ class User(AbstractUser):
         OTP.sendOTP.apply_async(args=[self.username, otp], queue="high_priority")
         return otp
 
+    def get_role(self):
+        if self.role:
+            return [
+                role_value
+                for role_id, role_value in UserRoles.role_choices
+                if role_id == self.role
+            ][0]
+        else:
+            return None
+
+    @property
+    def is_student(self):
+        return self.role == UserRoles.STUDENT
+
+    @property
+    def is_teacher(self):
+        return self.role == UserRoles.TEACHER
+
+    @property
+    def is_director(self):
+        return self.role == UserRoles.DIRECTOR
+
+    @property
+    def is_super_admin(self):
+        return self.role == UserRoles.SUPER_ADMIN or self.is_superuser
+
 
 class Profile(models.Model):
     """Custom Profile model."""
@@ -132,15 +176,26 @@ class Profile(models.Model):
         """To upload profile image."""
         return f"profile/{self.user.username}/{filename}"
 
+    def qr_code_image_upload(self, filename):
+        """To upload qr code image."""
+        return f"qr_code/{self.user.username}/{filename}"
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     college_name = models.CharField(max_length=100, null=True, blank=True)
     image = models.FileField(upload_to=profile_image_upload, null=True, blank=True)
+    qr_code = models.FileField(upload_to=qr_code_image_upload, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     faculty = models.CharField(max_length=100, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         ordering = ["user"]
+
+    def save(self, *args, **kwargs):
+        usr_name = self.user.username
+        qr_path = generate_qrcode(usr_name)
+        self.qr_code = qr_path
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username}"

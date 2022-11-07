@@ -1,46 +1,48 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from courses.api.paginations import LargeResultsSetPagination
+from common.api.mixin import PublishableModelMixin
+from common.paginations import StandardResultsSetPagination
+from courses.api.permissions import IsCourseEnrolledActive
 from courses.api.serializers import (
     CourseCategoryRetrieveSerializer,
+    CourseListSerializer,
     CourseRetrieveSerializerAfterEnroll,
     CourseRetrieveSerializerBeforeEnroll,
 )
+from courses.filters import CourseFilter
 from courses.models import Course, CourseCategory
 
-from ..filters import CourseFilter
 
-
-class CourseListAPIView(ListAPIView):
+class CourseListAPIView(PublishableModelMixin, ListAPIView):
     """View for listing courses."""
 
     permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializerAfterEnroll
+    serializer_class = CourseListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = Course.objects.all()
     filterset_class = CourseFilter
-    pagination_class = LargeResultsSetPagination
+    pagination_class = StandardResultsSetPagination
     # filterset_fields = ['price', 'category']
     # ordering = ['course']
 
 
-class CourseRetrieveAPIViewBeforeEnroll(RetrieveAPIView):
+class CourseRetrieveAPIAfterEnrollView(PublishableModelMixin, RetrieveAPIView):
     """View for retrieving courses."""
 
-    permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializerBeforeEnroll
+    permission_classes = [IsAuthenticated, IsCourseEnrolledActive]
+    serializer_class = CourseRetrieveSerializerAfterEnroll
     queryset = Course.objects.all()
 
 
-class CourseRetrieveAPIViewAfterEnroll(RetrieveAPIView):
+class CourseRetrieveAPIBeforeEnrollView(PublishableModelMixin, RetrieveAPIView):
     """View for retrieving courses."""
 
-    permission_classes = [AllowAny]
-    serializer_class = CourseRetrieveSerializerAfterEnroll
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseRetrieveSerializerBeforeEnroll
     queryset = Course.objects.all()
 
 
