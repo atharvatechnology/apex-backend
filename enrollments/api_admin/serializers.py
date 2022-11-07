@@ -327,7 +327,7 @@ class CourseEnrollmentCreateSerializer(serializers.ModelSerializer):
 
 
 class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
-    exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
+    exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
 
     class Meta:
         model = Enrollment
@@ -338,19 +338,14 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         exams_data = validated_data.pop("exam_enrolls", None)
-        user = self.context["request"].user
-        total_price = 0.0
-        if not exams_data:
-            raise serializers.ValidationError("Field should not be empty")
+        user = validated_data.pop("student")
 
-        if exams_data:
-            exams = [data.get("exam") for data in exams_data]
-            total_price += batch_is_enrolled_and_price(exams, user)
+        exams = [data.get("exam") for data in exams_data]
+        batch_is_enrolled_and_price(exams, user)
         enrollment = super().create(validated_data)
 
         exam_data_save(exams_data, enrollment)
-        if total_price == 0.0:
-            enrollment.status = EnrollmentStatus.ACTIVE
+        enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment
 
