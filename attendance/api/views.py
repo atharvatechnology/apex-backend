@@ -9,6 +9,7 @@ from attendance.api.serializers import (
     StudentAttendanceCreateSerializer,
     StudentAttendanceRetrieveSerializer,
     StudentAttendanceUpdateSerializer,
+    StudentOnlineAttendanceSerializer,
     TeacherAttendanceCreateSerializer,
     TeacherAttendanceRetrieveSerializer,
     TeacherAttendanceUpdateSerializer,
@@ -43,6 +44,13 @@ class StudentAttendanceCreateAPIView(BaseCreatorCreateAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = StudentAttendanceCreateSerializer
+
+
+class StudentOnlineAttendanceCreateAPIView(BaseCreatorCreateAPIView):
+    """View for creating attendance."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = StudentOnlineAttendanceSerializer
 
 
 class StudentAttendanceRetrieveAPIView(RetrieveAPIView):

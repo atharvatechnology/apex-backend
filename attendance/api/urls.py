@@ -6,6 +6,7 @@ from attendance.api.views import (
     StudentAttendanceListAPIView,
     StudentAttendanceRetrieveAPIView,
     StudentAttendanceUpdateAPIView,
+    StudentOnlineAttendanceCreateAPIView,
     TeacherAttendanceCreateAPIView,
     TeacherAttendanceListAPIView,
     TeacherAttendanceRetrieveAPIView,
@@ -15,6 +16,11 @@ from attendance.api.views import (
 student_urls = [
     path("list/", StudentAttendanceListAPIView.as_view(), name="attendance-list"),
     path("create/", StudentAttendanceCreateAPIView.as_view(), name="attendance-create"),
+    path(
+        "online/create/",
+        StudentOnlineAttendanceCreateAPIView.as_view(),
+        name="onlineattendance-create",
+    ),
     path(
         "retrieve/<int:pk>/",
         StudentAttendanceRetrieveAPIView.as_view(),
