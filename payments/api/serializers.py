@@ -1,15 +1,12 @@
 from rest_framework import serializers
 
-from payments.models import BankPayment, OnlinePayment
+from payments.models import BankPayment, OnlinePayment, Payment
 
-# class PaymentCreateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Payment
-#         fields = (
-#             'amount',
-#             'enrollment',
-#             'status'
-#         )
+
+class PaymentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ("amount", "enrollment", "status")
 
 
 class OnlinePaymentCreateSerializer(serializers.ModelSerializer):

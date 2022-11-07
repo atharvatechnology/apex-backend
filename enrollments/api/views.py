@@ -210,6 +210,9 @@ class CourseEnrollementListAPIView(ListAPIView):
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
 
+    def get_queryset(self):
+        return super().get_queryset()
+
 
 class CourseEnrollementUpdateAPIView(UpdateAPIView):
     """Update view for course enrollment."""
