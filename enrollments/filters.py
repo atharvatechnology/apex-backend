@@ -8,7 +8,7 @@ class ExamThroughEnrollmentFilter(django_filters.FilterSet):
 
     class Meta:
         model = ExamThroughEnrollment
-        fields = {"exam", "selected_session"}
+        fields = {"exam__id", "selected_session"}
 
 
 class CourseThroughEnrollmentFilter(django_filters.FilterSet):
@@ -16,4 +16,4 @@ class CourseThroughEnrollmentFilter(django_filters.FilterSet):
 
     class Meta:
         model = CourseThroughEnrollment
-        fields = {"course", "selected_session"}
+        fields = {"course__id", "selected_session"}
