@@ -1,6 +1,8 @@
 from django.urls import path
 
 from accounts.api.views import (
+    StudentQRView,
+    StudentReportGeneratorAPIView,
     UserCreateAPIView,
     UserCreateOTPVerifyAPIView,
     UserDetailAPIView,
@@ -8,7 +10,6 @@ from accounts.api.views import (
     UserResetPasswordOTPRequestAPIView,
     UserResetPasswordOTPVerifyAPIView,
     UserUpdateAPIView,
-    StudentQRView
 )
 
 app_name = "accounts"
@@ -29,6 +30,10 @@ urlpatterns = [
         name="reset-password-confirm",
     ),
     path("update/me/", UserUpdateAPIView.as_view(), name="update"),
-
     path("qr/", StudentQRView.as_view(), name="qrretrive"),
+    path(
+        "report/generate/",
+        StudentReportGeneratorAPIView.as_view(),
+        name="generator-student",
+    ),
 ]

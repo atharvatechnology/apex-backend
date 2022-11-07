@@ -31,10 +31,10 @@ class PublishedSerializer(serializers.ModelSerializer):
         )
 
 
-class DynamicFieldsCategorySerializer():
+class DynamicFieldsCategorySerializer:
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass
-        fields = kwargs.pop('fields', None)
+        fields = kwargs.pop("fields", None)
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
@@ -45,4 +45,12 @@ class DynamicFieldsCategorySerializer():
             existing = set(self.fields)
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
-        
+
+
+class ModelFieldsSerializer(serializers.Serializer):
+    """Serializer for getting model fields."""
+
+    model_fields = serializers.ListField(child=serializers.CharField(max_length=55))
+
+    class Meta:
+        fields = "model_fields"
