@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 from enrollments.api_admin.serializers import (
+    CourseEnrollmentCreateSerializer,
     CourseSessionAdminSerializer,
     CourseSessionAdminUpdateSerializer,
     CourseThroughEnrollmentAdminBaseSerializer,
@@ -179,6 +180,12 @@ class ExamEnrollmentCreateAPIView(CreateAPIView):
     queryset = Enrollment.objects.all()
 
 
+class CourseEnrollmentCreateAPIView(CreateAPIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = CourseEnrollmentCreateSerializer
+    queryset = Enrollment.objects.all()
+
+
 class ExamThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Exam."""
 
@@ -195,6 +202,7 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
         "enrollment__student__first_name",
         "enrollment__student__last_name",
         "enrollment__student__username",
+        "exam__name",
     ]
     ordering_fields = ["status", "score"]
     filterset_class = ExamThroughEnrollmentFilter
@@ -216,6 +224,7 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
         "enrollment__student__first_name",
         "enrollment__student__last_name",
         "enrollment__student__username",
+        "course__name",
     ]
     # ordering_fields = ["status", "score"]
     filterset_class = CourseThroughEnrollmentFilter

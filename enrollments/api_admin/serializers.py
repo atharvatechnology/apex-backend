@@ -275,6 +275,57 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
         ).data
 
 
+class CourseThroughEnrollmentSerializer(serializers.ModelSerializer):
+    """Serializer for CourseThroughEnrollment."""
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "selected_session",
+            "course",
+            "course_enroll_status",
+        )
+        read_only_fields = (
+            "course_enroll_status",
+            "id",
+        )
+
+
+class CourseEnrollmentCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating enrollments into a course."""
+
+    courses = CourseThroughEnrollmentSerializer(many=True, source="course_enrolls")
+
+    class Meta:
+        model = Enrollment
+        fields = (
+            "courses",
+            "student",
+            "status",
+        )
+        read_only_fields = ("status",)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        """Create a new enrollment of student to the course."""
+        courses_data = validated_data.pop("course_enrolls", None)
+        student_user = validated_data.get("student")
+        total_price = 0.0
+        courses = [data.get("course") for data in courses_data]
+        total_price += batch_is_enrolled_and_price(courses, student_user)
+        enrollment = super().create(validated_data)
+        for data in courses_data:
+            course = data.get("course")
+            session = data.get("selected_session")
+            CourseThroughEnrollment(
+                course=course, enrollment=enrollment, selected_session=session
+            ).save()
+        enrollment.status = EnrollmentStatus.ACTIVE
+        enrollment.save()
+        return enrollment
+
+
 class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
     exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
 

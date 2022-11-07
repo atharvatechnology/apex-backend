@@ -1,6 +1,7 @@
 from django.urls import include, path
 
 from .views import (
+    CourseEnrollmentCreateAPIView,
     CourseSessionCreateAPIView,
     CourseSessionDeleteAPIView,
     CourseSessionListAPIView,
@@ -70,6 +71,13 @@ exam_enroll_url = [
         "create/", ExamEnrollmentCreateAPIView.as_view(), name="exam-enrollment-create"
     ),
 ]
+course_enroll_url = [
+    path(
+        "create/",
+        CourseEnrollmentCreateAPIView.as_view(),
+        name="course-enrollment-create",
+    ),
+]
 
 course_through_enrollment_urls = [
     path(
@@ -89,4 +97,5 @@ urlpatterns = [
     path("examthroughenrollment/", include(exam_through_enrollment_urls)),
     path("coursethroughenrollment/", include(course_through_enrollment_urls)),
     path("exam-enroll/", include(exam_enroll_url)),
+    path("course-enroll/", include(course_enroll_url)),
 ]
