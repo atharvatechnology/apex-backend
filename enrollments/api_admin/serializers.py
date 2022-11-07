@@ -186,7 +186,7 @@ class ExamThroughEnrollmentAdminListSerializer(serializers.ModelSerializer):
 
 
 class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
-    exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
+    exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls")
 
     class Meta:
         model = Enrollment
