@@ -452,7 +452,7 @@ class CourseThroughEnrollment(models.Model):
         choices=CourseEnrollmentStatus.CHOICES,
         default=CourseEnrollmentStatus.NEW,
     )
-    completed_date = models.DateTimeField()
+    completed_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         """Meta defination for CourseThroughEnrollment."""

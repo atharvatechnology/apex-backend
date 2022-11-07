@@ -8,9 +8,11 @@ from .views import (
     CourseCategoryUpdateAPIView,
     CourseCreateAPIView,
     CourseDeleteAPIView,
+    CourseDropdownListAPIView,
     CourseListAPIView,
     CourseRetrieveAPIView,
     CourseUpdateAPIView,
+    remove_exam_in_course,
 )
 
 course_urlpatterns = [
@@ -19,6 +21,12 @@ course_urlpatterns = [
     path("retrieve/<int:pk>/", CourseRetrieveAPIView.as_view(), name="course-get"),
     path("delete/<int:pk>/", CourseDeleteAPIView.as_view(), name="course-delete"),
     path("update/<int:pk>/", CourseUpdateAPIView.as_view(), name="course-update"),
+    path(
+        "list/dropdown/",
+        CourseDropdownListAPIView.as_view(),
+        name="course-list-dropdown",
+    ),
+    path("exam/remove/", remove_exam_in_course, name="remove-exam-in-course"),
 ]
 
 category_urlpatterns = [
