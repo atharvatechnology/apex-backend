@@ -7,7 +7,11 @@ from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySeria
 from common.utils import decode_user
 from courses.models import Course, CourseStatus
 from enrollments.api.serializers import ExamEnrollmentSerializer
-from enrollments.api.utils import exam_data_save, get_student_rank
+from enrollments.api.utils import (
+    batch_is_enrolled_and_price,
+    exam_data_save,
+    get_student_rank,
+)
 from enrollments.models import (
     CourseSession,
     CourseThroughEnrollment,
@@ -193,6 +197,10 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         exams_data = validated_data.pop("exam_enrolls", None)
+        user = validated_data.pop("student")
+
+        exams = [data.get("exam") for data in exams_data]
+        batch_is_enrolled_and_price(exams, user)
         enrollment = super().create(validated_data)
 
         exam_data_save(exams_data, enrollment)
