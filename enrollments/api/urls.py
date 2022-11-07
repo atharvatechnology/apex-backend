@@ -25,7 +25,7 @@ enrollment_urls = [
     path("create/", EnrollmentCreateAPIView.as_view(), name="enrollment-create"),
     path("list/", EnrollmentListAPIView.as_view(), name="enrollment-list"),
     path(
-        "generator/list/",
+        "report/generate/",
         ExamThroughEnrollmentGeneratorAPIView.as_view(),
         name="generator-enrollment",
     ),
@@ -104,7 +104,7 @@ course_enroll_urls = [
         name="course-enroll-destroy",
     ),
     path(
-        "generator/list/",
+        "report/generate/",
         CourseThroughEnrollmentGeneratorAPIView.as_view(),
         name="generator-course",
     ),

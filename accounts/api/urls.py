@@ -32,7 +32,7 @@ urlpatterns = [
     path("update/me/", UserUpdateAPIView.as_view(), name="update"),
     path("qr/", StudentQRView.as_view(), name="qrretrive"),
     path(
-        "generator/list/",
+        "report/generate/",
         StudentReportGeneratorAPIView.as_view(),
         name="generator-student",
     ),

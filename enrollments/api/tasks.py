@@ -1,8 +1,21 @@
 from celery import shared_task
 
-from enrollments.api.utils import dynamic_excel_generator
-
 
 @shared_task
-def excelcelery(filtered_data, data, user_id):
-    dynamic_excel_generator(filtered_data, data, user_id)
+def excelcelery(model_fields, model_name, filtered_data, user_id):
+    from report.tabledata import (
+        CourseThroughEnrollmentTableData,
+        ExamThroughEnrollmentTableData,
+        StudentTableData,
+    )
+
+    call_table = {
+        "ExamThroughEnrollment": ExamThroughEnrollmentTableData(
+            filtered_data, user_id, model_fields
+        ),
+        "CourseThroughEnrollment": CourseThroughEnrollmentTableData(
+            filtered_data, user_id, model_fields
+        ),
+        "StudentProfile": StudentTableData(filtered_data, user_id, model_fields),
+    }
+    call_table[model_name].generate_report()
