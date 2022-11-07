@@ -2,6 +2,7 @@ from rest_framework.generics import CreateAPIView, GenericAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from common.api.serializers import ModelFieldsSerializer
 from enrollments.api.tasks import excelcelery
 
 
@@ -30,7 +31,7 @@ class BaseReportGeneratorAPIView(GenericAPIView):
     queryset = None
     filterset_class = None
     model_name = None
-    serializer_class = None
+    serializer_class = ModelFieldsSerializer
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
