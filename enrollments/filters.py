@@ -8,12 +8,20 @@ class ExamThroughEnrollmentFilter(django_filters.FilterSet):
 
     class Meta:
         model = ExamThroughEnrollment
-        fields = {"exam__id", "selected_session"}
+        fields = {
+            "exam": ["exact"],
+            "selected_session__start_date": ["exact"],
+            "selected_session": ["exact"],
+        }
 
 
 class CourseThroughEnrollmentFilter(django_filters.FilterSet):
-    """Filter for CourseThroughEnrollment."""
+    """Filter for ExamThroughEnrollment."""
 
     class Meta:
         model = CourseThroughEnrollment
-        fields = {"course__id", "selected_session"}
+        fields = {
+            "course__name": ["icontains"],
+            "selected_session__start_date": ["exact"],
+            "selected_session": ["exact"],
+        }

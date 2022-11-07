@@ -3,6 +3,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from attendance.models import (
+    Attendance,
     StudentAttendance,
     TeacherAttendance,
     TeacherAttendanceDetail,
@@ -13,6 +14,14 @@ from courses.models import CourseStatus
 from enrollments.models import CourseThroughEnrollment
 
 User = get_user_model()
+
+
+class AttendanceCreateSerializer(CreatorSerializer):
+    """Serializer for creating attendance."""
+
+    class Meta:
+        model = Attendance
+        fields = "__all__"
 
 
 class StudentAttendanceCreateSerializer(CreatorSerializer):
@@ -162,7 +171,7 @@ class TeacherAttendanceDetailUpdateSerializer(CreatorSerializer):
             "message",
             "remarks",
             "status",
-            "teacher_attendance",
+            # "teacher_attendance",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
 
