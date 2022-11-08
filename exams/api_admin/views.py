@@ -15,6 +15,7 @@ from common.paginations import StandardResultsSetPagination
 from exams.filters import ExamOnCourseFilter
 from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Section
 
+from ..api_common.serializers import ExamMiniSerializer
 from .serializers import (
     ExamCreateSerializer,
     ExamDetailSerializer,
@@ -151,6 +152,12 @@ class ExamListAPIView(ListAPIView):
 
 class ExamListOverviewAPIView(ExamListAPIView):
     serializer_class = ExamListOverviewAdminSerializer
+
+
+class ExamDropdownListAPIView(ListAPIView):
+    serializer_class = ExamMiniSerializer
+    queryset = Exam.objects.all()
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 
 class ExamRetrieveAPIView(RetrieveAPIView):

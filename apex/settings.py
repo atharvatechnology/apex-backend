@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "fcm_django",
     "notifications",
+    "report",
 ]
 
 MIDDLEWARE = [
@@ -122,6 +123,7 @@ WSGI_APPLICATION = "apex.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+
 
 DATABASES = {"default": env.db()}
 
@@ -224,6 +226,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "Access-Control-Allow-Headers",
     "Access-Control-Allow-Methods",
     "Access-Control-Allow-Credentials",
+    "responseType",
 ]
 
 
@@ -294,7 +297,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 # Celery settings
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379")
-CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="django-db")
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

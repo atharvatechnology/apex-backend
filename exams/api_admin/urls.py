@@ -4,6 +4,7 @@ from exams.api_admin.views import (
     ExamCreateAPIView,
     ExamDeleteAPIView,
     ExamDetailAPIView,
+    ExamDropdownListAPIView,
     ExamImageUploadAPIView,
     ExamListAPIView,
     ExamListOverviewAPIView,
@@ -32,6 +33,9 @@ urlpatterns = [
     path("list/", ExamListAPIView.as_view(), name="exam-list"),
     path(
         "list/overview/", ExamListOverviewAPIView.as_view(), name="exam-list-overview"
+    ),
+    path(
+        "list/dropdown/", ExamDropdownListAPIView.as_view(), name="exam-list-dropdown"
     ),
     path("retrieve/<int:pk>/", ExamRetrieveAPIView.as_view(), name="exam-retrieve"),
     path(

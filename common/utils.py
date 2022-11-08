@@ -87,3 +87,12 @@ def async_send_mail(subject, text_content, from_email, to, html_content):
     msg = EmailMultiAlternatives(subject, text_content, from_email, to)
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+
+
+def get_random_string():
+    import random
+    import string
+
+    # With combination of lower and upper case
+    result_str = "".join(random.choice(string.ascii_letters) for i in range(7))
+    return result_str
