@@ -196,15 +196,17 @@ class UserCustomDetailsSerializer(UserDetailsSerializer):
     admin_user = serializers.SerializerMethodField(read_only=True)
     role = serializers.SerializerMethodField()
 
-    
-
     class Meta(UserDetailsSerializer.Meta):
         extra_fields = UserDetailsSerializer.Meta.extra_fields + [
             "full_name",
             "admin_user",
-            "role"
+            "role",
         ]
-        fields = list(UserDetailsSerializer.Meta.fields) + ["full_name", "admin_user", "role"]
+        fields = list(UserDetailsSerializer.Meta.fields) + [
+            "full_name",
+            "admin_user",
+            "role",
+        ]
 
     def get_role(self, obj):
         return obj.get_role()
@@ -265,3 +267,17 @@ class StudentQRSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["qr_code"]
+
+
+class UserMiniSerializer(serializers.ModelSerializer):
+    """User Mini Serializer."""
+
+    fullName = FullNameField(source="*")
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "fullName",
+        ]

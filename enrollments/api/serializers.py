@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.response import Response
 
+from accounts.api.serializers import UserMiniSerializer
 from common.api.serializers import CreatorSerializer
 from common.utils import decode_user
 from courses.models import Course
@@ -107,6 +108,17 @@ class ExamInfoSerializer(serializers.ModelSerializer):
         )
 
 
+class ExamMiniSerializer(serializers.ModelSerializer):
+    """Serializer for Exam Info Mini."""
+
+    class Meta:
+        model = Exam
+        fields = (
+            "id",
+            "name",
+        )
+
+
 class ExamEnrollmentSerializer(serializers.ModelSerializer):
     """Serializer when user enrolls to an exam.
 
@@ -179,6 +191,17 @@ class CourseInfoSerializer(serializers.ModelSerializer):
 
     def get_enrollment_count(self, obj):
         return {"course_enroll_count": obj.course_enrolls.all().count()}
+
+
+class CourseMiniSerializer(serializers.ModelSerializer):
+    """Serializer for Course Info Mini."""
+
+    class Meta:
+        model = Course
+        fields = (
+            "id",
+            "name",
+        )
 
 
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
@@ -265,6 +288,57 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
 
 
 # new changes
+class ExamEnrollmentMiniSerializer(serializers.ModelSerializer):
+    """Serializer when user is retrieving an enrollment."""
+
+    exam = ExamMiniSerializer()
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "exam",
+        )
+
+
+class CourseEnrollmentMiniSerializer(serializers.ModelSerializer):
+    """Serializer when user is retrieving an enrollment."""
+
+    course = CourseMiniSerializer()
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+        )
+
+
+class EnrollmentPaymentSerializer(serializers.ModelSerializer):
+    """Serializer for Enrollment data for payment."""
+
+    student = UserMiniSerializer()
+    exams = ExamEnrollmentMiniSerializer(many=True, source="exam_enrolls")
+    courses = CourseEnrollmentMiniSerializer(many=True, source="course_enrolls")
+    type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Enrollment
+        fields = (
+            "id",
+            "student",
+            "exams",
+            "courses",
+            "type",
+        )
+
+    def get_type(self, obj):
+        type_string = []
+        if obj.exams.all().count() > 0:
+            type_string.append("Exam")
+        if obj.courses.all().count() > 0:
+            type_string.append("Course")
+        return ",".join(type_string)
 
 
 class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
