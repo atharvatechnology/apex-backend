@@ -23,6 +23,7 @@ from enrollments.models import (
     QuestionEnrollment,
     Session,
 )
+from exams.api_common.serializers import ExamMiniSerializer
 from exams.models import Exam, ExamTemplate, Option, Question
 from meetings.api.serializers import MeetingOnCourseEnrolledSerializer
 
@@ -105,17 +106,6 @@ class ExamInfoSerializer(serializers.ModelSerializer):
             "category",
             "price",
             "template",
-        )
-
-
-class ExamMiniSerializer(serializers.ModelSerializer):
-    """Serializer for Exam Info Mini."""
-
-    class Meta:
-        model = Exam
-        fields = (
-            "id",
-            "name",
         )
 
 
@@ -320,7 +310,7 @@ class EnrollmentPaymentSerializer(serializers.ModelSerializer):
     student = UserMiniSerializer()
     exams = ExamEnrollmentMiniSerializer(many=True, source="exam_enrolls")
     courses = CourseEnrollmentMiniSerializer(many=True, source="course_enrolls")
-    type = serializers.SerializerMethodField()
+    payment_category = serializers.SerializerMethodField()
 
     class Meta:
         model = Enrollment
@@ -329,10 +319,10 @@ class EnrollmentPaymentSerializer(serializers.ModelSerializer):
             "student",
             "exams",
             "courses",
-            "type",
+            "payment_category",
         )
 
-    def get_type(self, obj):
+    def get_payment_category(self, obj):
         type_string = []
         if obj.exams.all().count() > 0:
             type_string.append("Exam")

@@ -6,6 +6,8 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_filters.filters import _truncate
 
+from courses.models import Course
+from exams.models import Exam
 from payments.models import Payment
 
 
@@ -65,8 +67,16 @@ payment_choices_type = (
 class PaymentFilter(django_filters.FilterSet):
     created_at = CustomDateRangeFilter()
     custom_created_at = django_filters.DateFromToRangeFilter(field_name="created_at")
-    type = django_filters.TypedChoiceFilter(
-        choices=payment_choices_type, method="type_filter"
+    payment_category = django_filters.TypedChoiceFilter(
+        choices=payment_choices_type, method="payment_category_filter"
+    )
+    exam = django_filters.ModelChoiceFilter(
+        field_name="enrollment__exams",
+        queryset=Exam.objects.all(),
+    )
+    course = django_filters.ModelChoiceFilter(
+        field_name="enrollment__courses",
+        queryset=Course.objects.all(),
     )
 
     class Meta:
@@ -74,9 +84,12 @@ class PaymentFilter(django_filters.FilterSet):
         fields = (
             "created_at",
             "custom_created_at",
+            "payment_category",
+            "exam",
+            "course",
         )
 
-    def type_filter(self, queryset, name, value):
+    def payment_category_filter(self, queryset, name, value):
         if value == "Course":
             return queryset.filter(enrollment__courses__isnull=False)
         elif value == "Exam":
