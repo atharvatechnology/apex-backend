@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.response import Response
 
+from accounts.api.serializers import UserMiniSerializer
 from common.api.serializers import CreatorSerializer
 from common.utils import decode_user
 from courses.models import Course
@@ -22,6 +23,7 @@ from enrollments.models import (
     QuestionEnrollment,
     Session,
 )
+from exams.api_common.serializers import ExamMiniSerializer
 from exams.models import Exam, ExamTemplate, Option, Question
 from meetings.api.serializers import MeetingOnCourseEnrolledSerializer
 
@@ -181,6 +183,17 @@ class CourseInfoSerializer(serializers.ModelSerializer):
         return {"course_enroll_count": obj.course_enrolls.all().count()}
 
 
+class CourseMiniSerializer(serializers.ModelSerializer):
+    """Serializer for Course Info Mini."""
+
+    class Meta:
+        model = Course
+        fields = (
+            "id",
+            "name",
+        )
+
+
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     """Course when the user is enrolled."""
 
@@ -265,6 +278,57 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
 
 
 # new changes
+class ExamEnrollmentMiniSerializer(serializers.ModelSerializer):
+    """Serializer when user is retrieving an enrollment."""
+
+    exam = ExamMiniSerializer()
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "exam",
+        )
+
+
+class CourseEnrollmentMiniSerializer(serializers.ModelSerializer):
+    """Serializer when user is retrieving an enrollment."""
+
+    course = CourseMiniSerializer()
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+        )
+
+
+class EnrollmentPaymentSerializer(serializers.ModelSerializer):
+    """Serializer for Enrollment data for payment."""
+
+    student = UserMiniSerializer()
+    exams = ExamEnrollmentMiniSerializer(many=True, source="exam_enrolls")
+    courses = CourseEnrollmentMiniSerializer(many=True, source="course_enrolls")
+    payment_category = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Enrollment
+        fields = (
+            "id",
+            "student",
+            "exams",
+            "courses",
+            "payment_category",
+        )
+
+    def get_payment_category(self, obj):
+        type_string = []
+        if obj.exams.all().count() > 0:
+            type_string.append("Exam")
+        if obj.courses.all().count() > 0:
+            type_string.append("Course")
+        return ",".join(type_string)
 
 
 class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
