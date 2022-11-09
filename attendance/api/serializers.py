@@ -24,6 +24,19 @@ class AttendanceCreateSerializer(CreatorSerializer):
         fields = "__all__"
 
 
+class StudentOnlineAttendanceSerializer(CreatorSerializer):
+    # user = serializers.CharField()
+
+    class Meta:
+        model = StudentAttendance
+        fields = (
+            "id",
+            "date",
+            "user",
+        )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+
 class StudentAttendanceCreateSerializer(CreatorSerializer):
     """Serializer for creating attendance model."""
 

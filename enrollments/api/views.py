@@ -1,5 +1,6 @@
 from django.utils.timezone import localtime
-from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -10,6 +11,10 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from common.api.serializers import ModelFieldsSerializer
+
+# from common.utils import dynamic_excel_generator
+from common.api.views import BaseReportGeneratorAPIView
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
@@ -22,6 +27,10 @@ from enrollments.api.serializers import (
     ExamEnrollmentUpdateSerializer,
     PhysicalBookCourseEnrollmentSerializer,
     StudentEnrollmentSerializer,
+)
+from enrollments.filters import (
+    CourseThroughEnrollmentFilter,
+    ExamThroughEnrollmentFilter,
 )
 from enrollments.models import (
     CourseThroughEnrollment,
@@ -210,6 +219,9 @@ class CourseEnrollementListAPIView(ListAPIView):
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
 
+    def get_queryset(self):
+        return super().get_queryset()
+
 
 class CourseEnrollementUpdateAPIView(UpdateAPIView):
     """Update view for course enrollment."""
@@ -237,3 +249,28 @@ class CourseEnrollementDestroyAPIView(DestroyAPIView):
 
 class CheckIfStudentInCourse(CreateAPIView):
     serializer_class = StudentEnrollmentSerializer
+
+
+class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = ExamThroughEnrollment.objects.all()
+    filterset_class = ExamThroughEnrollmentFilter
+    model_name = "ExamThroughEnrollment"
+    serializer_class = ModelFieldsSerializer
+    # {"model_fields":
+    #     ["enrollment","exam","selected_session","rank","score","negative_score","status"]
+    # }
+
+
+class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = CourseThroughEnrollment.objects.all()
+    filterset_class = CourseThroughEnrollmentFilter
+    model_name = "CourseThroughEnrollment"
+    serializer_class = ModelFieldsSerializer
+
+    # {
+    # "model_fields"=["enrollment","course_name","selected_session","course_enroll_status","completed_date"]
+    # }
