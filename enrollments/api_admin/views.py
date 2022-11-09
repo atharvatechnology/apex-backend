@@ -6,6 +6,7 @@ from rest_framework.generics import (
     DestroyAPIView,
     GenericAPIView,
     ListAPIView,
+    UpdateAPIView,
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -17,6 +18,7 @@ from enrollments.api_admin.serializers import (
     CourseSessionAdminSerializer,
     CourseSessionAdminUpdateSerializer,
     CourseThroughEnrollmentAdminBaseSerializer,
+    EnrollmentStatusAdminUpdateSerializer,
     ExamEnrollmentCreateSerializer,
     ExamSessionAdminSerializer,
     ExamSessionAdminUpdateSerializer,
@@ -228,6 +230,21 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
     ]
     # ordering_fields = ["status", "score"]
     filterset_class = CourseThroughEnrollmentFilter
+
+
+class EnrollmentUpdateAdminAPIView(UpdateAPIView):
+    """Update an existing enrollment."""
+
+    serializer_class = EnrollmentStatusAdminUpdateSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Enrollment.objects.all()
+
+
+class EnrollmentDeleteAdminAPIView(DestroyAPIView):
+    """Delete student enrollment."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Enrollment.objects.all()
 
 
 class StudentCourseCheckView(GenericAPIView):
