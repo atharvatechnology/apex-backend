@@ -1,4 +1,5 @@
 import calendar
+from datetime import datetime
 
 from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
@@ -55,11 +56,8 @@ class MonthlyRevenueBarGraph(ListAPIView):
         queryset = self.filter_queryset(
             self.get_queryset().filter(status=PaymentStatus.PAID)
         )
-        months = [payment.created_at.date().month for payment in queryset]
-        months = sorted(set(months))
-        months.sort()
         data = []
-        for month in months:
+        for month in range(1, 13):
             monthly_payments = queryset.filter(created_at__month=month)
             net_amount = sum(
                 monthly_payment.amount for monthly_payment in monthly_payments
@@ -86,4 +84,54 @@ class TopRevenueAmount(MonthlyRevenueBarGraph):
                     if enrol["total"] is not None:
                         net_amt += enrol["total"]
             data.append({category.name: net_amt})
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class DashboardOverview(ListAPIView):
+
+    pass
+
+
+class RevenueOverView(ListAPIView):
+
+    permission_classes = [IsAdminUser]
+    queryset = Payment.objects.all()
+    serializer_class = PaymentCreateSerializer
+    filter_backends = [DjangoFilterBackend]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(
+            self.get_queryset().filter(status=PaymentStatus.PAID)
+        )
+        data = []
+        payment_this_year = queryset.filter(created_at__year=datetime.now().year)
+        payment_previous_year = queryset.filter(
+            created_at__year=datetime.now().year - 1
+        )
+        net_amt_this_year = sum(this_month.amount for this_month in payment_this_year)
+        net_amt_previous_year = sum(
+            this_month.amount for this_month in payment_previous_year
+        )
+        yearly_trend_amt = net_amt_this_year + net_amt_previous_year
+
+        trend_percentage_year = net_amt_this_year / yearly_trend_amt * 100
+
+        payment_this_month = queryset.filter(created_at__month=datetime.now().month)
+        payment_previous_month = queryset.filter(
+            created_at__month=datetime.now().month - 1
+        )
+        net_amt_this_month = sum(this_month.amount for this_month in payment_this_month)
+        net_amt_previous_month = sum(
+            this_month.amount for this_month in payment_previous_month
+        )
+        monthly_trend_amt = net_amt_this_month + net_amt_previous_month
+        trend_percentage_month = net_amt_this_month / monthly_trend_amt * 100
+        data.append(
+            {
+                "current_month_amt": net_amt_this_month,
+                "trend_percentage": trend_percentage_month,
+                "overall_amt": net_amt_this_year,
+                "yearly_trend": trend_percentage_year,
+            }
+        )
         return Response(data, status=status.HTTP_200_OK)
