@@ -5,6 +5,7 @@ from ..api.views import (
     MonthlyRevenueBarGraph,
     OnlinePaymentCreateAPIView,
     OnlinePaymentUpdateAPIView,
+    RevenueOverView,
     TopRevenueAmount,
 )
 
@@ -25,4 +26,5 @@ urlpatterns = [
     path("bankpay/", include(bank_urls)),
     path("payment-graph/", include(graph_urls)),
     path("top-revenue/", TopRevenueAmount.as_view(), name="top-revenue"),
+    path("revenue-overview/", RevenueOverView.as_view(), name="revenue-overview"),
 ]
