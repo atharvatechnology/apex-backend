@@ -46,7 +46,7 @@ class QuestionEnrollmentInline(admin.TabularInline):
 class EnrollmentAdmin(admin.ModelAdmin):
     """Enrollment admin."""
 
-    list_display = ("student", "status", "created_at")
+    list_display = ("id", "student", "status", "created_at")
     list_filter = ("status", "exams")
     search_fields = ("student__username",)
     inlines = [
@@ -76,7 +76,7 @@ class CustomAdminSplitDateTime(admin.widgets.AdminSplitDateTime):
 class SessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Session admin."""
 
-    list_display = ("status", "start_date", "end_date")
+    list_display = ("id", "status", "start_date", "end_date")
     # , "is_published")
     list_filter = ("status",)
     # inlines = [ExamThroughEnrollmentInline]
@@ -132,9 +132,9 @@ class ExamSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
 
 @admin.register(CourseSession)
 class CourseSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
-    """Exam Session admin."""
+    """Course Session admin."""
 
-    list_display = ("status", "start_date", "end_date")
+    list_display = ("id", "status", "start_date", "end_date")
     list_filter = ("status",)
     inlines = [CourseThroughEnrollmentInline]
     formfield_overrides = {

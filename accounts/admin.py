@@ -81,6 +81,7 @@ class UserAdmin(BaseUserAdmin):
     actions = ["make_active"]
 
     list_display = [
+        "id",
         "name",
         "username",
         "email",

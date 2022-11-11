@@ -137,3 +137,4 @@ dmypy.json
 *.dir
 media/
 apex-education-firebase.json
+proposal.py
