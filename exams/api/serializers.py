@@ -88,6 +88,7 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
         model = Exam
         fields = CreatorSerializer.Meta.fields + (
             "name",
+            "exam_type",
             "category",
             "status",
             "price",
@@ -188,6 +189,7 @@ class ExamListSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "exam_type",
             "category",
             "status",
             "price",
