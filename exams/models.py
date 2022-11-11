@@ -1,11 +1,12 @@
 from decimal import Decimal
 
 from ckeditor.fields import RichTextField
+from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from common.modelFields import PercentageField
-from common.models import CreatorBaseModel
+from common.models import CreatorBaseModel, PublishedModel
 from common.validators import validate_positive
 
 
@@ -69,10 +70,20 @@ class ExamStatus:
     ]
 
 
+class ExamType:
+    LIVE = "live"
+    PRACTICE = "practice"
+
+    CHOICES = [
+        (LIVE, "Live"),
+        (PRACTICE, "Practice"),
+    ]
+
+
 # Create your models here.
 
 
-class Exam(CreatorBaseModel):
+class Exam(CreatorBaseModel, PublishedModel):
     """Model definition for Exam."""
 
     name = models.CharField(_("name"), max_length=128)
@@ -100,6 +111,12 @@ class Exam(CreatorBaseModel):
     #     choices=ExamStatus.CHOICES,
     #     default=ExamStatus.CREATED,
     # )
+    exam_type = models.CharField(
+        _("Exam Type"),
+        max_length=16,
+        choices=ExamType.CHOICES,
+        default=ExamType.LIVE,
+    )
     price = models.DecimalField(
         _("price"),
         max_digits=5,
@@ -127,9 +144,21 @@ class Exam(CreatorBaseModel):
         """Unicode representation of Exam."""
         return self.name
 
-    # def __change_status(self, status):
-    #     self.status = status
-    #     self.save()
+    def save(self, *args, **kwargs):
+        """Save method for Exam."""
+        if self.id:
+            prev_exam = Exam.objects.get(id=self.id)
+            if (
+                prev_exam.exam_type == ExamType.PRACTICE
+                and self.exam_type == ExamType.LIVE
+            ):
+                raise PermissionDenied("Cannot change exam type from practice to live")
+        super().save(*args, **kwargs)
+
+    # def __change_type(self, status):
+    #     if self.exam_type == ExamType.LIVE:
+    #         self.exam_type = ExamType.PRACTICE
+    #         self.save()
 
     # @property
     # def current_status(self):

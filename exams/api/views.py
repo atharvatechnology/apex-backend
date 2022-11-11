@@ -4,6 +4,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
+from common.api.mixin import PublishableModelMixin
 from common.paginations import StandardResultsSetPagination
 from enrollments.models import ExamSession, ExamThroughEnrollment, SessionStatus
 from exams.api.permissions import IsExamEnrolledActive
@@ -24,7 +25,9 @@ from .serializers import (  # ExamUpdateSerializer,
 #     # permission_classes = [AllowAny]
 
 
-class ExamListAPIView(ListAPIView):
+class ExamListAPIView(PublishableModelMixin, ListAPIView):
+    """View for listing exams."""
+
     serializer_class = ExamListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     permission_classes = [AllowAny]
@@ -33,7 +36,9 @@ class ExamListAPIView(ListAPIView):
     pagination_class = StandardResultsSetPagination
 
 
-class ExamRetrieveAPIView(RetrieveAPIView):
+class ExamRetrieveAPIView(PublishableModelMixin, RetrieveAPIView):
+    """View for retrieving exams."""
+
     serializer_class = ExamRetrieveSerializer
     permission_classes = [AllowAny]
     queryset = Exam.objects.all()

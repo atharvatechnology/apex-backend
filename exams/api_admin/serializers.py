@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from common.api.serializers import CreatorSerializer
+from common.api.serializers import CreatorSerializer, PublishedSerializer
 from courses.api_common.serializers import CourseMinSerializer
 from enrollments.api.serializers import ExamSessionSerializer
 from enrollments.api_admin.serializers import ExamSessionAdminSerializer
@@ -336,35 +336,45 @@ class ExamTemplateListAdminSerializer(ExamTemplateListSerializer):
         fields = ExamTemplateListSerializer.Meta.fields
 
 
-class ExamCreateSerializer(CreatorSerializer):
+class ExamCreateSerializer(CreatorSerializer, PublishedSerializer):
     """Serializer when admin is creating an exam."""
 
     class Meta:
         model = Exam
-        fields = CreatorSerializer.Meta.fields + (
-            "name",
-            "category",
-            # "status",
-            "price",
-            "template",
-            "course",
+        fields = (
+            CreatorSerializer.Meta.fields
+            + PublishedSerializer.Meta.fields
+            + (
+                "name",
+                "category",
+                # "status",
+                "exam_type",
+                "price",
+                "template",
+                "course",
+            )
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
 
-class ExamListAdminSerializer(CreatorSerializer):
-    """Serializer when user is listing exams."""
+class ExamListAdminSerializer(CreatorSerializer, PublishedSerializer):
+    """Serializer when admin is listing exams."""
 
     template = ExamTemplateListSerializer()
 
     class Meta:
         model = Exam
-        fields = CreatorSerializer.Meta.fields + (
-            "name",
-            "category",
-            # "status",
-            "price",
-            "template",
+        fields = (
+            CreatorSerializer.Meta.fields
+            + PublishedSerializer.Meta.fields
+            + (
+                "name",
+                "category",
+                "exam_type",
+                # "status",
+                "price",
+                "template",
+            )
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
@@ -386,7 +396,7 @@ class ExamListOverviewAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ("id", "name", "exam_date", "examinees")
+        fields = ("id", "name", "exam_type", "exam_date", "examinees")
 
     def get_exam_date(self, obj):
         exam_sessions = obj.sessions.all()
@@ -420,17 +430,22 @@ class ExamDetailSerializer(serializers.ModelSerializer):
         )
 
 
-class ExamUpdateSerializer(CreatorSerializer):
+class ExamUpdateSerializer(CreatorSerializer, PublishedSerializer):
     """Serializer when admin is updating an exam."""
 
     class Meta:
         model = Exam
-        fields = CreatorSerializer.Meta.fields + (
-            "name",
-            "category",
-            # "status",
-            "price",
-            "course",
+        fields = (
+            CreatorSerializer.Meta.fields
+            + PublishedSerializer.Meta.fields
+            + (
+                "name",
+                "category",
+                "exam_type",
+                # "status",
+                "price",
+                "course",
+            )
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
@@ -449,6 +464,7 @@ class ExamRetrieveAdminSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
+            "exam_type",
             # "status",
             "price",
             "template",

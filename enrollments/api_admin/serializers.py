@@ -155,6 +155,14 @@ class CourseSessionAdminUpdateSerializer(CourseSessionAdminSerializer):
         return instance
 
 
+class EnrollmentStatusAdminUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for enrollment status update."""
+
+    class Meta:
+        model = Enrollment
+        fields = ("status",)
+
+
 class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     """Base Serializer for ExamThroughEnrollment."""
 

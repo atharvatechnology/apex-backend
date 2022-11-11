@@ -8,7 +8,9 @@ from .views import (
     CourseSessionListAPIView,
     CourseSessionUpdateAPIView,
     CourseThroughEnrollmentListAPIView,
+    EnrollmentDeleteAdminAPIView,
     EnrollmentGraphAPIView,
+    EnrollmentUpdateAdminAPIView,
     ExamEnrollmentCreateAPIView,
     ExamGraphAPIView,
     ExamSessionCreateAPIView,
@@ -100,6 +102,19 @@ course_through_enrollment_urls = [
 session_urls = [
     path("exam/", include(exam_session_urls)),
     path("course/", include(course_session_urls)),
+]
+
+enrollment_urls = [
+    path(
+        "delete/",
+        EnrollmentDeleteAdminAPIView.as_view(),
+        name="enrollment-delete-admin",
+    ),
+    path(
+        "update/",
+        EnrollmentUpdateAdminAPIView.as_view(),
+        name="enrollment-update-admin",
+    ),
 ]
 
 urlpatterns = [

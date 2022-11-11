@@ -37,8 +37,7 @@ def decode_user(email: str) -> Union[str, None]:
 
     signer = signing.Signer(salt=settings.SECRET_KEY)  # salt needs to be same
     try:
-        enc = signer.unsign_object(email)
-        return enc
+        return signer.unsign_object(email)
     except signing.BadSignature:
         return None
 
@@ -93,6 +92,4 @@ def get_random_string():
     import random
     import string
 
-    # With combination of lower and upper case
-    result_str = "".join(random.choice(string.ascii_letters) for i in range(7))
-    return result_str
+    return "".join(random.choice(string.ascii_letters) for _ in range(7))
