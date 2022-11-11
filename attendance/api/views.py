@@ -113,17 +113,18 @@ class AttendanceCreateAPIView(BaseCreatorCreateAPIView):
 
     def get_serializer_class(self):
         """Get the serializer class."""
-        user = self.request.data.get("user")
-        decoded_user = decode_user(user)
+        decoded_user = None
+        if user := self.request.data.get("user"):
+            decoded_user = decode_user(user)
         user_object = None
         if decoded_user is not None:
             user_object = User.objects.filter(username=decoded_user).first()
-        if user_object and user_object.is_student:
-            return StudentAttendanceCreateSerializer
-        elif user_object and user_object.is_teacher:
-            return TeacherAttendanceCreateSerializer
-        else:
-            return AttendanceCreateSerializer
+        if user_object:
+            if user_object.is_student:
+                return StudentAttendanceCreateSerializer
+            elif user_object.is_teacher:
+                return TeacherAttendanceCreateSerializer
+        return self.serializer_class
 
 
 # class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
