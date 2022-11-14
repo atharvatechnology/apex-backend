@@ -2,6 +2,7 @@ from django.urls import include, path
 
 from ..api.views import (
     BankPaymentCreateAPIView,
+    DashboardOverview,
     MonthlyRevenueBarGraph,
     OnlinePaymentCreateAPIView,
     OnlinePaymentUpdateAPIView,
@@ -27,4 +28,5 @@ urlpatterns = [
     path("payment-graph/", include(graph_urls)),
     path("top-revenue/", TopRevenueAmount.as_view(), name="top-revenue"),
     path("revenue-overview/", RevenueOverView.as_view(), name="revenue-overview"),
+    path("dashboard-overview/", DashboardOverview.as_view(), name="dashboard-overview"),
 ]
