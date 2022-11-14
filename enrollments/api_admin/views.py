@@ -115,7 +115,7 @@ class ExamGraphAPIView(ListAPIView):
 
     permission_classes = [IsAdminUser]
     queryset = ExamThroughEnrollment.objects.all()
-    serializer_class = ExamThroughEnrollment
+    serializer_class = ExamThroughEnrollmentAdminListSerializer
 
     def get(self, *args, **kwargs):
         exams = Exam.objects.all()

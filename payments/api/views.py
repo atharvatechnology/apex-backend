@@ -8,7 +8,10 @@ from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
+from accounts.models import User, UserRoles
 from courses.models import CourseCategory
+from enrollments.models import ExamSession, ExamThroughEnrollment, SessionStatus
+from exams.models import Exam
 from payments import PaymentStatus
 from payments.api.serializers import (
     BankPaymentCreateSerializer,
@@ -88,8 +91,57 @@ class TopRevenueAmount(MonthlyRevenueBarGraph):
 
 
 class DashboardOverview(ListAPIView):
+    permission_classes = [IsAdminUser]
+    queryset = Payment.objects.all()
+    serializer_class = PaymentCreateSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PaymentDateFilter
 
-    pass
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(
+            self.get_queryset().filter(status=PaymentStatus.PAID)
+        )
+        new_list = []
+        net_amt_this_year = sum(this_month.amount for this_month in queryset)
+        new_list.append({"revenue": net_amt_this_year})
+        total_active_course_enrollment = 0
+        course_category = CourseCategory.objects.all()
+        for category in course_category:
+            for course in category.courses.all():
+                active_enrollment = course.enrolls.all().count()
+
+                total_active_course_enrollment += active_enrollment
+        new_list.append(
+            {
+                "course_enroll": total_active_course_enrollment,
+            }
+        )
+        exams = Exam.objects.all()
+        exam_enrollment_count = 0
+        for exam in exams:
+            enrollment = ExamThroughEnrollment.objects.filter(exam__id=exam.id).count()
+            exam_enrollment_count += enrollment
+        overall_enrollment = exam_enrollment_count + total_active_course_enrollment
+        new_list.extend(
+            (
+                {"exam_enrolled": exam_enrollment_count},
+                {"total_enrollment": overall_enrollment},
+            )
+        )
+
+        exam_session = ExamSession.objects.filter(status=SessionStatus.ACTIVE)
+        total_exam_enrollment = 0
+        for session in exam_session:
+            enrollments = ExamThroughEnrollment.objects.filter(exam__id=session.exam.id)
+            if enrollments:
+                total_exam_enrollment += 1
+        new_list.append({"active_exam": total_exam_enrollment})
+        student_count = User.objects.filter(role=UserRoles.STUDENT).count()
+        teacher_count = User.objects.filter(role=UserRoles.TEACHER).count()
+        new_list.extend(
+            ({"teacher_count": teacher_count}, {"student_count": student_count})
+        )
+        return Response(new_list, status=status.HTTP_200_OK)
 
 
 class RevenueOverView(ListAPIView):
