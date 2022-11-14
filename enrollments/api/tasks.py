@@ -10,12 +10,8 @@ def excelcelery(model_fields, model_name, filtered_data, user_id):
     )
 
     call_table = {
-        "ExamThroughEnrollment": ExamThroughEnrollmentTableData(
-            filtered_data, user_id, model_fields
-        ),
-        "CourseThroughEnrollment": CourseThroughEnrollmentTableData(
-            filtered_data, user_id, model_fields
-        ),
-        "StudentProfile": StudentTableData(filtered_data, user_id, model_fields),
+        "ExamThroughEnrollment": ExamThroughEnrollmentTableData,
+        "CourseThroughEnrollment": CourseThroughEnrollmentTableData,
+        "StudentProfile": StudentTableData,
     }
-    call_table[model_name].generate_report()
+    call_table[model_name](filtered_data, user_id, model_fields).generate_report()

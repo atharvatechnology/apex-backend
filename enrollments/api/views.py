@@ -11,8 +11,6 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from common.api.serializers import ModelFieldsSerializer
-
 # from common.utils import dynamic_excel_generator
 from common.api.views import BaseReportGeneratorAPIView
 from enrollments.api.serializers import (
@@ -257,7 +255,6 @@ class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
     queryset = ExamThroughEnrollment.objects.all()
     filterset_class = ExamThroughEnrollmentFilter
     model_name = "ExamThroughEnrollment"
-    serializer_class = ModelFieldsSerializer
     # {"model_fields":
     #     ["enrollment","exam","selected_session","rank","score","negative_score","status"]
     # }
@@ -269,7 +266,6 @@ class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
     queryset = CourseThroughEnrollment.objects.all()
     filterset_class = CourseThroughEnrollmentFilter
     model_name = "CourseThroughEnrollment"
-    serializer_class = ModelFieldsSerializer
 
     # {
     # "model_fields"=["enrollment","course_name","selected_session","course_enroll_status","completed_date"]
