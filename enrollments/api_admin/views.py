@@ -13,6 +13,7 @@ from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
+from courses.api.serializers import CourseCategoryRetrieveSerializer
 from courses.models import CourseCategory
 from enrollments.api.serializers import CourseEnrollmentSerializer
 from enrollments.api_admin.serializers import (
@@ -28,6 +29,7 @@ from enrollments.api_admin.serializers import (
     StudentEnrollmentCheckSerializer,
 )
 from enrollments.filters import (
+    CourseGraphFilter,
     CourseThroughEnrollmentFilter,
     ExamThroughEnrollmentFilter,
 )
@@ -201,12 +203,14 @@ class CourseGraphAPIView(ListAPIView):
     """Bar Graph based on category including course."""
 
     permission_classes = [IsAdminUser]
-    queryset = CourseThroughEnrollment.objects.all()
-    serializer_class = CourseEnrollmentSerializer
+    queryset = CourseCategory.objects.all()
+    serializer_class = CourseCategoryRetrieveSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = CourseGraphFilter
 
     def get(self, *args, **kwargs):
         new_list = []
-        course_category = CourseCategory.objects.all()
+        course_category = self.filter_queryset(self.get_queryset())
         for category in course_category:
             course_list = []
             for course in category.courses.all():

@@ -13,7 +13,14 @@ class ProfileAdminCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ["image", "date_of_birth", "faculty", "address"]
+        fields = [
+            "college_name",
+            "image",
+            "qr_code",
+            "date_of_birth",
+            "faculty",
+            "address",
+        ]
 
 
 class UserCreateAdminSerializer(serializers.ModelSerializer):
@@ -28,6 +35,7 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
+            "role",
             "profile",
         ]
 
@@ -62,6 +70,7 @@ class UserListAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
+            "role",
             "profile",
             "is_active",
             "date_joined",
@@ -80,6 +89,7 @@ class UserRetrieveAdminSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "email",
+            "role",
             "fullName",
             "profile",
             "is_active",
@@ -99,6 +109,7 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
+            "role",
             "profile",
             "is_active",
         ]
