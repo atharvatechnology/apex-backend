@@ -1,4 +1,6 @@
 from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.response import Response
 
@@ -22,9 +24,10 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
     QuestionEnrollment,
     Session,
+    SessionStatus,
 )
 from exams.api_common.serializers import ExamMiniSerializer
-from exams.models import Exam, ExamTemplate, Option, Question
+from exams.models import Exam, ExamTemplate, ExamType, Option, Question
 from meetings.api.serializers import MeetingOnCourseEnrolledSerializer
 
 
@@ -120,6 +123,22 @@ class ExamEnrollmentSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "exam",
+            "selected_session",
+        )
+
+
+class PracticeExamThroughEnrollmentSerializer(serializers.ModelSerializer):
+    """Serializer when user enrolls to a practice exam."""
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "exam",
+            "selected_session",
+        )
+        read_only_fields = (
+            "id",
             "selected_session",
         )
 
@@ -244,7 +263,7 @@ class CourseEnrollmentUpdateSerializer(serializers.ModelSerializer):
 class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
     """Serializer when the user is retrieving an enrollment."""
 
-    physical_books = PhysicalBookCourseEnrollmentSerializer(many=True)
+    physicalbook_enrolls = PhysicalBookCourseEnrollmentSerializer(many=True)
 
     class Meta:
         model = CourseThroughEnrollment
@@ -255,7 +274,7 @@ class CourseEnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "selected_session",
             "course_enroll_status",
             "completed_date",
-            "physical_books",
+            "physicalbook_enrolls",
         )
 
 
@@ -350,6 +369,102 @@ class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
 
 
 # new change
+
+
+class PracticeExamEnrollmentCreateSerializer(serializers.ModelSerializer):
+    """Serializer when user enrolls to a practice exam.
+
+    This is also used when user retrieves their exam enrollment.
+    """
+
+    exam_enrolls = PracticeExamThroughEnrollmentSerializer(
+        required=True, write_only=True
+    )
+    exams = PracticeExamThroughEnrollmentSerializer(
+        many=True, read_only=True, source="exam_enrolls"
+    )
+
+    class Meta:
+        model = Enrollment
+        fields = (
+            "id",
+            "exam_enrolls",
+            "exams",
+        )
+
+    # @transaction.atomic
+    def create(self, validated_data):
+        """Create a new enrollment to the practice exam.
+
+        If user has prior enrollment to the live version of the exam,
+        then exam through enrollment is created to the practice version
+        of the exam in the same enrollment.
+
+        Parameters
+        ----------
+        validated_data : dict
+            Exam and enrollment data.
+
+        Returns
+        -------
+        Enrollment
+            Instance of the created or updated enrollment.
+
+        """
+        exam_data = validated_data.pop("exam_enrolls")
+        exam = exam_data["exam"]
+        student = self.context["request"].user
+        # Check if the exam is a practice exam
+        if exam.exam_type != ExamType.PRACTICE:
+            raise serializers.ValidationError(
+                "Exam is not a practice exam.",
+            )
+        # Check if user has any active schedules for the exam
+        if (
+            exam.sessions.filter(
+                session_enrolls__enrollment__student=self.context["request"].user
+            )
+            .filter(
+                Q(status=SessionStatus.ACTIVE)
+                | Q(status=SessionStatus.INACTIVE)
+                # status__in=[
+                #     SessionStatus.INACTIVE,
+                #     SessionStatus.ACTIVE,
+                # ]
+            )
+            .exists()
+        ):
+            raise serializers.ValidationError(
+                "User is already scheduled for the exam.",
+            )
+        # check if user has prior enrollment to the any version of the exam
+        exam_enroll = ExamThroughEnrollment.objects.filter(
+            exam__id=exam.id,
+            enrollment__student=student,
+        ).first()
+        enrollment = (
+            exam_enroll.enrollment if exam_enroll else super().create(validated_data)
+        )
+        # create a new session to schedule the exam
+        # schedule the exam 5 minutes from now
+        schedule_time = timezone.now() + timezone.timedelta(minutes=5)
+        exam_session = ExamSession.objects.create(
+            exam=exam,
+            start_date=schedule_time,
+            result_is_published=True,
+            created_by=student,
+            updated_by=student,
+        )
+        # create exam through enrollment to the practice version of the exam
+        ExamThroughEnrollment.objects.create(
+            exam=exam,
+            enrollment=enrollment,
+            selected_session=exam_session,
+        )
+        if exam.price == 0.0:
+            enrollment.status = EnrollmentStatus.ACTIVE
+        enrollment.save()
+        return enrollment
 
 
 class EnrollmentCreateSerializer(serializers.ModelSerializer):

@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from enrollments.models import (
@@ -129,3 +130,30 @@ def retrieve_exam_status(self, obj):
                 return ExamStatus.IN_PROGRESS
         return ExamStatus.CREATED
     return ExamStatus.CREATED
+
+
+def schedule_exam_in_five_minutes(exam, student):
+    """Schedule exam in 5 minutes.
+
+    Parameters
+    ----------
+    exam : Exam
+        exam to be scheduled
+    student : User
+        student to be scheduled
+
+    Returns
+    -------
+    ExamSession
+        exam session created
+
+    """
+    schedule_time = timezone.now() + timezone.timedelta(minutes=5)
+    exam_session = ExamSession.objects.create(
+        exam=exam,
+        start_time=schedule_time,
+        result_is_published=True,
+        created_by=student,
+        updated_by=student,
+    )
+    return exam_session
