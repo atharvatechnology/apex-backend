@@ -1,6 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
+    CreateAPIView,
     DestroyAPIView,
     ListAPIView,
     RetrieveAPIView,
@@ -9,6 +10,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from counseling.api.serializers import (
+    CounselingCreateSerializer,
     CounselingDeleteSerializer,
     CounselingListSerializer,
     CounselingRetrieveSerializer,
@@ -25,6 +27,17 @@ class CounselingListAPIView(ListAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["student_name", "phone_number"]
     queryset = Counseling.objects.all()
+
+
+class CounselingCreateAPIView(CreateAPIView):
+    """View for creating counseling."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = CounselingCreateSerializer
+    queryset = Counseling.objects.all()
+
+    def perform_create(self, serializer):
+        return serializer.save(counsellor=self.request.user)
 
 
 class CounselingRetrieveAPIView(RetrieveAPIView):

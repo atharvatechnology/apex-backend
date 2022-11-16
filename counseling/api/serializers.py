@@ -3,8 +3,23 @@ from rest_framework import serializers
 from counseling.models import Counseling
 
 
+class CounselingCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating counseling."""
+
+    class Meta:
+        model = Counseling
+        fields = (
+            "id",
+            "student_name",
+            "counsellor",
+            "note",
+            "phone_number",
+            "date",
+        )
+
+
 class CounselingListSerializer(serializers.ModelSerializer):
-    """Serializer for Counseling."""
+    """Serializer for Listing Counseling."""
 
     class Meta:
         model = Counseling
@@ -19,7 +34,7 @@ class CounselingListSerializer(serializers.ModelSerializer):
 
 
 class CounselingRetrieveSerializer(serializers.ModelSerializer):
-    """Serializer for Counseling."""
+    """Serializer for Retrieving  Counseling."""
 
     class Meta:
         model = Counseling
@@ -34,7 +49,7 @@ class CounselingRetrieveSerializer(serializers.ModelSerializer):
 
 
 class CounselingUpdateSerializer(serializers.ModelSerializer):
-    """Serializer for Counseling."""
+    """Serializer for Updating Counseling."""
 
     class Meta:
         model = Counseling
@@ -49,7 +64,7 @@ class CounselingUpdateSerializer(serializers.ModelSerializer):
 
 
 class CounselingDeleteSerializer(serializers.ModelSerializer):
-    """Serializer for Counseling."""
+    """Serializer for Deleting Counseling."""
 
     class Meta:
         model = Counseling
