@@ -36,8 +36,8 @@ class CounselingCreateAPIView(CreateAPIView):
     serializer_class = CounselingCreateSerializer
     queryset = Counseling.objects.all()
 
-    # def perform_create(self, serializer):
-    #     return serializer.save(counsellor=self.request.user)
+    def perform_create(self, serializer):
+        return serializer.save(counsellor=self.request.user)
 
 
 class CounselingRetrieveAPIView(RetrieveAPIView):
