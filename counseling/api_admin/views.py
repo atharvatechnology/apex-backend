@@ -7,7 +7,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 
 from common.paginations import StandardResultsSetPagination
 from counseling.api_admin.serializers import (
@@ -34,7 +34,7 @@ class CounselingListAPIView(ListAPIView):
 class CounselingCreateAPIView(CreateAPIView):
     """View for creating counseling."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CounselingCreateSerializer
     queryset = Counseling.objects.all()
 
@@ -45,7 +45,7 @@ class CounselingCreateAPIView(CreateAPIView):
 class CounselingRetrieveAPIView(RetrieveAPIView):
     """View for retrieving counseling."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CounselingRetrieveSerializer
     queryset = Counseling.objects.all()
 
@@ -53,7 +53,7 @@ class CounselingRetrieveAPIView(RetrieveAPIView):
 class CounselingUpdateAPIView(UpdateAPIView):
     """View for updating counseling."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CounselingUpdateSerializer
     queryset = Counseling.objects.all()
 
@@ -61,6 +61,6 @@ class CounselingUpdateAPIView(UpdateAPIView):
 class CounselingDeleteAPIView(DestroyAPIView):
     """View for deleting counseling."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CounselingDeleteSerializer
     queryset = Counseling.objects.all()
