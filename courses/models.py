@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.models import PublishedModel
+from common.models import CreatorBaseModel, PublishedModel
 
 # from common.errors import StateTransitionError
 
@@ -49,7 +49,7 @@ class CourseStatus:
     ]
 
 
-class Course(PublishedModel):
+class Course(CreatorBaseModel, PublishedModel):
     """Model definition for Course."""
 
     def course_image_path(self, filename):

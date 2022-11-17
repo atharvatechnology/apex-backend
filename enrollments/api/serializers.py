@@ -432,7 +432,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
                     selected_session=selected_session,
                     completed_date=completed_date,
                 ).save()
-        if total_price == 0.0:
+        if total_price == 0.0 or self.context.get("from_course"):
             enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment
