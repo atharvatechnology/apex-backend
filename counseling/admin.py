@@ -9,4 +9,11 @@ from counseling.models import Counseling
 class CounselingAdmin(admin.ModelAdmin):
     """Admin for Counseling Model."""
 
-    list_display = ("id", "student_name", "counsellor", "note", "phone_number", "date")
+    list_display = (
+        "id",
+        "student_name",
+        "counsellor",
+        "note",
+        "phone_number",
+        "created_at",
+    )

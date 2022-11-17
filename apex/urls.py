@@ -55,7 +55,6 @@ api_urls = [
     path("meetings/", include("meetings.api.urls")),
     path("payments/", include("payments.api.urls")),
     path("infocenter/", include("infocenter.api.urls")),
-    path("counseling/", include("counseling.api.urls")),
 ]
 
 api_admin_urls = [
@@ -69,6 +68,7 @@ api_admin_urls = [
     path("infocenter/", include("infocenter.api_admin.urls")),
     path("notifications/", include("notifications.api_admin.urls")),
     path("payments/", include("payments.api_admin.urls")),
+    path("counseling/", include("counseling.api_admin.urls")),
 ]
 
 fcm_urls = [
