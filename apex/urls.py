@@ -69,7 +69,6 @@ api_admin_urls = [
     path("notifications/", include("notifications.api_admin.urls")),
     path("payments/", include("payments.api_admin.urls")),
     path("counseling/", include("counseling.api_admin.urls")),
-    path("bannerad/", include("bannerads.api_admin.urls")),
 ]
 
 fcm_urls = [
