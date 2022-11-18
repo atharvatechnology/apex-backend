@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     "notifications",
     "report",
     "counseling",
+    "bannerads",
 ]
 
 MIDDLEWARE = [
