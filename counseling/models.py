@@ -20,7 +20,7 @@ class Counseling(models.Model):
     phone_number = models.CharField(
         _("phone_number"), max_length=50, validators=[phone_validator]
     )
-    created_at = models.DateField(_("date"))
+    created_at = models.DateField(_("created_at"), auto_now_add=True)
 
     class Meta:
         """Meta definition for Counseling."""
