@@ -1,11 +1,11 @@
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from bannerad.api.serializers import BannerAdRetrieveSerializer
 from bannerad.models import BannerAd
-from common.api.views import BaseCreatorCreateAPIView
 
 
-class BannerAdRetrieveAPIView(BaseCreatorCreateAPIView):
+class BannerAdRetrieveAPIView(RetrieveAPIView):
     """View for creating bannerad."""
 
     permission_classes = [
