@@ -17,6 +17,7 @@ from counseling.api_admin.serializers import (
     CounselingRetrieveSerializer,
     CounselingUpdateSerializer,
 )
+from counseling.filters import CounselingFilter
 from counseling.models import Counseling
 
 
@@ -27,6 +28,7 @@ class CounselingListAPIView(ListAPIView):
     serializer_class = CounselingListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["student_name", "phone_number"]
+    filterset_class = CounselingFilter
     pagination_class = StandardResultsSetPagination
     queryset = Counseling.objects.all()
 
