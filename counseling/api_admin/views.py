@@ -2,7 +2,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
     CreateAPIView,
-    DestroyAPIView,
     ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
@@ -12,7 +11,6 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from common.paginations import StandardResultsSetPagination
 from counseling.api_admin.serializers import (
     CounselingCreateSerializer,
-    CounselingDeleteSerializer,
     CounselingListSerializer,
     CounselingRetrieveSerializer,
     CounselingUpdateSerializer,
@@ -57,12 +55,4 @@ class CounselingUpdateAPIView(UpdateAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CounselingUpdateSerializer
-    queryset = Counseling.objects.all()
-
-
-class CounselingDeleteAPIView(DestroyAPIView):
-    """View for deleting counseling."""
-
-    permission_classes = [IsAuthenticated, IsAdminUser]
-    serializer_class = CounselingDeleteSerializer
     queryset = Counseling.objects.all()

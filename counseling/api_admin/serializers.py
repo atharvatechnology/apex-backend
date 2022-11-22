@@ -61,18 +61,3 @@ class CounselingUpdateSerializer(serializers.ModelSerializer):
             "phone_number",
             "created_at",
         )
-
-
-class CounselingDeleteSerializer(serializers.ModelSerializer):
-    """Serializer for Deleting Counseling."""
-
-    class Meta:
-        model = Counseling
-        fields = (
-            "id",
-            "student_name",
-            "counsellor",
-            "note",
-            "phone_number",
-            "created_at",
-        )
