@@ -1,5 +1,4 @@
 from rest_framework.generics import (
-    CreateAPIView,
     DestroyAPIView,
     ListAPIView,
     RetrieveAPIView,
@@ -15,9 +14,10 @@ from bannerad.api_admin.serializers import (
     BannerAdUpdateSerializer,
 )
 from bannerad.models import BannerAd
+from common.api.views import BaseCreatorCreateAPIView
 
 
-class BannerAdCreateAPIView(CreateAPIView):
+class BannerAdCreateAPIView(BaseCreatorCreateAPIView):
     """View for creating bannerad."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]

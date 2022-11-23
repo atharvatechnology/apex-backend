@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from common.models import CreatorBaseModel
 
-class BannerAd(models.Model):
+
+class BannerAd(CreatorBaseModel):
     """Model for BannerAd."""
 
     title = models.CharField(_("title"), max_length=100)
