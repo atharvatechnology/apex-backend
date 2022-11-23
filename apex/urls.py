@@ -55,6 +55,7 @@ api_urls = [
     path("meetings/", include("meetings.api.urls")),
     path("payments/", include("payments.api.urls")),
     path("infocenter/", include("infocenter.api.urls")),
+    path("bannerad/", include("bannerad.api.urls")),
 ]
 
 api_admin_urls = [
