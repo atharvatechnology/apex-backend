@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     "fcm_django",
     "notifications",
     "report",
+    "bannerad",
 ]
 
 MIDDLEWARE = [

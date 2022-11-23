@@ -68,6 +68,7 @@ api_admin_urls = [
     path("infocenter/", include("infocenter.api_admin.urls")),
     path("notifications/", include("notifications.api_admin.urls")),
     path("payments/", include("payments.api_admin.urls")),
+    path("bannerad/", include("bannerad.api_admin.urls")),
 ]
 
 fcm_urls = [
