@@ -4,7 +4,7 @@ from counseling.models import Counseling
 
 
 class CounselingCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating counseling."""
+    """Serializer creating counseling."""
 
     class Meta:
         model = Counseling
