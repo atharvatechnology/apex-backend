@@ -10,8 +10,7 @@ class BannerAdCreateSerializer(serializers.ModelSerializer):
         model = BannerAd
         fields = (
             "id",
-            "title",
-            "description",
+            "img",
             "is_displayed",
         )
 
@@ -23,8 +22,7 @@ class BannerAdListSerializer(serializers.ModelSerializer):
         model = BannerAd
         fields = (
             "id",
-            "title",
-            "description",
+            "img",
             "is_displayed",
         )
 
@@ -36,8 +34,7 @@ class BannerAdUpdateSerializer(serializers.ModelSerializer):
         model = BannerAd
         fields = (
             "id",
-            "title",
-            "description",
+            "img",
             "is_displayed",
         )
 
@@ -49,8 +46,7 @@ class BannerAdRetrieveSerializer(serializers.ModelSerializer):
         model = BannerAd
         fields = (
             "id",
-            "title",
-            "description",
+            "img",
             "is_displayed",
         )
 
@@ -62,7 +58,6 @@ class BannerAdDeleteSerializer(serializers.ModelSerializer):
         model = BannerAd
         fields = (
             "id",
-            "title",
-            "description",
+            "img",
             "is_displayed",
         )

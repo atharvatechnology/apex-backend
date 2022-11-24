@@ -10,7 +10,6 @@ class BannerAdRetrieveSerializer(serializers.ModelSerializer):
         model = BannerAd
         fields = (
             "id",
-            "title",
-            "description",
+            "img",
             "is_displayed",
         )
