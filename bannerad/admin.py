@@ -9,7 +9,6 @@ class BannerAdAdmin(admin.ModelAdmin):
 
     list_displaye = (
         "id",
-        "title",
-        "description",
+        "img",
         "is_displayed",
     )
