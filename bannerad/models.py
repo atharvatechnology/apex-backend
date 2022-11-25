@@ -8,7 +8,7 @@ class BannerAd(CreatorBaseModel):
     """Model for BannerAd."""
 
     is_displayed = models.BooleanField(_("is_displayed"), default=False)
-    img = models.ImageField(_("img"), null=True, blank=True)
+    img = models.ImageField(_("img"))
 
     class Meta:
         """Meta definition for BannerAd."""
