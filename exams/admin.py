@@ -83,7 +83,15 @@ class ExamAdmin(CreatorBaseModelAdmin, nested_admin.NestedModelAdmin):
     def question(self, obj):
         return obj.questions.all().count()
 
-    list_display = ["id", "name", "price", "question", "template", "preview"]
+    list_display = [
+        "id",
+        "name",
+        "price",
+        "question",
+        "template",
+        "preview",
+        "exam_type",
+    ]
     list_filter = ["template"]
     inlines = [
         QuestionInline,
