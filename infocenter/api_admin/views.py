@@ -1,9 +1,12 @@
-from rest_framework import viewsets
-from rest_framework.generics import DestroyAPIView, ListAPIView
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
+from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.paginations import StandardResultsSetPagination
+from infocenter.filters import WebResouceFilter
 
 from ..models import CourseInfo, CourseInfoCategory, WebResouce
 from .serializers import (
@@ -44,7 +47,7 @@ class CourseInfoViewSet(viewsets.ModelViewSet):
 
 
 class WebResouceCreateAPIView(BaseCreatorCreateAPIView):
-    """WebResouce viewset."""
+    """WebResouce create view."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = WebResouce.objects.all()
@@ -52,7 +55,7 @@ class WebResouceCreateAPIView(BaseCreatorCreateAPIView):
 
 
 class WebResouceUpdateAPIView(BaseCreatorUpdateAPIView):
-    """WebResouce viewset."""
+    """WebResouce update view."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = WebResouce.objects.all()
@@ -60,7 +63,20 @@ class WebResouceUpdateAPIView(BaseCreatorUpdateAPIView):
 
 
 class WebResouceListAPIView(ListAPIView):
-    """WebResouce viewset."""
+    """WebResouce list view."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = WebResouce.objects.all()
+    serializer_class = WebResouceCRUDAdminSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    pagination_class = StandardResultsSetPagination
+    filterset_class = WebResouceFilter
+    search_fields = ["title"]
+    ordering_fields = ["-created_at"]
+
+
+class WebResouceRetrieveAPIView(RetrieveAPIView):
+    """WebResouce retrieve view."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = WebResouce.objects.all()
@@ -68,7 +84,7 @@ class WebResouceListAPIView(ListAPIView):
 
 
 class WebResouceDeleteAPIView(DestroyAPIView):
-    """WebResouce viewset."""
+    """WebResouce delete view."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = WebResouce.objects.all()
