@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from bannerad.api_admin.serializers import (
     BannerAdCreateSerializer,
-    BannerAdDeleteSerializer,
     BannerAdListSerializer,
     BannerAdRetrieveSerializer,
     BannerAdUpdateSerializer,
@@ -53,5 +52,4 @@ class BannerAdDeleteAPIView(DestroyAPIView):
     """View for deleting bannerad."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    serializer_class = BannerAdDeleteSerializer
     queryset = BannerAd.objects.all()

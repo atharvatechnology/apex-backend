@@ -49,15 +49,3 @@ class BannerAdRetrieveSerializer(serializers.ModelSerializer):
             "img",
             "is_displayed",
         )
-
-
-class BannerAdDeleteSerializer(serializers.ModelSerializer):
-    """Serializer for delete bannerad."""
-
-    class Meta:
-        model = BannerAd
-        fields = (
-            "id",
-            "img",
-            "is_displayed",
-        )
