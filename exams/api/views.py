@@ -34,7 +34,6 @@ class ExamListAPIView(PublishableModelMixin, ListAPIView):
     queryset = Exam.objects.all()
     filterset_class = ExamFilter
     pagination_class = StandardResultsSetPagination
-    search_fields = ["name", "course__name"]
 
 
 class ExamRetrieveAPIView(PublishableModelMixin, RetrieveAPIView):

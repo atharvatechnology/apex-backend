@@ -6,11 +6,7 @@ from enrollments.api.serializers import (
     ExamEnrollmentPaperSerializer,
     ExamSessionSerializer,
 )
-from enrollments.api.utils import (
-    retrieve_exam_status,
-    retrieve_exam_status_on_exam_retrieve,
-    retrieve_scheduled_session_id,
-)
+from enrollments.api.utils import retrieve_exam_status
 from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
 from exams.models import Exam, ExamTemplate, Option, Question
 
@@ -131,23 +127,19 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
                 return ExamEnrollmentExamRetrieveSerializer(exam_enrollment).data
         return None
 
-    # def get_session_id(self, obj):
-    #     user = self.context["request"].user
-    #     if user.is_authenticated:
-    #         enrollment = ExamThroughEnrollment.objects.filter(
-    #             enrollment__student=self.context["request"].user,
-    #             exam=obj,
-    #         ).first()
-    #         if enrollment:
-    #             return enrollment.selected_session.id
-    #     return None
-
     def get_session_id(self, obj):
-        # TODO: check all enrollments for active sessions
-        return retrieve_scheduled_session_id(self, obj)
+        user = self.context["request"].user
+        if user.is_authenticated:
+            enrollment = ExamThroughEnrollment.objects.filter(
+                enrollment__student=self.context["request"].user,
+                exam=obj,
+            ).first()
+            if enrollment:
+                return enrollment.selected_session.id
+        return None
 
     def get_status(self, obj):
-        return retrieve_exam_status_on_exam_retrieve(self, obj)
+        return retrieve_exam_status(self, obj)
 
 
 class ExamRetrievePoolSerializer(serializers.ModelSerializer):
