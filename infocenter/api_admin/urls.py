@@ -7,7 +7,6 @@ from .views import (
     WebResouceCreateAPIView,
     WebResouceDeleteAPIView,
     WebResouceListAPIView,
-    WebResouceRetrieveAPIView,
     WebResouceUpdateAPIView,
 )
 
@@ -18,17 +17,12 @@ router.register(
 )
 router.register(r"course-info", CourseInfoViewSet, basename="course-info")
 
-web_resource_urls = [
+WebResouce_urls = [
     path("create/", WebResouceCreateAPIView.as_view(), name="WebResouce-create"),
     path(
         "update/<int:pk>/", WebResouceUpdateAPIView.as_view(), name="WebResouce-update"
     ),
     path("list/", WebResouceListAPIView.as_view(), name="WebResouce-list"),
-    path(
-        "retrieve/<int:pk>/",
-        WebResouceRetrieveAPIView.as_view(),
-        name="WebResouce-retrieve",
-    ),
     path(
         "delete/<int:pk>/", WebResouceDeleteAPIView.as_view(), name="WebResouce-delete"
     ),
@@ -36,5 +30,5 @@ web_resource_urls = [
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("web-resource/", include(web_resource_urls)),
+    # path("WebResouce/", include(WebResouce_urls)),
 ]
