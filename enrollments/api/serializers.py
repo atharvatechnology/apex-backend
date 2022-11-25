@@ -1,6 +1,5 @@
 from django.db import transaction
 from django.db.models import Q
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.response import Response
 
@@ -29,6 +28,8 @@ from enrollments.models import (
 from exams.api_common.serializers import ExamMiniSerializer
 from exams.models import Exam, ExamTemplate, ExamType, Option, Question
 from meetings.api.serializers import MeetingOnCourseEnrolledSerializer
+
+from .utils import schedule_exam_in_five_minutes
 
 
 class SessionSerializer(CreatorSerializer):
@@ -391,8 +392,11 @@ class PracticeExamEnrollmentCreateSerializer(serializers.ModelSerializer):
             "exam_enrolls",
             "exams",
         )
+        extra_kwargs = {
+            "exam_enrolls": {"write_only": True},
+        }
 
-    # @transaction.atomic
+    @transaction.atomic
     def create(self, validated_data):
         """Create a new enrollment to the practice exam.
 
@@ -447,14 +451,7 @@ class PracticeExamEnrollmentCreateSerializer(serializers.ModelSerializer):
         )
         # create a new session to schedule the exam
         # schedule the exam 5 minutes from now
-        schedule_time = timezone.now() + timezone.timedelta(minutes=5)
-        exam_session = ExamSession.objects.create(
-            exam=exam,
-            start_date=schedule_time,
-            result_is_published=True,
-            created_by=student,
-            updated_by=student,
-        )
+        exam_session = schedule_exam_in_five_minutes(exam, student)
         # create exam through enrollment to the practice version of the exam
         ExamThroughEnrollment.objects.create(
             exam=exam,
