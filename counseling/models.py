@@ -16,7 +16,7 @@ class Counseling(models.Model):
     counsellor = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="counsellor", blank=True, null=True
     )
-    note = models.TextField(blank=True, null=True)
+    note = models.TextField(_("note"))
     phone_number = models.CharField(
         _("phone_number"), max_length=50, validators=[phone_validator]
     )
