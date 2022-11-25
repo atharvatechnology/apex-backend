@@ -38,5 +38,5 @@ web_resource_urlpatterns = [
 urlpatterns = [
     path("course-info-category/", include(course_info_category_urlpatterns)),
     path("course-info/", include(course_info_urlpatterns)),
-    # path("web-resource/", include(web_resource_urlpatterns)),
+    path("web-resource/", include(web_resource_urlpatterns)),
 ]
