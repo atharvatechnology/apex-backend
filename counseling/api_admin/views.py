@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
     CreateAPIView,
+    DestroyAPIView,
     ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
@@ -55,4 +56,11 @@ class CounselingUpdateAPIView(UpdateAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CounselingUpdateSerializer
+    queryset = Counseling.objects.all()
+
+
+class CounselingDeleteAPIView(DestroyAPIView):
+    """View for deleting counseling."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = Counseling.objects.all()
