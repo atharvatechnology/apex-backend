@@ -20,6 +20,7 @@ from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
     CourseEnrollmentUpdateSerializer,
+    CourseExamEnrollmentCreateSerializer,
     EnrollmentCreateSerializer,
     EnrollmentRetrieveSerializer,
     ExamEnrollmentCheckPointRetrieveSerializer,
@@ -71,14 +72,9 @@ class EnrollmentCreateAPIView(CreateAPIView):
 class CourseExamEnrollmentCreateAPIView(EnrollmentCreateAPIView):
     """Create a exam enrollment according to course for a student."""
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        # Add new key from context to pass to serializer
-        context["from_course"] = True
-        return context
+    serializer_class = CourseExamEnrollmentCreateSerializer
 
     def create(self, request, *args, **kwargs):
-        print(self.kwargs)
         course_id = self.kwargs.get("pk")
         exam_id = self.kwargs.get("exam_id")
         user = self.request.user
