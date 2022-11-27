@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from ..models import CourseInfo, CourseInfoCategory
+from common.api.serializers import CreatorSerializer
+
+from ..models import CourseInfo, CourseInfoCategory, WebResouce
 
 
 class CourseInfoCategoryRetrieveSerializer(serializers.ModelSerializer):
@@ -28,3 +30,16 @@ class CourseInfoRetrieveSerializer(serializers.ModelSerializer):
             "syllabus",
             "colleges",
         ]
+
+
+class WebResouceListSerializer(CreatorSerializer):
+    """List WebResouce serializer."""
+
+    class Meta:
+        model = WebResouce
+        fields = CreatorSerializer.Meta.fields + (
+            "id",
+            "title",
+            "description",
+            "file_resource",
+        )

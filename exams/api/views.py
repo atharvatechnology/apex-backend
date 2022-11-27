@@ -33,6 +33,7 @@ class ExamListAPIView(PublishableModelMixin, ListAPIView):
     permission_classes = [AllowAny]
     queryset = Exam.objects.all()
     filterset_class = ExamFilter
+    search_fields = ["name"]
     pagination_class = StandardResultsSetPagination
 
 
