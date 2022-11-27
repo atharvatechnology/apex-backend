@@ -1,13 +1,19 @@
-from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
+from rest_framework.generics import DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from ..models import CourseInfo, CourseInfoCategory
+from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.paginations import StandardResultsSetPagination
+
+from ..models import CourseInfo, CourseInfoCategory, WebResouce
 from .serializers import (
     CourseInfoCategoryCRUDSerializer,
     CourseInfoCategoryListSerializer,
     CourseInfoCRUDSerializer,
     CourseInfoListSerializer,
+    WebResouceCRUDAdminSerializer,
 )
 
 
@@ -37,3 +43,37 @@ class CourseInfoViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         serializer = CourseInfoListSerializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class WebResouceCreateAPIView(BaseCreatorCreateAPIView):
+    """WebResouce viewset."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = WebResouce.objects.all()
+    serializer_class = WebResouceCRUDAdminSerializer
+
+
+class WebResouceUpdateAPIView(BaseCreatorUpdateAPIView):
+    """WebResouce viewset."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = WebResouce.objects.all()
+    serializer_class = WebResouceCRUDAdminSerializer
+
+
+class WebResouceListAPIView(ListAPIView):
+    """WebResouce viewset."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = WebResouce.objects.all()
+    serializer_class = WebResouceCRUDAdminSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["title"]
+    pagination_class = StandardResultsSetPagination
+
+
+class WebResouceDeleteAPIView(DestroyAPIView):
+    """WebResouce viewset."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = WebResouce.objects.all()
