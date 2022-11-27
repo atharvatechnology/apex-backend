@@ -5,7 +5,7 @@ from .views import (
     CourseInfoCategoryRetrieveAPIView,
     CourseInfoListAPIView,
     CourseInfoRetrieveAPIView,
-    WebResouceListAPIView,
+    WebResourceListAPIView,
 )
 
 course_info_category_urlpatterns = [
@@ -31,7 +31,7 @@ course_info_urlpatterns = [
 ]
 
 web_resource_urlpatterns = [
-    path("list/", WebResouceListAPIView.as_view(), name="web-resource-list"),
+    path("list/", WebResourceListAPIView.as_view(), name="web-resource-list"),
 ]
 
 
