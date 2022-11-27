@@ -17,7 +17,7 @@ router.register(
 )
 router.register(r"course-info", CourseInfoViewSet, basename="course-info")
 
-WebResouce_urls = [
+webresource_urls = [
     path("create/", WebResouceCreateAPIView.as_view(), name="WebResouce-create"),
     path(
         "update/<int:pk>/", WebResouceUpdateAPIView.as_view(), name="WebResouce-update"
@@ -30,5 +30,5 @@ WebResouce_urls = [
 
 urlpatterns = [
     path("", include(router.urls)),
-    # path("WebResouce/", include(WebResouce_urls)),
+    path("WebResouce/", include(webresource_urls)),
 ]

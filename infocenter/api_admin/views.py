@@ -1,9 +1,11 @@
-from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
 from rest_framework.generics import DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.paginations import StandardResultsSetPagination
 
 from ..models import CourseInfo, CourseInfoCategory, WebResouce
 from .serializers import (
@@ -65,6 +67,9 @@ class WebResouceListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = WebResouce.objects.all()
     serializer_class = WebResouceCRUDAdminSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["title"]
+    pagination_class = StandardResultsSetPagination
 
 
 class WebResouceDeleteAPIView(DestroyAPIView):
