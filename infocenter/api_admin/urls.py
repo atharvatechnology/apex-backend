@@ -4,10 +4,10 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     CourseInfoCategoryViewSet,
     CourseInfoViewSet,
-    WebResouceCreateAPIView,
-    WebResouceDeleteAPIView,
-    WebResouceListAPIView,
-    WebResouceUpdateAPIView,
+    WebResourceCreateAPIView,
+    WebResourceDeleteAPIView,
+    WebResourceListAPIView,
+    WebResourceUpdateAPIView,
 )
 
 router = DefaultRouter()
@@ -18,17 +18,21 @@ router.register(
 router.register(r"course-info", CourseInfoViewSet, basename="course-info")
 
 webresource_urls = [
-    path("create/", WebResouceCreateAPIView.as_view(), name="WebResouce-create"),
+    path("create/", WebResourceCreateAPIView.as_view(), name="WebResource-create"),
     path(
-        "update/<int:pk>/", WebResouceUpdateAPIView.as_view(), name="WebResouce-update"
+        "update/<int:pk>/",
+        WebResourceUpdateAPIView.as_view(),
+        name="WebResource-update",
     ),
-    path("list/", WebResouceListAPIView.as_view(), name="WebResouce-list"),
+    path("list/", WebResourceListAPIView.as_view(), name="WebResource-list"),
     path(
-        "delete/<int:pk>/", WebResouceDeleteAPIView.as_view(), name="WebResouce-delete"
+        "delete/<int:pk>/",
+        WebResourceDeleteAPIView.as_view(),
+        name="WebResource-delete",
     ),
 ]
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("WebResouce/", include(webresource_urls)),
+    path("web-resource/", include(webresource_urls)),
 ]

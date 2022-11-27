@@ -45,8 +45,8 @@ class CourseInfo(models.Model):
         return f"{self.id}_{self.title}"
 
 
-class WebResouce(CreatorBaseModel):
-    """Model definition for WebResouce."""
+class WebResource(CreatorBaseModel):
+    """Model definition for WebResource."""
 
     def resource_upload(self, filename):
         """To upload resource."""
