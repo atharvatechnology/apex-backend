@@ -15,9 +15,13 @@ def on_online_payment(sender, instance, **kwargs):
         for exam_enrollment in instance.enrollment.exam_enrolls.filter(
             exam__exam_type=ExamType.PRACTICE
         ):
+            # store older exam schedules before payment
+            prev_session = exam_enrollment.selected_session
             # make new schedule for practice exams
             exam_session = schedule_exam_in_five_minutes(
                 exam_enrollment.exam, instance.enrollment.student
             )
             exam_enrollment.selected_session = exam_session
+            # delete older exam schedules
+            prev_session.delete()
             exam_enrollment.save()
