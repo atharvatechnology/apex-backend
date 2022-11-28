@@ -2,11 +2,11 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from common.paginations import StandardResultsSetPagination
 
-from ..models import CourseInfo, CourseInfoCategory, WebResouce
+from ..models import CourseInfo, CourseInfoCategory, WebResource
 from .serializers import (
     CourseInfoCategoryRetrieveSerializer,
     CourseInfoRetrieveSerializer,
-    WebResouceListSerializer,
+    WebResourceListSerializer,
 )
 
 
@@ -38,9 +38,9 @@ class CourseInfoRetrieveAPIView(RetrieveAPIView):
     queryset = CourseInfo.objects.all()
 
 
-class WebResouceListAPIView(ListAPIView):
-    """WebResouce list view."""
+class WebResourceListAPIView(ListAPIView):
+    """WebResource list view."""
 
-    serializer_class = WebResouceListSerializer
-    queryset = WebResouce.objects.all()
+    serializer_class = WebResourceListSerializer
+    queryset = WebResource.objects.all()
     pagination_class = StandardResultsSetPagination

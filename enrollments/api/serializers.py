@@ -550,6 +550,59 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
         return enrollment
 
 
+class CourseExamEnrollmentCreateSerializer(serializers.ModelSerializer):
+    """Serializer when user is enrolling into an exam.
+
+    It handles the enrollment creation of exam from course.
+    """
+
+    exams = ExamEnrollmentSerializer(many=True, source="exam_enrolls", required=False)
+
+    class Meta:
+        model = Enrollment
+        fields = (
+            "id",
+            # 'student',
+            "exams",
+        )
+
+    @transaction.atomic
+    def create(self, validated_data):
+        """Create an enrollment for exam enrollment from course.
+
+        Parameters
+        ----------
+        validated_data : dict
+            validated enrollment data.
+
+        Returns
+        -------
+        Enrollment
+            created enrollment.
+
+        Raises
+        ------
+        serializers.ValidationError
+            if the user is already enrolled.
+        serializers.ValidationError
+            other validation error
+
+        """
+
+        exams_data = validated_data.pop("exam_enrolls", None)
+        user = self.context["request"].user
+        if not (exams_data):
+            raise serializers.ValidationError("Exam field should be non-empty.")
+        exams = [data.get("exam") for data in exams_data]
+        batch_is_enrolled_and_price(exams, user)
+        enrollment = super().create(validated_data)
+
+        exam_data_save(exams_data, enrollment)
+        enrollment.status = EnrollmentStatus.ACTIVE
+        enrollment.save()
+        return enrollment
+
+
 class OptionResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option

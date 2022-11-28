@@ -1,6 +1,6 @@
 from django.utils.timezone import localtime
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status
+from rest_framework import filters, serializers, status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -11,14 +11,14 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from common.api.serializers import ModelFieldsSerializer
-
 # from common.utils import dynamic_excel_generator
 from common.api.views import BaseReportGeneratorAPIView
+from courses.models import Course
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
     CourseEnrollmentUpdateSerializer,
+    CourseExamEnrollmentCreateSerializer,
     EnrollmentCreateSerializer,
     EnrollmentRetrieveSerializer,
     ExamEnrollmentCheckPointRetrieveSerializer,
@@ -41,6 +41,7 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
     SessionStatus,
 )
+from exams.models import Exam
 
 
 class EnrollmentCreateAPIView(CreateAPIView):
@@ -100,6 +101,37 @@ class PracticeEnrollmentCreateAPIView(CreateAPIView):
 
     def perform_create(self, serializer):
         return serializer.save(student=self.request.user)
+
+
+class CourseExamEnrollmentCreateAPIView(EnrollmentCreateAPIView):
+    """Create a exam enrollment according to course for a student."""
+
+    serializer_class = CourseExamEnrollmentCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        course_id = self.kwargs.get("pk")
+        exam_id = self.kwargs.get("exam_id")
+        user = self.request.user
+
+        course = Course.objects.get(id=course_id)
+        exam = Exam.objects.get(id=exam_id)
+
+        if exam.course == course:
+            course_enrollment = Enrollment.objects.filter(
+                student=user, courses__in=[course]
+            )
+
+            if course_enrollment.exists():
+                exam_enrollment = Enrollment.objects.filter(
+                    student=user, exams__in=[exam]
+                )
+
+                if exam_enrollment.exists():
+                    exam_enrollment.delete()
+
+                return super().create(request, *args, **kwargs)
+            raise serializers.ValidationError("You are not enrolled in this course")
+        raise serializers.ValidationError("Exam does not belong to course")
 
 
 class EnrollmentListAPIView(ListAPIView):
@@ -309,7 +341,6 @@ class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
     queryset = ExamThroughEnrollment.objects.all()
     filterset_class = ExamThroughEnrollmentFilter
     model_name = "ExamThroughEnrollment"
-    serializer_class = ModelFieldsSerializer
     # {"model_fields":
     #     ["enrollment","exam","selected_session","rank","score","negative_score","status"]
     # }
@@ -321,7 +352,6 @@ class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
     queryset = CourseThroughEnrollment.objects.all()
     filterset_class = CourseThroughEnrollmentFilter
     model_name = "CourseThroughEnrollment"
-    serializer_class = ModelFieldsSerializer
 
     # {
     # "model_fields"=["enrollment","course_name","selected_session","course_enroll_status","completed_date"]

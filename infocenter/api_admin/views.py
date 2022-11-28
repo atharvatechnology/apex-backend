@@ -7,13 +7,13 @@ from rest_framework.response import Response
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 
-from ..models import CourseInfo, CourseInfoCategory, WebResouce
+from ..models import CourseInfo, CourseInfoCategory, WebResource
 from .serializers import (
     CourseInfoCategoryCRUDSerializer,
     CourseInfoCategoryListSerializer,
     CourseInfoCRUDSerializer,
     CourseInfoListSerializer,
-    WebResouceCRUDAdminSerializer,
+    WebResourceCRUDAdminSerializer,
 )
 
 
@@ -45,35 +45,35 @@ class CourseInfoViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class WebResouceCreateAPIView(BaseCreatorCreateAPIView):
-    """WebResouce viewset."""
+class WebResourceCreateAPIView(BaseCreatorCreateAPIView):
+    """WebResource viewset."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = WebResouce.objects.all()
-    serializer_class = WebResouceCRUDAdminSerializer
+    queryset = WebResource.objects.all()
+    serializer_class = WebResourceCRUDAdminSerializer
 
 
-class WebResouceUpdateAPIView(BaseCreatorUpdateAPIView):
-    """WebResouce viewset."""
-
-    permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = WebResouce.objects.all()
-    serializer_class = WebResouceCRUDAdminSerializer
-
-
-class WebResouceListAPIView(ListAPIView):
-    """WebResouce viewset."""
+class WebResourceUpdateAPIView(BaseCreatorUpdateAPIView):
+    """WebResource viewset."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = WebResouce.objects.all()
-    serializer_class = WebResouceCRUDAdminSerializer
+    queryset = WebResource.objects.all()
+    serializer_class = WebResourceCRUDAdminSerializer
+
+
+class WebResourceListAPIView(ListAPIView):
+    """WebResource viewset."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = WebResource.objects.all()
+    serializer_class = WebResourceCRUDAdminSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["title"]
     pagination_class = StandardResultsSetPagination
 
 
-class WebResouceDeleteAPIView(DestroyAPIView):
-    """WebResouce viewset."""
+class WebResourceDeleteAPIView(DestroyAPIView):
+    """WebResource viewset."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = WebResouce.objects.all()
+    queryset = WebResource.objects.all()

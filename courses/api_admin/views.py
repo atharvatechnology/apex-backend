@@ -11,6 +11,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
+from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 from courses.api_admin.serializers import (
     CourseCategorySerializer,
@@ -60,7 +61,7 @@ class CourseCategoryDeleteAPIView(DestroyAPIView):
     queryset = CourseCategory.objects.all()
 
 
-class CourseCreateAPIView(CreateAPIView):
+class CourseCreateAPIView(BaseCreatorCreateAPIView):
     """View for creating courses."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -84,7 +85,7 @@ class CourseRetrieveAPIView(RetrieveAPIView):
     queryset = Course.objects.all()
 
 
-class CourseUpdateAPIView(UpdateAPIView):
+class CourseUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for updating courses."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]

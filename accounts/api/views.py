@@ -18,7 +18,6 @@ from accounts.api.serializers import (
 )
 from accounts.filters import StudentFilter
 from accounts.models import Profile, UserRoles
-from common.api.serializers import ModelFieldsSerializer
 from common.api.views import BaseReportGeneratorAPIView
 
 User = get_user_model()
@@ -226,7 +225,6 @@ class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
     queryset = Profile.objects.all()
     filterset_class = StudentFilter
     model_name = "StudentProfile"
-    serializer_class = ModelFieldsSerializer
 
     # {
     # "model_fields":["username","fullname","email","college_name","faculty"]
