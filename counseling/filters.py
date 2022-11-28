@@ -8,4 +8,4 @@ class CounselingFilter(django_filters.FilterSet):
 
     class Meta:
         model = Counseling
-        fields = {"counsellor": ["exact"]}
+        fields = {"counsellor": ["exact"], "created_at": ["range"]}
