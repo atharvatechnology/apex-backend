@@ -15,4 +15,4 @@ class BannerAd(CreatorBaseModel):
 
         verbose_name = "BannerAd"
         verbose_name_plural = "BannerAds"
-        ordering = ["id"]
+        ordering = ["-created_at"]

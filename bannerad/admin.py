@@ -7,7 +7,7 @@ from bannerad.models import BannerAd
 class BannerAdAdmin(admin.ModelAdmin):
     """Admin for BannerAd."""
 
-    list_displaye = (
+    list_display = (
         "id",
         "img",
         "is_displayed",
