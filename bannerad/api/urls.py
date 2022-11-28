@@ -1,6 +1,6 @@
 from django.urls import path
 
-from bannerad.api_admin.views import BannerAdRetrieveAPIView
+from .views import BannerAdRetrieveAPIView
 
 urlpatterns = [
     path(
