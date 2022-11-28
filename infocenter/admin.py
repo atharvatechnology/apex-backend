@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from .models import CourseInfo, CourseInfoCategory
+from common.admin import CreatorBaseModelAdmin
+
+from .models import CourseInfo, CourseInfoCategory, WebResource
 
 
 @admin.register(CourseInfo)
@@ -15,3 +17,10 @@ class CourseInfoCategoryAdmin(admin.ModelAdmin):
     """CourseInfoCategory admin."""
 
     list_display = ["id", "name"]
+
+
+@admin.register(WebResource)
+class WebResourceAdmin(CreatorBaseModelAdmin):
+    """WebResource admin."""
+
+    list_display = ["id", "title", "created_at", "created_by"]
