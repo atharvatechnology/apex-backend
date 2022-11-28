@@ -7,48 +7,48 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from bannerad.api_admin.serializers import (
-    BannerAdCreateSerializer,
-    BannerAdListSerializer,
-    BannerAdRetrieveSerializer,
-    BannerAdUpdateSerializer,
+    BannerAdCreateAdminSerializer,
+    BannerAdListAdminSerializer,
+    BannerAdRetrieveAdminSerializer,
+    BannerAdUpdateAdminSerializer,
 )
 from bannerad.models import BannerAd
 from common.api.views import BaseCreatorCreateAPIView
 
 
-class BannerAdCreateAPIView(BaseCreatorCreateAPIView):
+class BannerAdCreateAdminAPIView(BaseCreatorCreateAPIView):
     """View for creating bannerad."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    serializer_class = BannerAdCreateSerializer
+    serializer_class = BannerAdCreateAdminSerializer
     queryset = BannerAd.objects.all()
 
 
-class BannerAdRetrieveAPIView(RetrieveAPIView):
+class BannerAdRetrieveAdminAPIView(RetrieveAPIView):
     """View for retrieving bannerad."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    serializer_class = BannerAdRetrieveSerializer
+    serializer_class = BannerAdRetrieveAdminSerializer
     queryset = BannerAd.objects.all()
 
 
-class BannerAdListAPIView(ListAPIView):
+class BannerAdListAdminAPIView(ListAPIView):
     """View for listing bannerad."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    serializer_class = BannerAdListSerializer
+    serializer_class = BannerAdListAdminSerializer
     queryset = BannerAd.objects.all()
 
 
-class BannerAdUpdateAPIView(UpdateAPIView):
+class BannerAdUpdateAdminAPIView(UpdateAPIView):
     """View for updating bannerad."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    serializer_class = BannerAdUpdateSerializer
+    serializer_class = BannerAdUpdateAdminSerializer
     queryset = BannerAd.objects.all()
 
 
-class BannerAdDeleteAPIView(DestroyAPIView):
+class BannerAdDeleteAdminAPIView(DestroyAPIView):
     """View for deleting bannerad."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]

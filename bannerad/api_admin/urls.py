@@ -1,29 +1,31 @@
 from django.urls import path
 
 from bannerad.api_admin.views import (
-    BannerAdCreateAPIView,
-    BannerAdDeleteAPIView,
-    BannerAdListAPIView,
-    BannerAdRetrieveAPIView,
-    BannerAdUpdateAPIView,
+    BannerAdCreateAdminAPIView,
+    BannerAdDeleteAdminAPIView,
+    BannerAdListAdminAPIView,
+    BannerAdRetrieveAdminAPIView,
+    BannerAdUpdateAdminAPIView,
 )
 
+# app_name = 'bannerad.api.admin'
+
 urlpatterns = [
-    path("create/", BannerAdCreateAPIView.as_view(), name="bannerad-create"),
-    path("list/", BannerAdListAPIView.as_view(), name="bannerad-create"),
+    path("create/", BannerAdCreateAdminAPIView.as_view(), name="bannerad-create"),
+    path("list/", BannerAdListAdminAPIView.as_view(), name="bannerad-list"),
     path(
         "retrieve/<int:pk>/",
-        BannerAdRetrieveAPIView.as_view(),
+        BannerAdRetrieveAdminAPIView.as_view(),
         name="bannerad-retrieve",
     ),
     path(
         "update/<int:pk>/",
-        BannerAdUpdateAPIView.as_view(),
+        BannerAdUpdateAdminAPIView.as_view(),
         name="bannerad-update",
     ),
     path(
         "delete/<int:pk>/",
-        BannerAdDeleteAPIView.as_view(),
+        BannerAdDeleteAdminAPIView.as_view(),
         name="bannerad-delete",
     ),
 ]

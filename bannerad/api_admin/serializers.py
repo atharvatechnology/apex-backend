@@ -3,7 +3,7 @@ from rest_framework import serializers
 from bannerad.models import BannerAd
 
 
-class BannerAdCreateSerializer(serializers.ModelSerializer):
+class BannerAdCreateAdminSerializer(serializers.ModelSerializer):
     """Serializer for creating bannerad."""
 
     class Meta:
@@ -15,7 +15,7 @@ class BannerAdCreateSerializer(serializers.ModelSerializer):
         )
 
 
-class BannerAdListSerializer(serializers.ModelSerializer):
+class BannerAdListAdminSerializer(serializers.ModelSerializer):
     """Serializer for listing bannerad."""
 
     class Meta:
@@ -27,7 +27,7 @@ class BannerAdListSerializer(serializers.ModelSerializer):
         )
 
 
-class BannerAdUpdateSerializer(serializers.ModelSerializer):
+class BannerAdUpdateAdminSerializer(serializers.ModelSerializer):
     """Serializer for creating bannerad."""
 
     class Meta:
@@ -39,7 +39,7 @@ class BannerAdUpdateSerializer(serializers.ModelSerializer):
         )
 
 
-class BannerAdRetrieveSerializer(serializers.ModelSerializer):
+class BannerAdRetrieveAdminSerializer(serializers.ModelSerializer):
     """Serializer for retrieving bannerad."""
 
     class Meta:
