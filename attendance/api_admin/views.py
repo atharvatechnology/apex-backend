@@ -8,7 +8,7 @@ from attendance.filters import AttendanceFilter
 from attendance.models import StudentAttendance
 
 
-class StudentAttendanceListAPIView(ListAPIView):
+class StudentAttendanceAdminListAPIView(ListAPIView):
     """View for listing admin student attendance."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
