@@ -22,7 +22,7 @@ class StudentAttendanceAdminListAPIView(ListAPIView):
     filterset_class = AttendanceFilter
 
 
-class TeacherAttendanceListAPIView(ListAPIView):
+class TeacherAttendanceAdminListAPIView(ListAPIView):
     """View for listing admin teacher attendance."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
