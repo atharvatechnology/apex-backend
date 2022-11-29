@@ -25,7 +25,7 @@ class StudentAttendanceAdminListAPIView(ListAPIView):
 class TeacherAttendanceListAPIView(ListAPIView):
     """View for listing admin teacher attendance."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = TeacherAttendanceAdminListSerializer
     queryset = TeacherAttendance.objects.all()
     filter_backends = [filters.SearchFilter]
