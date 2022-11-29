@@ -28,6 +28,6 @@ class TeacherAttendanceAdminListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = TeacherAttendanceAdminListSerializer
     queryset = TeacherAttendance.objects.all()
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     filterset_class = AttendanceFilter

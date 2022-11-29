@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from attendance.api.serializers import TeacherAttendanceDetailCreateSerializer
 from attendance.models import StudentAttendance, TeacherAttendance
 
 
@@ -18,6 +19,14 @@ class StudentAttendanceAdminListSerializer(serializers.ModelSerializer):
 class TeacherAttendanceAdminListSerializer(serializers.ModelSerializer):
     """Serializer for listing admin teacher attendance models."""
 
+    details = TeacherAttendanceDetailCreateSerializer(required=False)
+
     class Meta:
         model = TeacherAttendance
-        fields = "__all__"
+        fields = (
+            "id",
+            "name",
+            "date",
+            "user",
+            "details",
+        )
