@@ -8,4 +8,4 @@ class AttendanceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Attendance
-        fields = {"date": ["exact", "gt", "lt"], "user": ["exact"]}
+        fields = {"date": ["exact", "gt", "lt"]}
