@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from attendance.models import StudentAttendance
+from attendance.models import StudentAttendance, TeacherAttendance
 
 
-class StudentAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
+class StudentAttendanceAdminListSerializer(serializers.ModelSerializer):
     """Serializer for listing admin student attendance model."""
 
     class Meta:
@@ -13,3 +13,11 @@ class StudentAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
             "date",
             "user",
         )
+
+
+class TeacherAttendanceAdminListSerializer(serializers.ModelSerializer):
+    """Serializer for listing admin teacher attendance models."""
+
+    class Meta:
+        model = TeacherAttendance
+        fields = "__all__"
