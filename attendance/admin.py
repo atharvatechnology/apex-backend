@@ -35,6 +35,16 @@ class TeacherAttendanceDetailInline(admin.TabularInline):
     model = TeacherAttendanceDetail
     extra = 1
     readonly_fields = ["created_at", "updated_at", "created_by", "updated_by"]
+    list_display = (
+        "id",
+        "number_of_period",
+        "remarks",
+        "status",
+        "section",
+        "subject",
+        "start_time",
+        "end_time",
+    )
 
 
 @admin.register(TeacherAttendance)
