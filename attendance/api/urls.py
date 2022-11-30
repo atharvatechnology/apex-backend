@@ -8,6 +8,11 @@ from attendance.api.views import (
     StudentAttendanceUpdateAPIView,
     StudentOnlineAttendanceCreateAPIView,
     TeacherAttendanceCreateAPIView,
+    TeacherAttendanceDetailCreateAPIView,
+    TeacherAttendanceDetailDeleteAPIView,
+    TeacherAttendanceDetailListAPIView,
+    TeacherAttendanceDetailRetrieveAPIView,
+    TeacherAttendanceDetailUpdateAPIView,
     TeacherAttendanceListAPIView,
     TeacherAttendanceRetrieveAPIView,
     TeacherAttendanceUpdateAPIView,
@@ -52,8 +57,37 @@ teacher_urls = [
     ),
 ]
 
+teacher_detail_urls = [
+    path(
+        "create/",
+        TeacherAttendanceDetailCreateAPIView.as_view(),
+        name="teacher-detail-create",
+    ),
+    path(
+        "list/",
+        TeacherAttendanceDetailListAPIView.as_view(),
+        name="teacher-detail-list",
+    ),
+    path(
+        "retrieve/<int:pk>/",
+        TeacherAttendanceDetailRetrieveAPIView.as_view(),
+        name="teacher-detail-retrieve",
+    ),
+    path(
+        "update/<int:pk>/",
+        TeacherAttendanceDetailUpdateAPIView.as_view(),
+        name="teacher-detail-update",
+    ),
+    path(
+        "delete/<int:pk>/",
+        TeacherAttendanceDetailDeleteAPIView.as_view(),
+        name="teacher-detail-delete",
+    ),
+]
+
 urlpatterns = [
     path("create/", AttendanceCreateAPIView.as_view(), name="attendance-create"),
     path("student/", include(student_urls)),
     path("teacher/", include(teacher_urls)),
+    path("teacher_detail/", include(teacher_detail_urls)),
 ]

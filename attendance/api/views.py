@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from attendance.api.serializers import (
@@ -11,11 +11,19 @@ from attendance.api.serializers import (
     StudentAttendanceUpdateSerializer,
     StudentOnlineAttendanceSerializer,
     TeacherAttendanceCreateSerializer,
+    TeacherAttendanceDetailCreateSerializer,
+    TeacherAttendanceDetailListSerializer,
+    TeacherAttendanceDetailRetrieveSerializer,
+    TeacherAttendanceDetailUpdateSerializer,
     TeacherAttendanceRetrieveSerializer,
     TeacherAttendanceUpdateSerializer,
 )
 from attendance.filters import AttendanceFilter
-from attendance.models import StudentAttendance, TeacherAttendance
+from attendance.models import (
+    StudentAttendance,
+    TeacherAttendance,
+    TeacherAttendanceDetail,
+)
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 from common.utils import decode_user
@@ -125,6 +133,50 @@ class AttendanceCreateAPIView(BaseCreatorCreateAPIView):
             elif user_object.is_teacher:
                 return TeacherAttendanceCreateSerializer
         return self.serializer_class
+
+
+class TeacherAttendanceDetailCreateAPIView(BaseCreatorCreateAPIView):
+    """View for creating teacher detail attendance."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = TeacherAttendanceDetailCreateSerializer
+    queryset = TeacherAttendanceDetail.objects.all()
+
+
+class TeacherAttendanceDetailListAPIView(ListAPIView):
+    """View for listing teacher detail attendance."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = TeacherAttendanceDetailListSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
+    queryset = TeacherAttendanceDetail.objects.all()
+
+    # def get_queryset(self):
+    #     return super().get_queryset().filter(user=self.request.user)
+
+
+class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
+    """View for retrieving teacher detail attendance."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = TeacherAttendanceDetailRetrieveSerializer
+    queryset = TeacherAttendanceDetail.objects.all()
+
+
+class TeacherAttendanceDetailUpdateAPIView(RetrieveAPIView):
+    """View for updating teacher detail attendance."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = TeacherAttendanceDetailUpdateSerializer
+    queryset = TeacherAttendanceDetail.objects.all()
+
+
+class TeacherAttendanceDetailDeleteAPIView(DestroyAPIView):
+    """View for deleting teacher detail attendance."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = TeacherAttendanceDetail.objects.all()
 
 
 # class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
