@@ -12,7 +12,7 @@ from enrollments.models import (
     ExamThroughEnrollment,
     SessionStatus,
 )
-from exams.models import Exam, ExamTemplate, Option, Question
+from exams.models import Exam, ExamTemplate, ExamType, Option, Question
 
 
 class ExamTemplateSerializer(CreatorSerializer):
@@ -87,6 +87,7 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
     exam_enroll = serializers.SerializerMethodField()
     session_id = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    active_exam_is_submitted = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -102,6 +103,7 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
             "template",
             "exam_enroll",
             "session_id",
+            "active_exam_is_submitted",
         )
 
     def get_exam_enroll(self, obj):
@@ -125,11 +127,33 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
         if user.is_authenticated:
             enrollments = obj.enrolls.all().filter(student=user)
         if len(enrollments) > 0:
-            enrollment = enrollments.first()
-            exam_enrollment = enrollment.exam_enrolls.all().filter(exam=obj).first()
+            enrollment = enrollments.latest("id")
+            exam_enrollment = (
+                enrollment.exam_enrolls.all().filter(exam=obj).latest("id")
+            )
             if exam_enrollment.status != ExamEnrollmentStatus.CREATED:
                 return ExamEnrollmentExamRetrieveSerializer(exam_enrollment).data
         return None
+
+    def get_active_exam_is_submitted(self, obj):
+        if obj.exam_type != ExamType.PRACTICE:
+            return None
+        enrollments = []
+        user = self.context["request"].user
+        if user.is_authenticated:
+            enrollments = obj.enrolls.all().filter(student=user)
+        if len(enrollments) > 0:
+            enrollment = enrollments.latest("id")
+            exam_enrollment = (
+                enrollment.exam_enrolls.all().filter(exam=obj).latest("id")
+            )
+            sel_sess = exam_enrollment.selected_session
+            if sel_sess.status == SessionStatus.ACTIVE and exam_enrollment.status in [
+                ExamEnrollmentStatus.PASSED,
+                ExamEnrollmentStatus.FAILED,
+            ]:
+                return True
+        return False
 
     def get_session_id(self, obj):
         user = self.context["request"].user
@@ -279,7 +303,9 @@ class ExamPaperSerializer(serializers.ModelSerializer):
             )
             if student_enrollments.count() > 0:
                 return ExamEnrollmentPaperSerializer(
-                    student_enrollments[0].exam_enrolls.filter(exam=obj).first()
+                    student_enrollments.latest("id")
+                    .exam_enrolls.filter(exam=obj)
+                    .latest("id")
                 ).data
 
     def get_status(self, obj):
