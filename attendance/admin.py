@@ -19,7 +19,7 @@ class AttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
 class StudentAttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Student Attendance Admin panel."""
 
-    list_display = ("date", "user", "created_at", "created_by")
+    list_display = ("id", "date", "user", "created_at", "created_by")
     search_fields = (
         "user__username",
         "user__email",

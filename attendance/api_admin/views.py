@@ -1,13 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from attendance.api_admin.serializers import (
     StudentAttendanceAdminListSerializer,
-    StudentAttendanceAdminRetrieveSerializer,
     TeacherAttendanceAdminListSerializer,
-    TeacherAttendanceAdminRetrieveSerializer,
 )
 from attendance.filters import AttendanceFilter
 from attendance.models import StudentAttendance, TeacherAttendance
@@ -25,15 +23,16 @@ class StudentAttendanceAdminListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
-        return super().get_queryset().filter(user=self.request.user)
+
+        return super().get_queryset().filter(id=self.kwargs.get("id", None))
 
 
-class StudentAttendanceAdminRetrieveAPIView(RetrieveAPIView):
-    """View for retrieving admin student attendance."""
+# class StudentAttendanceAdminRetrieveAPIView(RetrieveAPIView):
+#     """View for retrieving admin student attendance."""
 
-    permission_classes = [IsAdminUser, IsAuthenticated]
-    serializer_class = StudentAttendanceAdminRetrieveSerializer
-    queryset = StudentAttendance.objects.all()
+#     permission_classes = [IsAdminUser, IsAuthenticated]
+#     serializer_class = StudentAttendanceAdminRetrieveSerializer
+#     queryset = StudentAttendance.objects.all()
 
 
 class TeacherAttendanceAdminListAPIView(ListAPIView):
@@ -48,12 +47,13 @@ class TeacherAttendanceAdminListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
-        return super().get_queryset().filter(user=self.request.user)
+
+        return super().get_queryset().filter(id=self.kwargs.get("id", None))
 
 
-class TeacherAttendanceAdminRetrieveAPIView(RetrieveAPIView):
-    """View for retrieving admin teacher attendance."""
+# class TeacherAttendanceAdminRetrieveAPIView(RetrieveAPIView):
+#     """View for retrieving admin teacher attendance."""
 
-    permission_classes = [IsAdminUser, IsAuthenticated]
-    serializer_class = TeacherAttendanceAdminRetrieveSerializer
-    queryset = TeacherAttendance.objects.all()
+#     permission_classes = [IsAdminUser, IsAuthenticated]
+#     serializer_class = TeacherAttendanceAdminRetrieveSerializer
+#     queryset = TeacherAttendance.objects.all()

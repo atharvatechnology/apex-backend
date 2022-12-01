@@ -15,16 +15,16 @@ class StudentAttendanceAdminListSerializer(serializers.ModelSerializer):
         )
 
 
-class StudentAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
-    """Serializer for retrieving admin student attendance model."""
+# class StudentAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
+#     """Serializer for retrieving admin student attendance model."""
 
-    class Meta:
-        model = StudentAttendance
-        fields = (
-            "id",
-            "date",
-            "user",
-        )
+#     class Meta:
+#         model = StudentAttendance
+#         fields = (
+#             "id",
+#             "date",
+#             "user",
+#         )
 
 
 class TeacherAttendanceAdminListSerializer(serializers.ModelSerializer):
@@ -43,14 +43,14 @@ class TeacherAttendanceAdminListSerializer(serializers.ModelSerializer):
         )
 
 
-class TeacherAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
-    """Serializer for retrieving admin teacher attendance."""
+# class TeacherAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
+#     """Serializer for retrieving admin teacher attendance."""
 
-    class Meta:
-        model = TeacherAttendance
-        fields = (
-            "id",
-            "name",
-            "date",
-            "user",
-        )
+#     class Meta:
+#         model = TeacherAttendance
+#         fields = (
+#             "id",
+#             "name",
+#             "date",
+#             "user",
+#         )
