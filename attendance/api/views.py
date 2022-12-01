@@ -164,7 +164,7 @@ class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
     queryset = TeacherAttendanceDetail.objects.all()
 
 
-class TeacherAttendanceDetailUpdateAPIView(RetrieveAPIView):
+class TeacherAttendanceDetailUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for updating teacher detail attendance."""
 
     permission_classes = [IsAuthenticated]
