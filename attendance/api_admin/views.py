@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
@@ -23,16 +24,11 @@ class StudentAttendanceAdminListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
+        student_id = self.kwargs.get("student_id", None)
+        if not student_id:
+            raise ValidationError("Student id is required.")
 
-        return super().get_queryset().filter(id=self.kwargs.get("id", None))
-
-
-# class StudentAttendanceAdminRetrieveAPIView(RetrieveAPIView):
-#     """View for retrieving admin student attendance."""
-
-#     permission_classes = [IsAdminUser, IsAuthenticated]
-#     serializer_class = StudentAttendanceAdminRetrieveSerializer
-#     queryset = StudentAttendance.objects.all()
+        return super().get_queryset().filter(user=self.kwargs.get("student_id"))
 
 
 class TeacherAttendanceAdminListAPIView(ListAPIView):
@@ -47,13 +43,8 @@ class TeacherAttendanceAdminListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
+        teacher_id = self.kwargs.get("teacher_id", None)
+        if not teacher_id:
+            raise ValidationError("Teacher id is required.")
 
-        return super().get_queryset().filter(id=self.kwargs.get("id", None))
-
-
-# class TeacherAttendanceAdminRetrieveAPIView(RetrieveAPIView):
-#     """View for retrieving admin teacher attendance."""
-
-#     permission_classes = [IsAdminUser, IsAuthenticated]
-#     serializer_class = TeacherAttendanceAdminRetrieveSerializer
-#     queryset = TeacherAttendance.objects.all()
+        return super().get_queryset().filter(user=self.kwargs.get("teacher_id"))

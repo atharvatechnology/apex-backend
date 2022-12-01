@@ -51,7 +51,7 @@ class TeacherAttendanceDetailInline(admin.TabularInline):
 class TeacherAttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Teacher Attendance Admin panel."""
 
-    list_display = ("date", "user")
+    list_display = ("id", "date", "user")
     inlines = [TeacherAttendanceDetailInline]
 
     def save_formset(self, request, form, formset, change):

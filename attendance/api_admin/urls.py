@@ -7,7 +7,7 @@ from attendance.api_admin.views import (
 
 urlpatterns = [
     path(
-        "student/list/<int:id>",
+        "student/list/<int:student_id>",
         StudentAttendanceAdminListAPIView.as_view(),
         name="admin-student-list",
     ),
@@ -17,7 +17,7 @@ urlpatterns = [
     #     name="admin-student-retrieve",
     # ),
     path(
-        "teacher/list/<int:id>",
+        "teacher/list/<int:teacher_id>",
         TeacherAttendanceAdminListAPIView.as_view(),
         name="admin-teacher-list",
     ),
