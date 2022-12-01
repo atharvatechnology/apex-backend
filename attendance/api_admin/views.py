@@ -10,6 +10,7 @@ from attendance.api_admin.serializers import (
 )
 from attendance.filters import AttendanceFilter
 from attendance.models import StudentAttendance, TeacherAttendance
+from common.paginations import StandardResultsSetPagination
 
 
 class StudentAttendanceAdminListAPIView(ListAPIView):
@@ -21,6 +22,7 @@ class StudentAttendanceAdminListAPIView(ListAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     filterset_class = AttendanceFilter
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         """Get the queryset."""
@@ -40,6 +42,7 @@ class TeacherAttendanceAdminListAPIView(ListAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     filterset_class = AttendanceFilter
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         """Get the queryset."""
