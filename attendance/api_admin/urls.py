@@ -54,7 +54,7 @@ teacher_admin_urls = [
         name="admin-teacher-history-list",
     ),
     path(
-        "teacher/update/<int:pk>",
+        "teacher/retrieve/<int:pk>",
         TeacherAttendanceAdminRetrieveAPIView.as_view(),
         name="admin-teacher-retrieve",
     ),

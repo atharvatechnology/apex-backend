@@ -42,7 +42,7 @@ class StudentAttendanceAdminListSerializer(serializers.ModelSerializer):
 
 
 class StudentAttendanceAdminHistoryListSerializer(serializers.ModelSerializer):
-    """Serializer for listing admin history student attendance model."""
+    """Serializer for listing history of student attendance model."""
 
     user = UserForAttendanceListAdminSerializer()
 
