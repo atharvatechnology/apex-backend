@@ -138,7 +138,6 @@ class TeacherAttendanceDetailListSerializer(serializers.ModelSerializer):
             "start_time",
             "end_time",
         )
-        # read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
 
 
 class TeacherAttendanceDetailRetrieveSerializer(serializers.ModelSerializer):
@@ -157,7 +156,6 @@ class TeacherAttendanceDetailRetrieveSerializer(serializers.ModelSerializer):
             "start_time",
             "end_time",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
 
 
 class TeacherAttendanceDetailUpdateSerializer(serializers.ModelSerializer):
@@ -176,7 +174,6 @@ class TeacherAttendanceDetailUpdateSerializer(serializers.ModelSerializer):
             "start_time",
             "end_time",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
 
 
 class TeacherAttendanceCreateSerializer(CreatorSerializer):

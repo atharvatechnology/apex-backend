@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -151,6 +152,14 @@ class TeacherAttendanceDetailListAPIView(ListAPIView):
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
     queryset = TeacherAttendanceDetail.objects.all()
+
+    def get_queryset(self):
+        """Get the queryset."""
+        teacher_detail_id = self.kwargs.get("teacher_detail_id", None)
+        if not teacher_detail_id:
+            raise ValidationError("Teacher id is required.")
+
+        return super().get_queryset().filter(id=self.kwargs.get("teacher_detail_id"))
 
 
 class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
