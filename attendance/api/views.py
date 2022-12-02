@@ -152,9 +152,6 @@ class TeacherAttendanceDetailListAPIView(ListAPIView):
     search_fields = ["name"]
     queryset = TeacherAttendanceDetail.objects.all()
 
-    # def get_queryset(self):
-    #     return super().get_queryset().filter(user=self.request.user)
-
 
 class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
     """View for retrieving teacher detail attendance."""

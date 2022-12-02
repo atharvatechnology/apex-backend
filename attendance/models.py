@@ -75,6 +75,7 @@ class TeacherAttendanceDetail(CreatorBaseModel):
 
     section = models.TextField(_("section"))
     subject = models.TextField(_("subject"))
+    class_note = models.TextField(_("class_note"))
     start_time = models.TimeField(_("start_time"), null=True, blank=True)
     end_time = models.TimeField(_("end_time"), null=True, blank=True)
 

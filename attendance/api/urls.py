@@ -55,31 +55,28 @@ teacher_urls = [
         TeacherAttendanceUpdateAPIView.as_view(),
         name="teacher-update",
     ),
-]
-
-teacher_detail_urls = [
     path(
-        "create/",
+        "create/detail",
         TeacherAttendanceDetailCreateAPIView.as_view(),
         name="teacher-detail-create",
     ),
     path(
-        "list/",
+        "list/detail",
         TeacherAttendanceDetailListAPIView.as_view(),
         name="teacher-detail-list",
     ),
     path(
-        "retrieve/<int:pk>/",
+        "retrieve/detail/<int:pk>/",
         TeacherAttendanceDetailRetrieveAPIView.as_view(),
         name="teacher-detail-retrieve",
     ),
     path(
-        "update/<int:pk>/",
+        "update/detail/<int:pk>/",
         TeacherAttendanceDetailUpdateAPIView.as_view(),
         name="teacher-detail-update",
     ),
     path(
-        "delete/<int:pk>/",
+        "delete/detail/<int:pk>/",
         TeacherAttendanceDetailDeleteAPIView.as_view(),
         name="teacher-detail-delete",
     ),
@@ -89,5 +86,4 @@ urlpatterns = [
     path("create/", AttendanceCreateAPIView.as_view(), name="attendance-create"),
     path("student/", include(student_urls)),
     path("teacher/", include(teacher_urls)),
-    path("teacher_detail/", include(teacher_detail_urls)),
 ]
