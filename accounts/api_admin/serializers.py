@@ -129,3 +129,7 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
                 setattr(instance.profile, attr, value)
             instance.profile.save()
         return instance
+
+
+class SMSCreditAdminSerializer(serializers.Serializer):
+    credit = serializers.IntegerField()
