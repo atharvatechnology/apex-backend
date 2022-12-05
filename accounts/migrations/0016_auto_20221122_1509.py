@@ -71,8 +71,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(single_to_multiple_role),
-        migrations.RunPython(reverse_single_to_multiple_role),
+        migrations.RunPython(single_to_multiple_role, reverse_single_to_multiple_role),
     ]
 
 
