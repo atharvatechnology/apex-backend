@@ -44,6 +44,26 @@ def single_to_multiple_role(apps, schema_editor):
         data.save()
 
 
+def reverse_single_to_multiple_role(apps, schema_editor):
+    User = apps.get_model("accounts", "User")
+    # Role = apps.get_model("accounts", "Role")
+    from django.contrib.auth.models import Group
+
+    for data in User.objects.all():
+        if data.roles.first() == 1:
+            data.role = 1
+        elif data.roles.first() == 4:
+            data.role = 2
+        elif data.roles.first() == 3:
+            data.role = 3
+        elif data.roles.first() == 9:
+            data.role = 4
+        else:
+            data.delete()
+            continue
+        data.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -52,6 +72,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(single_to_multiple_role),
+        migrations.RunPython(reverse_single_to_multiple_role),
     ]
 
 
