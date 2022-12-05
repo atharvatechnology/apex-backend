@@ -83,8 +83,8 @@ class StudentAttendanceAdminUpdateSerializer(serializers.ModelSerializer):
         )
 
 
-class TeacherAttendanceAdminDetailListSerializer(serializers.ModelSerializer):
-    """Serializer for listing admin detail teacher attendance model."""
+class TeacherAttendanceDetailAdminSerializer(serializers.ModelSerializer):
+    """Serializer for admin detail teacher attendance model."""
 
     class Meta:
         model = TeacherAttendanceDetail
@@ -104,7 +104,7 @@ class TeacherAttendanceAdminListSerializer(serializers.ModelSerializer):
     """Serializer for listing admin teacher attendance models."""
 
     user = UserForAttendanceListAdminSerializer()
-    teacher_attendance = TeacherAttendanceAdminDetailListSerializer(required=False)
+    teacher_attendance = TeacherAttendanceDetailAdminSerializer(required=False)
 
     class Meta:
         model = TeacherAttendance
@@ -119,7 +119,7 @@ class TeacherAttendanceAdminHistoryListSerializer(serializers.ModelSerializer):
     """Serializer for listing history of admin teacher attendance models."""
 
     user = UserForAttendanceListAdminSerializer()
-    teacher_attendance = TeacherAttendanceAdminDetailListSerializer(required=False)
+    teacher_attendance = TeacherAttendanceDetailAdminSerializer(required=False)
 
     class Meta:
         model = TeacherAttendance
@@ -134,7 +134,7 @@ class TeacherAttendanceAdminUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating admin teacher attendance models."""
 
     user = UserForAttendanceListAdminSerializer()
-    teacher_attendance = TeacherAttendanceAdminDetailListSerializer(required=False)
+    teacher_attendance = TeacherAttendanceDetailAdminSerializer(required=False)
 
     class Meta:
         model = TeacherAttendance
@@ -149,7 +149,7 @@ class TeacherAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving admin teacher attendance models."""
 
     user = UserForAttendanceListAdminSerializer()
-    teacher_attendance = TeacherAttendanceAdminDetailListSerializer(required=False)
+    teacher_attendance = TeacherAttendanceDetailAdminSerializer(required=False)
 
     class Meta:
         model = TeacherAttendance

@@ -11,6 +11,11 @@ from attendance.api_admin.views import (
     TeacherAttendanceAdminListAPIView,
     TeacherAttendanceAdminRetrieveAPIView,
     TeacherAttendanceAdminUpdateAPIView,
+    TeacherAttendanceDetailAdminDeleteAPIView,
+    TeacherAttendanceDetailAdminHistoryListAPIView,
+    TeacherAttendanceDetailAdminListAPIView,
+    TeacherAttendanceDetailAdminRetrieveAPIView,
+    TeacherAttendanceDetailAdminUpdateAPIView,
 )
 
 student_admin_urls = [
@@ -39,7 +44,6 @@ student_admin_urls = [
         StudentAttendanceAdminDeleteAPIView.as_view(),
         name="admin-student-delete",
     ),
-    path("student/list/", StudentAttendanceAdminListAPIView),
 ]
 
 teacher_admin_urls = [
@@ -67,6 +71,31 @@ teacher_admin_urls = [
         "teacher/delete/<int:pk>",
         TeacherAttendanceAdminDeleteAPIView.as_view(),
         name="admin-teacher-delete",
+    ),
+    path(
+        "teacher/detail/list/",
+        TeacherAttendanceDetailAdminListAPIView.as_view(),
+        name="admin-teacher-detail-list",
+    ),
+    path(
+        "teacher/detail/history/list/<int:teacher_detail_id>",
+        TeacherAttendanceDetailAdminHistoryListAPIView.as_view(),
+        name="admin-teacher-detail-history-list",
+    ),
+    path(
+        "teacher/detail/retrieve/<int:pk>",
+        TeacherAttendanceDetailAdminRetrieveAPIView.as_view(),
+        name="admin-teacher-detail-retrieve",
+    ),
+    path(
+        "teacher/detail/update/<int:pk>",
+        TeacherAttendanceDetailAdminUpdateAPIView.as_view(),
+        name="admin-teacher-detail-update",
+    ),
+    path(
+        "teacher/detail/delete/<int:pk>",
+        TeacherAttendanceDetailAdminDeleteAPIView.as_view(),
+        name="admin-teacher-detail-delete",
     ),
 ]
 
