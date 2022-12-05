@@ -1,12 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import (
-    DestroyAPIView,
-    ListAPIView,
-    RetrieveAPIView,
-    UpdateAPIView,
-)
+from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from attendance.api_admin.serializers import (
@@ -21,6 +16,7 @@ from attendance.api_admin.serializers import (
 )
 from attendance.filters import AttendanceFilter
 from attendance.models import StudentAttendance, TeacherAttendance
+from common.api.views import BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 
 
@@ -44,7 +40,7 @@ class StudentAttendanceAdminRetrieveAPIView(RetrieveAPIView):
     queryset = StudentAttendance.objects.all()
 
 
-class StudentAttendanceAdminUpdateAPIView(ListAPIView):
+class StudentAttendanceAdminUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for listing admin student attendance."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -111,7 +107,7 @@ class TeacherAttendanceAdminHistoryListAPIView(ListAPIView):
         return super().get_queryset().filter(user=self.kwargs.get("teacher_id"))
 
 
-class TeacherAttendanceAdminUpdateAPIView(UpdateAPIView):
+class TeacherAttendanceAdminUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for updating admin teacher attendanace models."""
 
     permission_classes = [IsAdminUser, IsAuthenticated]
