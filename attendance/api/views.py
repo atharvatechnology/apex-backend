@@ -2,14 +2,13 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from attendance.api.serializers import (
     AttendanceCreateSerializer,
     StudentAttendanceCreateSerializer,
     StudentAttendanceRetrieveSerializer,
-    StudentAttendanceUpdateSerializer,
     StudentOnlineAttendanceSerializer,
     TeacherAttendanceCreateSerializer,
     TeacherAttendanceDetailCreateSerializer,
@@ -17,7 +16,6 @@ from attendance.api.serializers import (
     TeacherAttendanceDetailRetrieveSerializer,
     TeacherAttendanceDetailUpdateSerializer,
     TeacherAttendanceRetrieveSerializer,
-    TeacherAttendanceUpdateSerializer,
 )
 from attendance.filters import AttendanceFilter
 from attendance.models import (
@@ -70,14 +68,6 @@ class StudentAttendanceRetrieveAPIView(RetrieveAPIView):
     queryset = StudentAttendance.objects.all()
 
 
-class StudentAttendanceUpdateAPIView(BaseCreatorUpdateAPIView):
-    """View for updating attendance."""
-
-    permission_classes = [IsAuthenticated]
-    serializer_class = StudentAttendanceUpdateSerializer
-    queryset = StudentAttendance.objects.all()
-
-
 class TeacherAttendanceListAPIView(ListAPIView):
     """View for listing teacher attendance."""
 
@@ -103,14 +93,6 @@ class TeacherAttendanceRetrieveAPIView(RetrieveAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherAttendanceRetrieveSerializer
-    queryset = TeacherAttendance.objects.all()
-
-
-class TeacherAttendanceUpdateAPIView(BaseCreatorUpdateAPIView):
-    """View for updating teacher attendance."""
-
-    permission_classes = [IsAuthenticated]
-    serializer_class = TeacherAttendanceUpdateSerializer
     queryset = TeacherAttendance.objects.all()
 
 
@@ -155,11 +137,19 @@ class TeacherAttendanceDetailListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
-        teacher_detail_id = self.kwargs.get("teacher_detail_id", None)
-        if not teacher_detail_id:
-            raise ValidationError("Teacher id is required.")
+        teacher_attendance__id = self.kwargs.get("teacher_detail_id", None)
+        if not teacher_attendance__id:
+            raise ValidationError("Teacher attendance id is required.")
 
-        return super().get_queryset().filter(id=self.kwargs.get("teacher_detail_id"))
+        return (
+            super()
+            .get_queryset()
+            .filter(teacher_attendance__id=self.kwargs.get("teacher_detail_id"))
+        )
+
+    # def get_queryset(self):
+    #     """Get the queryset."""
+    #     return super().get_queryset().filter(teacher_attendance__id=self.request.user)
 
 
 class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
@@ -176,34 +166,3 @@ class TeacherAttendanceDetailUpdateAPIView(BaseCreatorUpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherAttendanceDetailUpdateSerializer
     queryset = TeacherAttendanceDetail.objects.all()
-
-
-class TeacherAttendanceDetailDeleteAPIView(DestroyAPIView):
-    """View for deleting teacher detail attendance."""
-
-    permission_classes = [IsAuthenticated]
-    queryset = TeacherAttendanceDetail.objects.all()
-
-
-# class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
-#     """View for retrieving teacher attendance."""
-
-#     permission_classes = [AllowAny]
-#     serializer_class = TeacherAttendanceDetailRetrieveSerializer
-#     queryset = TeacherAttendanceDetail.objects.all()
-
-
-# class TeacherAttendanceDetailUpdateAPIView(UpdateAPIView):
-#     """View for updating teacher attendance."""
-
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = TeacherAttendanceDetailUpdateSerializer
-#     queryset = TeacherAttendanceDetail.objects.all()
-
-
-# class TeacherAttendanceDetailDeleteAPIView(DestroyAPIView):
-#     """View for deleting teacher attendance."""
-
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = TeacherAttendanceDetailDeleteSerializer
-#     queryset = TeacherAttendanceDetail.objects.all()
