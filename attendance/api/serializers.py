@@ -90,18 +90,6 @@ class StudentAttendanceRetrieveSerializer(serializers.ModelSerializer):
         )
 
 
-class StudentAttendanceUpdateSerializer(serializers.ModelSerializer):
-    """Serializer for updating attendance model."""
-
-    class Meta:
-        model = StudentAttendance
-        fields = (
-            "id",
-            "date",
-            "user",
-        )
-
-
 class TeacherAttendanceDetailCreateSerializer(CreatorSerializer):
     """Serializer for creating teacher attendance detail model."""
 
@@ -217,82 +205,51 @@ class TeacherAttendanceCreateSerializer(CreatorSerializer):
         return instance
 
 
-# class TeacherAttendanceDetailRetrieveSerializer(serializers.ModelSerializer):
-#     """Serializer for retrieving teacher attendance detail model."""
+# class TeacherAttendanceUpdateSerializer(CreatorSerializer):
+#     """Serializer for updating teacher attendance model."""
+
+#     details = TeacherAttendanceDetailUpdateSerializer(required=False)
 
 #     class Meta:
-#         model = TeacherAttendanceDetail
+#         model = TeacherAttendance
 #         fields = (
 #             "id",
-#             "number_of_period",
-#             "message",
-#             "remarks",
-#             "status",
-#             "teacher_attendance",
+#             "date",
+#             "user",
+#             "details",
+#         )
+#         read_only_fields = CreatorSerializer.Meta.read_only_fields + (
+#             "user",
+#             "date",
 #         )
 
+# @transaction.atomic
+# def update(self, instance, validated_data):
+#     teacher_attendance_detail_data = None
+#     if "details" in validated_data:
+#         teacher_attendance_detail_data = validated_data.pop("details")
 
-# class TeacherAttendanceDetailUpdateSerializer(CreatorSerializer):
-#     """Serializer for updating teacher attendance detail model."""
+#     instance = super().update(instance, validated_data)
 
-#     class Meta:
-#         model = TeacherAttendanceDetail
-#         fields = (
-#             "id",
-#             "number_of_period",
-#             "message",
-#             "remarks",
-#             "status",
-#             # "teacher_attendance",
-#         )
-#         read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+#     teacher_attendance_detail_object = hasattr(instance, "details")
 
+#     if teacher_attendance_detail_data:
+#         if teacher_attendance_detail_object:
 
-class TeacherAttendanceUpdateSerializer(CreatorSerializer):
-    """Serializer for updating teacher attendance model."""
+#             for attrs, value in teacher_attendance_detail_data.items():
+#                 setattr(instance.details, attrs, value)
+#             instance.details.save()
+#         else:
+#             instance = TeacherAttendanceDetail.objects.create(
+#                 teacher_attendance=instance,
+#                 created_by=instance.user,
+#                 updated_by=instance.user,
+#                 **teacher_attendance_detail_data
+#             )
 
-    details = TeacherAttendanceDetailUpdateSerializer(required=False)
+#             instance.save()
 
-    class Meta:
-        model = TeacherAttendance
-        fields = (
-            "id",
-            "date",
-            "user",
-            "details",
-        )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + (
-            "user",
-            "date",
-        )
-
-    # @transaction.atomic
-    # def update(self, instance, validated_data):
-    #     teacher_attendance_detail_data = None
-    #     if "details" in validated_data:
-    #         teacher_attendance_detail_data = validated_data.pop("details")
-
-    #     instance = super().update(instance, validated_data)
-
-    #     teacher_attendance_detail_object = hasattr(instance, "details")
-
-    #     if teacher_attendance_detail_data:
-    #         if teacher_attendance_detail_object:
-
-    #             for attrs, value in teacher_attendance_detail_data.items():
-    #                 setattr(instance.details, attrs, value)
-    #             instance.details.save()
-    #         else:
-    #             instance = TeacherAttendanceDetail.objects.create(
-    #                 teacher_attendance=instance,
-    #                 created_by=instance.user,
-    #                 updated_by=instance.user,
-    #                 **teacher_attendance_detail_data
-    #             )
-
-    #             instance.save()
-
-    #     return instance
+#     return instance
 
 
 class TeacherAttendanceRetrieveSerializer(serializers.ModelSerializer):
