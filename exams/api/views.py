@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.core.cache import cache
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
@@ -23,6 +26,7 @@ from .serializers import (  # ExamUpdateSerializer,
 # class ExamCreateAPIView(BaseCreatorCreateAPIView):
 #     serializer_class = ExamCreateSerializer
 #     # permission_classes = [AllowAny]
+CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
 
 
 class ExamListAPIView(PublishableModelMixin, ListAPIView):
@@ -72,7 +76,16 @@ class ExamPaperAPIView(RetrieveAPIView):
         ).first()
         if enrollment:
             if enrollment.selected_session.status == SessionStatus.ACTIVE:
-                return super().retrieve(request, *args, **kwargs)
+                serializer_data = cache.get(f"exam_paper_{instance.id}")
+                if not serializer_data:
+                    serializer = self.get_serializer(instance)
+                    serializer_data = serializer.data
+                    cache.set(
+                        f"exam_paper_{instance.id}", serializer.data, timeout=CACHE_TTL
+                    )
+                return Response(serializer_data)
+                # print(res.data)
+                # return res
             return Response({"detail": "Exam Session is not Active"}, status=400)
         return Response(
             "Student is not enrolled to {} exam session.".format(
