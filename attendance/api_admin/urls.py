@@ -24,22 +24,22 @@ student_admin_urls = [
         name="admin-student-list",
     ),
     path(
-        "history/list/<int:student_id>",
+        "history/list/<int:student_id>/",
         StudentAttendanceAdminHistoryListAPIView.as_view(),
         name="admin-student-history-list",
     ),
     path(
-        "retrieve/<int:pk>",
+        "retrieve/<int:pk>/",
         StudentAttendanceAdminRetrieveAPIView.as_view(),
         name="admin-student-retrieve",
     ),
     path(
-        "update/<int:pk>",
+        "update/<int:pk>/",
         StudentAttendanceAdminUpdateAPIView.as_view(),
         name="admin-student-update",
     ),
     path(
-        "delete/<int:pk>",
+        "delete/<int:pk>/",
         StudentAttendanceAdminDeleteAPIView.as_view(),
         name="admin-student-delete",
     ),
@@ -52,22 +52,22 @@ teacher_admin_urls = [
         name="admin-teacher-list",
     ),
     path(
-        "history/list/<int:teacher_id>",
+        "history/list/<int:teacher_id>/",
         TeacherAttendanceAdminHistoryListAPIView.as_view(),
         name="admin-teacher-history-list",
     ),
     path(
-        "retrieve/<int:pk>",
+        "retrieve/<int:pk>/",
         TeacherAttendanceAdminRetrieveAPIView.as_view(),
         name="admin-teacher-retrieve",
     ),
     path(
-        "update/<int:pk>",
+        "update/<int:pk>/",
         TeacherAttendanceAdminUpdateAPIView.as_view(),
         name="admin-teacher-update",
     ),
     path(
-        "delete/<int:pk>",
+        "delete/<int:pk>/",
         TeacherAttendanceAdminDeleteAPIView.as_view(),
         name="admin-teacher-delete",
     ),
@@ -75,22 +75,22 @@ teacher_admin_urls = [
 
 teacher_admin_details_urls = [
     path(
-        "list/<int:teacher_detail_id>",
+        "list/<int:attendance_id>/",
         TeacherAttendanceDetailAdminListAPIView.as_view(),
         name="admin-teacher-detail-list",
     ),
     path(
-        "retrieve/<int:pk>",
+        "retrieve/<int:pk>/",
         TeacherAttendanceDetailAdminRetrieveAPIView.as_view(),
         name="admin-teacher-detail-retrieve",
     ),
     path(
-        "update/<int:pk>",
+        "update/<int:pk>/",
         TeacherAttendanceDetailAdminUpdateAPIView.as_view(),
         name="admin-teacher-detail-update",
     ),
     path(
-        "delete/<int:pk>",
+        "delete/<int:pk>/",
         TeacherAttendanceDetailAdminDeleteAPIView.as_view(),
         name="admin-teacher-detail-delete",
     ),

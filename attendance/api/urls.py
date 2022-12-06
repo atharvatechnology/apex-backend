@@ -43,12 +43,12 @@ teacher_urls = [
         name="teacher-retrieve",
     ),
     path(
-        "create/detail",
+        "create/detail/",
         TeacherAttendanceDetailCreateAPIView.as_view(),
         name="teacher-detail-create",
     ),
     path(
-        "list/detail/<int:teacher_detail_id>",
+        "list/detail/<int:teacher_attendance_id>",
         TeacherAttendanceDetailListAPIView.as_view(),
         name="teacher-detail-list",
     ),

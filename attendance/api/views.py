@@ -137,14 +137,14 @@ class TeacherAttendanceDetailListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
-        teacher_attendance__id = self.kwargs.get("teacher_detail_id", None)
+        teacher_attendance__id = self.kwargs.get("teacher_attendance_id", None)
         if not teacher_attendance__id:
             raise ValidationError("Teacher attendance id is required.")
 
         return (
             super()
             .get_queryset()
-            .filter(teacher_attendance__id=self.kwargs.get("teacher_detail_id"))
+            .filter(teacher_attendance__id=self.kwargs.get("teacher_attendance_id"))
         )
 
     # def get_queryset(self):
