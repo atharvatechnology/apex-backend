@@ -12,7 +12,6 @@ from attendance.api_admin.views import (
     TeacherAttendanceAdminRetrieveAPIView,
     TeacherAttendanceAdminUpdateAPIView,
     TeacherAttendanceDetailAdminDeleteAPIView,
-    TeacherAttendanceDetailAdminHistoryListAPIView,
     TeacherAttendanceDetailAdminListAPIView,
     TeacherAttendanceDetailAdminRetrieveAPIView,
     TeacherAttendanceDetailAdminUpdateAPIView,
@@ -79,11 +78,6 @@ teacher_admin_details_urls = [
         "list/",
         TeacherAttendanceDetailAdminListAPIView.as_view(),
         name="admin-teacher-detail-list",
-    ),
-    path(
-        "history/list/<int:teacher_detail_id>",
-        TeacherAttendanceDetailAdminHistoryListAPIView.as_view(),
-        name="admin-teacher-detail-history-list",
     ),
     path(
         "retrieve/<int:pk>",
