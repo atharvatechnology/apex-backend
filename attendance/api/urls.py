@@ -48,7 +48,7 @@ teacher_urls = [
         name="teacher-detail-create",
     ),
     path(
-        "list/detail/<int:teacher_attendance_id>",
+        "list/detail/<int:teacher_attendance_id>/",
         TeacherAttendanceDetailListAPIView.as_view(),
         name="teacher-detail-list",
     ),
