@@ -9,7 +9,6 @@ from attendance.api_admin.serializers import (
     StudentAttendanceAdminListSerializer,
     StudentAttendanceAdminRetrieveSerializer,
     StudentAttendanceAdminUpdateSerializer,
-    TeacherAttendanceAdminHistoryListSerializer,
     TeacherAttendanceAdminListSerializer,
     TeacherAttendanceAdminRetrieveSerializer,
     TeacherAttendanceAdminUpdateSerializer,
@@ -96,7 +95,7 @@ class TeacherAttendanceAdminHistoryListAPIView(ListAPIView):
     """View for listing admin teacher attendance."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
-    serializer_class = TeacherAttendanceAdminHistoryListSerializer
+    serializer_class = TeacherAttendanceAdminListSerializer
     queryset = TeacherAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
@@ -117,7 +116,7 @@ class TeacherAttendanceAdminUpdateAPIView(BaseCreatorUpdateAPIView):
 
     permission_classes = [IsAdminUser, IsAuthenticated]
     serializer_class = TeacherAttendanceAdminUpdateSerializer
-    queryset = TeacherAttendance.objects.all()
+    queryset = TeacherAttendanceDetail.objects.all()
 
 
 class TeacherAttendanceAdminRetrieveAPIView(RetrieveAPIView):
@@ -125,7 +124,7 @@ class TeacherAttendanceAdminRetrieveAPIView(RetrieveAPIView):
 
     permission_classes = [IsAdminUser, IsAuthenticated]
     serializer_class = TeacherAttendanceAdminRetrieveSerializer
-    queryset = TeacherAttendance.objects.all()
+    queryset = TeacherAttendanceDetail.objects.all()
 
 
 class TeacherAttendanceAdminDeleteAPIView(DestroyAPIView):
@@ -140,9 +139,21 @@ class TeacherAttendanceDetailAdminListAPIView(ListAPIView):
 
     permission_classes = [IsAdminUser, IsAuthenticated]
     serializer_class = TeacherAttendanceDetailAdminSerializer
-    queryset = TeacherAttendanceDetail.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
+    queryset = TeacherAttendanceDetail.objects.all()
+
+    def get_queryset(self):
+        """Get the queryset."""
+        teacher_attendanace__id = self.kwargs.get("teacher_detail_id", None)
+        if not teacher_attendanace__id:
+            raise ValidationError("Teacher attendance id is required.")
+
+        return (
+            super()
+            .get_queryset()
+            .filter(teacher_attendanace__id=self.kwargs.get("teacher_detail_id"))
+        )
 
 
 class TeacherAttendanceDetailAdminRetrieveAPIView(RetrieveAPIView):
