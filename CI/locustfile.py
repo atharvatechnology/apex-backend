@@ -30,7 +30,16 @@ class HelloWorldUser(RestUser):
     host = host_url
     # host = "https://apexacademy.com.np"
 
-    @task
+    # @task
+    # with self.client.post("https://apexacademy.com.np/api/auth/login",
+    # {"username": "9840016500", "password": "shresth@123"},
+    # catch_response=True) as response:
+
+    #     if response.status_code == 200:
+    #         print("Login Successful")
+    #         print(response.json())
+    #     else:
+    #         print("Failed to login")
     class LoginExamFlow(SequentialTaskSet):
         def on_start(self):
             print(USER_CREDENTIALS)
