@@ -96,7 +96,7 @@ class TeacherAttendanceDetailAdminSerializer(serializers.ModelSerializer):
             "start_time",
             "end_time",
             "subject",
-            "teacher_attendance",
+            # "teacher_attendance",
         )
 
 
@@ -110,6 +110,7 @@ class TeacherAttendanceAdminListSerializer(serializers.ModelSerializer):
         model = TeacherAttendance
         fields = (
             "id",
+            "date",
             "user",
             "teacher_attendance",
         )
@@ -125,6 +126,7 @@ class TeacherAttendanceAdminHistoryListSerializer(serializers.ModelSerializer):
         model = TeacherAttendance
         fields = (
             "id",
+            "date",
             "user",
             "teacher_attendance",
         )
@@ -140,6 +142,7 @@ class TeacherAttendanceAdminUpdateSerializer(serializers.ModelSerializer):
         model = TeacherAttendance
         fields = (
             "id",
+            "date",
             "user",
             "teacher_attendance",
         )
@@ -155,6 +158,7 @@ class TeacherAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
         model = TeacherAttendance
         fields = (
             "id",
+            "date",
             "user",
             "teacher_attendance",
         )
