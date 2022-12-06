@@ -385,18 +385,20 @@ CHANNEL_LAYERS = {
     },
 }
 
+# Cache time to live is 2 days
+CACHE_TTL = 60 * 60 * 24 * 2
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"{redis_url}/1",
+        "TIMEOUT": CACHE_TTL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
 }
 
-# Cache time to live is 2 days
-CACHE_TTL = 60 * 60 * 24 * 2
 
 INTERNAL_IPS = [
     "127.0.0.1",
