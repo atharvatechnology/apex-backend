@@ -75,7 +75,7 @@ teacher_admin_urls = [
 
 teacher_admin_details_urls = [
     path(
-        "list/<int:teacher_detail_id",
+        "list/<int:teacher_detail_id>",
         TeacherAttendanceDetailAdminListAPIView.as_view(),
         name="admin-teacher-detail-list",
     ),
