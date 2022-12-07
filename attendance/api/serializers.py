@@ -96,7 +96,6 @@ class TeacherAttendanceDetailCreateSerializer(CreatorSerializer):
     class Meta:
         model = TeacherAttendanceDetail
         fields = CreatorSerializer.Meta.fields + (
-            "id",
             "number_of_period",
             "message",
             "remarks",
@@ -255,7 +254,7 @@ class TeacherAttendanceCreateSerializer(CreatorSerializer):
 class TeacherAttendanceRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving teacher attendance models."""
 
-    details = TeacherAttendanceDetailCreateSerializer(required=False)
+    # details = TeacherAttendanceDetailCreateSerializer(required=False,many=True)
 
     class Meta:
         model = TeacherAttendance

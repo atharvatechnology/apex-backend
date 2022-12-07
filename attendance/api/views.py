@@ -74,8 +74,9 @@ class TeacherAttendanceListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherAttendanceRetrieveSerializer
     queryset = TeacherAttendance.objects.all()
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
+    # filterset_class = AttendanceFilter
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)

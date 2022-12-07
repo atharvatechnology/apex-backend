@@ -59,7 +59,7 @@ class TeacherAttendanceDetail(CreatorBaseModel):
     """Teacher attendance detail model."""
 
     number_of_period = models.DecimalField(
-        _("Number of peroid"), decimal_places=2, max_digits=4
+        _("Number_of_peroid"), decimal_places=2, max_digits=4
     )
     message = models.TextField(_("Message"))
     remarks = models.TextField(_("Remarks"))
