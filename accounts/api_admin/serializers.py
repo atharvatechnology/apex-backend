@@ -3,7 +3,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from accounts.api.serializers import FullNameField
-from accounts.models import Profile
+from accounts.models import Profile, Role
 
 User = get_user_model()
 
@@ -23,6 +23,19 @@ class ProfileAdminCreateSerializer(serializers.ModelSerializer):
         ]
 
 
+class UserRolesSerializer(serializers.ModelSerializer):
+    """User Roles Serializer."""
+
+    role = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Role
+        fields = ["id", "role"]
+
+    def get_role(self, obj):
+        return Role.role_choices[obj.id - 1][1]
+
+
 class UserCreateAdminSerializer(serializers.ModelSerializer):
     """Admin Create Serializer."""
 
@@ -35,12 +48,14 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
-            "role",
+            "roles",
             "profile",
         ]
 
     @transaction.atomic
     def create(self, validated_data):
+        print("instance")
+        print(validated_data)
         profile_data = None
         if "profile" in validated_data:
             profile_data = validated_data.pop("profile")
@@ -62,6 +77,7 @@ class UserListAdminSerializer(serializers.ModelSerializer):
 
     fullName = FullNameField(source="*")
     profile = ProfileAdminCreateSerializer(required=False)
+    roles = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -70,11 +86,14 @@ class UserListAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
-            "role",
+            "roles",
             "profile",
             "is_active",
             "date_joined",
         ]
+
+    def get_roles(self, obj):
+        return obj.get_roles()
 
 
 class UserRetrieveAdminSerializer(serializers.ModelSerializer):
@@ -82,6 +101,7 @@ class UserRetrieveAdminSerializer(serializers.ModelSerializer):
 
     fullName = FullNameField(source="*")
     profile = ProfileAdminCreateSerializer(required=False)
+    roles = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -89,11 +109,14 @@ class UserRetrieveAdminSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "email",
-            "role",
+            "roles",
             "fullName",
             "profile",
             "is_active",
         ]
+
+    def get_roles(self, obj):
+        return obj.get_roles()
 
 
 class UserUpdateAdminSerializer(serializers.ModelSerializer):
@@ -109,7 +132,7 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
-            "role",
+            "roles",
             "profile",
             "is_active",
         ]

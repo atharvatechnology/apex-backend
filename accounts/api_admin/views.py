@@ -13,12 +13,22 @@ from accounts.api_admin.serializers import (
     UserCreateAdminSerializer,
     UserListAdminSerializer,
     UserRetrieveAdminSerializer,
+    UserRolesSerializer,
     UserUpdateAdminSerializer,
 )
 from accounts.filters import UserFilter
+from accounts.models import Role
 from common.paginations import StandardResultsSetPagination
 
 User = get_user_model()
+
+
+class UserRolesView(ListAPIView):
+    """Roles List API View."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = UserRolesSerializer
+    queryset = Role.objects.all()
 
 
 class UserCreateAdminAPIView(CreateAPIView):
