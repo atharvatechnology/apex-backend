@@ -209,7 +209,7 @@ class UserCustomDetailsSerializer(UserDetailsSerializer):
         ]
 
     def get_role(self, obj):
-        return obj.get_role()
+        return obj.get_roles()
 
     def get_full_name(self, obj):
         return obj.get_full_name()

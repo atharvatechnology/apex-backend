@@ -8,7 +8,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.models import User, UserRoles
+from accounts.models import Role, User
 from courses.models import CourseCategory
 from enrollments.models import ExamSession, ExamThroughEnrollment, SessionStatus
 from exams.models import Exam
@@ -136,8 +136,8 @@ class DashboardOverview(ListAPIView):
             if enrollments:
                 total_exam_enrollment += 1
         new_list.append({"active_exam": total_exam_enrollment})
-        student_count = User.objects.filter(role=UserRoles.STUDENT).count()
-        teacher_count = User.objects.filter(role=UserRoles.TEACHER).count()
+        student_count = User.objects.filter(roles__id=Role.STUDENT).count()
+        teacher_count = User.objects.filter(roles__id=Role.TEACHER).count()
         new_list.extend(
             ({"teacher_count": teacher_count}, {"student_count": student_count})
         )
