@@ -1,6 +1,6 @@
 from django.utils.timezone import localtime
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status
+from rest_framework import filters, serializers, status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -13,10 +13,12 @@ from rest_framework.response import Response
 
 # from common.utils import dynamic_excel_generator
 from common.api.views import BaseReportGeneratorAPIView
+from courses.models import Course
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
     CourseEnrollmentUpdateSerializer,
+    CourseExamEnrollmentCreateSerializer,
     EnrollmentCreateSerializer,
     EnrollmentRetrieveSerializer,
     ExamEnrollmentCheckPointRetrieveSerializer,
@@ -24,6 +26,7 @@ from enrollments.api.serializers import (
     ExamEnrollmentRetrieveSerializer,
     ExamEnrollmentUpdateSerializer,
     PhysicalBookCourseEnrollmentSerializer,
+    PracticeExamEnrollmentCreateSerializer,
     StudentEnrollmentSerializer,
 )
 from enrollments.filters import (
@@ -38,6 +41,7 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
     SessionStatus,
 )
+from exams.models import Exam
 
 
 class EnrollmentCreateAPIView(CreateAPIView):
@@ -62,6 +66,72 @@ class EnrollmentCreateAPIView(CreateAPIView):
 
         """
         return serializer.save(student=self.request.user)
+
+
+class PracticeExamEnrollmentCreateAPIView(CreateAPIView):
+    """Create a new practice exam enrollment for a student."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = PracticeExamEnrollmentCreateSerializer
+    queryset = Enrollment.objects.all()
+
+    def perform_create(self, serializer):
+        """Create a new practice exam enrollment for the current user.
+
+        Parameters
+        ----------
+        serializer : PracticeExamEnrollmentCreateSerializer
+            Serializer for the enrollment creation.
+
+        Returns
+        -------
+        Enrollment
+            The newly created enrollment.
+
+        """
+        return serializer.save(student=self.request.user)
+
+
+class PracticeEnrollmentCreateAPIView(CreateAPIView):
+    """Create or update enrollment of a student for a practice exam."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = Enrollment.objects.all()
+    serializer_class = PracticeExamEnrollmentCreateSerializer
+
+    def perform_create(self, serializer):
+        return serializer.save(student=self.request.user)
+
+
+class CourseExamEnrollmentCreateAPIView(EnrollmentCreateAPIView):
+    """Create a exam enrollment according to course for a student."""
+
+    serializer_class = CourseExamEnrollmentCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        course_id = self.kwargs.get("pk")
+        exam_id = self.kwargs.get("exam_id")
+        user = self.request.user
+
+        course = Course.objects.get(id=course_id)
+        exam = Exam.objects.get(id=exam_id)
+
+        if exam.course == course:
+            course_enrollment = Enrollment.objects.filter(
+                student=user, courses__in=[course]
+            )
+
+            if course_enrollment.exists():
+                exam_enrollment = Enrollment.objects.filter(
+                    student=user, exams__in=[exam]
+                )
+
+                if exam_enrollment.exists():
+                    exam_enrollment.delete()
+
+                return super().create(request, *args, **kwargs)
+            raise serializers.ValidationError("You are not enrolled in this course")
+        raise serializers.ValidationError("Exam does not belong to course")
 
 
 class EnrollmentListAPIView(ListAPIView):
@@ -218,7 +288,7 @@ class CourseEnrollementListAPIView(ListAPIView):
     serializer_class = CourseEnrollmentSerializer
 
     def get_queryset(self):
-        return super().get_queryset()
+        return super().get_queryset().filter(enrollment__student=self.request.user)
 
 
 class CourseEnrollementUpdateAPIView(UpdateAPIView):
@@ -228,6 +298,14 @@ class CourseEnrollementUpdateAPIView(UpdateAPIView):
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentUpdateSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+        return (
+            super().get_queryset().none()
+            if user.is_anonymous
+            else super().get_queryset().filter(enrollment__student=user)
+        )
+
 
 class CourseEnrollementRetrieveAPIView(RetrieveAPIView):
     """Retrieve view for course enrollment."""
@@ -236,13 +314,21 @@ class CourseEnrollementRetrieveAPIView(RetrieveAPIView):
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentRetrieveSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+        return (
+            super().get_queryset().none()
+            if user.is_anonymous
+            else super().get_queryset().filter(enrollment__student=user)
+        )
+
 
 class CourseEnrollementDestroyAPIView(DestroyAPIView):
     """Destroy view for course enrollment."""
 
     permission_classes = [IsAuthenticated]
-    queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
+    queryset = CourseThroughEnrollment.objects.all()
 
 
 class CheckIfStudentInCourse(CreateAPIView):

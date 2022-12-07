@@ -7,7 +7,11 @@ from enrollments.api.serializers import (
     ExamSessionSerializer,
 )
 from enrollments.api.utils import retrieve_exam_status
-from enrollments.models import ExamEnrollmentStatus, ExamThroughEnrollment
+from enrollments.models import (
+    ExamEnrollmentStatus,
+    ExamThroughEnrollment,
+    SessionStatus,
+)
 from exams.models import Exam, ExamTemplate, Option, Question
 
 
@@ -129,13 +133,19 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
 
     def get_session_id(self, obj):
         user = self.context["request"].user
-        if user.is_authenticated:
-            enrollment = ExamThroughEnrollment.objects.filter(
-                enrollment__student=self.context["request"].user,
-                exam=obj,
-            ).first()
-            if enrollment:
-                return enrollment.selected_session.id
+        if not user.is_authenticated:
+            return None
+        enrollments = ExamThroughEnrollment.objects.filter(
+            enrollment__student=self.context["request"].user,
+            exam=obj,
+        )
+        if enrollments:
+            for exam_enrollment in enrollments:
+                if exam_enrollment.selected_session.status in [
+                    SessionStatus.ACTIVE,
+                    SessionStatus.INACTIVE,
+                ]:
+                    return exam_enrollment.selected_session.id
         return None
 
     def get_status(self, obj):

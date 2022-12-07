@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from enrollments.models import (
@@ -115,17 +116,46 @@ def retrieve_exam_status(self, obj):
     user = self.context["request"].user
     if not user.is_authenticated:
         return None
-    enrollment = ExamThroughEnrollment.objects.filter(
+    enrollments = ExamThroughEnrollment.objects.filter(
         enrollment__student=user,
         exam=obj,
-    ).first()
-    if enrollment:
-        session_id = enrollment.selected_session.id
-        exam_session = ExamSession.objects.filter(id=session_id).first()
-        if exam_session:
-            if exam_session.status == SessionStatus.INACTIVE:
-                return ExamStatus.SCHEDULED
-            elif exam_session.status == SessionStatus.ACTIVE:
-                return ExamStatus.IN_PROGRESS
-        return ExamStatus.CREATED
+    )
+    if enrollments:
+        for enrollment in enrollments:
+            session_id = enrollment.selected_session.id
+            exam_sessions = ExamSession.objects.filter(id=session_id)
+            if exam_sessions:
+                for exam_session in exam_sessions:
+                    if exam_session.status == SessionStatus.INACTIVE:
+                        return ExamStatus.SCHEDULED
+                    elif exam_session.status == SessionStatus.ACTIVE:
+                        return ExamStatus.IN_PROGRESS
+                # return ExamStatus.CREATED
     return ExamStatus.CREATED
+
+
+def schedule_exam_in_five_minutes(exam, student):
+    """Schedule exam in one minute.
+
+    Parameters
+    ----------
+    exam : Exam
+        exam to be scheduled
+    student : User
+        student to be scheduled
+
+    Returns
+    -------
+    ExamSession
+        exam session created
+
+    """
+    schedule_time = timezone.now() + timezone.timedelta(minutes=1)
+    exam_session = ExamSession.objects.create(
+        exam=exam,
+        start_date=schedule_time,
+        result_is_published=True,
+        created_by=student,
+        updated_by=student,
+    )
+    return exam_session
