@@ -165,41 +165,44 @@ class User(AbstractUser):
         else:
             return None
 
+    def check_role(self, roles):
+        return roles in self.roles.all().values_list("id", flat=True)
+
     @property
     def is_student(self):
-        return self.role == Role.STUDENT
+        return self.check_role(Role.STUDENT)
 
     @property
     def is_teacher(self):
-        return self.role == Role.TEACHER
+        return self.check_role(Role.TEACHER)
 
     @property
     def is_director(self):
-        return self.role == Role.DIRECTOR
+        return self.check_role(Role.DIRECTOR)
 
     @property
     def is_super_admin(self):
-        return self.role == Role.SUPER_ADMIN or self.is_superuser
+        return self.is_superuser or self.check_role(Role.SUPER_ADMIN)
 
     @property
     def is_accountant(self):
-        return self.role == Role.ACCOUNTANT
+        return self.check_role(Role.ACCOUNTANT)
 
     @property
     def is_admin(self):
-        return self.role == Role.ADMIN
+        return self.check_role(Role.ADMIN)
 
     @property
     def is_cashier(self):
-        return self.role == Role.CASHIER
+        return self.check_role(Role.CASHIER)
 
     @property
     def is_counsellor(self):
-        return self.role == Role.COUNSELLOR
+        return self.check_role(Role.COUNSELLOR)
 
     @property
     def is_office_staff(self):
-        return self.role == Role.STAFF
+        return self.check_role(Role.STAFF)
 
 
 class Profile(models.Model):
