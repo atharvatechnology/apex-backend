@@ -54,8 +54,6 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        print("instance")
-        print(validated_data)
         profile_data = None
         if "profile" in validated_data:
             profile_data = validated_data.pop("profile")
