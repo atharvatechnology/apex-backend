@@ -9,14 +9,14 @@ from common.admin import CreatorBaseModelAdmin
 
 
 # @admin.register(Attendance)
-class AttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
+class AttendanceAdmin(CreatorBaseModelAdmin):
     """Attendance Admin panel."""
 
     list_display = ("date", "user")
 
 
 @admin.register(StudentAttendance)
-class StudentAttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
+class StudentAttendanceAdmin(CreatorBaseModelAdmin):
     """Student Attendance Admin panel."""
 
     list_display = ("id", "date", "user", "created_at", "created_by")

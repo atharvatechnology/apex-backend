@@ -10,7 +10,7 @@ User = get_user_model()
 class Attendance(CreatorBaseModel):
     """Attendance model."""
 
-    date = models.DateTimeField(_("Attendance date"))
+    date = models.DateTimeField(_("Attended date"))
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendances")
 
     class Meta:
