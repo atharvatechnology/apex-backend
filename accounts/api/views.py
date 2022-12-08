@@ -17,7 +17,7 @@ from accounts.api.serializers import (
     UserUpdateSerializer,
 )
 from accounts.filters import StudentFilter
-from accounts.models import Profile, UserRoles
+from accounts.models import Profile, Role
 from common.api.views import BaseReportGeneratorAPIView
 
 User = get_user_model()
@@ -31,7 +31,8 @@ class UserCreateAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(role=UserRoles.STUDENT)
+        obj = serializer.save()
+        obj.roles.add(Role.STUDENT)
 
 
 class UserCreateOTPVerifyAPIView(UpdateModelMixin, LoginView):
