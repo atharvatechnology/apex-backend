@@ -3,7 +3,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from accounts.api.serializers import FullNameField
-from accounts.models import Profile, Role
+from accounts.models import Profile
 
 User = get_user_model()
 
@@ -21,19 +21,6 @@ class ProfileAdminCreateSerializer(serializers.ModelSerializer):
             "faculty",
             "address",
         ]
-
-
-class UserRolesSerializer(serializers.ModelSerializer):
-    """User Roles Serializer."""
-
-    role = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Role
-        fields = ["id", "role"]
-
-    def get_role(self, obj):
-        return Role.role_choices[obj.id - 1][1]
 
 
 class UserCreateAdminSerializer(serializers.ModelSerializer):
