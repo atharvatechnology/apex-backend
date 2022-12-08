@@ -8,6 +8,8 @@ from rest_framework.generics import (
     UpdateAPIView,
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from accounts.api_admin.serializers import (
     UserCreateAdminSerializer,
@@ -16,9 +18,20 @@ from accounts.api_admin.serializers import (
     UserUpdateAdminSerializer,
 )
 from accounts.filters import UserFilter
+from accounts.models import Role
 from common.paginations import StandardResultsSetPagination
+from common.utils import tuple_to_list
 
 User = get_user_model()
+
+
+class UserRolesView(APIView):
+    """Roles List API View."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        return Response(tuple_to_list(Role.role_choices))
 
 
 class UserCreateAdminAPIView(CreateAPIView):
