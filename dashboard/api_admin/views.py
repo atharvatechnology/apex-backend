@@ -4,19 +4,24 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
 from django.utils import timezone
-from rest_framework.generics import GenericAPIView
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from accounts.models import UserRoles
-from courses.models import Course
+from accounts.models import Role
+from attendance.models import StudentAttendance, TeacherAttendance
+from courses.models import Course, CourseCategory
+from dashboard.api_admin.filters import CourseCategoryFilter, ExamDateFilter
 from dashboard.api_admin.serializers import (
+    DashboardEnrollmentCountSerializer,
     DashboardOverviewSerializer,
     DashboardRevenueCourseSerializer,
     DashboardRevenueGraphSerializer,
     DashboardRevenueSerializer,
 )
-from enrollments.models import Enrollment
+from enrollments.models import Enrollment, EnrollmentStatus
 from exams.models import Exam
 from payments.models import Payment, PaymentStatus
 
@@ -48,7 +53,7 @@ class DashboardOverviewAPIView(GenericAPIView):
         students_list = (
             User.objects.filter(
                 date_joined__year=date_time.year,
-                role=UserRoles.STUDENT,
+                role__id=Role.STUDENT,
                 enrolls__isnull=False,
             )
             .distinct()
@@ -147,3 +152,100 @@ class DashboardRevenueCourseAPIView(GenericAPIView):
 
         serializer = self.get_serializer(summary, many=True)
         return Response(serializer.data)
+
+
+class DashboardEnrollmentOverallCourseAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, *args, **kwargs):
+        year = self.kwargs.get("year")
+
+        enrollments = Enrollment.objects.filter(
+            courses__isnull=False,
+            created_at__year=year,
+        )
+
+        course_category = CourseCategory.objects.all()
+
+        overall_section = {"overall": enrollments.count()}
+        overall_section["active"] = enrollments.filter(
+            status=EnrollmentStatus.ACTIVE
+        ).count()
+
+        for cat in course_category:
+            overall_section[cat.name] = enrollments.filter(
+                courses__category=cat
+            ).count()
+
+        return Response(overall_section)
+
+
+class DashboardEnrollmentCourseCategoryAPIView(ListAPIView):
+    permission_classes = [IsAdminUser]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CourseCategoryFilter
+    queryset = Course.objects.all()
+    serializer_class = DashboardEnrollmentCountSerializer
+
+    def get(self, request, *args, **kwargs):
+        year = self.kwargs.get("year")
+        enrollments = Enrollment.objects.filter(
+            courses__isnull=False,
+            created_at__year=year,
+        )
+        courses = self.filter_queryset(self.get_queryset())
+        data = []
+        for course in courses:
+            course_enrollemt_count = {
+                "name": course.name,
+                "count": enrollments.filter(courses__in=[course]).count(),
+            }
+            data.append(course_enrollemt_count)
+        sorted_data = sorted(data, key=lambda item: item["count"], reverse=True)
+        serializer = self.get_serializer(sorted_data, many=True)
+        return Response(serializer.data)
+
+
+class DashboardEnrollmentExamCountAPIView(ListAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = DashboardEnrollmentCountSerializer
+    queryset = Enrollment.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ExamDateFilter
+
+    def get(self, request, *args, **kwargs):
+
+        enrollments = self.filter_queryset(self.get_queryset())
+        enrollments = enrollments.filter(
+            exams__isnull=False,
+        )
+        exams = Exam.objects.all()
+
+        data = []
+        for exam in exams:
+            exam_enrollemt_count = {
+                "name": exam.name,
+                "count": enrollments.filter(exams__in=[exam]).count(),
+            }
+            data.append(exam_enrollemt_count)
+        sorted_data = sorted(data, key=lambda item: item["count"], reverse=True)
+        serializer = self.get_serializer(sorted_data, many=True)
+        return Response(serializer.data)
+
+
+class DashboardAttendanceAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, *args, **kwargs):
+        student_attendance = StudentAttendance.objects.filter(
+            date__date=timezone.now().date()
+        ).count()
+        teacher_attendance = TeacherAttendance.objects.filter(
+            date__date=timezone.now().date()
+        ).count()
+        return Response(
+            {
+                "student_attendance": student_attendance,
+                "teacher_attendance": teacher_attendance,
+            }
+        )

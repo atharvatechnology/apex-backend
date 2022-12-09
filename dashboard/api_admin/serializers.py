@@ -15,18 +15,6 @@ class DashboardRevenueSerializer(serializers.Serializer):
     revenue_month = serializers.DecimalField(max_digits=7, decimal_places=2)
 
 
-# class DashboardRevenueGraphSerializer(serializers.Serializer):
-#     created_at = serializers.SerializerMethodField(method_name="get_date")
-
-#     class Meta:
-#         model = Payment
-#         fields = ("__all__")
-
-#     def get_date(self, instance):
-#         date = datetime.datetime.now()
-#         return date.strftime("%m/%d/%Y")
-
-
 class DashboardRevenueGraphSerializer(serializers.Serializer):
     January = serializers.DecimalField(max_digits=7, decimal_places=2)
     February = serializers.DecimalField(max_digits=7, decimal_places=2)
@@ -45,3 +33,8 @@ class DashboardRevenueGraphSerializer(serializers.Serializer):
 class DashboardRevenueCourseSerializer(serializers.Serializer):
     course = serializers.CharField(source="enrollment__courses__name")
     total = serializers.DecimalField(max_digits=7, decimal_places=2)
+
+
+class DashboardEnrollmentCountSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    count = serializers.IntegerField()
