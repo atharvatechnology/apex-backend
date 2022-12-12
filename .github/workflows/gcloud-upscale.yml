@@ -1,7 +1,7 @@
 name: Schedule server increase
 on:
   schedule:
-    - cron: "04 05 * * *"
+    - cron: "15 18 * * 05"
   workflow_dispatch:
     inputs:
       version:
@@ -35,10 +35,10 @@ jobs:
 #       run: 'gcloud info'
       
     - name: 'stop instance'
-      run: 'gcloud compute instances stop instance-2 --zone us-central1-a'
+      run: 'gcloud compute instances stop instance-1 --zone us-central1-a'
       
     - name: 'increase specs to g1-small'
-      run: 'gcloud compute instances set-machine-type instance-2 --zone us-central1-a --machine-type g1-small'
+      run: 'gcloud compute instances set-machine-type instance-1 --zone us-central1-a --machine-type c2d-highcpu-4'
       
     - name: 'start instance'
-      run: 'gcloud compute instances start instance-2 --zone us-central1-a'
+      run: 'gcloud compute instances start instance-1 --zone us-central1-a'
