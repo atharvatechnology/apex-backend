@@ -1,7 +1,7 @@
 name: Schedule server increase
 on:
   schedule:
-    - cron: "32 10 * * 00"
+    - cron: "00 05 * * *"
     
 jobs:
   upscale:
