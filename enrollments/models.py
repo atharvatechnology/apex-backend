@@ -453,6 +453,7 @@ class CourseThroughEnrollment(models.Model):
         default=CourseEnrollmentStatus.NEW,
     )
     completed_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         """Meta defination for CourseThroughEnrollment."""
@@ -624,7 +625,7 @@ class ExamThroughEnrollment(models.Model):
         default=ExamEnrollmentStatus.CREATED,
     )
     # submitted = models.BooleanField(_("submitted"), default=False)
-
+    created_at = models.DateTimeField(auto_now_add=True)
     objects = ExamThroughEnrollmentManager()
 
     class Meta:

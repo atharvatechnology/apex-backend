@@ -116,6 +116,10 @@ class Course(CreatorBaseModel, PublishedModel):
     )
     duration = models.DurationField(
         _("Duration"),
+        help_text=_(
+            'The following data represents 20 days and 10 hours \
+                for the entered data "20 10:00:00".'
+        ),
     )
     image = models.ImageField(
         _("image"), upload_to=course_image_path, null=True, blank=True
