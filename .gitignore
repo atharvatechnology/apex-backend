@@ -139,6 +139,7 @@ media/
 apex-education-firebase.json
 proposal.py
 
+
 # Ingnore csv files
 *.csv
 
