@@ -53,7 +53,7 @@ class DashboardOverviewAPIView(GenericAPIView):
         students_list = (
             User.objects.filter(
                 date_joined__year=date_time.year,
-                role__id=Role.STUDENT,
+                roles__id=Role.STUDENT,
                 enrolls__isnull=False,
             )
             .distinct()
