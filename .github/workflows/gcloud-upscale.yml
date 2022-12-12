@@ -33,3 +33,12 @@ jobs:
       
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
+      
+    - name: 'stop instance'
+      run: 'gcloud compute instances stop instance-2'
+      
+    - name: 'increase specs to g1-small'
+      run: 'gcloud compute instances set-machine-type instance-2 --machine-type g1-small'
+      
+    - name: 'start instance'
+      run: 'gcloud compute instances start instance-2'
