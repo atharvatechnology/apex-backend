@@ -35,10 +35,10 @@ jobs:
 #       run: 'gcloud info'
       
     - name: 'stop instance'
-      run: 'gcloud compute instances stop instance-2'
+      run: 'gcloud compute instances stop instance-2 --zone us-central1-a'
       
     - name: 'increase specs to g1-small'
-      run: 'gcloud compute instances set-machine-type instance-2 --machine-type g1-small'
+      run: 'gcloud compute instances set-machine-type instance-2 --zone us-central1-a --machine-type g1-small'
       
     - name: 'start instance'
-      run: 'gcloud compute instances start instance-2'
+      run: 'gcloud compute instances start instance-2 --zone us-central1-a'
