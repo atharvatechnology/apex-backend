@@ -7,11 +7,11 @@ from common.utils import tuple_to_list_first_elements
 class UserFilter(django_filters.FilterSet):
     """Filter for User."""
 
-    roles = django_filters.CharFilter(method="roles_wise_filter")
+    role_wise = django_filters.CharFilter(method="roles_wise_filter")
 
     class Meta:
         model = User
-        fields = {"is_active": ["exact"]}
+        fields = {"is_active": ["exact"], "roles": ["exact"]}
 
     def roles_wise_filter(self, queryset, name, value):
         if value == "Student":
