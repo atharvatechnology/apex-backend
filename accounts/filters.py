@@ -1,6 +1,7 @@
 import django_filters
 
 from accounts.models import Profile, Role, User
+from common.utils import tuple_to_list_first_elements
 
 
 class UserFilter(django_filters.FilterSet):
@@ -16,7 +17,9 @@ class UserFilter(django_filters.FilterSet):
         if value == "Student":
             return queryset.filter(roles__in=[Role.STUDENT])
         elif value == "Faculty":
-            return queryset.filter(roles__in=[1, 2, 3, 4, 5, 6, 7, 8])
+            return queryset.filter(
+                roles__in=tuple_to_list_first_elements(Role.staff_choices)
+            )
         return queryset
 
 

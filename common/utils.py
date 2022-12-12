@@ -98,3 +98,8 @@ def get_random_string():
 def tuple_to_list(data):
     # Converts tuple to list
     return [({"id": x[0], "name": x[1]}) for x in data]
+
+
+def tuple_to_list_first_elements(data):
+    # Converts tuple to list
+    return [x[0] for x in data]
