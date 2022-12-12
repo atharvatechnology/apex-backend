@@ -19,7 +19,11 @@ class ExamOnCourseFilter(django_filters.FilterSet):
 
     class Meta:
         model = Exam
-        fields = {"course_id": ["exact"]}
+        fields = {
+            "course_id": ["exact"],
+            "exam_type": ["exact"],
+            "created_at": ["gt", "lt"],
+        }
 
     def filter_course_future(self, queryset, name, value):
         """Filter for future exams."""
