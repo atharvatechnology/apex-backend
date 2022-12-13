@@ -266,6 +266,8 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
         return {
             "name": obj.enrollment.student.__str__(),
             "phone": obj.enrollment.student.username,
+            "email": obj.enrollment.student.email,
+            "profile_image": obj.enrollment.student.profile.image,
         }
 
     def get_status(self, obj):
