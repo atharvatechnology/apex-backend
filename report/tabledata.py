@@ -61,36 +61,44 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
     model = CourseThroughEnrollment
     field_to_header_names = {
         "enrollment": "Student's Name",
+        "phone_number": "Phone Number",
         "course_name": "Course Name",
-        "selected_session": "Selected Session",
+        "payment": "Payment",
         "course_enroll_status": "Status",
-        "completed_date": "Completed Date",
     }
 
     def get_students_name(self, linea):
-        return str(linea.enrollment.student.first_name) + str(
-            linea.enrollment.student.last_name
+        return (
+            str(linea.enrollment.student.first_name)
+            + " "
+            + str(linea.enrollment.student.last_name)
         )
+
+    def get_phone_number(self, linea):
+        return str(linea.enrollment.student.username)
 
     def get_course_name(self, linea):
         return linea.course.name
 
-    def get_session(self, linea):
-        return str(linea.selected_session.start_date.date())
+    def get_payment(self, linea):
+        return str(linea.course.price)
+
+    # def get_session(self, linea):
+    #     return str(linea.selected_session.start_date.date())
 
     def get_status(self, linea):
         return linea.course_enroll_status
 
-    def get_completed_date(self, linea):
-        return str(linea.completed_date)
+    # def get_completed_date(self, linea):
+    #     return str(linea.completed_date)
 
     def get_values_from_fields(self, field_name, linea):
         fields_and_values = {
             "enrollment": self.get_students_name,
+            "phone_number": self.get_phone_number,
             "course_name": self.get_course_name,
-            "selected_session": self.get_session,
+            "payment": self.get_payment,
             "course_enroll_status": self.get_status,
-            "completed_date": self.get_completed_date,
         }
         return fields_and_values[field_name](linea)
 

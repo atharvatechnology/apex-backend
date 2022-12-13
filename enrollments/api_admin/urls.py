@@ -7,6 +7,7 @@ from .views import (
     CourseSessionDeleteAPIView,
     CourseSessionListAPIView,
     CourseSessionUpdateAPIView,
+    CourseThroughEnrollmentGeneratorAPIView,
     CourseThroughEnrollmentListAPIView,
     EnrollmentDeleteAdminAPIView,
     EnrollmentGraphAPIView,
@@ -17,6 +18,7 @@ from .views import (
     ExamSessionDeleteAPIView,
     ExamSessionListAPIView,
     ExamSessionUpdateAPIView,
+    ExamThroughEnrollmentGeneratorAPIView,
     ExamThroughEnrollmentListAPIView,
     OverallEnrollmentAPIView,
     StudentCourseCheckView,
@@ -77,6 +79,11 @@ exam_through_enrollment_urls = [
         ExamThroughEnrollmentListAPIView.as_view(),
         name="exam-through-enrollment-list",
     ),
+    path(
+        "report/generate/",
+        ExamThroughEnrollmentGeneratorAPIView.as_view(),
+        name="generator-enrollment",
+    ),
 ]
 exam_enroll_url = [
     path(
@@ -96,6 +103,11 @@ course_through_enrollment_urls = [
         "list/",
         CourseThroughEnrollmentListAPIView.as_view(),
         name="course-through-enrollment-list",
+    ),
+    path(
+        "report/generate/",
+        CourseThroughEnrollmentGeneratorAPIView.as_view(),
+        name="generator-course",
     ),
 ]
 

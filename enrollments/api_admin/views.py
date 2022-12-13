@@ -11,7 +11,11 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.api.views import (
+    BaseCreatorCreateAPIView,
+    BaseCreatorUpdateAPIView,
+    BaseReportGeneratorAPIView,
+)
 from common.paginations import StandardResultsSetPagination
 from courses.api.serializers import CourseCategoryRetrieveSerializer
 from courses.models import CourseCategory
@@ -355,4 +359,48 @@ class StudentCourseCheckView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         return Response(
             {"status": "success", "message": "Student is enrolled in the course."}
+        )
+
+
+class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = ExamThroughEnrollment.objects.all()
+    filterset_class = ExamThroughEnrollmentFilter
+    model_name = "ExamThroughEnrollment"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "enrollment",
+                    "exam",
+                    "selected_session",
+                    "rank",
+                    "score",
+                    "negative_score",
+                    "status",
+                ]
+            }
+        )
+
+
+class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = CourseThroughEnrollment.objects.all()
+    filterset_class = CourseThroughEnrollmentFilter
+    model_name = "CourseThroughEnrollment"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "enrollment",
+                    "phone_number",
+                    "course_name",
+                    "payment",
+                    "course_enroll_status",
+                ]
+            }
         )

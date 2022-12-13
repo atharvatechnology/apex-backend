@@ -15,6 +15,7 @@ class ExamThroughEnrollmentFilter(django_filters.FilterSet):
             "selected_session__start_date": ["exact"],
             "selected_session": ["exact"],
             "enrollment__status": ["exact"],
+            "created_at": ["gt", "lt"],
         }
 
 
@@ -25,10 +26,13 @@ class CourseThroughEnrollmentFilter(django_filters.FilterSet):
         model = CourseThroughEnrollment
         fields = {
             "course__id": ["exact"],
-            "course__name": ["icontains"],
+            "course__name": ["icontains"],  # For Report
             "selected_session__start_date": ["exact"],
             "selected_session": ["exact"],
             "enrollment__status": ["exact"],
+            "course_enroll_status": ["exact"],  # For Report
+            "course__category__name": ["icontains"],  # For Report
+            "created_at": ["gt", "lt"],
         }
 
 
