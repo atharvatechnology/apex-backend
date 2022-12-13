@@ -13,6 +13,7 @@ from .views import (
     EnrollmentGraphAPIView,
     EnrollmentUpdateAdminAPIView,
     ExamEnrollmentCreateAPIView,
+    ExamGeneratorAPIView,
     ExamGraphAPIView,
     ExamSessionCreateAPIView,
     ExamSessionDeleteAPIView,
@@ -70,6 +71,11 @@ course_session_urls = [
         "check/",
         StudentCourseCheckView.as_view(),
         name="student-course-check",
+    ),
+    path(
+        "report/generate/",
+        ExamGeneratorAPIView.as_view(),
+        name="generator-exam-sessions",
     ),
 ]
 

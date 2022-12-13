@@ -1,13 +1,13 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from report.api_admin.serializers import GeneratedReportSerializers
+from report.api_admin.serializers import GeneratedReportRetrieveSerializer
 from report.models import GeneratedReport
 
 
-class GeneratedReportListAPIView(ListAPIView):
+class GeneratedReportRetrieveAPIView(RetrieveAPIView):
     """List all generated report location."""
 
-    serializer_class = GeneratedReportSerializers
+    serializer_class = GeneratedReportRetrieveSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = GeneratedReport.objects.all()

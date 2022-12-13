@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from common.api.serializers import ModelFieldsAndFilterParamsSerializer
 from enrollments.api.tasks import excelcelery
+from report.models import GeneratedReport
 
 
 class BaseCreatorCreateAPIView(CreateAPIView):
@@ -48,10 +49,18 @@ class BaseReportGeneratorAPIView(GenericAPIView):
             )
         else:
             filtered_data = self.filter_queryset(self.get_queryset())
+
+        id_of_last_report = GeneratedReport.objects.last().id
+        new_generated_id = int(id_of_last_report) + 1
         excelcelery.delay(
             list(serializer.data["model_fields"]),
             self.model_name,
             list(filtered_data.values_list("pk", flat=True)),
             request.user.id,
         )
-        return Response({"msg": "Your will be notified after your file is ready."})
+        return Response(
+            {
+                "msg": "Your will be notified after your file is ready.",
+                "new_generated_id": new_generated_id,
+            }
+        )

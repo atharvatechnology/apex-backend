@@ -3,8 +3,12 @@ from attendance.models import StudentAttendance, TeacherAttendance
 from common.report import BaseDynamicTableData
 from courses.models import Course
 from enrollments.api.utils import get_student_rank
-from enrollments.models import CourseThroughEnrollment, ExamThroughEnrollment
-from exams.models import Exam
+from enrollments.models import (
+    CourseThroughEnrollment,
+    ExamEnrollmentStatus,
+    ExamSession,
+    ExamThroughEnrollment,
+)
 
 
 class ExamThroughEnrollmentTableData(BaseDynamicTableData):
@@ -139,28 +143,46 @@ class StudentTableData(BaseDynamicTableData):
 
 
 class ExamTableData(BaseDynamicTableData):
-    """#TODO exam date, examinee, passes, failed missing."""
-
-    model = Exam
+    model = ExamSession
     field_to_header_names = {
-        "exam_name": "Exam Name",
-        "type": "Type",
-        # "exam_date": "Exam Date",
-        # "examinee": "Examinee",
-        # "passes": "Passes",
-        # "failed": "Failed",
+        "exam": "Exam",
+        "exam_type": "Type",
+        "exam_date": "Exam Date",
+        "examinee": "Examinee",
+        "passes": "Passes",
+        "failed": "Failed",
     }
 
     def get_exam_name(self, linea):
-        return linea.name
+        return linea.exam.name
 
     def get_exam_type(self, linea):
-        return linea.category.name
+        return linea.exam.exam_type
+
+    def get_exam_date(self, linea):
+        return linea.exam.start_date.date()
+
+    def get_examinee_count(self, linea):
+        return str(linea.session_enrolls.all().count())
+
+    def get_passed_count(self, linea):
+        return str(
+            linea.session_enrolls.filter(status=ExamEnrollmentStatus.PASSED).count()
+        )
+
+    def get_failed_count(self, linea):
+        return str(
+            linea.session_enrolls.filter(status=ExamEnrollmentStatus.FAILED).count()
+        )
 
     def get_values_from_fields(self, field_name, linea):
         fields_and_values = {
-            "exam_name": self.get_exam_name,
-            "type": self.get_exam_type,
+            "exam": self.get_exam_name,
+            "exam_type": self.get_exam_type,
+            "exam_date": self.get_exam_date,
+            "examinee": self.get_examinee_count,
+            "passes": self.get_passed_count,
+            "failed": self.get_failed_count,
         }
         return fields_and_values[field_name](linea)
 

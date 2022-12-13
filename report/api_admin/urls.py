@@ -1,9 +1,13 @@
 from django.urls import path
 
-from report.api_admin.views import GeneratedReportListAPIView
+from report.api_admin.views import GeneratedReportRetrieveAPIView
 
 app_name = "admin-report"
 
 urlpatterns = [
-    path("list/", GeneratedReportListAPIView.as_view(), name="generated-report-list"),
+    path(
+        "retrieve/<int:pk>/",
+        GeneratedReportRetrieveAPIView.as_view(),
+        name="generated-report-retrieve",
+    ),
 ]
