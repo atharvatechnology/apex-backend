@@ -33,6 +33,16 @@ class Role(models.Model):
         (STAFF, "Staff"),
         (STUDENT, "Student"),
     )
+    staff_choices = (
+        (SUPER_ADMIN, "Super Admin"),
+        (ADMIN, "Admin"),
+        (DIRECTOR, "Director"),
+        (TEACHER, "Teacher"),
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+    )
     id = models.PositiveSmallIntegerField(choices=role_choices, primary_key=True)
 
     def __str__(self):

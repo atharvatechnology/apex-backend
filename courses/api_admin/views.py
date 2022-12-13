@@ -78,8 +78,11 @@ class CourseListAPIView(ListAPIView):
     search_fields = ["name"]
     filterset_class = CourseFilter
     serializer_class = CourseSerializer
+    search_fields = ["name"]
     queryset = Course.objects.all()
     pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_class = CourseFilter
 
 
 class CourseRetrieveAPIView(RetrieveAPIView):
@@ -110,8 +113,9 @@ class CourseDropdownListAPIView(ListAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CourseMinSerializer
-    filter_backends = [DjangoFilterBackend]
     filterset_class = CourseDropdownFilter
+    search_fields = ["name"]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     queryset = Course.objects.all()
 
 
