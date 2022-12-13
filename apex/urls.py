@@ -70,6 +70,7 @@ api_admin_urls = [
     path("notifications/", include("notifications.api_admin.urls")),
     path("payments/", include("payments.api_admin.urls")),
     path("banner/", include("bannerad.api_admin.urls")),
+    path("dashboard/", include("dashboard.api_admin.urls")),
     path("counseling/", include("counseling.api_admin.urls")),
     path("attendance/", include("attendance.api_admin.urls")),
 ]
