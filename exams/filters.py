@@ -15,12 +15,12 @@ class ExamFilter(django_filters.FilterSet):
 class PriceChoiceFilter(django_filters.DateRangeFilter):
     choices = [
         ("free", "Free"),
-        ("cost", "Cost"),
+        ("paid", "Paid"),
     ]
 
     filters = {
         "free": lambda qs, name: qs.filter(**{"price": "0.0"}),
-        "cost": lambda qs, name: qs.filter(**{"price__gt": "0.0"}),
+        "paid": lambda qs, name: qs.filter(**{"price__gt": "0.0"}),
     }
 
 
