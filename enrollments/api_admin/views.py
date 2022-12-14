@@ -6,6 +6,7 @@ from rest_framework.generics import (
     DestroyAPIView,
     GenericAPIView,
     ListAPIView,
+    RetrieveAPIView,
     UpdateAPIView,
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -26,6 +27,7 @@ from enrollments.api_admin.serializers import (
     ExamSessionAdminSerializer,
     ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
+    PhysicalBookCourseEnrollmentAdminSerializer,
     StudentEnrollmentCheckSerializer,
 )
 from enrollments.filters import (
@@ -40,6 +42,7 @@ from enrollments.models import (
     EnrollmentStatus,
     ExamSession,
     ExamThroughEnrollment,
+    PhysicalBookCourseEnrollment,
 )
 from exams.models import Exam
 
@@ -356,3 +359,42 @@ class StudentCourseCheckView(GenericAPIView):
         return Response(
             {"status": "success", "message": "Student is enrolled in the course."}
         )
+
+
+class PhysicalBookCourseEnrollmentAdminCreateAPIView(CreateAPIView):
+    """Create physical book after course enrollment."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+
+
+class PhysicalBookCourseEnrollmentAdminListAPIView(ListAPIView):
+    """Physical book list after user course enrolled."""
+
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+
+
+class PhysicalBookCourseEnrollmentAdminRetrieveAPIView(RetrieveAPIView):
+    """Retrieve physical book after course enrollment."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+
+
+class PhysicalBookCourseEnrollmentAdminUpdateAPIView(UpdateAPIView):
+    """Update physical book after course enrollment."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+
+
+class PhysicalBookCourseEnrollmentAdminDestroyAPIView(DestroyAPIView):
+    """Destroy physical book after course enrollment."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer

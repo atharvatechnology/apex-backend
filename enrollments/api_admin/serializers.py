@@ -20,6 +20,7 @@ from enrollments.models import (
     EnrollmentStatus,
     ExamSession,
     ExamThroughEnrollment,
+    PhysicalBookCourseEnrollment,
 )
 from exams.api_common.serializers import ExamMiniSerializer
 from payments.api_common.serializers import PaymentSerializer
@@ -396,3 +397,15 @@ class StudentEnrollmentCheckSerializer(serializers.Serializer):
         if enrolled_student is not None:
             return super().validate(attrs)
         raise serializers.ValidationError(f"Student is not enrolled in {course}.")
+
+
+class PhysicalBookCourseEnrollmentAdminSerializer(serializers.ModelSerializer):
+    """Physical book when user enrolls to course."""
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
