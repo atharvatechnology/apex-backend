@@ -138,3 +138,10 @@ dmypy.json
 media/
 apex-education-firebase.json
 proposal.py
+
+
+# Ingnore csv files
+*.csv
+
+# Ignore har files generated for performance testing
+*.har

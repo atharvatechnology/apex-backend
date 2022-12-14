@@ -12,17 +12,41 @@ from accounts.validators import PhoneNumberValidator
 from common.utils import generate_qrcode
 
 
-class UserRoles:
+class Role(models.Model):
     SUPER_ADMIN = 1
-    TEACHER = 2
+    ADMIN = 2
     DIRECTOR = 3
-    STUDENT = 4
+    TEACHER = 4
+    ACCOUNTANT = 5
+    CASHIER = 6
+    COUNSELLOR = 7
+    STAFF = 8
+    STUDENT = 9
     role_choices = (
-        (SUPER_ADMIN, "SUPER_ADMIN"),
-        (TEACHER, "TEACHER"),
-        (DIRECTOR, "DIRECTOR"),
-        (STUDENT, "STUDENT"),
+        (SUPER_ADMIN, "Super Admin"),
+        (ADMIN, "Admin"),
+        (DIRECTOR, "Director"),
+        (TEACHER, "Teacher"),
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+        (STUDENT, "Student"),
     )
+    staff_choices = (
+        (SUPER_ADMIN, "Super Admin"),
+        (ADMIN, "Admin"),
+        (DIRECTOR, "Director"),
+        (TEACHER, "Teacher"),
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+    )
+    id = models.PositiveSmallIntegerField(choices=role_choices, primary_key=True)
+
+    def __str__(self):
+        return self.get_id_display()
 
 
 class UserManager(BaseUserManager):
@@ -91,9 +115,7 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     """Custom User model."""
 
-    role = models.PositiveIntegerField(
-        choices=UserRoles.role_choices, blank=True, null=True
-    )
+    roles = models.ManyToManyField(Role)
 
     username_validator = PhoneNumberValidator()
 
@@ -142,31 +164,55 @@ class User(AbstractUser):
         OTP.sendOTP(self.username, otp)
         return otp
 
-    def get_role(self):
-        if self.role:
-            return [
-                role_value
-                for role_id, role_value in UserRoles.role_choices
-                if role_id == self.role
-            ][0]
+    def get_roles(self):
+        all_roles = []
+        if self.roles.all():
+            for roles in self.roles.all():
+                for role_id, role_value in Role.role_choices:
+                    if roles.id == role_id:
+                        all_roles.append(role_value)
+            return all_roles
         else:
             return None
 
+    def check_role(self, roles):
+        return roles in self.roles.all().values_list("id", flat=True)
+
     @property
     def is_student(self):
-        return self.role == UserRoles.STUDENT
+        return self.check_role(Role.STUDENT)
 
     @property
     def is_teacher(self):
-        return self.role == UserRoles.TEACHER
+        return self.check_role(Role.TEACHER)
 
     @property
     def is_director(self):
-        return self.role == UserRoles.DIRECTOR
+        return self.check_role(Role.DIRECTOR)
 
     @property
     def is_super_admin(self):
-        return self.role == UserRoles.SUPER_ADMIN or self.is_superuser
+        return self.is_superuser or self.check_role(Role.SUPER_ADMIN)
+
+    @property
+    def is_accountant(self):
+        return self.check_role(Role.ACCOUNTANT)
+
+    @property
+    def is_admin(self):
+        return self.check_role(Role.ADMIN)
+
+    @property
+    def is_cashier(self):
+        return self.check_role(Role.CASHIER)
+
+    @property
+    def is_counsellor(self):
+        return self.check_role(Role.COUNSELLOR)
+
+    @property
+    def is_office_staff(self):
+        return self.check_role(Role.STAFF)
 
 
 class Profile(models.Model):

@@ -19,6 +19,7 @@ from enrollments.api.views import (
     PhysicalBookCourseEnrollmentListAPIView,
     PhysicalBookCourseEnrollmentRetrieveAPIView,
     PhysicalBookCourseEnrollmentUpdateAPIView,
+    PracticeEnrollmentCreateAPIView,
 )
 
 enrollment_urls = [
@@ -32,6 +33,11 @@ enrollment_urls = [
 ]
 
 exam_urls = [
+    path(
+        "practice/create/",
+        PracticeEnrollmentCreateAPIView.as_view(),
+        name="practice-create",
+    ),
     path(
         "submit/<int:pk>",
         ExamEnrollmentUpdateAPIView.as_view(),

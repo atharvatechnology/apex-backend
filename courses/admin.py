@@ -55,7 +55,7 @@ class NoteInline(CustomStackedInline):
 
 @admin.register(Course)
 class CourseAdmin(nested_admin.NestedModelAdmin):
-    list_display = ["id", "name"]
+    list_display = ["id", "name", "category"]
     # list
     inlines = [NoteInline]
     list_filter = ("status", "category")
