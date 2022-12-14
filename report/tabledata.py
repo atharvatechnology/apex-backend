@@ -1,9 +1,9 @@
 from accounts.models import Profile
 from attendance.models import StudentAttendance, TeacherAttendance
 from common.report import BaseDynamicTableData
-from courses.models import Course
 from enrollments.api.utils import get_student_rank
 from enrollments.models import (
+    CourseSession,
     CourseThroughEnrollment,
     ExamEnrollmentStatus,
     ExamSession,
@@ -160,7 +160,7 @@ class ExamTableData(BaseDynamicTableData):
         return linea.exam.exam_type
 
     def get_exam_date(self, linea):
-        return linea.exam.start_date.date()
+        return str(linea.exam.start_date.date())
 
     def get_examinee_count(self, linea):
         return str(linea.session_enrolls.all().count())
@@ -188,30 +188,37 @@ class ExamTableData(BaseDynamicTableData):
 
 
 class CourseTableData(BaseDynamicTableData):
-    """#TODO student enrolled and start date missing."""
 
-    model = Course
+    model = CourseSession
     field_to_header_names = {
         "course_name": "Course Name",
         "price": "Price",
-        # "students_enrolled": "Student Enrolled",
-        # "start_date": "Start Date",
+        "students_enrolled": "Student Enrolled",
+        "start_date": "Start Date",
         "status": "Status",
     }
 
     def get_course_name(self, linea):
-        return linea.name
+        return linea.course.name
 
     def get_price(self, linea):
-        return linea.price
+        return linea.course.price
+
+    def get_students_enrolled_count(self, linea):
+        return str(linea.course_enrolls.all().count())
+
+    def get_start_date(self, linea):
+        return str(linea.course.start_date.date())
 
     def get_status(self, linea):
-        return linea.status
+        return linea.course.status
 
     def get_values_from_fields(self, field_name, linea):
         fields_and_values = {
             "course_name": self.get_course_name,
             "price": self.get_price,
+            "students_enrolled": self.get_students_enrolled_count,
+            "start_date": self.get_start_date,
             "status": self.get_status,
         }
         return fields_and_values[field_name](linea)

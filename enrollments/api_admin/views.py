@@ -34,6 +34,7 @@ from enrollments.api_admin.serializers import (
 )
 from enrollments.filters import (
     CourseGraphFilter,
+    CourseSessionFilter,
     CourseThroughEnrollmentFilter,
     ExamSessionFilter,
     ExamThroughEnrollmentFilter,
@@ -424,6 +425,27 @@ class ExamGeneratorAPIView(BaseReportGeneratorAPIView):
                     "examinee",
                     "passes",
                     "failed",
+                ]
+            }
+        )
+
+
+class CourseGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = CourseSession.objects.all()
+    filterset_class = CourseSessionFilter
+    model_name = "Course"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "course_name",
+                    "price",
+                    "students_enrolled",
+                    "start_date",
+                    "status",
                 ]
             }
         )

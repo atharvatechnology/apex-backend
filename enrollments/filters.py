@@ -2,6 +2,7 @@ import django_filters
 
 from courses.models import CourseCategory
 from enrollments.models import (
+    CourseSession,
     CourseThroughEnrollment,
     ExamSession,
     ExamThroughEnrollment,
@@ -49,10 +50,21 @@ class CourseGraphFilter(django_filters.FilterSet):
 
 
 class ExamSessionFilter(django_filters.FilterSet):
-    """Filter for ExamThroughEnrollment."""
+    """Filter for ExamSession."""
 
     class Meta:
         model = ExamSession
         fields = {
             "start_date": ["exact"],
+        }
+
+
+class CourseSessionFilter(django_filters.FilterSet):
+    """Filter for ExamThroughEnrollment."""
+
+    class Meta:
+        model = CourseSession
+        fields = {
+            "start_date": ["exact"],
+            "course__category": ["exact"],
         }
