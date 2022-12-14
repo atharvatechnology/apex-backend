@@ -9,17 +9,17 @@ from common.admin import CreatorBaseModelAdmin
 
 
 # @admin.register(Attendance)
-class AttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
+class AttendanceAdmin(CreatorBaseModelAdmin):
     """Attendance Admin panel."""
 
     list_display = ("date", "user")
 
 
 @admin.register(StudentAttendance)
-class StudentAttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
+class StudentAttendanceAdmin(CreatorBaseModelAdmin):
     """Student Attendance Admin panel."""
 
-    list_display = ("date", "user", "created_at", "created_by")
+    list_display = ("id", "date", "user", "created_at", "created_by")
     search_fields = (
         "user__username",
         "user__email",
@@ -35,13 +35,23 @@ class TeacherAttendanceDetailInline(admin.TabularInline):
     model = TeacherAttendanceDetail
     extra = 1
     readonly_fields = ["created_at", "updated_at", "created_by", "updated_by"]
+    list_display = (
+        "id",
+        "number_of_period",
+        "remarks",
+        "status",
+        "section",
+        "subject",
+        "start_time",
+        "end_time",
+    )
 
 
 @admin.register(TeacherAttendance)
 class TeacherAttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     """Teacher Attendance Admin panel."""
 
-    list_display = ("date", "user")
+    list_display = ("id", "date", "user")
     inlines = [TeacherAttendanceDetailInline]
 
     def save_formset(self, request, form, formset, change):

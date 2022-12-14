@@ -90,20 +90,27 @@ class StudentAttendanceRetrieveSerializer(serializers.ModelSerializer):
         )
 
 
-class StudentAttendanceUpdateSerializer(serializers.ModelSerializer):
-    """Serializer for updating attendance model."""
-
-    class Meta:
-        model = StudentAttendance
-        fields = (
-            "id",
-            "date",
-            "user",
-        )
-
-
 class TeacherAttendanceDetailCreateSerializer(CreatorSerializer):
     """Serializer for creating teacher attendance detail model."""
+
+    class Meta:
+        model = TeacherAttendanceDetail
+        fields = CreatorSerializer.Meta.fields + (
+            "number_of_period",
+            "message",
+            "remarks",
+            "status",
+            "section",
+            "subject",
+            "start_time",
+            "end_time",
+            "teacher_attendance",
+        )
+        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
+
+
+class TeacherAttendanceDetailListSerializer(serializers.ModelSerializer):
+    """Serializer for listing teacher attendance detail model."""
 
     class Meta:
         model = TeacherAttendanceDetail
@@ -113,67 +120,32 @@ class TeacherAttendanceDetailCreateSerializer(CreatorSerializer):
             "message",
             "remarks",
             "status",
+            "section",
+            "subject",
+            "start_time",
+            "end_time",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
 
 
-class TeacherAttendanceCreateSerializer(CreatorSerializer):
-    """Serializer for creating teacher attendance model."""
-
-    details = TeacherAttendanceDetailCreateSerializer(required=False)
-    user = serializers.CharField()
+class TeacherAttendanceDetailRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving teacher attendance detail model."""
 
     class Meta:
-        model = TeacherAttendance
+        model = TeacherAttendanceDetail
         fields = (
             "id",
-            "date",
-            "user",
-            "details",
+            "number_of_period",
+            "message",
+            "remarks",
+            "status",
+            "section",
+            "subject",
+            "start_time",
+            "end_time",
         )
 
-    def validate_user(self, value):
-        decoded_user = decode_user(value)
-        if decoded_user is not None:
-            return User.objects.filter(username=decoded_user).first()
-        raise serializers.ValidationError("Invalid user")
 
-    @transaction.atomic
-    def create(self, validated_data):
-        teacher_attendance_detail_data = None
-        if "details" in validated_data:
-            teacher_attendance_detail_data = validated_data.pop("details")
-
-        instance = super().create(validated_data)
-
-        if teacher_attendance_detail_data:
-            teacher_detail = TeacherAttendanceDetail.objects.create(
-                teacher_attendance=instance,
-                created_by=instance.user,
-                updated_by=instance.user,
-                **teacher_attendance_detail_data
-            )
-            instance.details = teacher_detail
-            instance.save()
-        return instance
-
-
-# class TeacherAttendanceDetailRetrieveSerializer(serializers.ModelSerializer):
-#     """Serializer for retrieving teacher attendance detail model."""
-
-#     class Meta:
-#         model = TeacherAttendanceDetail
-#         fields = (
-#             "id",
-#             "number_of_period",
-#             "message",
-#             "remarks",
-#             "status",
-#             "teacher_attendance",
-#         )
-
-
-class TeacherAttendanceDetailUpdateSerializer(CreatorSerializer):
+class TeacherAttendanceDetailUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating teacher attendance detail model."""
 
     class Meta:
@@ -184,15 +156,18 @@ class TeacherAttendanceDetailUpdateSerializer(CreatorSerializer):
             "message",
             "remarks",
             "status",
-            # "teacher_attendance",
+            "section",
+            "subject",
+            "start_time",
+            "end_time",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + ("status",)
 
 
-class TeacherAttendanceUpdateSerializer(CreatorSerializer):
-    """Serializer for updating teacher attendance model."""
+class TeacherAttendanceCreateSerializer(CreatorSerializer):
+    """Serializer for creating teacher attendance model."""
 
-    details = TeacherAttendanceDetailUpdateSerializer(required=False)
+    # details = TeacherAttendanceDetailCreateSerializer(required=False)
+    user = serializers.CharField()
 
     class Meta:
         model = TeacherAttendance
@@ -200,46 +175,86 @@ class TeacherAttendanceUpdateSerializer(CreatorSerializer):
             "id",
             "date",
             "user",
-            "details",
+            # "details",
         )
-        read_only_fields = CreatorSerializer.Meta.read_only_fields + (
-            "user",
-            "date",
-        )
+
+    def validate_user(self, value):
+        decoded_user = decode_user(value)
+        if decoded_user is not None:
+            return User.objects.filter(username=decoded_user).first()
+        raise serializers.ValidationError("Invalid user")
 
     @transaction.atomic
-    def update(self, instance, validated_data):
-        teacher_attendance_detail_data = None
-        if "details" in validated_data:
-            teacher_attendance_detail_data = validated_data.pop("details")
+    def create(self, validated_data):
+        # teacher_attendance_detail_data = None
+        # if "details" in validated_data:
+        #     teacher_attendance_detail_data = validated_data.pop("details")
 
-        instance = super().update(instance, validated_data)
+        instance = super().create(validated_data)
 
-        teacher_attendance_detail_object = hasattr(instance, "details")
-
-        if teacher_attendance_detail_data:
-            if teacher_attendance_detail_object:
-
-                for attrs, value in teacher_attendance_detail_data.items():
-                    setattr(instance.details, attrs, value)
-                instance.details.save()
-            else:
-                instance = TeacherAttendanceDetail.objects.create(
-                    teacher_attendance=instance,
-                    created_by=instance.user,
-                    updated_by=instance.user,
-                    **teacher_attendance_detail_data
-                )
-
-                instance.save()
-
+        # if teacher_attendance_detail_data:
+        #     teacher_detail = TeacherAttendanceDetail.objects.create(
+        #         teacher_attendance=instance,
+        #         created_by=instance.user,
+        #         updated_by=instance.user,
+        #         **teacher_attendance_detail_data
+        #     )
+        #     instance.details = teacher_detail
+        #     instance.save()
         return instance
+
+
+# class TeacherAttendanceUpdateSerializer(CreatorSerializer):
+#     """Serializer for updating teacher attendance model."""
+
+#     details = TeacherAttendanceDetailUpdateSerializer(required=False)
+
+#     class Meta:
+#         model = TeacherAttendance
+#         fields = (
+#             "id",
+#             "date",
+#             "user",
+#             "details",
+#         )
+#         read_only_fields = CreatorSerializer.Meta.read_only_fields + (
+#             "user",
+#             "date",
+#         )
+
+# @transaction.atomic
+# def update(self, instance, validated_data):
+#     teacher_attendance_detail_data = None
+#     if "details" in validated_data:
+#         teacher_attendance_detail_data = validated_data.pop("details")
+
+#     instance = super().update(instance, validated_data)
+
+#     teacher_attendance_detail_object = hasattr(instance, "details")
+
+#     if teacher_attendance_detail_data:
+#         if teacher_attendance_detail_object:
+
+#             for attrs, value in teacher_attendance_detail_data.items():
+#                 setattr(instance.details, attrs, value)
+#             instance.details.save()
+#         else:
+#             instance = TeacherAttendanceDetail.objects.create(
+#                 teacher_attendance=instance,
+#                 created_by=instance.user,
+#                 updated_by=instance.user,
+#                 **teacher_attendance_detail_data
+#             )
+
+#             instance.save()
+
+#     return instance
 
 
 class TeacherAttendanceRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving teacher attendance models."""
 
-    details = TeacherAttendanceDetailCreateSerializer(required=False)
+    # details = TeacherAttendanceDetailCreateSerializer(required=False,many=True)
 
     class Meta:
         model = TeacherAttendance

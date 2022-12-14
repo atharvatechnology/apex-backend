@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "report",
     "bannerad",
     "counseling",
+    "dashboard",
 ]
 
 MIDDLEWARE = [
@@ -201,6 +202,9 @@ REST_FRAMEWORK = {
 
 # OTP Start
 OTP_SEND_URL = env("OTP_SEND_URL", default="https://sms.aakashsms.com/sms/v3/send")
+OTP_CREDIT_URL = env(
+    "OTP_CREDIT_URL", default="https://sms.aakashsms.com/sms/v1/credit"
+)
 OTP_SMS_TOKEN = env("OTP_SMS_TOKEN", default="aakash")
 OTP_SMS_PLATFORM = env("OTP_SMS_PLATFORM", default="AakashSMS")
 OTP_EXPIRY_SECONDS = env("OTP_EXPIRY_SECONDS", default=120)
