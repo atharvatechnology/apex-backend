@@ -38,4 +38,4 @@ jobs:
           zone: '${{ secrets.GCP_ZONE }}'
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
           user: '${{ secrets.GCP_USER }}'
-          command: "sed -i 's+BACKEND_TAG=pr-.*+BACKEND_TAG=pr-${{ github.event.inputs.version }}+g' ${{ secrets.GCP_PATH }} && docker compose -f ${{ GCP_DOCKER_COMPOSE_PATH }} up -d"
+          command: "sed -i 's+BACKEND_TAG=pr-.*+BACKEND_TAG=pr-${{ github.event.inputs.version }}+g' ${{ secrets.GCP_PATH }} && docker compose -f ${{ secrets.GCP_DOCKER_COMPOSE_PATH }} up -d"
