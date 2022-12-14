@@ -8,6 +8,7 @@ from enrollments.api.serializers import (
 )
 from enrollments.api.utils import retrieve_exam_status
 from enrollments.models import (
+    EnrollmentStatus,
     ExamEnrollmentStatus,
     ExamThroughEnrollment,
     SessionStatus,
@@ -128,6 +129,8 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
             enrollments = obj.enrolls.all().filter(student=user)
         if len(enrollments) > 0:
             enrollment = enrollments.latest("id")
+            if enrollment.status != EnrollmentStatus.ACTIVE:
+                return None
             exam_enrollment = (
                 enrollment.exam_enrolls.all().filter(exam=obj).latest("id")
             )
