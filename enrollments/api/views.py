@@ -244,7 +244,7 @@ class ExamEnrollmentRetrievePoolAPIView(RetrieveAPIView):
 class PhysicalBookCourseEnrollmentListAPIView(ListAPIView):
     """Physical book list after user course enrolled."""
 
-    queryset = CourseThroughEnrollment.objects.all()
+    queryset = PhysicalBookCourseEnrollment.objects.all()
     serializer_class = PhysicalBookCourseEnrollmentSerializer
 
 
