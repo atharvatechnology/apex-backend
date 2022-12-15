@@ -14,7 +14,7 @@ from rest_framework.response import Response
 # from common.utils import dynamic_excel_generator
 from common.api.views import BaseReportGeneratorAPIView
 from courses.models import Course
-from enrollments.api.serializers import (
+from enrollments.api.serializers import (  # PhysicalBookCourseEnrollmentSerializer,
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
     CourseEnrollmentUpdateSerializer,
@@ -25,7 +25,6 @@ from enrollments.api.serializers import (
     ExamEnrollmentRetrievePoolSerializer,
     ExamEnrollmentRetrieveSerializer,
     ExamEnrollmentUpdateSerializer,
-    PhysicalBookCourseEnrollmentSerializer,
     PracticeExamEnrollmentCreateSerializer,
     StudentEnrollmentSerializer,
 )
@@ -33,12 +32,11 @@ from enrollments.filters import (
     CourseThroughEnrollmentFilter,
     ExamThroughEnrollmentFilter,
 )
-from enrollments.models import (
+from enrollments.models import (  # PhysicalBookCourseEnrollment,
     CourseThroughEnrollment,
     Enrollment,
     ExamEnrollmentStatus,
     ExamThroughEnrollment,
-    PhysicalBookCourseEnrollment,
     SessionStatus,
 )
 from exams.models import Exam
@@ -241,43 +239,43 @@ class ExamEnrollmentRetrievePoolAPIView(RetrieveAPIView):
     serializer_class = ExamEnrollmentRetrievePoolSerializer
 
 
-class PhysicalBookCourseEnrollmentListAPIView(ListAPIView):
-    """Physical book list after user course enrolled."""
+# class PhysicalBookCourseEnrollmentListAPIView(ListAPIView):
+#     """Physical book list after user course enrolled."""
 
-    queryset = PhysicalBookCourseEnrollment.objects.all()
-    serializer_class = PhysicalBookCourseEnrollmentSerializer
-
-
-class PhysicalBookCourseEnrollmentCreateAPIView(CreateAPIView):
-    """Create physical book after course enrollment."""
-
-    permission_classes = [IsAuthenticated]
-    queryset = PhysicalBookCourseEnrollment.objects.all()
-    serializer_class = PhysicalBookCourseEnrollmentSerializer
+#     queryset = PhysicalBookCourseEnrollment.objects.all()
+#     serializer_class = PhysicalBookCourseEnrollmentSerializer
 
 
-class PhysicalBookCourseEnrollmentRetrieveAPIView(RetrieveAPIView):
-    """Retrieve physical book after course enrollment."""
+# class PhysicalBookCourseEnrollmentCreateAPIView(CreateAPIView):
+#     """Create physical book after course enrollment."""
 
-    permission_classes = [IsAuthenticated]
-    queryset = PhysicalBookCourseEnrollment.objects.all()
-    serializer_class = PhysicalBookCourseEnrollmentSerializer
-
-
-class PhysicalBookCourseEnrollmentUpdateAPIView(UpdateAPIView):
-    """Update physical book after course enrollment."""
-
-    permission_classes = [IsAuthenticated]
-    queryset = PhysicalBookCourseEnrollment.objects.all()
-    serializer_class = PhysicalBookCourseEnrollmentSerializer
+#     permission_classes = [IsAuthenticated]
+#     queryset = PhysicalBookCourseEnrollment.objects.all()
+#     serializer_class = PhysicalBookCourseEnrollmentSerializer
 
 
-class PhysicalBookCourseEnrollmentDestroyAPIView(DestroyAPIView):
-    """Destroy physical book after course enrollment."""
+# class PhysicalBookCourseEnrollmentRetrieveAPIView(RetrieveAPIView):
+#     """Retrieve physical book after course enrollment."""
 
-    permission_classes = [IsAuthenticated]
-    queryset = PhysicalBookCourseEnrollment.objects.all()
-    serializer_class = PhysicalBookCourseEnrollmentSerializer
+#     permission_classes = [IsAuthenticated]
+#     queryset = PhysicalBookCourseEnrollment.objects.all()
+#     serializer_class = PhysicalBookCourseEnrollmentSerializer
+
+
+# class PhysicalBookCourseEnrollmentUpdateAPIView(UpdateAPIView):
+#     """Update physical book after course enrollment."""
+
+#     permission_classes = [IsAuthenticated]
+#     queryset = PhysicalBookCourseEnrollment.objects.all()
+#     serializer_class = PhysicalBookCourseEnrollmentSerializer
+
+
+# class PhysicalBookCourseEnrollmentDestroyAPIView(DestroyAPIView):
+#     """Destroy physical book after course enrollment."""
+
+#     permission_classes = [IsAuthenticated]
+#     queryset = PhysicalBookCourseEnrollment.objects.all()
+#     serializer_class = PhysicalBookCourseEnrollmentSerializer
 
 
 class CourseEnrollementListAPIView(ListAPIView):
