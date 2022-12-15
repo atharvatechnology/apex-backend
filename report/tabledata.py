@@ -116,7 +116,6 @@ class StudentTableData(BaseDynamicTableData):
         "date_joined": "Created date",
         "phone_number": "Phone Number",
         "email": "Email",
-        # "college_name": "College Name",
     }
 
     def get_fullname(self, linea):
@@ -137,7 +136,6 @@ class StudentTableData(BaseDynamicTableData):
             "date_joined": self.get_created_date,
             "phone_number": self.get_phone,
             "email": self.get_email,
-            # "college_name": self.get_college_name,
         }
         return fields_and_values[field_name](linea)
 
