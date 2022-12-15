@@ -126,27 +126,27 @@ physical_urls = [
     path(
         "list/",
         PhysicalBookCourseEnrollmentAdminListAPIView.as_view(),
-        name="physicalbook-list",
+        name="physicalbook-admin-list",
     ),
     path(
         "create/",
         PhysicalBookCourseEnrollmentAdminCreateAPIView.as_view(),
-        name="physicalbook-create",
+        name="physicalbook-admin-create",
     ),
     path(
         "update/<int:pk>/",
         PhysicalBookCourseEnrollmentAdminUpdateAPIView.as_view(),
-        name="physicalbook-create",
+        name="physicalbook-admin-update",
     ),
     path(
         "retrieve/<int:pk>/",
         PhysicalBookCourseEnrollmentAdminRetrieveAPIView.as_view(),
-        name="physicalbook-retrieve",
+        name="physicalbook-admin-retrieve",
     ),
     path(
         "delete/<int:pk>/",
         PhysicalBookCourseEnrollmentAdminDestroyAPIView.as_view(),
-        name="physicalbook-destroy",
+        name="physicalbook-admin-destroy",
     ),
 ]
 

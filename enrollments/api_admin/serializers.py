@@ -400,7 +400,7 @@ class StudentEnrollmentCheckSerializer(serializers.Serializer):
 
 
 class PhysicalBookCourseEnrollmentAdminSerializer(serializers.ModelSerializer):
-    """Physical book when user enrolls to course."""
+    """Serializer for Admin for Physical book when user enrolls to course."""
 
     class Meta:
         model = PhysicalBookCourseEnrollment
