@@ -8,6 +8,7 @@ from exams.api_admin.views import (
     ExamImageUploadAPIView,
     ExamListAPIView,
     ExamListOverviewAPIView,
+    ExamOverviewCardAPIView,
     ExamRetrieveAPIView,
     ExamTemplateCreateAPIView,
     ExamTemplateDeleteAPIView,
@@ -26,14 +27,16 @@ from exams.api_admin.views import (
     SectionUpdateAPIView,
 )
 
+exam_overview_urls = [
+    path("", ExamListOverviewAPIView.as_view(), name="exam-overview-list"),
+    path("card/", ExamOverviewCardAPIView.as_view(), name="exam-overview-card"),
+]
+
 urlpatterns = [
     path("create/", ExamCreateAPIView.as_view(), name="exam-create"),
     path("update/<int:pk>/", ExamUpdateAPIView.as_view(), name="exam-update"),
     path("delete/<int:pk>/", ExamDeleteAPIView.as_view(), name="exam-delete"),
     path("list/", ExamListAPIView.as_view(), name="exam-list"),
-    path(
-        "list/overview/", ExamListOverviewAPIView.as_view(), name="exam-list-overview"
-    ),
     path(
         "list/dropdown/", ExamDropdownListAPIView.as_view(), name="exam-list-dropdown"
     ),
@@ -43,7 +46,8 @@ urlpatterns = [
         ExamImageUploadAPIView.as_view(),
         name="exam-image-upload",
     ),
-    path("detail/<int:pk>/", ExamDetailAPIView.as_view(), name="exam-overview"),
+    path("detail/<int:pk>/", ExamDetailAPIView.as_view(), name="exam-detail"),
+    path("overview/", include(exam_overview_urls)),
 ]
 
 option_urls = [
