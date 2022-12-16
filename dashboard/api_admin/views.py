@@ -48,7 +48,9 @@ class DashboardOverviewAPIView(GenericAPIView):
 
         user_list = User.objects.filter(date_joined__year=date_time.year).count()
 
-        course_enrollment_list = Enrollment.objects.filter(courses=None).count()
+        course_enrollment_list = Enrollment.objects.filter(
+            courses__isnull=False
+        ).count()
 
         students_list = (
             User.objects.filter(
