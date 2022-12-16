@@ -47,7 +47,9 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "faculty",
             "address",
+            "qr_code",
         ]
+        read_only_fields = ("qr_code",)
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
