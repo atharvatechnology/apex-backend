@@ -12,6 +12,7 @@ jobs:
   upscale:
     name: increase server capacity
     runs-on: ubuntu-latest
+    environment: deployment
     
     permissions:
       contents: 'read'
