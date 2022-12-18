@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import Profile, User
+from accounts.models import Profile, Role, User
 
 
 class UserCreationForm(forms.ModelForm):
@@ -86,7 +86,6 @@ class UserAdmin(BaseUserAdmin):
         "username",
         "email",
         "is_active",
-        "role",
         "last_login",
         "date_joined",
         "view_profile",
@@ -96,7 +95,7 @@ class UserAdmin(BaseUserAdmin):
         "is_superuser",
         "is_active",
         "groups",
-        "role",
+        "roles",
     )
     search_fields = ("username", "first_name", "last_name", "email")
     ordering = ("username",)
@@ -114,7 +113,7 @@ class UserAdmin(BaseUserAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
-                    "role",
+                    "roles",
                     "otp",
                     "otp_counter",
                     "otp_generate_time",
@@ -197,3 +196,5 @@ admin.site.register(User, UserAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 # admin.site.unregister(Group)
+
+admin.site.register(Role)

@@ -1,5 +1,6 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
+from rest_framework import filters, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import (
     CreateAPIView,
@@ -20,6 +21,7 @@ from courses.api_admin.serializers import (
     ExamInCourseDeleteSerializer,
 )
 from courses.api_common.serializers import CourseMinSerializer
+from courses.filters import CourseFilter
 from courses.models import Course, CourseCategory
 
 
@@ -73,8 +75,11 @@ class CourseListAPIView(ListAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CourseSerializer
+    search_fields = ["name"]
     queryset = Course.objects.all()
     pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_class = CourseFilter
 
 
 class CourseRetrieveAPIView(RetrieveAPIView):
@@ -105,7 +110,10 @@ class CourseDropdownListAPIView(ListAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CourseMinSerializer
+    search_fields = ["name"]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     queryset = Course.objects.all()
+    filterset_class = CourseFilter
 
 
 @swagger_auto_schema(method="POST", request_body=ExamInCourseDeleteSerializer)

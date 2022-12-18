@@ -35,7 +35,7 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
-            "role",
+            "roles",
             "profile",
         ]
 
@@ -62,6 +62,7 @@ class UserListAdminSerializer(serializers.ModelSerializer):
 
     fullName = FullNameField(source="*")
     profile = ProfileAdminCreateSerializer(required=False)
+    roles = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -70,11 +71,14 @@ class UserListAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
-            "role",
+            "roles",
             "profile",
             "is_active",
             "date_joined",
         ]
+
+    def get_roles(self, obj):
+        return obj.get_roles()
 
 
 class UserRetrieveAdminSerializer(serializers.ModelSerializer):
@@ -82,6 +86,7 @@ class UserRetrieveAdminSerializer(serializers.ModelSerializer):
 
     fullName = FullNameField(source="*")
     profile = ProfileAdminCreateSerializer(required=False)
+    roles = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -89,11 +94,14 @@ class UserRetrieveAdminSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "email",
-            "role",
+            "roles",
             "fullName",
             "profile",
             "is_active",
         ]
+
+    def get_roles(self, obj):
+        return obj.get_roles()
 
 
 class UserUpdateAdminSerializer(serializers.ModelSerializer):
@@ -109,7 +117,7 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "fullName",
-            "role",
+            "roles",
             "profile",
             "is_active",
         ]
@@ -129,3 +137,7 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
                 setattr(instance.profile, attr, value)
             instance.profile.save()
         return instance
+
+
+class SMSCreditAdminSerializer(serializers.Serializer):
+    credit = serializers.IntegerField()
