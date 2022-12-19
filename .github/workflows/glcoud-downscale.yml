@@ -12,6 +12,7 @@ jobs:
   upscale:
     name: decrease server capacity
     runs-on: ubuntu-latest
+    environment: deployment
     
     permissions:
       contents: 'read'
@@ -29,6 +30,9 @@ jobs:
         
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
+      
+    - name: 'downgrade sql instance'
+      run: 'gcloud sql instances patch ${{ secrets.GCP_SQL_INSTANCE }} --tier=db-custom-1-3840 --quiet'
       
     - name: 'stop instance'
       run: 'gcloud compute instances stop instance-1 --zone us-central1-a'

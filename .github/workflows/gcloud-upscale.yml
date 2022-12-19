@@ -12,6 +12,7 @@ jobs:
   upscale:
     name: increase server capacity
     runs-on: ubuntu-latest
+    environment: deployment
     
     permissions:
       contents: 'read'
@@ -26,9 +27,12 @@ jobs:
       with:
         workload_identity_provider: 'projects/798920531034/locations/global/workloadIdentityPools/githubaction-pool/providers/my-provider'
         service_account: 'githubactions@apex-351704.iam.gserviceaccount.com'
-        
+    
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
+      
+    - name: 'Upgrade sql instance'
+      run: 'gcloud sql instances patch ${{ secrets.GCP_SQL_INSTANCE }} --tier=db-custom-4-15360 --quiet'
       
     - name: 'stop instance'
       run: 'gcloud compute instances stop instance-1 --zone us-central1-a'

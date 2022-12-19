@@ -23,6 +23,8 @@ class CourseSerializer(PublishedSerializer):
     exams = ExamOnCourseRetrieveSerializer(
         many=True, source="exams_exam_related", required=False
     )
+    created_at = serializers.SerializerMethodField(read_only=True)
+    starting_date = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Course
@@ -40,7 +42,15 @@ class CourseSerializer(PublishedSerializer):
             "overview_detail",
             "feature_detail",
             "exams",
+            "created_at",
+            "starting_date",
         )
+
+    def get_created_at(self, obj):
+        return obj.created_at.strftime("%d %b %Y")
+
+    def get_starting_date(self, obj):
+        return " ,".join(x.start_date.strftime("%d %b %Y") for x in obj.sessions.all())
 
 
 class CourseUpdateSerializer(PublishedSerializer):
@@ -70,3 +80,28 @@ class ExamInCourseDeleteSerializer(serializers.Serializer):
 
     exam_id = serializers.IntegerField()
     course_id = serializers.IntegerField()
+
+
+class CourseOverviewSerializer(PublishedSerializer):
+    """Serializer for overview of courses."""
+
+    starting_date = serializers.SerializerMethodField(read_only=True)
+    student_enroll = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Course
+        fields = PublishedSerializer.Meta.fields + (
+            "id",
+            "name",
+            "status",
+            "price",
+            "duration",
+            "student_enroll",
+            "starting_date",
+        )
+
+    def get_student_enroll(self, obj):
+        return obj.enrolls.all().count()
+
+    def get_starting_date(self, obj):
+        return " ,".join(x.start_date.strftime("%d %b %Y") for x in obj.sessions.all())
