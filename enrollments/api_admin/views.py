@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 from courses.api.serializers import CourseCategoryRetrieveSerializer
+from courses.filters import CourseFilter
 from courses.models import CourseCategory
 from enrollments.api.serializers import CourseEnrollmentSerializer
 from enrollments.api_admin.serializers import (
@@ -29,6 +30,8 @@ from enrollments.api_admin.serializers import (
     ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
     PhysicalBookCourseEnrollmentAdminSerializer,
+    PhysicalBookCourseEnrollmentCreateAdminSerializer,
+    PhysicalBookCourseEnrollmentUpdateAdminSerializer,
     StudentEnrollmentCheckSerializer,
 )
 from enrollments.filters import (
@@ -316,6 +319,7 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
 
     serializer_class = CourseThroughEnrollmentAdminBaseSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
+    filterset_class = CourseFilter
     queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
     filter_backends = [
         filters.SearchFilter,
@@ -367,7 +371,7 @@ class PhysicalBookCourseEnrollmentAdminCreateAPIView(CreateAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = PhysicalBookCourseEnrollment.objects.all()
-    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+    serializer_class = PhysicalBookCourseEnrollmentCreateAdminSerializer
 
 
 class PhysicalBookCourseEnrollmentAdminListAPIView(ListAPIView):
@@ -393,7 +397,7 @@ class PhysicalBookCourseEnrollmentAdminUpdateAPIView(UpdateAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = PhysicalBookCourseEnrollment.objects.all()
-    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+    serializer_class = PhysicalBookCourseEnrollmentUpdateAdminSerializer
 
 
 class PhysicalBookCourseEnrollmentAdminDestroyAPIView(DestroyAPIView):
