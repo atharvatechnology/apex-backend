@@ -10,6 +10,7 @@ class PhysicalBookAdminListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhysicalBook
         fields = (
+            "id",
             "name",
             "image",
             "course",
@@ -22,6 +23,7 @@ class PhysicalBookAdminRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhysicalBook
         fields = (
+            "id",
             "name",
             "image",
             "course",
@@ -34,6 +36,7 @@ class PhysicalBookAdminCreateSerializer(CreatorSerializer):
     class Meta:
         model = PhysicalBook
         fields = CreatorSerializer.Meta.fields + (
+            "id",
             "name",
             "image",
             "course",
@@ -47,6 +50,7 @@ class PhysicalBookAdminUpdateSerializer(CreatorSerializer):
     class Meta:
         model = PhysicalBook
         fields = (
+            "id",
             "name",
             "image",
             "course",
