@@ -85,6 +85,7 @@ class ExamInCourseDeleteSerializer(serializers.Serializer):
 class CourseOverviewSerializer(PublishedSerializer):
     """Serializer for overview of courses."""
 
+    starting_date = serializers.SerializerMethodField(read_only=True)
     student_enroll = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -96,7 +97,11 @@ class CourseOverviewSerializer(PublishedSerializer):
             "price",
             "duration",
             "student_enroll",
+            "starting_date",
         )
 
     def get_student_enroll(self, obj):
         return obj.enrolls.all().count()
+
+    def get_starting_date(self, obj):
+        return " ,".join(x.start_date.strftime("%d %b %Y") for x in obj.sessions.all())

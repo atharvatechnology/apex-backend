@@ -148,8 +148,9 @@ class CourseOverviewCardAPIView(APIView):
     def get(self, request, *args, **kwargs):
         queryset = self.queryset
         category = CourseCategory.objects.all()
-        data = {"overall": queryset.all().count()}
-        for cat in category:
-            data[cat.name] = queryset.filter(category=cat).count()
-
+        data = [{"title": "Overall", "data": queryset.all().count()}]
+        data.extend(
+            {"title": cat.name, "data": queryset.filter(category=cat).count()}
+            for cat in category
+        )
         return Response(data)
