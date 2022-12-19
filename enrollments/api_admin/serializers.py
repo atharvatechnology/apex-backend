@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
 from common.utils import decode_user
-from courses.api_common.serializers import CourseMinSerializer
+from courses.api_common.serializers import CoursePhysicalSerializer
 from courses.models import Course, CourseStatus
 from enrollments.api.serializers import ExamEnrollmentSerializer
 from enrollments.api.utils import (
@@ -24,6 +24,7 @@ from enrollments.models import (
 )
 from exams.api_common.serializers import ExamMiniSerializer
 from payments.api_common.serializers import PaymentSerializer
+from physicalbook.api_admin.serializers import PhysicalBookAdminListSerializer
 
 User = get_user_model()
 
@@ -240,31 +241,104 @@ class ExamThroughEnrollmentAdminListSerializer(
         return obj.question_states.all().count()
 
 
+class PhysicalBookCourseEnrollmentAdminSerializer(serializers.ModelSerializer):
+    """Serializer for Admin for Physical book when user enrolls to course."""
+
+    physical_book = PhysicalBookAdminListSerializer()
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "id",
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
+
+
+class PhysicalBookCourseEnrollmentCreateAdminSerializer(serializers.ModelSerializer):
+    """Serializer for Creating Admin Physical Book."""
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "id",
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
+
+    def create(self, validated_data):
+        # get physical book id from validated data
+        physical_book = validated_data.get("physical_book")
+        # physical_book_id = validated_data.get("id")
+
+        # get course enrollment from validated data
+        course_through_enrollment = validated_data.get("course_enrollment")
+
+        # get course from course enrollment .course
+        course = course_through_enrollment.course
+
+        physical_course = physical_book.course
+
+        # print('*************')
+        # print(type(course_through_enrollment))
+        # print(type(course))
+
+        # print(type(physical_book))
+
+        # check if the course has that physical book
+        # for physical_book in course:
+
+        if physical_course == course:
+            return super().create(validated_data)
+        else:
+            # if false raise validation error
+            raise serializers.ValidationError("course has not physicalbook.")
+
+
+class PhysicalBookCourseEnrollmentUpdateAdminSerializer(serializers.ModelSerializer):
+    """Serializer for updating for Physical Book."""
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "id",
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
+
+
 class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     """Base Serializer for CourseThroughEnrollment."""
 
-    course = CourseMinSerializer()
+    course = CoursePhysicalSerializer()
     student = serializers.SerializerMethodField()
     selected_session = CourseSessionAdminSerializer()
     created_at = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    physicalbook_enrolls = PhysicalBookCourseEnrollmentAdminSerializer(many=True)
 
     class Meta:
         model = CourseThroughEnrollment
         fields = (
+            "id",
             "selected_session",
             "student",
             "course",
             "payment",
             "created_at",
             "status",
+            "physicalbook_enrolls",
         )
         read_only_fields = ("status",)
 
     def get_student(self, obj):
         """Get student username."""
         return {
+            "id": obj.enrollment.student.id,
             "name": obj.enrollment.student.__str__(),
             "phone": obj.enrollment.student.username,
         }
@@ -397,15 +471,3 @@ class StudentEnrollmentCheckSerializer(serializers.Serializer):
         if enrolled_student is not None:
             return super().validate(attrs)
         raise serializers.ValidationError(f"Student is not enrolled in {course}.")
-
-
-class PhysicalBookCourseEnrollmentAdminSerializer(serializers.ModelSerializer):
-    """Serializer for Admin for Physical book when user enrolls to course."""
-
-    class Meta:
-        model = PhysicalBookCourseEnrollment
-        fields = (
-            "physical_book",
-            "course_enrollment",
-            "status_provided",
-        )
