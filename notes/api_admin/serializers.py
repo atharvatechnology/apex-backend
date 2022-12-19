@@ -48,6 +48,7 @@ class ContentSerializer(CreatorSerializer):
             "note",
             "content",
             "file_name",
+            "is_downloadable",
         ) + CreatorSerializer.Meta.fields
         read_only_fields = CreatorSerializer.Meta.read_only_fields
         extra_kwargs = {
