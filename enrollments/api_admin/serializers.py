@@ -294,7 +294,7 @@ class PhysicalBookCourseEnrollmentCreateAdminSerializer(serializers.ModelSeriali
             return super().create(validated_data)
         else:
             # if false raise validation error
-            raise serializers.ValidationError("course has not physicalbook.")
+            raise serializers.ValidationError("Course has no PhysicalBook.")
 
 
 class PhysicalBookCourseEnrollmentUpdateAdminSerializer(serializers.ModelSerializer):
