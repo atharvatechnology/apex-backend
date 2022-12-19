@@ -269,31 +269,16 @@ class PhysicalBookCourseEnrollmentCreateAdminSerializer(serializers.ModelSeriali
         )
 
     def create(self, validated_data):
-        # get physical book id from validated data
         physical_book = validated_data.get("physical_book")
-        # physical_book_id = validated_data.get("id")
-
-        # get course enrollment from validated data
         course_through_enrollment = validated_data.get("course_enrollment")
-
-        # get course from course enrollment .course
         course = course_through_enrollment.course
 
         physical_course = physical_book.course
 
-        # print('*************')
-        # print(type(course_through_enrollment))
-        # print(type(course))
-
-        # print(type(physical_book))
-
-        # check if the course has that physical book
-        # for physical_book in course:
-
         if physical_course == course:
             return super().create(validated_data)
         else:
-            # if false raise validation error
+
             raise serializers.ValidationError("Course has no PhysicalBook.")
 
 
