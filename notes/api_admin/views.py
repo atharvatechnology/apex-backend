@@ -1,3 +1,5 @@
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
@@ -39,6 +41,9 @@ class NoteListAPIView(ListAPIView):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["title"]
 
     def get_queryset(self):
         course_id = self.kwargs.get("course_id")
@@ -204,6 +209,8 @@ class RecordedVideoListAPIView(ListAPIView):
     serializer_class = RecordedVideoSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsAuthenticated, IsAdminUser]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
 
     def get_queryset(self):
         course_id = self.kwargs.get("course_id")

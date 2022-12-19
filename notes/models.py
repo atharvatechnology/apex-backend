@@ -51,6 +51,7 @@ class Content(BaseContent):
     note = models.ForeignKey(
         Note, on_delete=models.CASCADE, related_name="contents", blank=True, null=True
     )
+    is_downloadable = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["id"]

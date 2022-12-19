@@ -4,13 +4,17 @@ from rest_framework import serializers
 from common.api.serializers import CreatorSerializer, PublishedSerializer
 from courses.api_common.serializers import CourseMinSerializer
 from enrollments.api.serializers import ExamSessionSerializer
-from enrollments.api_admin.serializers import ExamSessionAdminSerializer
+from enrollments.api_admin.serializers import (
+    ExamSessionAdminSerializer,
+    ExamSessionListSerializer,
+)
 from exams.api.serializers import ExamTemplateListSerializer
 from exams.models import (
     Exam,
     ExamImage,
     ExamTemplate,
     ExamTemplateStatus,
+    ExamType,
     Option,
     Question,
     Section,
@@ -393,10 +397,11 @@ class ExamListOverviewAdminSerializer(serializers.ModelSerializer):
 
     exam_date = serializers.SerializerMethodField(read_only=True)
     examinees = serializers.SerializerMethodField(read_only=True)
+    sessions = ExamSessionListSerializer(many=True)
 
     class Meta:
         model = Exam
-        fields = ("id", "name", "exam_type", "exam_date", "examinees")
+        fields = ("id", "name", "exam_type", "exam_date", "examinees", "sessions")
 
     def get_exam_date(self, obj):
         exam_sessions = obj.sessions.all()
@@ -494,3 +499,19 @@ class ExamImageAdminSerializer(serializers.ModelSerializer):
 
     def get_uploaded(self, obj):
         return 1
+
+
+class ExamOverviewCardSerializer(serializers.Serializer):
+
+    overall = serializers.SerializerMethodField()
+    live = serializers.SerializerMethodField()
+    practice = serializers.SerializerMethodField()
+
+    def get_overall(self, obj):
+        return obj.all().count()
+
+    def get_live(self, obj):
+        return obj.filter(exam_type=ExamType.LIVE).count()
+
+    def get_practice(self, obj):
+        return obj.filter(exam_type=ExamType.PRACTICE).count()
