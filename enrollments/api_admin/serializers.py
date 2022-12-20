@@ -226,6 +226,7 @@ class ExamThroughEnrollmentAdminListSerializer(
         fields = ExamThroughEnrollmentAdminBaseSerializer.Meta.fields + (
             "question_states",
             "rank",
+            "enrollment",
         )
 
     def get_rank(self, obj):
@@ -259,6 +260,7 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
             "payment",
             "created_at",
             "status",
+            "enrollment",
         )
         read_only_fields = ("status",)
 
