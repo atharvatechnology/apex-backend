@@ -1,5 +1,7 @@
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -85,3 +87,11 @@ class ExamPaperPreviewAPIView(RetrieveAPIView):
     serializer_class = ExamPaperSerializer
     permission_classes = [IsAdminUser]
     queryset = Exam.objects.all()
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def trigger_exam_submit(request, pk):
+    exam = get_object_or_404(Exam, pk=pk)
+    print(exam)
+    return Response({"detail": "Exam submitted successfully."})
