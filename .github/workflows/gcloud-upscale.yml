@@ -4,10 +4,6 @@ on:
     - cron: "15 00 * * 06"
     - cron: "15 09 * * 00"
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version"
-        required: true
     
 jobs:
   upscale:
