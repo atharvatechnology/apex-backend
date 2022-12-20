@@ -23,7 +23,7 @@ from courses.api_admin.serializers import (
     ExamInCourseDeleteSerializer,
 )
 from courses.api_common.serializers import CourseMinSerializer
-from courses.filters import CourseFilter
+from courses.filters import CourseDropdownFilter, CourseFilter
 from courses.models import Course, CourseCategory
 
 
@@ -76,6 +76,9 @@ class CourseListAPIView(ListAPIView):
     """View for listing courses."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    filterset_class = CourseFilter
     serializer_class = CourseSerializer
     search_fields = ["name"]
     queryset = Course.objects.all()
@@ -112,10 +115,10 @@ class CourseDropdownListAPIView(ListAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CourseMinSerializer
+    filterset_class = CourseDropdownFilter
     search_fields = ["name"]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     queryset = Course.objects.all()
-    filterset_class = CourseFilter
 
 
 @swagger_auto_schema(method="POST", request_body=ExamInCourseDeleteSerializer)

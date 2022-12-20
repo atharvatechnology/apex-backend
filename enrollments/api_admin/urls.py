@@ -106,18 +106,19 @@ session_urls = [
 
 enrollment_urls = [
     path(
-        "delete/",
+        "delete/<int:pk>/",
         EnrollmentDeleteAdminAPIView.as_view(),
         name="enrollment-delete-admin",
     ),
     path(
-        "update/",
+        "update/<int:pk>/",
         EnrollmentUpdateAdminAPIView.as_view(),
         name="enrollment-update-admin",
     ),
 ]
 
 urlpatterns = [
+    path("", include(enrollment_urls)),
     path("exam-graph/", include(exam_graph)),
     path("course-graph/", include(course_graph)),
     path("session/", include(session_urls)),
