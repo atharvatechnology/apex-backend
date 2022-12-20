@@ -233,6 +233,7 @@ class Profile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     faculty = models.CharField(max_length=100, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
+    interests = models.ManyToManyField("courses.CourseCategory", blank=True)
 
     class Meta:
         ordering = ["user"]

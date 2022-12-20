@@ -4,12 +4,13 @@ from rest_framework import serializers
 
 from accounts.api.serializers import FullNameField
 from accounts.models import Profile
+from courses.api_admin.serializers import CourseCategorySerializer
 
 User = get_user_model()
 
 
 class ProfileAdminCreateSerializer(serializers.ModelSerializer):
-    """Serializer for the Profile Model."""
+    """Serializer for the Profile Create Model."""
 
     class Meta:
         model = Profile
@@ -20,6 +21,25 @@ class ProfileAdminCreateSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "faculty",
             "address",
+            "interests",
+        ]
+
+
+class ProfileAdminListSerializer(serializers.ModelSerializer):
+    """Serializer for the Profile List Model."""
+
+    interests = CourseCategorySerializer(many=True)
+
+    class Meta:
+        model = Profile
+        fields = [
+            "college_name",
+            "image",
+            "qr_code",
+            "date_of_birth",
+            "faculty",
+            "address",
+            "interests",
         ]
 
 
@@ -51,17 +71,35 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
         instance.save()
 
         if profile_data:
+            interests = None
+            if "interests" in profile_data:
+                interests = profile_data.pop("interests")
             for attr, value in profile_data.items():
                 setattr(instance.profile, attr, value)
+            if interests:
+                instance.profile.interests.set(interests)
             instance.profile.save()
         return instance
+
+
+class UserStudentCreateAdminSerializer(UserCreateAdminSerializer):
+    """Admin Student Create Serializer."""
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "email",
+            "fullName",
+            "profile",
+        ]
 
 
 class UserListAdminSerializer(serializers.ModelSerializer):
     """Admin List Serializer."""
 
     fullName = FullNameField(source="*")
-    profile = ProfileAdminCreateSerializer(required=False)
+    profile = ProfileAdminListSerializer(required=False)
     roles = serializers.SerializerMethodField()
 
     class Meta:
@@ -85,7 +123,7 @@ class UserRetrieveAdminSerializer(serializers.ModelSerializer):
     """Admin Retrieve Serializer."""
 
     fullName = FullNameField(source="*")
-    profile = ProfileAdminCreateSerializer(required=False)
+    profile = ProfileAdminListSerializer(required=False)
     roles = serializers.SerializerMethodField()
 
     class Meta:
@@ -133,8 +171,12 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
         instance.save()
 
         if profile_data:
+            if "interests" in profile_data:
+                interests = profile_data.pop("interests")
             for attr, value in profile_data.items():
                 setattr(instance.profile, attr, value)
+            if interests:
+                instance.profile.interests.set(interests)
             instance.profile.save()
         return instance
 

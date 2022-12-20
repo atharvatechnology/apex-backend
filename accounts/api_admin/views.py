@@ -18,12 +18,14 @@ from accounts.api_admin.serializers import (
     UserCreateAdminSerializer,
     UserListAdminSerializer,
     UserRetrieveAdminSerializer,
+    UserStudentCreateAdminSerializer,
     UserUpdateAdminSerializer,
 )
 from accounts.filters import UserFilter
 from accounts.models import Role
 from common.paginations import StandardResultsSetPagination
 from common.utils import tuple_to_list
+from courses.models import CourseCategory
 
 User = get_user_model()
 
@@ -45,6 +47,18 @@ class UserCreateAdminAPIView(CreateAPIView):
     queryset = User.objects.all()
 
 
+class UserStudentCreateAdminAPIView(CreateAPIView):
+    """Admin Create API View."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = UserStudentCreateAdminSerializer
+    queryset = User.objects.all()
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        obj.roles.add(Role.STUDENT)
+
+
 class UserListAdminAPIView(ListAPIView):
     """User List API View."""
 
@@ -55,6 +69,24 @@ class UserListAdminAPIView(ListAPIView):
     search_fields = ["username", "first_name", "last_name"]
     filterset_class = UserFilter
     pagination_class = StandardResultsSetPagination
+
+
+class UserStudentAdminCardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = User.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        category = CourseCategory.objects.all()
+        data = [{"title": "Overall", "data": queryset.all().count()}]
+        data.extend(
+            {
+                "title": cat.name,
+                "data": queryset.filter(enrolls__courses__category=cat).count(),
+            }
+            for cat in category
+        )
+        return Response(data)
 
 
 class UserRetrieveAdminAPIView(RetrieveAPIView):
