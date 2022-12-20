@@ -93,5 +93,19 @@ class ExamPaperPreviewAPIView(RetrieveAPIView):
 @permission_classes([IsAuthenticated])
 def trigger_exam_submit(request, pk):
     exam = get_object_or_404(Exam, pk=pk)
-    print(exam)
+    # Check if exam is of practice type
+    if not exam.is_practice:
+        return Response({"detail": "Cannot trigger exam not of practice type."})
+    # retrieve user
+    user = request.user
+    # Find the latest exam enrollment of the user
+    exm_enr = ExamThroughEnrollment.objects.filter(
+        enrollment__student=user, exam=exam
+    ).latest("id")
+    exm_sess = exm_enr.selected_session
+    # Check if the latest exam session is active
+    if exm_sess.status != SessionStatus.ACTIVE:
+        return Response({"detail": "Exam session is not active."})
+    # Trigger session end which must trigger exam submit
+    exm_sess.end_session()
     return Response({"detail": "Exam submitted successfully."})
