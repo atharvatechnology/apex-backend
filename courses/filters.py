@@ -21,4 +21,7 @@ class CourseDropdownFilter(django_filters.FilterSet):
 
     class Meta:
         model = Course
-        fields = {"category": ["exact"]}
+        fields = {
+            "category": ["exact"],
+            "status": ["exact"],
+        }

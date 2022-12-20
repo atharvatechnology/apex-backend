@@ -11,11 +11,13 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 from courses.api_admin.serializers import (
     CourseCategorySerializer,
+    CourseOverviewSerializer,
     CourseSerializer,
     CourseUpdateSerializer,
     ExamInCourseDeleteSerializer,
@@ -136,3 +138,22 @@ def remove_exam_in_course(request):
         return Response({"message": "Success"}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CourseOverviewAPIView(CourseListAPIView):
+    serializer_class = CourseOverviewSerializer
+
+
+class CourseOverviewCardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Course.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        category = CourseCategory.objects.all()
+        data = [{"title": "Overall", "data": queryset.all().count()}]
+        data.extend(
+            {"title": cat.name, "data": queryset.filter(category=cat).count()}
+            for cat in category
+        )
+        return Response(data)
