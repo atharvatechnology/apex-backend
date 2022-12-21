@@ -30,6 +30,7 @@ from enrollments.api.serializers import (
 from enrollments.models import (
     CourseThroughEnrollment,
     Enrollment,
+    EnrollmentStatus,
     ExamEnrollmentStatus,
     ExamThroughEnrollment,
     PhysicalBookCourseEnrollment,
@@ -183,6 +184,11 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
         #     exam_enrollment.status
         #     in [ExamEnrollmentStatus.FAILED, ExamEnrollmentStatus.PASSED]
         # ):
+        if exam_enrollment.enrollment.status != EnrollmentStatus.ACTIVE:
+            return Response(
+                {"detail": "Your enrollment is inactive."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         selected_session = exam_enrollment.selected_session
         if selected_session.is_visible and (
             selected_session.status == SessionStatus.RESULTSOUT

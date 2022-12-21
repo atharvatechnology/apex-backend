@@ -1,6 +1,7 @@
 from dj_rest_auth.views import LoginView
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend, filters
 from rest_framework import generics
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -15,7 +16,9 @@ from accounts.api.serializers import (
     UserResetPasswordOTPVerifySerializer,
     UserUpdateSerializer,
 )
+from accounts.filters import StudentFilter
 from accounts.models import Profile, Role
+from common.api.views import BaseReportGeneratorAPIView
 
 User = get_user_model()
 
@@ -211,7 +214,19 @@ class StudentQRView(generics.RetrieveAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = StudentQRSerializer
-    queryset = Profile.objects.all()
+    # queryset = Profile.objects.all()
 
     def get_object(self):
-        return Profile.objects.get(user=self.request.user)
+        return self.request.user.profile
+
+
+class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = Profile.objects.all()
+    filterset_class = StudentFilter
+    model_name = "StudentProfile"
+
+    # {
+    # "model_fields":["username","fullname","email","college_name","faculty"]
+    # }

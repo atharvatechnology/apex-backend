@@ -4,11 +4,13 @@ from rest_framework import filters
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
+    GenericAPIView,
     ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
@@ -22,6 +24,7 @@ from .serializers import (
     ExamImageAdminSerializer,
     ExamListAdminSerializer,
     ExamListOverviewAdminSerializer,
+    ExamOverviewCardSerializer,
     ExamRetrieveAdminSerializer,
     ExamTemplateCreateUpdateSerializer,
     ExamTemplateMiniSerializer,
@@ -152,6 +155,17 @@ class ExamListAPIView(ListAPIView):
 
 class ExamListOverviewAPIView(ExamListAPIView):
     serializer_class = ExamListOverviewAdminSerializer
+
+
+class ExamOverviewCardAPIView(GenericAPIView):
+    serializer_class = ExamOverviewCardSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Exam.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset)
+        return Response(serializer.data)
 
 
 class ExamDropdownListAPIView(ListAPIView):

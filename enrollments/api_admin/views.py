@@ -258,7 +258,6 @@ class OverallEnrollmentAPIView(ListAPIView):
     serializer_class = CourseEnrollmentSerializer
 
     def get(self, *args, **kwargs):
-        new_list = []
         total_active_enrollment = 0
         total_enrollment = 0
         course_category = CourseCategory.objects.all()
@@ -270,12 +269,12 @@ class OverallEnrollmentAPIView(ListAPIView):
                 enrollment = course.enrolls.all().count()
                 total_enrollment += enrollment
                 total_active_enrollment += active_enrollment
-        new_list.append(
+        new_list = [
             {
                 "active_enrollment": total_active_enrollment,
                 "total_enrollment": total_enrollment,
             }
-        )
+        ]
         return Response(new_list, status=status.HTTP_200_OK)
 
 
@@ -333,6 +332,12 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
     ]
     # ordering_fields = ["status", "score"]
     filterset_class = CourseThroughEnrollmentFilter
+
+
+class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAPIView):
+    def get_queryset(self):
+        course_id = self.kwargs.get("course_id")
+        return super().get_queryset().filter(course__id=course_id)
 
 
 class EnrollmentUpdateAdminAPIView(UpdateAPIView):

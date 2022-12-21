@@ -8,4 +8,20 @@ class CourseFilter(django_filters.FilterSet):
 
     class Meta:
         model = Course
-        fields = {"price": ["gt", "lt"], "category": ["exact"], "name": ["icontains"]}
+        fields = {
+            "price": ["gt", "lt"],
+            "category": ["exact"],
+            "name": ["icontains"],
+            "created_at": ["gt", "lt"],
+        }
+
+
+class CourseDropdownFilter(django_filters.FilterSet):
+    """Filter for courses dropdown."""
+
+    class Meta:
+        model = Course
+        fields = {
+            "category": ["exact"],
+            "status": ["exact"],
+        }

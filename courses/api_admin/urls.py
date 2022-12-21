@@ -10,15 +10,28 @@ from .views import (
     CourseDeleteAPIView,
     CourseDropdownListAPIView,
     CourseListAPIView,
+    CourseOverviewAPIView,
+    CourseOverviewCardAPIView,
     CourseRetrieveAPIView,
+    CourseRetrieveCardAPIView,
     CourseUpdateAPIView,
     remove_exam_in_course,
 )
+
+course_overview_urlpatterns = [
+    path("", CourseOverviewAPIView.as_view(), name="course-overview"),
+    path("card/", CourseOverviewCardAPIView.as_view(), name="course-overview-card"),
+]
 
 course_urlpatterns = [
     path("create/", CourseCreateAPIView.as_view(), name="course-create"),
     path("list/", CourseListAPIView.as_view(), name="course-list"),
     path("retrieve/<int:pk>/", CourseRetrieveAPIView.as_view(), name="course-get"),
+    path(
+        "retrieve/<int:pk>/card/",
+        CourseRetrieveCardAPIView.as_view(),
+        name="course-get-card",
+    ),
     path("delete/<int:pk>/", CourseDeleteAPIView.as_view(), name="course-delete"),
     path("update/<int:pk>/", CourseUpdateAPIView.as_view(), name="course-update"),
     path(
@@ -27,6 +40,7 @@ course_urlpatterns = [
         name="course-list-dropdown",
     ),
     path("exam/remove/", remove_exam_in_course, name="remove-exam-in-course"),
+    path("overview/", include(course_overview_urlpatterns)),
 ]
 
 category_urlpatterns = [

@@ -18,6 +18,7 @@ from enrollments.models import (
     CourseThroughEnrollment,
     Enrollment,
     EnrollmentStatus,
+    ExamEnrollmentStatus,
     ExamSession,
     ExamThroughEnrollment,
 )
@@ -209,7 +210,7 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
 
     def get_status(self, obj):
         """Get enrollment status."""
-        return obj.enrollment.status
+        return obj.status
 
 
 class ExamThroughEnrollmentAdminListSerializer(
@@ -405,3 +406,30 @@ class StudentEnrollmentCheckSerializer(serializers.Serializer):
         if enrolled_student is not None:
             return super().validate(attrs)
         raise serializers.ValidationError(f"Student is not enrolled in {course}.")
+
+
+class ExamSessionListSerializer(serializers.ModelSerializer):
+
+    examinee = serializers.SerializerMethodField(read_only=True)
+    passed = serializers.SerializerMethodField(read_only=True)
+    start_date = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = ExamSession
+        fields = (
+            "name",
+            "start_date",
+            "status",
+            "examinee",
+            "passed",
+            # "failed",
+        )
+
+    def get_start_date(self, obj):
+        return obj.start_date.strftime("%d %b %Y")
+
+    def get_examinee(self, obj):
+        return obj.session_enrolls.all().count()
+
+    def get_passed(self, obj):
+        return obj.session_enrolls.filter(status=ExamEnrollmentStatus.PASSED).count()
