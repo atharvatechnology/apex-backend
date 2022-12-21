@@ -48,3 +48,11 @@ class StudentAdminFilter(django_filters.FilterSet):
         if value:
             return queryset.filter(enrolls__isnull=False).distinct()
         return queryset.filter(enrolls__isnull=True).distinct()
+
+
+class FacultyAdminFilter(django_filters.FilterSet):
+    class Meta:
+        model = User
+        fields = {
+            "roles": ["exact"],
+        }

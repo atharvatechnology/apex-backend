@@ -13,7 +13,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.api.otp import OTP
-from accounts.api_admin.filters import StudentAdminFilter, UserAdminFilter
+from accounts.api_admin.filters import (
+    FacultyAdminFilter,
+    StudentAdminFilter,
+    UserAdminFilter,
+)
 from accounts.api_admin.serializers import (
     SMSCreditAdminSerializer,
     UserCreateAdminSerializer,
@@ -24,7 +28,7 @@ from accounts.api_admin.serializers import (
 )
 from accounts.models import Role
 from common.paginations import StandardResultsSetPagination
-from common.utils import tuple_to_list
+from common.utils import tuple_to_list, tuple_to_list_first_elements
 from courses.models import CourseCategory
 
 User = get_user_model()
@@ -81,6 +85,20 @@ class UserStudentListAdminAPIView(UserListAdminAPIView):
 class UserTeacherListAdminAPIView(UserListAdminAPIView):
     queryset = User.objects.filter(roles__in=[Role.TEACHER]).order_by("-id")
     filterset_class = UserAdminFilter
+
+
+class UserFacultyListAdminAPIView(UserListAdminAPIView):
+    queryset = User.objects.filter(
+        roles__in=tuple_to_list_first_elements(Role.staff_choices)
+    )
+    filterset_class = FacultyAdminFilter
+
+
+class UserTrackableListAdminAPIView(UserListAdminAPIView):
+    queryset = User.objects.filter(
+        roles__in=tuple_to_list_first_elements(Role.trackable_staff_choices)
+    )
+    filterset_class = FacultyAdminFilter
 
 
 class UserStudentAdminCardAPIView(APIView):

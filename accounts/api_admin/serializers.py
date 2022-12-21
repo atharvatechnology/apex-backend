@@ -9,6 +9,19 @@ from courses.api_admin.serializers import CourseCategorySerializer
 User = get_user_model()
 
 
+class UserMiniAdminSerializer(serializers.ModelSerializer):
+    fullName = FullNameField(source="*")
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "fullName",
+        ]
+
+
 class ProfileAdminCreateSerializer(serializers.ModelSerializer):
     """Serializer for the Profile Create Model."""
 

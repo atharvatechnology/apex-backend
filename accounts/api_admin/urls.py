@@ -3,6 +3,7 @@ from django.urls import include, path
 from accounts.api_admin.views import (
     GetSMSCreditAdminAPIView,
     UserCreateAdminAPIView,
+    UserFacultyListAdminAPIView,
     UserListAdminAPIView,
     UserRetrieveAdminAPIView,
     UserRolesView,
@@ -10,6 +11,7 @@ from accounts.api_admin.views import (
     UserStudentCreateAdminAPIView,
     UserStudentListAdminAPIView,
     UserTeacherListAdminAPIView,
+    UserTrackableListAdminAPIView,
     UserUpdateAdminAPIView,
 )
 
@@ -29,10 +31,20 @@ teacher_url = [
     path("list/", UserTeacherListAdminAPIView.as_view(), name="list"),
 ]
 
+faculty_url = [
+    path("list/", UserFacultyListAdminAPIView.as_view(), name="list"),
+]
+
+staff_url = [
+    path("list/", UserTrackableListAdminAPIView.as_view(), name="list"),
+]
+
 urlpatterns = [
     path("create/", UserCreateAdminAPIView.as_view(), name="create"),
     path("student/", include(student_url)),
     path("teacher/", include(teacher_url)),
+    path("faculty/", include(faculty_url)),
+    path("staff/", include(staff_url)),
     path("list/", UserListAdminAPIView.as_view(), name="list"),
     path("retrieve/<int:pk>/", UserRetrieveAdminAPIView.as_view(), name="retrieve"),
     path("update/<int:pk>/", UserUpdateAdminAPIView.as_view(), name="update"),
