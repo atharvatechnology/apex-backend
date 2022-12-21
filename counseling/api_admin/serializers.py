@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.api_admin.serializers import UserMiniAdminSerializer
 from counseling.models import Counseling
 
 
@@ -20,6 +21,8 @@ class CounselingCreateSerializer(serializers.ModelSerializer):
 
 class CounselingListSerializer(serializers.ModelSerializer):
     """Serializer for Listing Counseling."""
+
+    counsellor = UserMiniAdminSerializer()
 
     class Meta:
         model = Counseling

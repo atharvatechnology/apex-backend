@@ -22,6 +22,7 @@ from accounts.api_admin.serializers import (
     SMSCreditAdminSerializer,
     UserCreateAdminSerializer,
     UserListAdminSerializer,
+    UserMiniAdminSerializer,
     UserRetrieveAdminSerializer,
     UserStudentCreateAdminSerializer,
     UserUpdateAdminSerializer,
@@ -99,6 +100,13 @@ class UserTrackableListAdminAPIView(UserListAdminAPIView):
         roles__in=tuple_to_list_first_elements(Role.trackable_staff_choices)
     )
     filterset_class = FacultyAdminFilter
+
+
+class UserCounsellorListAdminAPIView(UserListAdminAPIView):
+    queryset = User.objects.filter(roles__in=[Role.COUNSELLOR])
+    serializer_class = UserMiniAdminSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["username", "first_name", "last_name"]
 
 
 class UserStudentAdminCardAPIView(APIView):
