@@ -1,8 +1,8 @@
 from dj_rest_auth.views import LoginView
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend, filters
-from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
