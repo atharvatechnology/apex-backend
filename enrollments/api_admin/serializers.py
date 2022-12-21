@@ -220,6 +220,7 @@ class ExamThroughEnrollmentAdminListSerializer(
 
     question_states = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()
+    enrollment_status = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamThroughEnrollment
@@ -227,10 +228,14 @@ class ExamThroughEnrollmentAdminListSerializer(
             "question_states",
             "rank",
             "enrollment",
+            "enrollment_status",
         )
 
     def get_rank(self, obj):
         return get_student_rank(obj)
+
+    def get_enrollment_status(self, obj):
+        return obj.enrollment.status
 
     # @staticmethod
     # def get_student(obj):
