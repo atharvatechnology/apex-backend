@@ -18,6 +18,7 @@ from common.paginations import StandardResultsSetPagination
 from courses.api_admin.serializers import (
     CourseCategorySerializer,
     CourseOverviewSerializer,
+    CourseRetrieveCardSerializer,
     CourseSerializer,
     CourseUpdateSerializer,
     ExamInCourseDeleteSerializer,
@@ -93,6 +94,28 @@ class CourseRetrieveAPIView(RetrieveAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
+
+
+class CourseRetrieveCardAPIView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Course.objects.all()
+    serializer_class = CourseRetrieveCardSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = [
+            {
+                "title": "Video",
+                "data": instance.recorded_videos.all().count(),
+            },
+            {
+                "title": "Exams",
+                "data": instance.exams_exam_related.all().count(),
+            },
+            {"title": "Resources", "data": instance.notes.all().count()},
+        ]
+        serializer = self.get_serializer(data, many=True)
+        return Response(serializer.data)
 
 
 class CourseUpdateAPIView(BaseCreatorUpdateAPIView):
