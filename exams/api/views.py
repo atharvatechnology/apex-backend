@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import localtime, now
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.decorators import api_view, permission_classes
@@ -107,5 +108,7 @@ def trigger_exam_submit(request, pk):
     if exm_sess.status != SessionStatus.ACTIVE:
         return Response({"detail": "Exam session is not active."})
     # Trigger session end which must trigger exam submit
+    if exm_sess.end_date > localtime(now()):
+        return Response({"detail": "Exam session is not over yet."})
     exm_sess.end_session()
     return Response({"detail": "Exam submitted successfully."})
