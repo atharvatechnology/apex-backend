@@ -7,7 +7,10 @@ wsgi_app = "apex.wsgi:application"
 # The granularity of Error log outputs
 loglevel = "debug"
 # The number of worker processes for handling requests
-workers = (multiprocessing.cpu_count() - 1) * 2 + 1
+free_cpu = 0
+if multiprocessing.cpu_count() > 1:
+    free_cpu = 1
+workers = (multiprocessing.cpu_count() - free_cpu) * 2 + 1
 # workers = 2
 # The socket to bind
 bind = "0.0.0.0:8000"
