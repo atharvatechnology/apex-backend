@@ -38,4 +38,5 @@ class PublishedModel(models.Model):
     @property
     def is_visible(self):
         today = localtime(now())
-        return self.is_published or self.publish_date <= today
+        published_by_date = (self.publish_date <= today) if self.publish_date else False
+        return self.is_published or published_by_date
