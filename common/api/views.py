@@ -50,7 +50,9 @@ class BaseReportGeneratorAPIView(GenericAPIView):
         else:
             filtered_data = self.filter_queryset(self.get_queryset())
 
-        id_of_last_report = GeneratedReport.objects.last().id
+        report_object = GeneratedReport.objects.last()
+        id_of_last_report = report_object.id if report_object else 0
+
         new_generated_id = int(id_of_last_report) + 1
         excelcelery.delay(
             list(serializer.data["model_fields"]),

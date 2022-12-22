@@ -381,8 +381,8 @@ class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
             {
                 "model_fields": [
                     "enrollment",
-                    "exam",
-                    "selected_session",
+                    # "exam",
+                    # "selected_session",
                     "rank",
                     "score",
                     "negative_score",

@@ -15,8 +15,8 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
     model = ExamThroughEnrollment
     field_to_header_names = {
         "enrollment": "Student's Name",
-        "exam": "Exam",
-        "selected_session": "Selected Session",
+        # "exam": "Exam",
+        # "selected_session": "Selected Session",
         "rank": "Rank",
         "score": "Score",
         "negative_score": "Negative Score",
@@ -30,11 +30,11 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
             + str(linea.enrollment.student.last_name)
         )
 
-    def get_exam_name(self, linea):
-        return linea.exam.name
+    # def get_exam_name(self, linea):
+    #     return linea.exam.name
 
-    def get_session(self, linea):
-        return str(linea.selected_session.start_date.date())
+    # def get_session(self, linea):
+    #     return str(linea.selected_session.start_date.date())
 
     def get_score(self, linea):
         return str(linea.score)
@@ -51,8 +51,6 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
     def get_values_from_fields(self, field_name, linea):
         fields_and_values = {
             "enrollment": self.get_students_name,
-            "exam": self.get_exam_name,
-            "selected_session": self.get_session,
             "rank": self.get_rank,
             "score": self.get_score,
             "negative_score": self.get_negative_score,
