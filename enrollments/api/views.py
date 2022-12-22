@@ -13,6 +13,7 @@ from rest_framework.response import Response
 
 # from common.utils import dynamic_excel_generator
 from common.api.views import BaseReportGeneratorAPIView
+from common.permissions import IsDirector
 from courses.models import Course
 from enrollments.api.serializers import (  # PhysicalBookCourseEnrollmentSerializer,
     CourseEnrollmentRetrieveSerializer,
@@ -46,7 +47,7 @@ from exams.models import Exam
 class EnrollmentCreateAPIView(CreateAPIView):
     """Create a new enrollment for a student."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsDirector]
     serializer_class = EnrollmentCreateSerializer
     queryset = Enrollment.objects.all()
 
