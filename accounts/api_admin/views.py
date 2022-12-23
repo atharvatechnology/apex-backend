@@ -25,6 +25,7 @@ from accounts.api_admin.serializers import (
     UserMiniAdminSerializer,
     UserRetrieveAdminSerializer,
     UserStudentCreateAdminSerializer,
+    UserTeacherCreateAdminSerializer,
     UserUpdateAdminSerializer,
 )
 from accounts.models import Role
@@ -62,6 +63,18 @@ class UserStudentCreateAdminAPIView(CreateAPIView):
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.roles.add(Role.STUDENT)
+
+
+class UserTeacherCreateAdminAPIView(CreateAPIView):
+    """Admin Create API View."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = UserTeacherCreateAdminSerializer
+    queryset = User.objects.all()
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        obj.roles.add(Role.TEACHER)
 
 
 class UserListAdminAPIView(ListAPIView):
@@ -149,6 +162,7 @@ class GetSMSCreditAdminAPIView(GenericAPIView):
     """Check credit of SMS provider."""
 
     serializer_class = SMSCreditAdminSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request, *args, **kwargs):
         otp = OTP().getCredit()

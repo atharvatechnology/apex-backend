@@ -12,6 +12,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
@@ -313,6 +314,26 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     filterset_class = ExamThroughEnrollmentFilter
 
 
+class ExamThroughEnrollmentListCardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Enrollment.objects.filter(exams__isnull=False)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        data = [
+            {"title": "Enrollments", "data": queryset.count()},
+            {
+                "title": "Verified Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.ACTIVE).count(),
+            },
+            {
+                "title": "Pending Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.PENDING).count(),
+            },
+        ]
+        return Response(data)
+
+
 class CourseThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Course."""
 
@@ -340,6 +361,26 @@ class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAP
     def get_queryset(self):
         course_id = self.kwargs.get("course_id")
         return super().get_queryset().filter(course__id=course_id)
+
+
+class CourseThroughEnrollmentListCardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Enrollment.objects.filter(courses__isnull=False)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        data = [
+            {"title": "Enrollments", "data": queryset.count()},
+            {
+                "title": "Verified Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.ACTIVE).count(),
+            },
+            {
+                "title": "Pending Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.PENDING).count(),
+            },
+        ]
+        return Response(data)
 
 
 class EnrollmentUpdateAdminAPIView(UpdateAPIView):
