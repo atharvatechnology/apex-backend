@@ -2,13 +2,27 @@ from django.contrib.auth.models import Group
 from rest_framework import permissions
 
 
-def get_permit(user, group_id):
-    group = Group.objects.get(id=group_id)
+def get_permit(user, group_name, user_perm):
+    group = Group.objects.get(name=group_name)
     if user.is_anonymous:
         return False
-    if user.is_authenticated and group in user.groups.all():
+    if user.is_authenticated and user_perm and group in user.groups.all():
         return True
     return False
+
+
+class IsAdminorSuperAdminorDirector(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        if user.is_anonymous:
+            return False
+        if (
+            user.is_authenticated
+            and (user.is_super_admin or user.is_admin or user.is_director)
+            and user.groups.all().first() in user.groups.all()
+        ):
+            return True
+        return False
 
 
 class IsAllUser(permissions.BasePermission):
@@ -23,44 +37,44 @@ class IsAllUser(permissions.BasePermission):
 
 class IsSuperAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 1)
+        return get_permit(request.user, "Super Admin", request.user.is_super_admin)
 
 
 class IsAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 2)
+        return get_permit(request.user, "Admin", request.user.is_admin)
 
 
 class IsDirector(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 3)
+        return get_permit(request.user, "Director", request.user.is_director)
 
 
 class IsTeacher(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 4)
+        return get_permit(request.user, "Teacher", request.user.is_teacher)
 
 
 class IsAccountant(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 5)
+        return get_permit(request.user, "Accountant", request.user.is_accountant)
 
 
 class IsCashier(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 6)
+        return get_permit(request.user, "Cashier", request.user.is_cashier)
 
 
 class IsCounsellor(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 7)
+        return get_permit(request.user, "Counsellor", request.user.is_counsellor)
 
 
 class IsStaff(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 8)
+        return get_permit(request.user, "Staff", request.user.is_office_staff)
 
 
 class IsStudent(permissions.BasePermission):
     def has_permission(self, request, view):
-        return get_permit(request.user, 9)
+        return get_permit(request.user, "Student", request.user.is_student)
