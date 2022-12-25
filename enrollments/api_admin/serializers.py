@@ -210,7 +210,7 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
 
     def get_status(self, obj):
         """Get enrollment status."""
-        return obj.enrollment.status
+        return obj.status
 
     def get_enrollment_id(self, obj):
         return obj.enrollment.id
