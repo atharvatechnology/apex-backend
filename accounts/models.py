@@ -43,6 +43,12 @@ class Role(models.Model):
         (COUNSELLOR, "Counsellor"),
         (STAFF, "Staff"),
     )
+    trackable_staff_choices = (
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+    )
     id = models.PositiveSmallIntegerField(choices=role_choices, primary_key=True)
 
     def __str__(self):
@@ -151,9 +157,7 @@ class User(AbstractUser):
             return (False, "OTP is already used")
         if self.otp_generate_time < five_minutes_ago:
             return (False, "The OTP is out of date")
-        if self.otp != otp:
-            return (False, "OTP is not valid")
-        return (True, otp)
+        return (False, "OTP is not valid") if self.otp != otp else (True, otp)
 
     def generate_otp(self):
         """To generate OTP and call send otp method."""
@@ -165,15 +169,16 @@ class User(AbstractUser):
         return otp
 
     def get_roles(self):
-        all_roles = []
-        if self.roles.all():
-            for roles in self.roles.all():
-                for role_id, role_value in Role.role_choices:
-                    if roles.id == role_id:
-                        all_roles.append(role_value)
-            return all_roles
-        else:
+        if not self.roles.all():
             return None
+        all_roles = []
+        for roles in self.roles.all():
+            all_roles.extend(
+                role_value
+                for role_id, role_value in Role.role_choices
+                if roles.id == role_id
+            )
+        return all_roles
 
     def check_role(self, roles):
         return roles in self.roles.all().values_list("id", flat=True)
@@ -233,6 +238,7 @@ class Profile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     faculty = models.CharField(max_length=100, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
+    interests = models.ManyToManyField("courses.CourseCategory", blank=True)
 
     class Meta:
         ordering = ["user"]

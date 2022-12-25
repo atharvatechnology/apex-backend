@@ -1,19 +1,23 @@
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
     GenericAPIView,
     ListAPIView,
+    RetrieveAPIView,
     UpdateAPIView,
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 from courses.api.serializers import CourseCategoryRetrieveSerializer
+from courses.filters import CourseFilter
 from courses.models import CourseCategory
 from enrollments.api.serializers import CourseEnrollmentSerializer
 from enrollments.api_admin.serializers import (
@@ -26,6 +30,9 @@ from enrollments.api_admin.serializers import (
     ExamSessionAdminSerializer,
     ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
+    PhysicalBookCourseEnrollmentAdminSerializer,
+    PhysicalBookCourseEnrollmentCreateAdminSerializer,
+    PhysicalBookCourseEnrollmentUpdateAdminSerializer,
     StudentEnrollmentCheckSerializer,
 )
 from enrollments.filters import (
@@ -40,6 +47,7 @@ from enrollments.models import (
     EnrollmentStatus,
     ExamSession,
     ExamThroughEnrollment,
+    PhysicalBookCourseEnrollment,
 )
 from exams.models import Exam
 
@@ -252,7 +260,6 @@ class OverallEnrollmentAPIView(ListAPIView):
     serializer_class = CourseEnrollmentSerializer
 
     def get(self, *args, **kwargs):
-        new_list = []
         total_active_enrollment = 0
         total_enrollment = 0
         course_category = CourseCategory.objects.all()
@@ -264,12 +271,12 @@ class OverallEnrollmentAPIView(ListAPIView):
                 enrollment = course.enrolls.all().count()
                 total_enrollment += enrollment
                 total_active_enrollment += active_enrollment
-        new_list.append(
+        new_list = [
             {
                 "active_enrollment": total_active_enrollment,
                 "total_enrollment": total_enrollment,
             }
-        )
+        ]
         return Response(new_list, status=status.HTTP_200_OK)
 
 
@@ -307,11 +314,32 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     filterset_class = ExamThroughEnrollmentFilter
 
 
+class ExamThroughEnrollmentListCardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Enrollment.objects.filter(exams__isnull=False)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        data = [
+            {"title": "Enrollments", "data": queryset.count()},
+            {
+                "title": "Verified Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.ACTIVE).count(),
+            },
+            {
+                "title": "Pending Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.PENDING).count(),
+            },
+        ]
+        return Response(data)
+
+
 class CourseThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Course."""
 
     serializer_class = CourseThroughEnrollmentAdminBaseSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
+    filterset_class = CourseFilter
     queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
     filter_backends = [
         filters.SearchFilter,
@@ -327,6 +355,32 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
     ]
     # ordering_fields = ["status", "score"]
     filterset_class = CourseThroughEnrollmentFilter
+
+
+class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAPIView):
+    def get_queryset(self):
+        course_id = self.kwargs.get("course_id")
+        return super().get_queryset().filter(course__id=course_id)
+
+
+class CourseThroughEnrollmentListCardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Enrollment.objects.filter(courses__isnull=False)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        data = [
+            {"title": "Enrollments", "data": queryset.count()},
+            {
+                "title": "Verified Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.ACTIVE).count(),
+            },
+            {
+                "title": "Pending Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.PENDING).count(),
+            },
+        ]
+        return Response(data)
 
 
 class EnrollmentUpdateAdminAPIView(UpdateAPIView):
@@ -356,3 +410,45 @@ class StudentCourseCheckView(GenericAPIView):
         return Response(
             {"status": "success", "message": "Student is enrolled in the course."}
         )
+
+
+class PhysicalBookCourseEnrollmentAdminCreateAPIView(CreateAPIView):
+    """Create physical book after course enrollment."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentCreateAdminSerializer
+
+
+class PhysicalBookCourseEnrollmentAdminListAPIView(ListAPIView):
+    """Physical book list after user course enrolled."""
+
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    search_fields = ["name"]
+    filter_backends = [SearchFilter]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+
+
+class PhysicalBookCourseEnrollmentAdminRetrieveAPIView(RetrieveAPIView):
+    """Retrieve physical book after course enrollment."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+
+
+class PhysicalBookCourseEnrollmentAdminUpdateAPIView(UpdateAPIView):
+    """Update physical book after course enrollment."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentUpdateAdminSerializer
+
+
+class PhysicalBookCourseEnrollmentAdminDestroyAPIView(DestroyAPIView):
+    """Destroy physical book after course enrollment."""
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = PhysicalBookCourseEnrollment.objects.all()
+    serializer_class = PhysicalBookCourseEnrollmentAdminSerializer

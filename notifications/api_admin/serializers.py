@@ -6,7 +6,4 @@ from notifications.models import NotificationMessage
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificationMessage
-        fields = (
-            "title",
-            "body",
-        )
+        fields = ("title", "body", "created_at")

@@ -213,7 +213,7 @@ class Session(CreatorBaseModel):
 
     def setup_tasks(self, sessioned_obj):
         """Create the tasks for the session."""
-
+        sessioned_obj_name = sessioned_obj._meta.verbose_name.lower()
         start_date_aware = self.start_date
         end_date_aware = self.end_date
         if timezone.is_naive(self.start_date):
@@ -244,7 +244,7 @@ class Session(CreatorBaseModel):
             day_of_month=end_date_aware.day,
             month_of_year=end_date_aware.month,
         )
-        sessioned_obj_name = sessioned_obj._meta.verbose_name.lower()
+
         start_task = PeriodicTask.objects.create(
             crontab=start_schedule,
             name=f"{sessioned_obj_name}_{sessioned_obj.id}"

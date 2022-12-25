@@ -18,12 +18,13 @@ from common.paginations import StandardResultsSetPagination
 from courses.api_admin.serializers import (
     CourseCategorySerializer,
     CourseOverviewSerializer,
+    CourseRetrieveCardSerializer,
     CourseSerializer,
     CourseUpdateSerializer,
     ExamInCourseDeleteSerializer,
 )
 from courses.api_common.serializers import CourseMinSerializer
-from courses.filters import CourseFilter
+from courses.filters import CourseDropdownFilter, CourseFilter
 from courses.models import Course, CourseCategory
 
 
@@ -76,6 +77,9 @@ class CourseListAPIView(ListAPIView):
     """View for listing courses."""
 
     permission_classes = [IsAuthenticated, IsAdminUser]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    filterset_class = CourseFilter
     serializer_class = CourseSerializer
     search_fields = ["name"]
     queryset = Course.objects.all()
@@ -90,6 +94,28 @@ class CourseRetrieveAPIView(RetrieveAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
+
+
+class CourseRetrieveCardAPIView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Course.objects.all()
+    serializer_class = CourseRetrieveCardSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = [
+            {
+                "title": "Video",
+                "data": instance.recorded_videos.all().count(),
+            },
+            {
+                "title": "Exams",
+                "data": instance.exams_exam_related.all().count(),
+            },
+            {"title": "Resources", "data": instance.notes.all().count()},
+        ]
+        serializer = self.get_serializer(data, many=True)
+        return Response(serializer.data)
 
 
 class CourseUpdateAPIView(BaseCreatorUpdateAPIView):
@@ -112,10 +138,10 @@ class CourseDropdownListAPIView(ListAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = CourseMinSerializer
+    filterset_class = CourseDropdownFilter
     search_fields = ["name"]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     queryset = Course.objects.all()
-    filterset_class = CourseFilter
 
 
 @swagger_auto_schema(method="POST", request_body=ExamInCourseDeleteSerializer)

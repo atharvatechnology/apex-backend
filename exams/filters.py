@@ -34,8 +34,9 @@ class ExamOnCourseFilter(django_filters.FilterSet):
         model = Exam
         fields = {
             "course_id": ["exact"],
-            "is_published": ["exact"],
             "exam_type": ["exact"],
+            "created_at": ["gt", "lt"],
+            "is_published": ["exact"],
         }
 
     def filter_course_future(self, queryset, name, value):

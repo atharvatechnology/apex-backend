@@ -7,7 +7,9 @@ from .views import (
     CourseSessionDeleteAPIView,
     CourseSessionListAPIView,
     CourseSessionUpdateAPIView,
+    CourseThroughEnrollmentCourseWiseListAPIView,
     CourseThroughEnrollmentListAPIView,
+    CourseThroughEnrollmentListCardAPIView,
     EnrollmentDeleteAdminAPIView,
     EnrollmentGraphAPIView,
     EnrollmentUpdateAdminAPIView,
@@ -18,7 +20,13 @@ from .views import (
     ExamSessionListAPIView,
     ExamSessionUpdateAPIView,
     ExamThroughEnrollmentListAPIView,
+    ExamThroughEnrollmentListCardAPIView,
     OverallEnrollmentAPIView,
+    PhysicalBookCourseEnrollmentAdminCreateAPIView,
+    PhysicalBookCourseEnrollmentAdminDestroyAPIView,
+    PhysicalBookCourseEnrollmentAdminListAPIView,
+    PhysicalBookCourseEnrollmentAdminRetrieveAPIView,
+    PhysicalBookCourseEnrollmentAdminUpdateAPIView,
     StudentCourseCheckView,
 )
 
@@ -42,11 +50,13 @@ exam_session_urls = [
 ]
 
 exam_graph = [path("bar/", ExamGraphAPIView.as_view(), name="exam-graph")]
+
 course_graph = [
     path("bar/", CourseGraphAPIView.as_view(), name="exam-graph"),
     path("donut/", EnrollmentGraphAPIView.as_view(), name="enroll-graph"),
     path("overall/", OverallEnrollmentAPIView.as_view(), name="overall-enroll"),
 ]
+
 course_session_urls = [
     path("create/", CourseSessionCreateAPIView.as_view(), name="course-session-create"),
     path(
@@ -77,12 +87,19 @@ exam_through_enrollment_urls = [
         ExamThroughEnrollmentListAPIView.as_view(),
         name="exam-through-enrollment-list",
     ),
+    path(
+        "card/",
+        ExamThroughEnrollmentListCardAPIView.as_view(),
+        name="exam-through-enrollment-card",
+    ),
 ]
+
 exam_enroll_url = [
     path(
         "create/", ExamEnrollmentCreateAPIView.as_view(), name="exam-enrollment-create"
     ),
 ]
+
 course_enroll_url = [
     path(
         "create/",
@@ -93,9 +110,19 @@ course_enroll_url = [
 
 course_through_enrollment_urls = [
     path(
+        "detail/<int:course_id>/",
+        CourseThroughEnrollmentCourseWiseListAPIView.as_view(),
+        name="detail",
+    ),
+    path(
         "list/",
         CourseThroughEnrollmentListAPIView.as_view(),
         name="course-through-enrollment-list",
+    ),
+    path(
+        "card/",
+        CourseThroughEnrollmentListCardAPIView.as_view(),
+        name="course-through-enrollment-card",
     ),
 ]
 
@@ -106,18 +133,47 @@ session_urls = [
 
 enrollment_urls = [
     path(
-        "delete/",
+        "delete/<int:pk>/",
         EnrollmentDeleteAdminAPIView.as_view(),
         name="enrollment-delete-admin",
     ),
     path(
-        "update/",
+        "update/<int:pk>/",
         EnrollmentUpdateAdminAPIView.as_view(),
         name="enrollment-update-admin",
     ),
 ]
 
+physical_urls = [
+    path(
+        "list/",
+        PhysicalBookCourseEnrollmentAdminListAPIView.as_view(),
+        name="physicalbook-admin-list",
+    ),
+    path(
+        "create/",
+        PhysicalBookCourseEnrollmentAdminCreateAPIView.as_view(),
+        name="physicalbook-admin-create",
+    ),
+    path(
+        "update/<int:pk>/",
+        PhysicalBookCourseEnrollmentAdminUpdateAPIView.as_view(),
+        name="physicalbook-admin-update",
+    ),
+    path(
+        "retrieve/<int:pk>/",
+        PhysicalBookCourseEnrollmentAdminRetrieveAPIView.as_view(),
+        name="physicalbook-admin-retrieve",
+    ),
+    path(
+        "delete/<int:pk>/",
+        PhysicalBookCourseEnrollmentAdminDestroyAPIView.as_view(),
+        name="physicalbook-admin-destroy",
+    ),
+]
+
 urlpatterns = [
+    path("", include(enrollment_urls)),
     path("exam-graph/", include(exam_graph)),
     path("course-graph/", include(course_graph)),
     path("session/", include(session_urls)),
@@ -125,4 +181,5 @@ urlpatterns = [
     path("coursethroughenrollment/", include(course_through_enrollment_urls)),
     path("exam-enroll/", include(exam_enroll_url)),
     path("course-enroll/", include(course_enroll_url)),
+    path("physical/", include(physical_urls)),
 ]

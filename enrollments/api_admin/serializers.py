@@ -3,9 +3,10 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from rest_framework import serializers
 
+from accounts.api_admin.serializers import UserMiniAdminSerializer
 from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
 from common.utils import decode_user
-from courses.api_common.serializers import CourseMinSerializer
+from courses.api_common.serializers import CoursePhysicalSerializer
 from courses.models import Course, CourseStatus
 from enrollments.api.serializers import ExamEnrollmentSerializer
 from enrollments.api.utils import (
@@ -21,9 +22,11 @@ from enrollments.models import (
     ExamEnrollmentStatus,
     ExamSession,
     ExamThroughEnrollment,
+    PhysicalBookCourseEnrollment,
 )
 from exams.api_common.serializers import ExamMiniSerializer
 from payments.api_common.serializers import PaymentSerializer
+from physicalbook.api_admin.serializers import PhysicalBookAdminListSerializer
 
 User = get_user_model()
 
@@ -168,15 +171,17 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     """Base Serializer for ExamThroughEnrollment."""
 
     exam = ExamMiniSerializer()
-    student = serializers.SerializerMethodField()
+    student = UserMiniAdminSerializer(source="enrollment.student")
     selected_session = ExamSessionAdminSerializer()
     created_at = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    enrollment_id = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamThroughEnrollment
         fields = (
+            "id",
             "selected_session",
             "student",
             "status",
@@ -184,18 +189,13 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
             "negative_score",
             "exam",
             "payment",
+            "created_at",
+            "enrollment_id",
         )
         read_only_fields = (
             "status",
             "score",
         )
-
-    def get_student(self, obj):
-        """Get student username."""
-        return {
-            "name": obj.enrollment.student.__str__(),
-            "phone": obj.enrollment.student.username,
-        }
 
     def get_created_at(self, obj):
         """Get created_at."""
@@ -210,7 +210,10 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
 
     def get_status(self, obj):
         """Get enrollment status."""
-        return obj.status
+        return obj.enrollment.status
+
+    def get_enrollment_id(self, obj):
+        return obj.enrollment.id
 
 
 class ExamThroughEnrollmentAdminListSerializer(
@@ -240,34 +243,86 @@ class ExamThroughEnrollmentAdminListSerializer(
         return obj.question_states.all().count()
 
 
+class PhysicalBookCourseEnrollmentAdminSerializer(serializers.ModelSerializer):
+    """Serializer for Admin for Physical book when user enrolls to course."""
+
+    physical_book = PhysicalBookAdminListSerializer()
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "id",
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
+
+
+class PhysicalBookCourseEnrollmentCreateAdminSerializer(serializers.ModelSerializer):
+    """Serializer for Creating Admin Physical Book."""
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "id",
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
+
+    def create(self, validated_data):
+        physical_book = validated_data.get("physical_book")
+        course_through_enrollment = validated_data.get("course_enrollment")
+        course = course_through_enrollment.course
+
+        physical_course = physical_book.course
+
+        if physical_course == course:
+            return super().create(validated_data)
+        else:
+
+            raise serializers.ValidationError("Course has no PhysicalBook.")
+
+
+class PhysicalBookCourseEnrollmentUpdateAdminSerializer(serializers.ModelSerializer):
+    """Serializer for updating for Physical Book."""
+
+    class Meta:
+        model = PhysicalBookCourseEnrollment
+        fields = (
+            "id",
+            "physical_book",
+            "course_enrollment",
+            "status_provided",
+        )
+
+
 class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     """Base Serializer for CourseThroughEnrollment."""
 
-    course = CourseMinSerializer()
-    student = serializers.SerializerMethodField()
+    course = CoursePhysicalSerializer()
+    student = UserMiniAdminSerializer(source="enrollment.student")
     selected_session = CourseSessionAdminSerializer()
     created_at = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    physicalbook_enrolls = PhysicalBookCourseEnrollmentAdminSerializer(many=True)
+    enrollment_id = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseThroughEnrollment
         fields = (
+            "id",
             "selected_session",
             "student",
             "course",
             "payment",
             "created_at",
             "status",
+            "physicalbook_enrolls",
+            "enrollment_id",
         )
         read_only_fields = ("status",)
-
-    def get_student(self, obj):
-        """Get student username."""
-        return {
-            "name": obj.enrollment.student.__str__(),
-            "phone": obj.enrollment.student.username,
-        }
 
     def get_status(self, obj):
         """Get enrollment status."""
@@ -282,6 +337,9 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
         return PaymentSerializer(
             obj.enrollment.payments_payment_related.all(), many=True
         ).data
+
+    def get_enrollment_id(self, obj):
+        return obj.enrollment.id
 
 
 class CourseThroughEnrollmentSerializer(serializers.ModelSerializer):
@@ -347,7 +405,7 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         exams_data = validated_data.pop("exam_enrolls", None)
-        user = validated_data.pop("student")
+        user = validated_data.get("student")
 
         exams = [data.get("exam") for data in exams_data]
         batch_is_enrolled_and_price(exams, user)
