@@ -18,6 +18,7 @@ from common.paginations import StandardResultsSetPagination
 from courses.api_admin.serializers import (
     CourseCategorySerializer,
     CourseOverviewSerializer,
+    CoursePbookSerilaizer,
     CourseRetrieveCardSerializer,
     CourseSerializer,
     CourseUpdateSerializer,
@@ -180,3 +181,18 @@ class CourseOverviewCardAPIView(APIView):
             for cat in category
         )
         return Response(data)
+
+
+class CourseStudentPBook(ListAPIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Course.objects.all()
+    serializer_class = CoursePbookSerilaizer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        from enrollments.models import EnrollmentStatus
+
+        student_id = self.kwargs.get("student_id")
+        return queryset.filter(
+            enrolls__student__id=student_id, enrolls__status=EnrollmentStatus.ACTIVE
+        )

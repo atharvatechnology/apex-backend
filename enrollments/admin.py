@@ -9,6 +9,7 @@ from enrollments.models import (
     Enrollment,
     ExamSession,
     ExamThroughEnrollment,
+    PhysicalBookCourseEnrollment,
     QuestionEnrollment,
     Session,
 )
@@ -201,3 +202,8 @@ class QuestionEnrollmentAdmin(admin.ModelAdmin):
         "exam_stat__enrollment__student__first_name",
         "exam_stat__enrollment__student__last_name",
     )
+
+
+@admin.register(PhysicalBookCourseEnrollment)
+class PhysicalBookCourseEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ("physical_book", "course_enrollment", "status_provided")

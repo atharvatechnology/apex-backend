@@ -6,11 +6,17 @@ from physicalbook.api_admin.views import (
     PhysicalBookAdminListAPIView,
     PhysicalBookAdminRetrieveAPIView,
     PhysicalBookAdminUpdateAPIView,
+    PhysicalBookCourseAdminListAPIView,
 )
 
 urlpatterns = [
     path("create/", PhysicalBookAdminCreateAPIView.as_view(), name="admin-book-create"),
     path("list/", PhysicalBookAdminListAPIView.as_view(), name="admin-book-list"),
+    path(
+        "list/<int:course_id>/",
+        PhysicalBookCourseAdminListAPIView.as_view(),
+        name="admin-book-list-course",
+    ),
     path(
         "retrieve/<int:pk>/",
         PhysicalBookAdminRetrieveAPIView.as_view(),
