@@ -716,6 +716,9 @@ class ExamEnrollmentUpdateSerializer(serializers.ModelSerializer):
         if submitted:
             if instance.status == ExamEnrollmentStatus.CREATED:
                 instance.attempt_exam()
+                if instance.exam.is_practice:
+                    # end the session
+                    instance.selected_session.end_session()
         else:
             instance.save()
         return instance

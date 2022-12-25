@@ -6,6 +6,7 @@ from exams.api.views import (
     ExamPaperPreviewAPIView,
     ExamRetrieveAPIView,
     ExamRetrievePoolAPIView,
+    trigger_exam_submit,
 )
 
 urlpatterns = [
@@ -25,5 +26,10 @@ urlpatterns = [
         "paper/preview/<int:pk>/",
         ExamPaperPreviewAPIView.as_view(),
         name="exam-paper-preview",
+    ),
+    path(
+        "trigger-submit/<int:pk>/",
+        trigger_exam_submit,
+        name="trigger-exam-submit",
     ),
 ]
