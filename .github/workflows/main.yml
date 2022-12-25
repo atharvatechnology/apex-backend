@@ -43,3 +43,20 @@ jobs:
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
+      
+      - uses: actions/checkout@v3
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          workload_identity_provider: 'projects/798920531034/locations/global/workloadIdentityPools/githubaction-pool/providers/my-provider'
+          service_account: 'githubactions@apex-351704.iam.gserviceaccount.com'
+          
+      - uses: RafikFarhad/push-to-gcr-github-action@v5-beta
+        with:
+          # gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }} # can be base64 encoded or plain text || not needed if you use google-github-actions/auth
+          registry: gcr.io
+          project_id: apex
+          image_name: apex-backend
+          image_tag: ${{ steps.docker_meta.outputs.tags }}
+          context: .
