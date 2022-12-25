@@ -132,6 +132,31 @@ class ContentListAPIView(ListAPIView):
     pagination_class = StandardResultsSetPagination
 
 
+class ContentListByCourseAPIView(ListAPIView):
+    """permits list of data of content.
+
+    Parameters
+    ----------
+    ListAPIView : cls
+        The view provides read-only
+        endpoints to represent a collection
+        of model instances
+
+    """
+
+    queryset = Content.objects.all()
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = ContentSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
+
+    def get_queryset(self):
+        course_id = self.kwargs.get("course_id")
+        queryset = super().get_queryset()
+        return queryset.filter(note__course__id=course_id).distinct()
+
+
 class ContentRetrieveAPIView(RetrieveAPIView):
     """permits unrestricted detail data of content.
 

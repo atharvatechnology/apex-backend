@@ -3,6 +3,7 @@ from rest_framework import serializers
 from common.api.serializers import PublishedSerializer
 from courses.models import Course, CourseCategory
 from exams.api_admin.serializers import ExamOnCourseRetrieveSerializer
+from physicalbook.api_admin.serializers import PhysicalBookEnrolledCourseSerializer
 
 
 class CourseCategorySerializer(serializers.ModelSerializer):
@@ -110,3 +111,25 @@ class CourseOverviewSerializer(PublishedSerializer):
 class CourseRetrieveCardSerializer(serializers.Serializer):
     title = serializers.CharField()
     data = serializers.IntegerField()
+
+
+class CoursePbookSerilaizer(serializers.ModelSerializer):
+    physical_books = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Course
+        fields = (
+            "id",
+            "name",
+            "physical_books",
+        )
+
+    def get_physical_books(self, obj):
+        serializer_context = {
+            "request": self.context.get("request"),
+            "view": self.context.get("view"),
+        }
+        serializer = PhysicalBookEnrolledCourseSerializer(
+            obj.physical_books.all(), many=True, context=serializer_context
+        )
+        return serializer.data

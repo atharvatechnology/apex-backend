@@ -73,7 +73,7 @@ api_admin_urls = [
     path("dashboard/", include("dashboard.api_admin.urls")),
     path("counseling/", include("counseling.api_admin.urls")),
     path("attendance/", include("attendance.api_admin.urls")),
-    path("physicalbook", include("physicalbook.api_admin.urls")),
+    path("physicalbook/", include("physicalbook.api_admin.urls")),
 ]
 
 fcm_urls = [

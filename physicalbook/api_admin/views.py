@@ -3,6 +3,7 @@ from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.paginations import StandardResultsSetPagination
 from physicalbook.api_admin.serializers import (
     PhysicalBookAdminCreateSerializer,
     PhysicalBookAdminListSerializer,
@@ -28,6 +29,21 @@ class PhysicalBookAdminListAPIView(ListAPIView):
     permission_classes = [IsAdminUser, IsAuthenticated]
     filter_backends = [SearchFilter]
     queryset = PhysicalBook.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+
+class PhysicalBookCourseAdminListAPIView(ListAPIView):
+    """Views for listing PhysicalBook."""
+
+    serializer_class = PhysicalBookAdminListSerializer
+    search_fields = ["name"]
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    filter_backends = [SearchFilter]
+    queryset = PhysicalBook.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        return super().get_queryset().filter(course=self.kwargs.get("course_id"))
 
 
 class PhysicalBookAdminRetrieveAPIView(RetrieveAPIView):

@@ -4,6 +4,7 @@ from .views import (
     ContentCreateAPIView,
     ContentDestroyAPIView,
     ContentListAPIView,
+    ContentListByCourseAPIView,
     ContentRetrieveAPIView,
     ContentUpdateAPIView,
     NoteCreateAPIView,
@@ -28,6 +29,11 @@ note_urls = [
 
 content_urls = [
     path("list/", ContentListAPIView.as_view(), name="content-list"),
+    path(
+        "list/<int:course_id>/",
+        ContentListByCourseAPIView.as_view(),
+        name="content-course-list",
+    ),
     path("create/", ContentCreateAPIView.as_view(), name="content-create"),
     path(
         "retrieve/<int:pk>/", ContentRetrieveAPIView.as_view(), name="content-retrieve"
