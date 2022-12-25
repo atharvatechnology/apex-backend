@@ -214,10 +214,10 @@ class StudentQRView(generics.RetrieveAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = StudentQRSerializer
-    queryset = Profile.objects.all()
+    # queryset = Profile.objects.all()
 
     def get_object(self):
-        return Profile.objects.get(user=self.request.user)
+        return self.request.user.profile
 
 
 class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
