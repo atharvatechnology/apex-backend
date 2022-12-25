@@ -1,5 +1,8 @@
+from django.shortcuts import get_object_or_404
+from django.utils.timezone import localtime, now
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -85,3 +88,27 @@ class ExamPaperPreviewAPIView(RetrieveAPIView):
     serializer_class = ExamPaperSerializer
     permission_classes = [IsAdminUser]
     queryset = Exam.objects.all()
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def trigger_exam_submit(request, pk):
+    exam = get_object_or_404(Exam, pk=pk)
+    # Check if exam is of practice type
+    if not exam.is_practice:
+        return Response({"detail": "Cannot trigger exam not of practice type."})
+    # retrieve user
+    user = request.user
+    # Find the latest exam enrollment of the user
+    exm_enr = ExamThroughEnrollment.objects.filter(
+        enrollment__student=user, exam=exam
+    ).latest("id")
+    exm_sess = exm_enr.selected_session
+    # Check if the latest exam session is active
+    if exm_sess.status != SessionStatus.ACTIVE:
+        return Response({"detail": "Exam session is not active."})
+    # Trigger session end which must trigger exam submit
+    if exm_sess.end_date > localtime(now()):
+        return Response({"detail": "Exam session is not over yet."})
+    exm_sess.end_session()
+    return Response({"detail": "Exam submitted successfully."})

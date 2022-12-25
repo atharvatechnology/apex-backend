@@ -7,6 +7,7 @@ from .views import (
     CourseSessionDeleteAPIView,
     CourseSessionListAPIView,
     CourseSessionUpdateAPIView,
+    CourseThroughEnrollmentCourseWiseListAPIView,
     CourseThroughEnrollmentListAPIView,
     EnrollmentDeleteAdminAPIView,
     EnrollmentGraphAPIView,
@@ -19,6 +20,11 @@ from .views import (
     ExamSessionUpdateAPIView,
     ExamThroughEnrollmentListAPIView,
     OverallEnrollmentAPIView,
+    PhysicalBookCourseEnrollmentAdminCreateAPIView,
+    PhysicalBookCourseEnrollmentAdminDestroyAPIView,
+    PhysicalBookCourseEnrollmentAdminListAPIView,
+    PhysicalBookCourseEnrollmentAdminRetrieveAPIView,
+    PhysicalBookCourseEnrollmentAdminUpdateAPIView,
     StudentCourseCheckView,
 )
 
@@ -93,6 +99,11 @@ course_enroll_url = [
 
 course_through_enrollment_urls = [
     path(
+        "detail/<int:course_id>/",
+        CourseThroughEnrollmentCourseWiseListAPIView.as_view(),
+        name="detail",
+    ),
+    path(
         "list/",
         CourseThroughEnrollmentListAPIView.as_view(),
         name="course-through-enrollment-list",
@@ -117,6 +128,34 @@ enrollment_urls = [
     ),
 ]
 
+physical_urls = [
+    path(
+        "list/",
+        PhysicalBookCourseEnrollmentAdminListAPIView.as_view(),
+        name="physicalbook-admin-list",
+    ),
+    path(
+        "create/",
+        PhysicalBookCourseEnrollmentAdminCreateAPIView.as_view(),
+        name="physicalbook-admin-create",
+    ),
+    path(
+        "update/<int:pk>/",
+        PhysicalBookCourseEnrollmentAdminUpdateAPIView.as_view(),
+        name="physicalbook-admin-update",
+    ),
+    path(
+        "retrieve/<int:pk>/",
+        PhysicalBookCourseEnrollmentAdminRetrieveAPIView.as_view(),
+        name="physicalbook-admin-retrieve",
+    ),
+    path(
+        "delete/<int:pk>/",
+        PhysicalBookCourseEnrollmentAdminDestroyAPIView.as_view(),
+        name="physicalbook-admin-destroy",
+    ),
+]
+
 urlpatterns = [
     path("", include(enrollment_urls)),
     path("exam-graph/", include(exam_graph)),
@@ -126,4 +165,5 @@ urlpatterns = [
     path("coursethroughenrollment/", include(course_through_enrollment_urls)),
     path("exam-enroll/", include(exam_enroll_url)),
     path("course-enroll/", include(course_enroll_url)),
+    path("physical/", include(physical_urls)),
 ]

@@ -105,3 +105,8 @@ class CourseOverviewSerializer(PublishedSerializer):
 
     def get_starting_date(self, obj):
         return " ,".join(x.start_date.strftime("%d %b %Y") for x in obj.sessions.all())
+
+
+class CourseRetrieveCardSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    data = serializers.IntegerField()
