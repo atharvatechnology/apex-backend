@@ -49,8 +49,8 @@ class ClockConsumer(AsyncWebsocketConsumer):
 
     # Receive message from clock room
     async def check_clock(self, event):
-        message = event["message"]
-        print(message)
+        # message = event["message"]
+        # print(message)
 
         # Send message to WebSocket
         await self.send(
