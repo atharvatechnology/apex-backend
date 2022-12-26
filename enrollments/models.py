@@ -632,6 +632,7 @@ class ExamThroughEnrollment(models.Model):
 
         verbose_name = "ExamThroughEnrollment"
         verbose_name_plural = "ExamThroughEnrollments"
+        ordering = ["-id"]
 
     def __str__(self):
         """Unicode representation of ExamThroughEnrollment."""

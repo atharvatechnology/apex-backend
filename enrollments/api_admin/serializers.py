@@ -176,7 +176,6 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     created_at = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
-    enrollment_id = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamThroughEnrollment
@@ -190,7 +189,6 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
             "exam",
             "payment",
             "created_at",
-            "enrollment_id",
         )
         read_only_fields = (
             "status",
@@ -211,9 +209,6 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     def get_status(self, obj):
         """Get enrollment status."""
         return obj.status
-
-    def get_enrollment_id(self, obj):
-        return obj.enrollment.id
 
 
 class ExamThroughEnrollmentAdminListSerializer(
@@ -313,7 +308,6 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     payment = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     physicalbook_enrolls = PhysicalBookCourseEnrollmentAdminSerializer(many=True)
-    enrollment_id = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseThroughEnrollment
@@ -327,7 +321,6 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
             "status",
             "enrollment",
             "physicalbook_enrolls",
-            "enrollment_id",
         )
         read_only_fields = ("status",)
 
@@ -344,9 +337,6 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
         return PaymentSerializer(
             obj.enrollment.payments_payment_related.all(), many=True
         ).data
-
-    def get_enrollment_id(self, obj):
-        return obj.enrollment.id
 
 
 class CourseThroughEnrollmentSerializer(serializers.ModelSerializer):

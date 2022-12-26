@@ -297,7 +297,7 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
 
     serializer_class = ExamThroughEnrollmentAdminListSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = ExamThroughEnrollment.objects.order_by("-score")
+    queryset = ExamThroughEnrollment.objects
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
