@@ -110,6 +110,7 @@ class ExamInfoSerializer(serializers.ModelSerializer):
             "category",
             "price",
             "template",
+            "exam_type",
         )
 
 

@@ -9,7 +9,10 @@ class ExamFilter(django_filters.FilterSet):
 
     class Meta:
         model = Exam
-        fields = {"course_id": ["exact"]}
+        fields = {
+            "course_id": ["exact"],
+            "exam_type": ["exact"],
+        }
 
 
 class PriceChoiceFilter(django_filters.DateRangeFilter):

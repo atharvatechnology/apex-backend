@@ -5,12 +5,12 @@ from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAdminUser
 
 from common.paginations import StandardResultsSetPagination
-from notifications.api_admin.serializers import NotificationSerializer
+from notifications.api_admin.serializers import NotificationAdminSerializer
 from notifications.models import NotificationMessage
 
 
-class SendPushNotification(CreateAPIView):
-    serializer_class = NotificationSerializer
+class SendPushNotificationAdmin(CreateAPIView):
+    serializer_class = NotificationAdminSerializer
     queryset = NotificationMessage.objects.all()
     permission_classes = [IsAdminUser]
 
@@ -32,8 +32,8 @@ class SendPushNotification(CreateAPIView):
         FCMDevice.objects.all().send_message(message_obj)
 
 
-class NotificationListAPIView(ListAPIView):
-    serializer_class = NotificationSerializer
+class NotificationAdminListAPIView(ListAPIView):
+    serializer_class = NotificationAdminSerializer
     queryset = NotificationMessage.objects.all()
     permission_classes = [IsAdminUser]
     pagination_class = StandardResultsSetPagination
