@@ -1,10 +1,13 @@
 from django.urls import path
 
-from notifications.api_admin.views import NotificationListAPIView, SendPushNotification
+from notifications.api_admin.views import (
+    NotificationAdminListAPIView,
+    SendPushNotificationAdmin,
+)
 
 app_name = "notifications"
 
 urlpatterns = [
-    path("send/", SendPushNotification.as_view(), name="send-push-notification"),
-    path("list/", NotificationListAPIView.as_view(), name="list"),
+    path("send/", SendPushNotificationAdmin.as_view(), name="send-push-notification"),
+    path("list/", NotificationAdminListAPIView.as_view(), name="list"),
 ]

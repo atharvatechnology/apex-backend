@@ -8,7 +8,7 @@ from rest_framework import status
 
 
 def list_meetings(json_data):
-    print("inside list meet")
+    # print("inside list meet")
 
     url = "https://api.zoom.us/v2/users/me/meetings"
     payload = {}
@@ -18,8 +18,8 @@ def list_meetings(json_data):
     }
     try:
         res = requests.request("GET", url, headers=headers, data=payload)
-    except Exception as e:
-        print(e)
+    except Exception:
+        # print(e)
         return HttpResponse("Error connecting to zoom").status_code(
             status.HTTP_500_INTERNAL_SERVER_ERROR
         )
@@ -31,7 +31,7 @@ def list_meetings(json_data):
 
 
 def delete_meeting(json_data, meeting_id):
-    print("inside delete meet")
+    # print("inside delete meet")
     url = f"https://api.zoom.us/v2/meetings/{meeting_id}"
     payload = ""
     headers = {
@@ -40,8 +40,8 @@ def delete_meeting(json_data, meeting_id):
     }
     try:
         res = requests.request("DELETE", url, headers=headers, data=payload)
-    except Exception as e:
-        print(e)
+    except Exception:
+        # print(e)
         return HttpResponse("Error connecting to zoom").status_code(
             status.HTTP_500_INTERNAL_SERVER_ERROR
         )
@@ -53,12 +53,12 @@ def delete_meeting(json_data, meeting_id):
 
 
 def create_meeting(json_data):
-    print("inside create meet")
+    # print("inside create meet")
     url = "https://api.zoom.us/v2/users/me/meetings"
     now_time = now()
     plus_5_min = now_time + timedelta(minutes=5)
     meeting_time = localtime(plus_5_min).strftime("%Y-%m-%dT%H:%M:%S")
-    print(meeting_time)
+    # print(meeting_time)
 
     payload = json.dumps(
         {
@@ -103,8 +103,8 @@ def create_meeting(json_data):
     }
     try:
         res = requests.request("POST", url, headers=headers, data=payload)
-    except Exception as e:
-        print(e)
+    except Exception:
+        # print(e)
         return HttpResponse("Error connecting to zoom").status_code(
             status.HTTP_500_INTERNAL_SERVER_ERROR
         )
@@ -134,8 +134,8 @@ def index(request):
     # res = conn.getresponse()
     try:
         res = requests.request("POST", url, headers=headers, data=payload)
-    except Exception as e:
-        print(e)
+    except Exception:
+        # print(e)
         return HttpResponse("Error connecting to zoom").status_code(
             status.HTTP_500_INTERNAL_SERVER_ERROR
         )
@@ -143,7 +143,7 @@ def index(request):
     decoded_data = text_data
     # decoded_data = data.decode("utf-8")
     json_data = json.loads(decoded_data)
-    print(res.status_code)
+    # print(res.status_code)
 
     if res.status_code == 200:
         meeting_data = create_meeting(json_data)

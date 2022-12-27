@@ -35,7 +35,7 @@ class ZoomProvider(BasicProvider):
             if res.status_code != 200:
                 raise ConnectionError("Error connecting to zoom")
         except Exception as e:
-            print(e)
+            # print(e)
             raise ConnectionError("Error connecting to zoom") from e
 
         data = res.text
@@ -45,22 +45,22 @@ class ZoomProvider(BasicProvider):
     def send_request(self, request_type, url, headers, payload):
         try:
             res = requests.request(request_type, url, headers=headers, data=payload)
-        except Exception as e:
-            print(e)
+        except Exception:
+            # print(e)
             return HttpResponse("Error connecting to zoom").status_code(
                 status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         data = res.text
-        print(res.status_code)
+        # print(res.status_code)
         # print(res.text)
         json_data = json.loads(data) if data else None
-        print(json_data)
+        # print(json_data)
         return res, json_data
 
     def attempt_zoom_connection(self, request_type, url, headers, payload):
         for _ in range(self.retry_attempts):
             res, json_data = self.send_request(request_type, url, headers, payload)
-            print(res, json_data)
+            # print(res, json_data)
             if res.status_code == 401 and json_data.get("code") == 124:
                 self.get_access_token()
             elif res.status_code in [200, 201, 204]:
@@ -70,7 +70,7 @@ class ZoomProvider(BasicProvider):
         raise ConnectionError("Error connecting to zoom")
 
     def get_meetings(self):
-        print("inside list meet")
+        # print("inside list meet")
         url = urljoin(self.api_url, "users/me/meetings")
         payload = {}
         headers = {
@@ -92,7 +92,7 @@ class ZoomProvider(BasicProvider):
     #     return res, json_data
 
     def create_meeting(self, meeting_config):
-        print("inside create meet")
+        # print("inside create meet")
         url = urljoin(self.api_url, "users/me/meetings")
         meeting_time = meeting_config["start_time"]
         payload = json.dumps(
@@ -152,7 +152,7 @@ class ZoomProvider(BasicProvider):
         raise NotImplementedError
 
     def delete_meeting(self, meeting_id):
-        print("inside delete meet")
+        # print("inside delete meet")
         url = urljoin(self.api_url, f"meetings/{meeting_id}")
         payload = {}
         headers = {
