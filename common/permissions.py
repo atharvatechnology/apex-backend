@@ -25,6 +25,20 @@ class IsAdminorSuperAdminorDirector(permissions.BasePermission):
         return False
 
 
+class IsSuperAdminorDirector(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        if user.is_anonymous:
+            return False
+        if (
+            user.is_authenticated
+            and (user.is_super_admin or user.is_director)
+            and user.groups.all().first() in user.groups.all()
+        ):
+            return True
+        return False
+
+
 class IsAllUser(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
