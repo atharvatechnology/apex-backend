@@ -31,7 +31,7 @@ class StudentAttendanceAdminListAPIView(ListAPIView):
     serializer_class = StudentAttendanceAdminListSerializer
     queryset = StudentAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
+    search_fields = ["user__username", "user__first_name", "user__last_name"]
     filterset_class = AttendanceFilter
     pagination_class = StandardResultsSetPagination
 
@@ -65,11 +65,10 @@ class StudentAttendanceAdminHistoryListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
-        student_id = self.kwargs.get("student_id", None)
-        if not student_id:
+        if student_id := self.kwargs.get("student_id", None):
+            return super().get_queryset().filter(user=student_id)
+        else:
             raise ValidationError("Student id is required.")
-
-        return super().get_queryset().filter(user=self.kwargs.get("student_id"))
 
 
 class StudentAttendanceAdminDeleteAPIView(DestroyAPIView):
@@ -86,7 +85,7 @@ class TeacherAttendanceAdminListAPIView(ListAPIView):
     serializer_class = TeacherAttendanceAdminListSerializer
     queryset = TeacherAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
+    search_fields = ["user__username", "user__first_name", "user__last_name"]
     filterset_class = AttendanceFilter
     pagination_class = StandardResultsSetPagination
 
@@ -104,11 +103,10 @@ class TeacherAttendanceAdminHistoryListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
-        teacher_id = self.kwargs.get("teacher_id", None)
-        if not teacher_id:
+        if teacher_id := self.kwargs.get("teacher_id", None):
+            return super().get_queryset().filter(user=teacher_id)
+        else:
             raise ValidationError("Teacher id is required.")
-
-        return super().get_queryset().filter(user=self.kwargs.get("teacher_id"))
 
 
 class TeacherAttendanceAdminUpdateAPIView(BaseCreatorUpdateAPIView):
@@ -124,7 +122,7 @@ class TeacherAttendanceAdminRetrieveAPIView(RetrieveAPIView):
 
     permission_classes = [IsAdminUser, IsAuthenticated]
     serializer_class = TeacherAttendanceAdminRetrieveSerializer
-    queryset = TeacherAttendanceDetail.objects.all()
+    queryset = TeacherAttendance.objects.all()
 
 
 class TeacherAttendanceAdminDeleteAPIView(DestroyAPIView):
@@ -145,15 +143,14 @@ class TeacherAttendanceDetailAdminListAPIView(ListAPIView):
 
     def get_queryset(self):
         """Get the queryset."""
-        teacher_attendance_id = self.kwargs.get("attendance_id", None)
-        if not teacher_attendance_id:
+        if teacher_attendance_id := self.kwargs.get("attendance_id", None):
+            return (
+                super()
+                .get_queryset()
+                .filter(teacher_attendance_id=teacher_attendance_id)
+            )
+        else:
             raise ValidationError("Teacher attendance id is required.")
-
-        return (
-            super()
-            .get_queryset()
-            .filter(teacher_attendance_id=self.kwargs.get("attendance_id"))
-        )
 
 
 class TeacherAttendanceDetailAdminRetrieveAPIView(RetrieveAPIView):

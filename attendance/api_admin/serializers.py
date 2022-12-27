@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from accounts.api.serializers import FullNameField
+from accounts.api_admin.serializers import UserMiniAdminSerializer
 from attendance.models import (
     StudentAttendance,
     TeacherAttendance,
@@ -11,26 +11,10 @@ from attendance.models import (
 User = get_user_model()
 
 
-class UserForAttendanceListAdminSerializer(serializers.ModelSerializer):
-    """Admin List Serializer."""
-
-    fullName = FullNameField(source="*")
-    # profile = ProfileAdminCreateSerializer(required=False)
-
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "fullName",
-            "username",
-            # "profile",
-        ]
-
-
 class StudentAttendanceAdminListSerializer(serializers.ModelSerializer):
     """Serializer for listing admin student attendance model."""
 
-    user = UserForAttendanceListAdminSerializer()
+    user = UserMiniAdminSerializer()
 
     class Meta:
         model = StudentAttendance
@@ -44,7 +28,7 @@ class StudentAttendanceAdminListSerializer(serializers.ModelSerializer):
 class StudentAttendanceAdminHistoryListSerializer(serializers.ModelSerializer):
     """Serializer for listing history of student attendance model."""
 
-    user = UserForAttendanceListAdminSerializer()
+    user = UserMiniAdminSerializer()
 
     class Meta:
         model = StudentAttendance
@@ -58,7 +42,7 @@ class StudentAttendanceAdminHistoryListSerializer(serializers.ModelSerializer):
 class StudentAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for updating admin student attendance model."""
 
-    user = UserForAttendanceListAdminSerializer()
+    user = UserMiniAdminSerializer()
 
     class Meta:
         model = StudentAttendance
@@ -72,7 +56,7 @@ class StudentAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
 class StudentAttendanceAdminUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating admin student attendance model."""
 
-    user = UserForAttendanceListAdminSerializer(read_only=True)
+    user = UserMiniAdminSerializer(read_only=True)
 
     class Meta:
         model = StudentAttendance
@@ -103,8 +87,8 @@ class TeacherAttendanceDetailAdminSerializer(serializers.ModelSerializer):
 class TeacherAttendanceAdminListSerializer(serializers.ModelSerializer):
     """Serializer for listing admin teacher attendance models."""
 
-    user = UserForAttendanceListAdminSerializer()
-    teacher_attendance = TeacherAttendanceDetailAdminSerializer(required=False)
+    user = UserMiniAdminSerializer()
+    details = TeacherAttendanceDetailAdminSerializer(read_only=True, many=True)
 
     class Meta:
         model = TeacherAttendance
@@ -112,15 +96,15 @@ class TeacherAttendanceAdminListSerializer(serializers.ModelSerializer):
             "id",
             "date",
             "user",
-            "teacher_attendance",
+            "details",
         )
 
 
 class TeacherAttendanceAdminHistoryListSerializer(serializers.ModelSerializer):
     """Serializer for listing history of admin teacher attendance models."""
 
-    user = UserForAttendanceListAdminSerializer()
-    teacher_attendance = TeacherAttendanceDetailAdminSerializer(required=False)
+    user = UserMiniAdminSerializer()
+    details = TeacherAttendanceDetailAdminSerializer(read_only=True, many=True)
 
     class Meta:
         model = TeacherAttendance
@@ -128,15 +112,15 @@ class TeacherAttendanceAdminHistoryListSerializer(serializers.ModelSerializer):
             "id",
             "date",
             "user",
-            "teacher_attendance",
+            "details",
         )
 
 
 class TeacherAttendanceAdminUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating admin teacher attendance models."""
 
-    user = UserForAttendanceListAdminSerializer(read_only=True)
-    teacher_attendance = TeacherAttendanceDetailAdminSerializer(read_only=True)
+    user = UserMiniAdminSerializer(read_only=True)
+    details = TeacherAttendanceDetailAdminSerializer(read_only=True, many=True)
 
     class Meta:
         model = TeacherAttendance
@@ -144,15 +128,15 @@ class TeacherAttendanceAdminUpdateSerializer(serializers.ModelSerializer):
             "id",
             "date",
             "user",
-            "teacher_attendance",
+            "details",
         )
 
 
 class TeacherAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
     """Serializer for retrieving admin teacher attendance models."""
 
-    user = UserForAttendanceListAdminSerializer()
-    teacher_attendance = TeacherAttendanceDetailAdminSerializer(required=False)
+    user = UserMiniAdminSerializer()
+    details = TeacherAttendanceDetailAdminSerializer(required=False, many=True)
 
     class Meta:
         model = TeacherAttendance
@@ -160,5 +144,5 @@ class TeacherAttendanceAdminRetrieveSerializer(serializers.ModelSerializer):
             "id",
             "date",
             "user",
-            "teacher_attendance",
+            "details",
         )
