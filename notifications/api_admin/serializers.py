@@ -7,3 +7,4 @@ class NotificationAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificationMessage
         fields = ("title", "body", "created_at")
+        read_only_fields = ("created_at",)

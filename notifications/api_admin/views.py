@@ -16,8 +16,12 @@ class SendPushNotificationAdmin(CreateAPIView):
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
+        data = {
+            "title": serializer.data["title"],
+            "body": serializer.data["body"],
+        }
         message_obj = Message(
-            notification=Notification(**serializer.data),
+            notification=Notification(**data),
             apns=APNSConfig(
                 headers={
                     "apns-priority": "5",
