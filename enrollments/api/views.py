@@ -73,7 +73,9 @@ class EnrollmentCreateAPIView(CreateAPIView):
 class PracticeExamEnrollmentCreateAPIView(CreateAPIView):
     """Create a new practice exam enrollment for a student."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     serializer_class = PracticeExamEnrollmentCreateSerializer
     queryset = Enrollment.objects.all()
 
@@ -97,7 +99,9 @@ class PracticeExamEnrollmentCreateAPIView(CreateAPIView):
 class PracticeEnrollmentCreateAPIView(CreateAPIView):
     """Create or update enrollment of a student for a practice exam."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = Enrollment.objects.all()
     serializer_class = PracticeExamEnrollmentCreateSerializer
 
@@ -139,7 +143,9 @@ class CourseExamEnrollmentCreateAPIView(EnrollmentCreateAPIView):
 class EnrollmentListAPIView(ListAPIView):
     """List all enrollments for a student."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     serializer_class = EnrollmentRetrieveSerializer
     queryset = Enrollment.objects.all()
 
@@ -159,7 +165,9 @@ class EnrollmentListAPIView(ListAPIView):
 class ExamEnrollmentUpdateAPIView(UpdateAPIView):
     """Submit an exam enrollment."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentUpdateSerializer
 
@@ -176,7 +184,9 @@ class ExamEnrollmentUpdateAPIView(UpdateAPIView):
 class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
     """Retrieve an exam enrollment result."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentRetrieveSerializer
 
@@ -217,7 +227,9 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
 class ExamEnrollmentCheckpointRetrieveAPIView(RetrieveAPIView):
     """Retrieve an exam enrollment saved state."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentCheckPointRetrieveSerializer
 
@@ -243,7 +255,9 @@ class ExamEnrollmentCheckpointRetrieveAPIView(RetrieveAPIView):
 class ExamEnrollmentRetrievePoolAPIView(RetrieveAPIView):
     """Retrieve an exam enrollment result."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentRetrievePoolSerializer
 
@@ -290,7 +304,9 @@ class ExamEnrollmentRetrievePoolAPIView(RetrieveAPIView):
 class CourseEnrollementListAPIView(ListAPIView):
     """List view for course enrollment."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
 
@@ -301,7 +317,9 @@ class CourseEnrollementListAPIView(ListAPIView):
 class CourseEnrollementUpdateAPIView(UpdateAPIView):
     """Update view for course enrollment."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentUpdateSerializer
 
@@ -317,7 +335,9 @@ class CourseEnrollementUpdateAPIView(UpdateAPIView):
 class CourseEnrollementRetrieveAPIView(RetrieveAPIView):
     """Retrieve view for course enrollment."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentRetrieveSerializer
 
@@ -333,12 +353,17 @@ class CourseEnrollementRetrieveAPIView(RetrieveAPIView):
 class CourseEnrollementDestroyAPIView(DestroyAPIView):
     """Destroy view for course enrollment."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     serializer_class = CourseEnrollmentSerializer
     queryset = CourseThroughEnrollment.objects.all()
 
 
 class CheckIfStudentInCourse(CreateAPIView):
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     serializer_class = StudentEnrollmentSerializer
 
 
