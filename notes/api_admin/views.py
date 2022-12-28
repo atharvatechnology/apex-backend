@@ -1,10 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
+from common.permissions import IsAdminorSuperAdminorDirector, IsCashier
 from notes.api_admin.serializers import (
     ContentSerializer,
     NoteSerializer,
@@ -23,7 +24,8 @@ class NoteCreateAPIView(BaseCreatorCreateAPIView):
 
     """
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
+
     serializer_class = NoteSerializer
 
 
@@ -40,7 +42,7 @@ class NoteListAPIView(ListAPIView):
 
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["title"]
@@ -66,7 +68,7 @@ class NoteRetrieveAPIView(RetrieveAPIView):
 
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
 
 
 class NoteUpdateAPIView(BaseCreatorUpdateAPIView):
@@ -80,9 +82,9 @@ class NoteUpdateAPIView(BaseCreatorUpdateAPIView):
 
     """
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
 
 
 class NoteDestroyAPIView(DestroyAPIView):
@@ -97,7 +99,7 @@ class NoteDestroyAPIView(DestroyAPIView):
     """
 
     queryset = Note.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
 
 
 class ContentCreateAPIView(BaseCreatorCreateAPIView):
@@ -110,8 +112,8 @@ class ContentCreateAPIView(BaseCreatorCreateAPIView):
 
     """
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = ContentSerializer
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
 
 
 class ContentListAPIView(ListAPIView):
@@ -127,7 +129,7 @@ class ContentListAPIView(ListAPIView):
     """
 
     queryset = Content.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
     serializer_class = ContentSerializer
     pagination_class = StandardResultsSetPagination
 
@@ -145,7 +147,7 @@ class ContentRetrieveAPIView(RetrieveAPIView):
     """
 
     queryset = Content.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
     serializer_class = ContentSerializer
 
 
@@ -160,7 +162,7 @@ class ContentUpdateAPIView(BaseCreatorUpdateAPIView):
 
     """
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
     queryset = Content.objects.all()
     serializer_class = ContentSerializer
 
@@ -177,7 +179,7 @@ class ContentDestroyAPIView(DestroyAPIView):
     """
 
     queryset = Content.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
 
 
 class RecordedVideoCreateAPIView(BaseCreatorCreateAPIView):
@@ -190,7 +192,7 @@ class RecordedVideoCreateAPIView(BaseCreatorCreateAPIView):
 
     """
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
     serializer_class = RecordedVideoSerializer
 
 
@@ -208,7 +210,7 @@ class RecordedVideoListAPIView(ListAPIView):
     queryset = RecordedVideo.objects.all()
     serializer_class = RecordedVideoSerializer
     pagination_class = StandardResultsSetPagination
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
 
@@ -233,7 +235,7 @@ class RecordedVideoRetrieveAPIView(RetrieveAPIView):
 
     queryset = RecordedVideo.objects.all()
     serializer_class = RecordedVideoSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
 
 
 class RecordedVideoUpdateAPIView(BaseCreatorUpdateAPIView):
@@ -247,7 +249,7 @@ class RecordedVideoUpdateAPIView(BaseCreatorUpdateAPIView):
 
     """
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
     queryset = RecordedVideo.objects.all()
     serializer_class = RecordedVideoSerializer
 
@@ -264,4 +266,4 @@ class RecordedVideoDestroyAPIView(DestroyAPIView):
     """
 
     queryset = RecordedVideo.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier)]
