@@ -5,11 +5,10 @@ from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.models import Role, User
-from common.permissions import IsAccountant, IsSuperAdminorDirector
 from courses.models import CourseCategory
 from enrollments.models import ExamSession, ExamThroughEnrollment, SessionStatus
 from exams.models import Exam
@@ -30,19 +29,19 @@ from payments.models import BankPayment, OnlinePayment, Payment
 
 
 class OnlinePaymentCreateAPIView(CreateAPIView):
-    permission_classes = [IsAuthenticated & (IsSuperAdminorDirector | IsAccountant)]
+    permission_classes = [IsAuthenticated]
     serializer_class = OnlinePaymentCreateSerializer
     queryset = OnlinePayment.objects.all()
 
 
 class BankPaymentCreateAPIView(CreateAPIView):
-    permission_classes = [IsAuthenticated & (IsSuperAdminorDirector | IsAccountant)]
+    permission_classes = [IsAuthenticated]
     serializer_class = BankPaymentCreateSerializer
     queryset = BankPayment.objects.all()
 
 
 class OnlinePaymentUpdateAPIView(UpdateAPIView):
-    permission_classes = [IsAuthenticated & (IsSuperAdminorDirector | IsAccountant)]
+    permission_classes = [IsAuthenticated]
     serializer_class = OnlinePaymentUpdateSerializer
     queryset = OnlinePayment.objects.all()
 
@@ -50,7 +49,7 @@ class OnlinePaymentUpdateAPIView(UpdateAPIView):
 class MonthlyRevenueBarGraph(ListAPIView):
     """Total revenue got from exam and course(frame18) bar graph."""
 
-    permission_classes = [IsAuthenticated & (IsSuperAdminorDirector | IsAccountant)]
+    permission_classes = [IsAdminUser]
     queryset = Payment.objects.all()
     serializer_class = PaymentCreateSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
@@ -92,7 +91,7 @@ class TopRevenueAmount(MonthlyRevenueBarGraph):
 
 
 class DashboardOverview(ListAPIView):
-    permission_classes = [IsAuthenticated & (IsSuperAdminorDirector | IsAccountant)]
+    permission_classes = [IsAdminUser]
     queryset = Payment.objects.all()
     serializer_class = PaymentCreateSerializer
     filter_backends = [DjangoFilterBackend]
@@ -146,7 +145,8 @@ class DashboardOverview(ListAPIView):
 
 
 class RevenueOverView(ListAPIView):
-    permission_classes = [IsAuthenticated & (IsSuperAdminorDirector | IsAccountant)]
+
+    permission_classes = [IsAdminUser]
     queryset = Payment.objects.all()
     serializer_class = PaymentCreateSerializer
     filter_backends = [DjangoFilterBackend]

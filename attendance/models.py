@@ -52,7 +52,7 @@ class TeacherAttendance(Attendance):
         ordering = ["name"]
 
     def __str__(self):
-        return self.name if self.name else ""
+        return self.name or ""
 
 
 class TeacherAttendanceDetail(CreatorBaseModel):

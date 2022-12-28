@@ -11,6 +11,7 @@ from accounts.api_admin.views import (
     UserStudentAdminCardAPIView,
     UserStudentCreateAdminAPIView,
     UserStudentListAdminAPIView,
+    UserTeacherCreateAdminAPIView,
     UserTeacherListAdminAPIView,
     UserTrackableListAdminAPIView,
     UserUpdateAdminAPIView,
@@ -29,6 +30,11 @@ student_url = [
 ]
 
 teacher_url = [
+    path(
+        "create/",
+        UserTeacherCreateAdminAPIView.as_view(),
+        name="teacher-create",
+    ),
     path("list/", UserTeacherListAdminAPIView.as_view(), name="list"),
 ]
 

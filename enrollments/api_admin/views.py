@@ -10,8 +10,9 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
@@ -327,7 +328,7 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     permission_classes = [
         IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
     ]
-    queryset = ExamThroughEnrollment.objects.order_by("-score")
+    queryset = ExamThroughEnrollment.objects
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
@@ -342,6 +343,26 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     ]
     ordering_fields = ["status", "score"]
     filterset_class = ExamThroughEnrollmentFilter
+
+
+class ExamThroughEnrollmentListCardAPIView(APIView):
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    queryset = Enrollment.objects.filter(exams__isnull=False)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        data = [
+            {"title": "Enrollments", "data": queryset.count()},
+            {
+                "title": "Verified Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.ACTIVE).count(),
+            },
+            {
+                "title": "Pending Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.PENDING).count(),
+            },
+        ]
+        return Response(data)
 
 
 class CourseThroughEnrollmentListAPIView(ListAPIView):
@@ -375,11 +396,35 @@ class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAP
         return super().get_queryset().filter(course__id=course_id)
 
 
+class CourseThroughEnrollmentListCardAPIView(APIView):
+    permission_classes = [
+        IsAuthenticated & (IsAccountant | IsAdminorSuperAdminorDirector | IsCashier)
+    ]
+    queryset = Enrollment.objects.filter(courses__isnull=False)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        data = [
+            {"title": "Enrollments", "data": queryset.count()},
+            {
+                "title": "Verified Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.ACTIVE).count(),
+            },
+            {
+                "title": "Pending Enrollments",
+                "data": queryset.filter(status=EnrollmentStatus.PENDING).count(),
+            },
+        ]
+        return Response(data)
+
+
 class EnrollmentUpdateAdminAPIView(UpdateAPIView):
     """Update an existing enrollment."""
 
     serializer_class = EnrollmentStatusAdminUpdateSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [
+        IsAuthenticated & (IsAdminorSuperAdminorDirector | IsCashier | IsAccountant)
+    ]
     queryset = Enrollment.objects.all()
 
 

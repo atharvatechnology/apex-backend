@@ -37,7 +37,6 @@ class Role(models.Model):
         (SUPER_ADMIN, "Super Admin"),
         (ADMIN, "Admin"),
         (DIRECTOR, "Director"),
-        (TEACHER, "Teacher"),
         (ACCOUNTANT, "Accountant"),
         (CASHIER, "Cashier"),
         (COUNSELLOR, "Counsellor"),

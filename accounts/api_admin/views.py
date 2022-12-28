@@ -8,7 +8,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -25,10 +25,12 @@ from accounts.api_admin.serializers import (
     UserMiniAdminSerializer,
     UserRetrieveAdminSerializer,
     UserStudentCreateAdminSerializer,
+    UserTeacherCreateAdminSerializer,
     UserUpdateAdminSerializer,
 )
 from accounts.models import Role
 from common.paginations import StandardResultsSetPagination
+from common.permissions import IsAdminorSuperAdminorDirector
 from common.utils import tuple_to_list, tuple_to_list_first_elements
 from courses.models import CourseCategory
 
@@ -38,7 +40,7 @@ User = get_user_model()
 class UserRolesView(APIView):
     """Roles List API View."""
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
 
     def get(self, request):
         return Response(tuple_to_list(Role.role_choices))
@@ -47,7 +49,7 @@ class UserRolesView(APIView):
 class UserCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
     serializer_class = UserCreateAdminSerializer
     queryset = User.objects.all()
 
@@ -55,7 +57,7 @@ class UserCreateAdminAPIView(CreateAPIView):
 class UserStudentCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
     serializer_class = UserStudentCreateAdminSerializer
     queryset = User.objects.all()
 
@@ -64,10 +66,22 @@ class UserStudentCreateAdminAPIView(CreateAPIView):
         obj.roles.add(Role.STUDENT)
 
 
+class UserTeacherCreateAdminAPIView(CreateAPIView):
+    """Admin Create API View."""
+
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    serializer_class = UserTeacherCreateAdminSerializer
+    queryset = User.objects.all()
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        obj.roles.add(Role.TEACHER)
+
+
 class UserListAdminAPIView(ListAPIView):
     """User List API View."""
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
     serializer_class = UserListAdminSerializer
     queryset = User.objects.all().order_by("-id")
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
@@ -110,7 +124,7 @@ class UserCounsellorListAdminAPIView(UserListAdminAPIView):
 
 
 class UserStudentAdminCardAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
     queryset = User.objects.filter(roles__in=[Role.STUDENT])
 
     def get(self, request, *args, **kwargs):
@@ -132,7 +146,7 @@ class UserStudentAdminCardAPIView(APIView):
 class UserRetrieveAdminAPIView(RetrieveAPIView):
     """User Retrieve API View."""
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
     serializer_class = UserRetrieveAdminSerializer
     queryset = User.objects.all()
 
@@ -140,7 +154,7 @@ class UserRetrieveAdminAPIView(RetrieveAPIView):
 class UserUpdateAdminAPIView(UpdateAPIView):
     """User Update API View."""
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
     serializer_class = UserUpdateAdminSerializer
     queryset = User.objects.all()
 
@@ -149,6 +163,7 @@ class GetSMSCreditAdminAPIView(GenericAPIView):
     """Check credit of SMS provider."""
 
     serializer_class = SMSCreditAdminSerializer
+    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         otp = OTP().getCredit()

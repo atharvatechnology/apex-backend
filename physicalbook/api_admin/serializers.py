@@ -55,3 +55,25 @@ class PhysicalBookAdminUpdateSerializer(CreatorSerializer):
             "image",
             "course",
         )
+
+
+class PhysicalBookEnrolledCourseSerializer(serializers.ModelSerializer):
+
+    taken = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PhysicalBook
+        fields = (
+            "id",
+            "name",
+            "taken",
+        )
+
+    def get_taken(self, obj):
+        student_id = self.context["view"].kwargs.get("student_id")
+        return bool(
+            obj.physicalbook_enrolls.filter(
+                course_enrollment__enrollment__student__id=student_id,
+                status_provided=True,
+            )
+        )

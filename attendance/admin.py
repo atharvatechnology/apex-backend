@@ -58,7 +58,7 @@ class TeacherAttendanceAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
         """Formset save to update created_by and updated_by."""
         if formset.model == TeacherAttendanceDetail:
             for instance in formset.save(commit=False):
-                if not change:
+                if not instance.id:
                     instance.created_by = request.user
                 instance.updated_by = request.user
                 instance.save()

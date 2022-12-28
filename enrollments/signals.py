@@ -7,7 +7,7 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from exams.models import ExamStatus
+from exams.models import ExamStatus, ExamType
 
 from .models import ExamEnrollmentStatus, SessionStatus
 from .tasks import calculate_score
@@ -26,6 +26,8 @@ def on_exam_attempt(sender, instance, **kwargs):
 @receiver(post_save, sender="enrollments.ExamSession")
 def on_exam_session_save(sender, instance, created, **kwargs):
     if created:
+        if instance.exam.exam_type == ExamType.PRACTICE:
+            return
         instance.setup_tasks(instance.exam)
         instance.save()
 

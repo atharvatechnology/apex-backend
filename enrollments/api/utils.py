@@ -135,7 +135,7 @@ def retrieve_exam_status(self, obj):
 
 
 def schedule_exam_in_five_minutes(exam, student):
-    """Schedule exam in one minute.
+    """Schedule exam in immediately.
 
     Parameters
     ----------
@@ -150,6 +150,7 @@ def schedule_exam_in_five_minutes(exam, student):
         exam session created
 
     """
+
     schedule_time = timezone.now() + timezone.timedelta(minutes=1)
     exam_session = ExamSession.objects.create(
         exam=exam,
@@ -157,5 +158,7 @@ def schedule_exam_in_five_minutes(exam, student):
         result_is_published=True,
         created_by=student,
         updated_by=student,
+        # schedule exam immediately for practice exams
+        status=SessionStatus.ACTIVE,
     )
     return exam_session

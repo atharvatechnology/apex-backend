@@ -6,12 +6,13 @@ from django.db.models.functions import ExtractMonth
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView, ListAPIView
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import Role
 from attendance.models import StudentAttendance, TeacherAttendance
+from common.permissions import IsSuperAdminorDirector
 from courses.models import Course, CourseCategory
 from dashboard.api_admin.filters import CourseCategoryFilter, ExamDateFilter
 from dashboard.api_admin.serializers import (
@@ -30,7 +31,7 @@ User = get_user_model()
 
 class DashboardOverviewAPIView(GenericAPIView):
     serializer_class = DashboardOverviewSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated & IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         date_time = timezone.localtime()
@@ -76,7 +77,7 @@ class DashboardOverviewAPIView(GenericAPIView):
 
 class DashboardRevenueOverviewAPIView(GenericAPIView):
     serializer_class = DashboardRevenueSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated & IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get("year")
@@ -108,7 +109,7 @@ class DashboardRevenueOverviewAPIView(GenericAPIView):
 
 class DashboardRevenueGraphAPIView(GenericAPIView):
     serializer_class = DashboardRevenueGraphSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated & IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get("year")
@@ -135,7 +136,7 @@ class DashboardRevenueGraphAPIView(GenericAPIView):
 
 class DashboardRevenueCourseAPIView(GenericAPIView):
     serializer_class = DashboardRevenueCourseSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated & IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get("year")
@@ -157,7 +158,7 @@ class DashboardRevenueCourseAPIView(GenericAPIView):
 
 
 class DashboardEnrollmentOverallCourseAPIView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated & IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get("year")
@@ -183,7 +184,7 @@ class DashboardEnrollmentOverallCourseAPIView(APIView):
 
 
 class DashboardEnrollmentCourseCategoryAPIView(ListAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated & IsSuperAdminorDirector]
     filter_backends = [DjangoFilterBackend]
     filterset_class = CourseCategoryFilter
     queryset = Course.objects.all()
@@ -209,7 +210,7 @@ class DashboardEnrollmentCourseCategoryAPIView(ListAPIView):
 
 
 class DashboardEnrollmentExamCountAPIView(ListAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated & IsSuperAdminorDirector]
     serializer_class = DashboardEnrollmentCountSerializer
     queryset = Enrollment.objects.all()
     filter_backends = [DjangoFilterBackend]
@@ -236,7 +237,7 @@ class DashboardEnrollmentExamCountAPIView(ListAPIView):
 
 
 class DashboardAttendanceAPIView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated & IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         student_attendance = StudentAttendance.objects.filter(

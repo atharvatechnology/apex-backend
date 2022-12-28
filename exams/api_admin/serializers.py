@@ -277,7 +277,7 @@ class ExamTemplateCreateUpdateSerializer(CreatorSerializer):
         full_marks = validated_data.get("full_marks", instance.full_marks)
         status = validated_data.get("status", instance.status)
         total_section_marks = get_total_section_marks(instance)
-        print(f"full_marks: {full_marks}, total_section_marks: {total_section_marks}")
+        # print(f"full_marks: {full_marks}, total_section_marks: {total_section_marks}")
         if (status == ExamTemplateStatus.COMPLETED) and (
             full_marks != total_section_marks
         ):

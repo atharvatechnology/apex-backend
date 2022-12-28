@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from rest_framework import serializers
 
+from accounts.api_admin.serializers import UserMiniAdminSerializer
 from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
 from common.utils import decode_user
 from courses.api_common.serializers import CoursePhysicalSerializer
@@ -170,7 +171,7 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     """Base Serializer for ExamThroughEnrollment."""
 
     exam = ExamMiniSerializer()
-    student = serializers.SerializerMethodField()
+    student = UserMiniAdminSerializer(source="enrollment.student")
     selected_session = ExamSessionAdminSerializer()
     created_at = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
@@ -179,6 +180,7 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamThroughEnrollment
         fields = (
+            "id",
             "selected_session",
             "student",
             "status",
@@ -186,18 +188,12 @@ class ExamThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
             "negative_score",
             "exam",
             "payment",
+            "created_at",
         )
         read_only_fields = (
             "status",
             "score",
         )
-
-    def get_student(self, obj):
-        """Get student username."""
-        return {
-            "name": obj.enrollment.student.__str__(),
-            "phone": obj.enrollment.student.username,
-        }
 
     def get_created_at(self, obj):
         """Get created_at."""
@@ -222,16 +218,22 @@ class ExamThroughEnrollmentAdminListSerializer(
 
     question_states = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()
+    enrollment_status = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamThroughEnrollment
         fields = ExamThroughEnrollmentAdminBaseSerializer.Meta.fields + (
             "question_states",
             "rank",
+            "enrollment",
+            "enrollment_status",
         )
 
     def get_rank(self, obj):
         return get_student_rank(obj)
+
+    def get_enrollment_status(self, obj):
+        return obj.enrollment.status
 
     # @staticmethod
     # def get_student(obj):
@@ -300,7 +302,7 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
     """Base Serializer for CourseThroughEnrollment."""
 
     course = CoursePhysicalSerializer()
-    student = serializers.SerializerMethodField()
+    student = UserMiniAdminSerializer(source="enrollment.student")
     selected_session = CourseSessionAdminSerializer()
     created_at = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
@@ -317,17 +319,10 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
             "payment",
             "created_at",
             "status",
+            "enrollment",
             "physicalbook_enrolls",
         )
         read_only_fields = ("status",)
-
-    def get_student(self, obj):
-        """Get student username."""
-        return {
-            "id": obj.enrollment.student.id,
-            "name": obj.enrollment.student.__str__(),
-            "phone": obj.enrollment.student.username,
-        }
 
     def get_status(self, obj):
         """Get enrollment status."""
@@ -407,7 +402,7 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         exams_data = validated_data.pop("exam_enrolls", None)
-        user = validated_data.pop("student")
+        user = validated_data.get("student")
 
         exams = [data.get("exam") for data in exams_data]
         batch_is_enrolled_and_price(exams, user)

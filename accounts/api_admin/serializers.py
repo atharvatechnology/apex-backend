@@ -4,22 +4,8 @@ from rest_framework import serializers
 
 from accounts.api.serializers import FullNameField
 from accounts.models import Profile
-from courses.api_admin.serializers import CourseCategorySerializer
 
 User = get_user_model()
-
-
-class UserMiniAdminSerializer(serializers.ModelSerializer):
-    fullName = FullNameField(source="*")
-
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "username",
-            "email",
-            "fullName",
-        ]
 
 
 class ProfileAdminCreateSerializer(serializers.ModelSerializer):
@@ -41,7 +27,7 @@ class ProfileAdminCreateSerializer(serializers.ModelSerializer):
 class ProfileAdminListSerializer(serializers.ModelSerializer):
     """Serializer for the Profile List Model."""
 
-    interests = CourseCategorySerializer(many=True)
+    interests = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -53,6 +39,26 @@ class ProfileAdminListSerializer(serializers.ModelSerializer):
             "faculty",
             "address",
             "interests",
+        ]
+
+    def get_interests(self, obj):
+        from courses.api_admin.serializers import CourseCategorySerializer
+
+        return CourseCategorySerializer(instance=obj.interests.all(), many=True).data
+
+
+class UserMiniAdminSerializer(serializers.ModelSerializer):
+    fullName = FullNameField(source="*")
+    profile = ProfileAdminListSerializer(required=False)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "fullName",
+            "profile",
         ]
 
 
@@ -96,6 +102,19 @@ class UserCreateAdminSerializer(serializers.ModelSerializer):
 
 
 class UserStudentCreateAdminSerializer(UserCreateAdminSerializer):
+    """Admin Student Create Serializer."""
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "email",
+            "fullName",
+            "profile",
+        ]
+
+
+class UserTeacherCreateAdminSerializer(UserCreateAdminSerializer):
     """Admin Student Create Serializer."""
 
     class Meta:
