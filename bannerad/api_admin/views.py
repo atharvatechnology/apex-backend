@@ -4,7 +4,6 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 
 from bannerad.api_admin.serializers import (
     BannerAdCreateAdminSerializer,
@@ -20,7 +19,7 @@ from common.permissions import IsAdminorSuperAdminorDirector
 class BannerAdCreateAdminAPIView(BaseCreatorCreateAPIView):
     """View for creating bannerad."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = BannerAdCreateAdminSerializer
     queryset = BannerAd.objects.all()
 
@@ -28,7 +27,7 @@ class BannerAdCreateAdminAPIView(BaseCreatorCreateAPIView):
 class BannerAdRetrieveAdminAPIView(RetrieveAPIView):
     """View for retrieving bannerad."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = BannerAdRetrieveAdminSerializer
     queryset = BannerAd.objects.all()
 
@@ -36,7 +35,7 @@ class BannerAdRetrieveAdminAPIView(RetrieveAPIView):
 class BannerAdListAdminAPIView(ListAPIView):
     """View for listing bannerad."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = BannerAdListAdminSerializer
     queryset = BannerAd.objects.all()
 
@@ -44,7 +43,7 @@ class BannerAdListAdminAPIView(ListAPIView):
 class BannerAdUpdateAdminAPIView(UpdateAPIView):
     """View for updating bannerad."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = BannerAdUpdateAdminSerializer
     queryset = BannerAd.objects.all()
 
@@ -52,5 +51,5 @@ class BannerAdUpdateAdminAPIView(UpdateAPIView):
 class BannerAdDeleteAdminAPIView(DestroyAPIView):
     """View for deleting bannerad."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = BannerAd.objects.all()

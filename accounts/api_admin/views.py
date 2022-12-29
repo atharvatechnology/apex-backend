@@ -8,7 +8,6 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -40,7 +39,7 @@ User = get_user_model()
 class UserRolesView(APIView):
     """Roles List API View."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
 
     def get(self, request):
         return Response(tuple_to_list(Role.role_choices))
@@ -49,7 +48,7 @@ class UserRolesView(APIView):
 class UserCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = UserCreateAdminSerializer
     queryset = User.objects.all()
 
@@ -57,7 +56,7 @@ class UserCreateAdminAPIView(CreateAPIView):
 class UserStudentCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = UserStudentCreateAdminSerializer
     queryset = User.objects.all()
 
@@ -69,7 +68,7 @@ class UserStudentCreateAdminAPIView(CreateAPIView):
 class UserTeacherCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = UserTeacherCreateAdminSerializer
     queryset = User.objects.all()
 
@@ -81,7 +80,7 @@ class UserTeacherCreateAdminAPIView(CreateAPIView):
 class UserListAdminAPIView(ListAPIView):
     """User List API View."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = UserListAdminSerializer
     queryset = User.objects.all().order_by("-id")
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
@@ -124,7 +123,7 @@ class UserCounsellorListAdminAPIView(UserListAdminAPIView):
 
 
 class UserStudentAdminCardAPIView(APIView):
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = User.objects.filter(roles__in=[Role.STUDENT])
 
     def get(self, request, *args, **kwargs):
@@ -146,7 +145,7 @@ class UserStudentAdminCardAPIView(APIView):
 class UserRetrieveAdminAPIView(RetrieveAPIView):
     """User Retrieve API View."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = UserRetrieveAdminSerializer
     queryset = User.objects.all()
 
@@ -154,7 +153,7 @@ class UserRetrieveAdminAPIView(RetrieveAPIView):
 class UserUpdateAdminAPIView(UpdateAPIView):
     """User Update API View."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = UserUpdateAdminSerializer
     queryset = User.objects.all()
 
@@ -163,7 +162,7 @@ class GetSMSCreditAdminAPIView(GenericAPIView):
     """Check credit of SMS provider."""
 
     serializer_class = SMSCreditAdminSerializer
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         otp = OTP().getCredit()

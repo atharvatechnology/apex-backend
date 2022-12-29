@@ -2,7 +2,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
 
 from attendance.api_admin.serializers import (
     StudentAttendanceAdminHistoryListSerializer,
@@ -28,7 +27,7 @@ from common.permissions import IsAdminorSuperAdminorDirector
 class StudentAttendanceAdminListAPIView(ListAPIView):
     """View for listing admin student attendance."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = StudentAttendanceAdminListSerializer
     queryset = StudentAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
@@ -40,7 +39,7 @@ class StudentAttendanceAdminListAPIView(ListAPIView):
 class StudentAttendanceAdminRetrieveAPIView(RetrieveAPIView):
     """View for retrieving admin student attendance."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = StudentAttendanceAdminRetrieveSerializer
     queryset = StudentAttendance.objects.all()
 
@@ -48,7 +47,7 @@ class StudentAttendanceAdminRetrieveAPIView(RetrieveAPIView):
 class StudentAttendanceAdminUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for listing admin student attendance."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = StudentAttendanceAdminUpdateSerializer
     queryset = StudentAttendance.objects.all()
 
@@ -56,7 +55,7 @@ class StudentAttendanceAdminUpdateAPIView(BaseCreatorUpdateAPIView):
 class StudentAttendanceAdminHistoryListAPIView(ListAPIView):
     """View for listing admin student history attendance."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = StudentAttendanceAdminHistoryListSerializer
     queryset = StudentAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
@@ -75,14 +74,14 @@ class StudentAttendanceAdminHistoryListAPIView(ListAPIView):
 class StudentAttendanceAdminDeleteAPIView(DestroyAPIView):
     """View for deleting admin student attendance."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = StudentAttendance.objects.all()
 
 
 class TeacherAttendanceAdminListAPIView(ListAPIView):
     """View for listing history of admin teacher attendance."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = TeacherAttendanceAdminListSerializer
     queryset = TeacherAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
@@ -94,7 +93,7 @@ class TeacherAttendanceAdminListAPIView(ListAPIView):
 class TeacherAttendanceAdminHistoryListAPIView(ListAPIView):
     """View for listing admin teacher attendance."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = TeacherAttendanceAdminListSerializer
     queryset = TeacherAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
@@ -113,7 +112,7 @@ class TeacherAttendanceAdminHistoryListAPIView(ListAPIView):
 class TeacherAttendanceAdminUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for updating admin teacher attendanace."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = TeacherAttendanceAdminUpdateSerializer
     queryset = TeacherAttendanceDetail.objects.all()
 
@@ -121,7 +120,7 @@ class TeacherAttendanceAdminUpdateAPIView(BaseCreatorUpdateAPIView):
 class TeacherAttendanceAdminRetrieveAPIView(RetrieveAPIView):
     """View for retrieving admin teacher attendanace."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = TeacherAttendanceAdminRetrieveSerializer
     queryset = TeacherAttendance.objects.all()
 
@@ -129,14 +128,14 @@ class TeacherAttendanceAdminRetrieveAPIView(RetrieveAPIView):
 class TeacherAttendanceAdminDeleteAPIView(DestroyAPIView):
     """View for deleting admin teacher attendanace."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = TeacherAttendance.objects.all()
 
 
 class TeacherAttendanceDetailAdminListAPIView(ListAPIView):
     """View for listing admin teacher attendance detail."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = TeacherAttendanceDetailAdminSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
@@ -157,7 +156,7 @@ class TeacherAttendanceDetailAdminListAPIView(ListAPIView):
 class TeacherAttendanceDetailAdminRetrieveAPIView(RetrieveAPIView):
     """View for retrieving admin teacher attendance detail."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = TeacherAttendanceDetailAdminSerializer
     queryset = TeacherAttendanceDetail.objects.all()
 
@@ -165,7 +164,7 @@ class TeacherAttendanceDetailAdminRetrieveAPIView(RetrieveAPIView):
 class TeacherAttendanceDetailAdminUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for updating admin teacher attendance detail."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = TeacherAttendanceDetailAdminSerializer
     queryset = TeacherAttendanceDetail.objects.all()
 
@@ -173,6 +172,6 @@ class TeacherAttendanceDetailAdminUpdateAPIView(BaseCreatorUpdateAPIView):
 class TeacherAttendanceDetailAdminDeleteAPIView(DestroyAPIView):
     """View for deleting admin teacher attendance detail."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = TeacherAttendanceDetailAdminSerializer
     queryset = TeacherAttendanceDetail.objects.all()

@@ -9,7 +9,6 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -33,14 +32,14 @@ from courses.models import Course, CourseCategory
 class CourseCategoryCreateAPIView(CreateAPIView):
     """View for creating course categories."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = CourseCategorySerializer
 
 
 class CourseCategoryListAPIView(ListAPIView):
     """View for listing course categories."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = CourseCategorySerializer
     queryset = CourseCategory.objects.all()
 
@@ -48,7 +47,7 @@ class CourseCategoryListAPIView(ListAPIView):
 class CourseCategoryRetrieveAPIView(RetrieveAPIView):
     """View for retrieving course categories."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = CourseCategorySerializer
     queryset = CourseCategory.objects.all()
 
@@ -56,7 +55,7 @@ class CourseCategoryRetrieveAPIView(RetrieveAPIView):
 class CourseCategoryUpdateAPIView(UpdateAPIView):
     """View for updating course categories."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = CourseCategorySerializer
     queryset = CourseCategory.objects.all()
 
@@ -64,21 +63,21 @@ class CourseCategoryUpdateAPIView(UpdateAPIView):
 class CourseCategoryDeleteAPIView(DestroyAPIView):
     """View for deleting course categories."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = CourseCategory.objects.all()
 
 
 class CourseCreateAPIView(BaseCreatorCreateAPIView):
     """View for creating courses."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = CourseSerializer
 
 
 class CourseListAPIView(ListAPIView):
     """View for listing courses."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     filterset_class = CourseFilter
@@ -93,13 +92,13 @@ class CourseListAPIView(ListAPIView):
 class CourseRetrieveAPIView(RetrieveAPIView):
     """View for retrieving courses."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
 
 
 class CourseRetrieveCardAPIView(RetrieveAPIView):
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = Course.objects.all()
     serializer_class = CourseRetrieveCardSerializer
 
@@ -123,7 +122,7 @@ class CourseRetrieveCardAPIView(RetrieveAPIView):
 class CourseUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for updating courses."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = CourseUpdateSerializer
     queryset = Course.objects.all()
 
@@ -131,14 +130,14 @@ class CourseUpdateAPIView(BaseCreatorUpdateAPIView):
 class CourseDeleteAPIView(DestroyAPIView):
     """View for deleting courses."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = Course.objects.all()
 
 
 class CourseDropdownListAPIView(ListAPIView):
     """View for listing courses for dropdown."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = CourseMinSerializer
     filterset_class = CourseDropdownFilter
     search_fields = ["name"]
@@ -148,7 +147,7 @@ class CourseDropdownListAPIView(ListAPIView):
 
 @swagger_auto_schema(method="POST", request_body=ExamInCourseDeleteSerializer)
 @api_view(["POST"])
-@permission_classes([IsAuthenticated & IsAdminorSuperAdminorDirector])
+@permission_classes([IsAdminorSuperAdminorDirector])
 def remove_exam_in_course(request):
     """View for removing exam relations in course."""
     serializer = ExamInCourseDeleteSerializer(data=request.data)
@@ -170,7 +169,7 @@ class CourseOverviewAPIView(CourseListAPIView):
 
 
 class CourseOverviewCardAPIView(APIView):
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = Course.objects.all()
 
     def get(self, request, *args, **kwargs):
@@ -185,7 +184,7 @@ class CourseOverviewCardAPIView(APIView):
 
 
 class CourseStudentPBook(ListAPIView):
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = Course.objects.all()
     serializer_class = CoursePbookSerilaizer
 

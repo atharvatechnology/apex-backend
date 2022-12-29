@@ -5,7 +5,6 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 
 from common.permissions import IsAdminorSuperAdminorDirector
 from meetings.api_admin.serializers import (
@@ -19,12 +18,12 @@ from meetings.providers.register import provider_factory
 
 class MeetingCreateAPIView(CreateAPIView):
     serializer_class = MeetingCreateSerializer
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
 
 
 class MeetingDeleteAPIView(DestroyAPIView):
     queryset = Meeting.objects.all()
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
 
     def perform_destroy(self, instance):
         variant = instance.variant
@@ -36,7 +35,7 @@ class MeetingDeleteAPIView(DestroyAPIView):
 
 class MeetingListAPIView(ListAPIView):
     queryset = Meeting.objects.all()
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     serializer_class = MeetingSerializer
 
     def get_queryset(self):
@@ -47,14 +46,14 @@ class SubjectCreateAPIView(CreateAPIView):
     """View for creating subjects."""
 
     serializer_class = SubjectCRUDSerializer
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
 
 
 class SubjectListAPIView(ListAPIView):
     """View for listing subjects."""
 
     serializer_class = SubjectCRUDSerializer
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = Subject.objects.all()
 
 
@@ -62,7 +61,7 @@ class SubjectRetrieveAPIView(RetrieveAPIView):
     """View for retrieving subjects."""
 
     serializer_class = SubjectCRUDSerializer
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = Subject.objects.all()
 
 
@@ -70,12 +69,12 @@ class SubjectUpdateAPIView(UpdateAPIView):
     """View for updating subjects."""
 
     serializer_class = SubjectCRUDSerializer
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = Subject.objects.all()
 
 
 class SubjectDeleteAPIView(DestroyAPIView):
     """View for deleting subjects."""
 
-    permission_classes = [IsAuthenticated & IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     queryset = Subject.objects.all()
