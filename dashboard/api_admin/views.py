@@ -1,5 +1,6 @@
 import calendar
 
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
@@ -79,11 +80,12 @@ class DashboardRevenueOverviewAPIView(GenericAPIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request, *args, **kwargs):
-        year = self.kwargs.get("year")
         date_time = timezone.localdate()
 
         revenue_overall = (
-            Payment.objects.filter(status=PaymentStatus.PAID, created_at__year=year)
+            Payment.objects.filter(
+                status=PaymentStatus.PAID, created_at__year=date_time.year
+            )
             .aggregate(Sum("amount"))
             .get("amount__sum")
         )
@@ -91,16 +93,29 @@ class DashboardRevenueOverviewAPIView(GenericAPIView):
         revenue_month = (
             Payment.objects.filter(
                 status=PaymentStatus.PAID,
-                created_at__year=year,
+                created_at__year=date_time.year,
                 created_at__month=date_time.month,
             )
             .aggregate(Sum("amount"))
             .get("amount__sum")
         )
+        date_time_prev = date_time - relativedelta(months=1)
+
+        revenue_prev_month = (
+            Payment.objects.filter(
+                status=PaymentStatus.PAID,
+                created_at__year=date_time_prev.year,
+                created_at__month=date_time_prev.month,
+            )
+            .aggregate(Sum("amount"))
+            .get("amount__sum")
+        )
+        trend = ((revenue_month - revenue_prev_month) / revenue_prev_month) * 100
 
         queryset = {
             "revenue_overall": revenue_overall,
             "revenue_month": revenue_month,
+            "revenue_month_trend": trend,
         }
         serializer = self.get_serializer(queryset)
         return Response(serializer.data)
