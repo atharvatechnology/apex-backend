@@ -2,9 +2,9 @@ from fcm_django.models import FCMDevice
 from firebase_admin.messaging import APNSConfig, APNSPayload, Aps, Message, Notification
 from rest_framework import filters
 from rest_framework.generics import CreateAPIView, ListAPIView
-from rest_framework.permissions import IsAdminUser
 
 from common.paginations import StandardResultsSetPagination
+from common.permissions import IsAdminorSuperAdminorDirector
 from notifications.api_admin.serializers import NotificationAdminSerializer
 from notifications.models import NotificationMessage
 
@@ -12,7 +12,7 @@ from notifications.models import NotificationMessage
 class SendPushNotificationAdmin(CreateAPIView):
     serializer_class = NotificationAdminSerializer
     queryset = NotificationMessage.objects.all()
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminorSuperAdminorDirector]
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -39,7 +39,7 @@ class SendPushNotificationAdmin(CreateAPIView):
 class NotificationAdminListAPIView(ListAPIView):
     serializer_class = NotificationAdminSerializer
     queryset = NotificationMessage.objects.all()
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminorSuperAdminorDirector]
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ["title"]
