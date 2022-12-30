@@ -1,10 +1,7 @@
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from physicalbook.api.serializers import (
-    PhysicalBookCreateSerializer,
     PhysicalBookSerializerAfterEnroll,
     PhysicalBookSerializerBeforeEnroll,
 )
@@ -36,26 +33,26 @@ class PhysicalBookRetrieveAPIViewAfterEnroll(RetrieveAPIView):
     serializer_class = PhysicalBookSerializerAfterEnroll
 
 
-class PhysicalBookCreateAPIView(BaseCreatorCreateAPIView):
-    """Provides create only endpoint to the user."""
+# class PhysicalBookCreateAPIView(BaseCreatorCreateAPIView):
+#     """Provides create only endpoint to the user."""
 
-    queryset = PhysicalBook.objects.all()
-    serializer_class = PhysicalBookCreateSerializer
-
-
-class PhysicalBookUpdateAPIView(BaseCreatorUpdateAPIView):
-    """Provides to update only endpoint for single model instance."""
-
-    queryset = PhysicalBook.objects.all()
-    serializer_class = PhysicalBookCreateSerializer
+#     queryset = PhysicalBook.objects.all()
+#     serializer_class = PhysicalBookCreateSerializer
 
 
-class PhysicalBookDestroyAPIView(DestroyAPIView):
-    """provides destroy endpoint to single instance of pbook."""
+# class PhysicalBookUpdateAPIView(BaseCreatorUpdateAPIView):
+#     """Provides to update only endpoint for single model instance."""
 
-    queryset = PhysicalBook.objects.all()
-    serializer_class = PhysicalBookCreateSerializer
-    permission_classes = [IsAuthenticated]
+#     queryset = PhysicalBook.objects.all()
+#     serializer_class = PhysicalBookCreateSerializer
+
+
+# class PhysicalBookDestroyAPIView(DestroyAPIView):
+#     """provides destroy endpoint to single instance of pbook."""
+
+#     queryset = PhysicalBook.objects.all()
+#     serializer_class = PhysicalBookCreateSerializer
+#     permission_classes = [IsAuthenticated]
 
 
 # End Physical book API

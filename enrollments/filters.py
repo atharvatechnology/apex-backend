@@ -12,6 +12,10 @@ from enrollments.models import (
 class ExamThroughEnrollmentFilter(django_filters.FilterSet):
     """Filter for ExamThroughEnrollment."""
 
+    created_at = django_filters.DateFromToRangeFilter(
+        field_name="enrollment__created_at"
+    )
+
     class Meta:
         model = ExamThroughEnrollment
         fields = {
@@ -26,6 +30,10 @@ class ExamThroughEnrollmentFilter(django_filters.FilterSet):
 
 class CourseThroughEnrollmentFilter(django_filters.FilterSet):
     """Filter for ExamThroughEnrollment."""
+
+    created_at = django_filters.DateFromToRangeFilter(
+        field_name="enrollment__created_at"
+    )
 
     class Meta:
         model = CourseThroughEnrollment

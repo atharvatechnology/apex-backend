@@ -13,6 +13,7 @@ class DashboardOverviewSerializer(serializers.Serializer):
 class DashboardRevenueSerializer(serializers.Serializer):
     revenue_overall = serializers.DecimalField(max_digits=7, decimal_places=2)
     revenue_month = serializers.DecimalField(max_digits=7, decimal_places=2)
+    revenue_month_trend = serializers.DecimalField(max_digits=7, decimal_places=2)
 
 
 class DashboardRevenueGraphSerializer(serializers.Serializer):

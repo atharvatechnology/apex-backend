@@ -1,21 +1,27 @@
 from fcm_django.models import FCMDevice
 from firebase_admin.messaging import APNSConfig, APNSPayload, Aps, Message, Notification
+from rest_framework import filters
 from rest_framework.generics import CreateAPIView, ListAPIView
-from rest_framework.permissions import IsAdminUser
 
-from notifications.api_admin.serializers import NotificationSerializer
+from common.paginations import StandardResultsSetPagination
+from common.permissions import IsAdminorSuperAdminorDirector
+from notifications.api_admin.serializers import NotificationAdminSerializer
 from notifications.models import NotificationMessage
 
 
-class SendPushNotification(CreateAPIView):
-    serializer_class = NotificationSerializer
+class SendPushNotificationAdmin(CreateAPIView):
+    serializer_class = NotificationAdminSerializer
     queryset = NotificationMessage.objects.all()
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminorSuperAdminorDirector]
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
+        data = {
+            "title": serializer.data["title"],
+            "body": serializer.data["body"],
+        }
         message_obj = Message(
-            notification=Notification(**serializer.data),
+            notification=Notification(**data),
             apns=APNSConfig(
                 headers={
                     "apns-priority": "5",
@@ -30,7 +36,10 @@ class SendPushNotification(CreateAPIView):
         FCMDevice.objects.all().send_message(message_obj)
 
 
-class NotificationListAPIView(ListAPIView):
-    serializer_class = NotificationSerializer
+class NotificationAdminListAPIView(ListAPIView):
+    serializer_class = NotificationAdminSerializer
     queryset = NotificationMessage.objects.all()
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminorSuperAdminorDirector]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title"]

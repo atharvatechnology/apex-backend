@@ -144,6 +144,10 @@ class Exam(CreatorBaseModel, PublishedModel):
         """Unicode representation of Exam."""
         return self.name
 
+    @property
+    def is_practice(self):
+        return self.exam_type == ExamType.PRACTICE
+
     def save(self, *args, **kwargs):
         """Save method for Exam."""
         if self.id:

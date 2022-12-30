@@ -46,7 +46,7 @@ class GenerateSignatureAPIView(GenericAPIView):
         serializer = GenerateSignatureSerializer(data=request.data)
         if serializer.is_valid():
             signature = generate_signature(serializer.data)
-            print(signature)
+            # print(signature)
             return Response({"signature": signature})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

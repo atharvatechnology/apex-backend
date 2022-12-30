@@ -220,6 +220,8 @@ class ExamListSerializer(serializers.ModelSerializer):
 
     template = ExamTemplateListSerializer()
     status = serializers.SerializerMethodField()
+    session = serializers.SerializerMethodField()
+    question_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -231,10 +233,24 @@ class ExamListSerializer(serializers.ModelSerializer):
             "status",
             "price",
             "template",
+            "session",
+            "question_count",
         )
 
     def get_status(self, obj):
         return retrieve_exam_status(self, obj)
+
+    def get_session(self, obj):
+        sessions = obj.sessions.all()
+        if sessions.count() > 1:
+            return "Multiple"
+        elif sessions.count() == 0:
+            return "No session"
+        else:
+            return sessions[0].start_date
+
+    def get_question_count(self, obj):
+        return obj.questions.all().count()
 
 
 class ExamUpdateSerializer(CreatorSerializer):

@@ -37,6 +37,7 @@ class ContentSerializer(CreatorSerializer):
     """
 
     file_name = serializers.SerializerMethodField(read_only=True)
+    note_title = serializers.CharField(source="note.title", required=False)
 
     class Meta:
         model = Content
@@ -46,6 +47,7 @@ class ContentSerializer(CreatorSerializer):
             "type",
             "file",
             "note",
+            "note_title",
             "content",
             "file_name",
             "is_downloadable",

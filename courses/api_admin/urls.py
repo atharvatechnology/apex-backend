@@ -14,6 +14,7 @@ from .views import (
     CourseOverviewCardAPIView,
     CourseRetrieveAPIView,
     CourseRetrieveCardAPIView,
+    CourseStudentPBook,
     CourseUpdateAPIView,
     remove_exam_in_course,
 )
@@ -26,6 +27,11 @@ course_overview_urlpatterns = [
 course_urlpatterns = [
     path("create/", CourseCreateAPIView.as_view(), name="course-create"),
     path("list/", CourseListAPIView.as_view(), name="course-list"),
+    path(
+        "list/p-book/<int:student_id>/",
+        CourseStudentPBook.as_view(),
+        name="course-list",
+    ),
     path("retrieve/<int:pk>/", CourseRetrieveAPIView.as_view(), name="course-get"),
     path(
         "retrieve/<int:pk>/card/",

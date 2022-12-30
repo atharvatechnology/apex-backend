@@ -15,7 +15,7 @@ app_name = "dashboard.api.admin"
 
 revenue_urlpatterns = [
     path(
-        "overview/<int:year>/",
+        "overview/",
         DashboardRevenueOverviewAPIView.as_view(),
         name="overview",
     ),
