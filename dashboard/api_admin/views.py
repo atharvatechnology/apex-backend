@@ -112,8 +112,10 @@ class DashboardRevenueOverviewAPIView(GenericAPIView):
             .get("amount__sum")
             or 0
         )
-        print(revenue_month, revenue_prev_month)
-        trend = ((revenue_month - revenue_prev_month) / revenue_prev_month) * 100
+        if revenue_prev_month == 0:
+            trend = revenue_month * 100
+        else:
+            trend = ((revenue_month - revenue_prev_month) / revenue_prev_month) * 100
 
         queryset = {
             "revenue_overall": revenue_overall,
