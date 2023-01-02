@@ -98,6 +98,7 @@ class DashboardRevenueOverviewAPIView(GenericAPIView):
             )
             .aggregate(Sum("amount"))
             .get("amount__sum")
+            or 0
         )
         date_time_prev = date_time - relativedelta(months=1)
 
@@ -109,7 +110,9 @@ class DashboardRevenueOverviewAPIView(GenericAPIView):
             )
             .aggregate(Sum("amount"))
             .get("amount__sum")
+            or 0
         )
+        print(revenue_month, revenue_prev_month)
         trend = ((revenue_month - revenue_prev_month) / revenue_prev_month) * 100
 
         queryset = {
