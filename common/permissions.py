@@ -11,7 +11,7 @@ def get_permit(user, group_name, user_perm):
     return False
 
 
-class IsAdminorSuperAdminorDirector(permissions.BasePermission):
+class IsAdminOrSuperAdminOrDirector(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
         if user.is_anonymous:
@@ -23,7 +23,7 @@ class IsAdminorSuperAdminorDirector(permissions.BasePermission):
         return False
 
 
-class IsSuperAdminorDirector(permissions.BasePermission):
+class IsSuperAdminOrDirector(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
         if user.is_anonymous:
