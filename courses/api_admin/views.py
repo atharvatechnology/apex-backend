@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAdminorSuperAdminorDirector
+from common.permissions import IsAccountant, IsAdminorSuperAdminorDirector, IsCashier
 from courses.api_admin.serializers import (
     CourseCategorySerializer,
     CourseOverviewSerializer,
@@ -39,7 +39,7 @@ class CourseCategoryCreateAPIView(CreateAPIView):
 class CourseCategoryListAPIView(ListAPIView):
     """View for listing course categories."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     serializer_class = CourseCategorySerializer
     queryset = CourseCategory.objects.all()
 
@@ -47,7 +47,7 @@ class CourseCategoryListAPIView(ListAPIView):
 class CourseCategoryRetrieveAPIView(RetrieveAPIView):
     """View for retrieving course categories."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     serializer_class = CourseCategorySerializer
     queryset = CourseCategory.objects.all()
 
@@ -77,7 +77,7 @@ class CourseCreateAPIView(BaseCreatorCreateAPIView):
 class CourseListAPIView(ListAPIView):
     """View for listing courses."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     filterset_class = CourseFilter
@@ -92,7 +92,7 @@ class CourseListAPIView(ListAPIView):
 class CourseRetrieveAPIView(RetrieveAPIView):
     """View for retrieving courses."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
 
@@ -137,7 +137,7 @@ class CourseDeleteAPIView(DestroyAPIView):
 class CourseDropdownListAPIView(ListAPIView):
     """View for listing courses for dropdown."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     serializer_class = CourseMinSerializer
     filterset_class = CourseDropdownFilter
     search_fields = ["name"]

@@ -13,7 +13,7 @@ from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAdminorSuperAdminorDirector
+from common.permissions import IsAccountant, IsAdminorSuperAdminorDirector, IsCashier
 from exams.filters import ExamOnCourseFilter
 from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Section
 
@@ -171,7 +171,7 @@ class ExamOverviewCardAPIView(GenericAPIView):
 class ExamDropdownListAPIView(ListAPIView):
     serializer_class = ExamMiniSerializer
     queryset = Exam.objects.all()
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
 
 
 class ExamRetrieveAPIView(RetrieveAPIView):

@@ -87,7 +87,7 @@ class ExamSessionListAPIView(ListAPIView):
     """List all sessions for an exam."""
 
     serializer_class = ExamSessionAdminSerializer
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     queryset = ExamSession.objects.all()
 
     def get_queryset(self):
@@ -176,7 +176,7 @@ class CourseSessionListAPIView(ListAPIView):
     """List all sessions for an exam."""
 
     serializer_class = CourseSessionAdminSerializer
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     queryset = CourseSession.objects.all()
 
     def get_queryset(self):

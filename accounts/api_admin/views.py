@@ -29,7 +29,7 @@ from accounts.api_admin.serializers import (
 )
 from accounts.models import Role
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAdminorSuperAdminorDirector
+from common.permissions import IsAccountant, IsAdminorSuperAdminorDirector, IsCashier
 from common.utils import tuple_to_list, tuple_to_list_first_elements
 from courses.models import CourseCategory
 
@@ -56,7 +56,7 @@ class UserCreateAdminAPIView(CreateAPIView):
 class UserStudentCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     serializer_class = UserStudentCreateAdminSerializer
     queryset = User.objects.all()
 
@@ -80,7 +80,7 @@ class UserTeacherCreateAdminAPIView(CreateAPIView):
 class UserListAdminAPIView(ListAPIView):
     """User List API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminorSuperAdminorDirector | IsAccountant | IsCashier]
     serializer_class = UserListAdminSerializer
     queryset = User.objects.all().order_by("-id")
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
