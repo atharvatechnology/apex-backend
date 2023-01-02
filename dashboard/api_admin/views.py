@@ -1,17 +1,18 @@
 import calendar
 
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView, ListAPIView
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import Role
 from attendance.models import StudentAttendance, TeacherAttendance
+from common.permissions import IsSuperAdminorDirector
 from courses.models import Course, CourseCategory
 from dashboard.api_admin.filters import CourseCategoryFilter, ExamDateFilter
 from dashboard.api_admin.serializers import (
@@ -30,7 +31,7 @@ User = get_user_model()
 
 class DashboardOverviewAPIView(GenericAPIView):
     serializer_class = DashboardOverviewSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         date_time = timezone.localtime()
@@ -76,14 +77,15 @@ class DashboardOverviewAPIView(GenericAPIView):
 
 class DashboardRevenueOverviewAPIView(GenericAPIView):
     serializer_class = DashboardRevenueSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
-        year = self.kwargs.get("year")
         date_time = timezone.localdate()
 
         revenue_overall = (
-            Payment.objects.filter(status=PaymentStatus.PAID, created_at__year=year)
+            Payment.objects.filter(
+                status=PaymentStatus.PAID, created_at__year=date_time.year
+            )
             .aggregate(Sum("amount"))
             .get("amount__sum")
         )
@@ -91,16 +93,32 @@ class DashboardRevenueOverviewAPIView(GenericAPIView):
         revenue_month = (
             Payment.objects.filter(
                 status=PaymentStatus.PAID,
-                created_at__year=year,
+                created_at__year=date_time.year,
                 created_at__month=date_time.month,
             )
             .aggregate(Sum("amount"))
             .get("amount__sum")
+            or 0
         )
+        date_time_prev = date_time - relativedelta(months=1)
+
+        revenue_prev_month = (
+            Payment.objects.filter(
+                status=PaymentStatus.PAID,
+                created_at__year=date_time_prev.year,
+                created_at__month=date_time_prev.month,
+            )
+            .aggregate(Sum("amount"))
+            .get("amount__sum")
+            or 0
+        )
+        print(revenue_month, revenue_prev_month)
+        trend = ((revenue_month - revenue_prev_month) / revenue_prev_month) * 100
 
         queryset = {
             "revenue_overall": revenue_overall,
             "revenue_month": revenue_month,
+            "revenue_month_trend": trend,
         }
         serializer = self.get_serializer(queryset)
         return Response(serializer.data)
@@ -108,7 +126,7 @@ class DashboardRevenueOverviewAPIView(GenericAPIView):
 
 class DashboardRevenueGraphAPIView(GenericAPIView):
     serializer_class = DashboardRevenueGraphSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get("year")
@@ -135,7 +153,7 @@ class DashboardRevenueGraphAPIView(GenericAPIView):
 
 class DashboardRevenueCourseAPIView(GenericAPIView):
     serializer_class = DashboardRevenueCourseSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get("year")
@@ -157,7 +175,7 @@ class DashboardRevenueCourseAPIView(GenericAPIView):
 
 
 class DashboardEnrollmentOverallCourseAPIView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get("year")
@@ -183,7 +201,7 @@ class DashboardEnrollmentOverallCourseAPIView(APIView):
 
 
 class DashboardEnrollmentCourseCategoryAPIView(ListAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminorDirector]
     filter_backends = [DjangoFilterBackend]
     filterset_class = CourseCategoryFilter
     queryset = Course.objects.all()
@@ -209,7 +227,7 @@ class DashboardEnrollmentCourseCategoryAPIView(ListAPIView):
 
 
 class DashboardEnrollmentExamCountAPIView(ListAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminorDirector]
     serializer_class = DashboardEnrollmentCountSerializer
     queryset = Enrollment.objects.all()
     filter_backends = [DjangoFilterBackend]
@@ -236,7 +254,7 @@ class DashboardEnrollmentExamCountAPIView(ListAPIView):
 
 
 class DashboardAttendanceAPIView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminorDirector]
 
     def get(self, request, *args, **kwargs):
         student_attendance = StudentAttendance.objects.filter(
