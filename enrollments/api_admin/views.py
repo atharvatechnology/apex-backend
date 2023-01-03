@@ -255,7 +255,7 @@ class EnrollmentGraphAPIView(ListAPIView):
 
 
 class OverallEnrollmentAPIView(ListAPIView):
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = CourseThroughEnrollment.objects.all()
     serializer_class = CourseEnrollmentSerializer
 
@@ -281,13 +281,13 @@ class OverallEnrollmentAPIView(ListAPIView):
 
 
 class ExamEnrollmentCreateAPIView(CreateAPIView):
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     serializer_class = ExamEnrollmentCreateSerializer
     queryset = Enrollment.objects.all()
 
 
 class CourseEnrollmentCreateAPIView(CreateAPIView):
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     serializer_class = CourseEnrollmentCreateSerializer
     queryset = Enrollment.objects.all()
 
@@ -296,7 +296,7 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Exam."""
 
     serializer_class = ExamThroughEnrollmentAdminListSerializer
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = ExamThroughEnrollment.objects
     filter_backends = [
         filters.SearchFilter,
@@ -315,7 +315,7 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
 
 
 class ExamThroughEnrollmentListCardAPIView(APIView):
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = Enrollment.objects.filter(exams__isnull=False)
 
     def get(self, request, *args, **kwargs):
@@ -338,7 +338,7 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Course."""
 
     serializer_class = CourseThroughEnrollmentAdminBaseSerializer
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     filterset_class = CourseFilter
     queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
     filter_backends = [
@@ -364,7 +364,7 @@ class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAP
 
 
 class CourseThroughEnrollmentListCardAPIView(APIView):
-    permission_classes = [(IsAccountant | IsAdminOrSuperAdminOrDirector | IsCashier)]
+    permission_classes = [IsAccountant | IsAdminOrSuperAdminOrDirector | IsCashier]
     queryset = Enrollment.objects.filter(courses__isnull=False)
 
     def get(self, request, *args, **kwargs):
@@ -387,14 +387,14 @@ class EnrollmentUpdateAdminAPIView(UpdateAPIView):
     """Update an existing enrollment."""
 
     serializer_class = EnrollmentStatusAdminUpdateSerializer
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant]
     queryset = Enrollment.objects.all()
 
 
 class EnrollmentDeleteAdminAPIView(DestroyAPIView):
     """Delete student enrollment."""
 
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = Enrollment.objects.all()
 
     def destroy(self, request, *args, **kwargs):
@@ -409,7 +409,7 @@ class EnrollmentDeleteAdminAPIView(DestroyAPIView):
 class StudentCourseCheckView(GenericAPIView):
     """View for checking if student is enrolled in a course."""
 
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     serializer_class = StudentEnrollmentCheckSerializer
 
     def post(self, request, *args, **kwargs):
@@ -423,7 +423,7 @@ class StudentCourseCheckView(GenericAPIView):
 class PhysicalBookCourseEnrollmentAdminCreateAPIView(CreateAPIView):
     """Create physical book after course enrollment."""
 
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = PhysicalBookCourseEnrollment.objects.all()
     serializer_class = PhysicalBookCourseEnrollmentCreateAdminSerializer
 
@@ -431,7 +431,7 @@ class PhysicalBookCourseEnrollmentAdminCreateAPIView(CreateAPIView):
 class PhysicalBookCourseEnrollmentAdminListAPIView(ListAPIView):
     """Physical book list after user course enrolled."""
 
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     search_fields = ["name"]
     filter_backends = [SearchFilter]
     queryset = PhysicalBookCourseEnrollment.objects.all()
@@ -441,7 +441,7 @@ class PhysicalBookCourseEnrollmentAdminListAPIView(ListAPIView):
 class PhysicalBookCourseEnrollmentAdminRetrieveAPIView(RetrieveAPIView):
     """Retrieve physical book after course enrollment."""
 
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = PhysicalBookCourseEnrollment.objects.all()
     serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
 
@@ -449,7 +449,7 @@ class PhysicalBookCourseEnrollmentAdminRetrieveAPIView(RetrieveAPIView):
 class PhysicalBookCourseEnrollmentAdminUpdateAPIView(UpdateAPIView):
     """Update physical book after course enrollment."""
 
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = PhysicalBookCourseEnrollment.objects.all()
     serializer_class = PhysicalBookCourseEnrollmentUpdateAdminSerializer
 
@@ -457,6 +457,6 @@ class PhysicalBookCourseEnrollmentAdminUpdateAPIView(UpdateAPIView):
 class PhysicalBookCourseEnrollmentAdminDestroyAPIView(DestroyAPIView):
     """Destroy physical book after course enrollment."""
 
-    permission_classes = [(IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = PhysicalBookCourseEnrollment.objects.all()
     serializer_class = PhysicalBookCourseEnrollmentAdminSerializer

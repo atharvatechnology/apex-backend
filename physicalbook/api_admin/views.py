@@ -1,6 +1,5 @@
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
@@ -17,7 +16,7 @@ from physicalbook.models import PhysicalBook
 class PhysicalBookAdminCreateAPIView(BaseCreatorCreateAPIView):
     """Views for creating physicalbook for admin."""
 
-    permission_classes = [IsAuthenticated & (IsAdminOrSuperAdminOrDirector | IsCashier)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
     queryset = PhysicalBook.objects.all()
     serializer_class = PhysicalBookAdminCreateSerializer
 
@@ -27,7 +26,7 @@ class PhysicalBookAdminListAPIView(ListAPIView):
 
     serializer_class = PhysicalBookAdminListSerializer
     search_fields = ["name"]
-    permission_classes = [IsAuthenticated & (IsAdminOrSuperAdminOrDirector | IsCashier)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
     filter_backends = [SearchFilter]
     queryset = PhysicalBook.objects.all()
     pagination_class = StandardResultsSetPagination
@@ -38,7 +37,7 @@ class PhysicalBookCourseAdminListAPIView(ListAPIView):
 
     serializer_class = PhysicalBookAdminListSerializer
     search_fields = ["name"]
-    permission_classes = [IsAuthenticated & (IsAdminOrSuperAdminOrDirector | IsCashier)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
     filter_backends = [SearchFilter]
     queryset = PhysicalBook.objects.all()
     pagination_class = StandardResultsSetPagination
@@ -50,7 +49,7 @@ class PhysicalBookCourseAdminListAPIView(ListAPIView):
 class PhysicalBookAdminRetrieveAPIView(RetrieveAPIView):
     """Views for retrieving physicalbook for admin."""
 
-    permission_classes = [IsAuthenticated & (IsAdminOrSuperAdminOrDirector | IsCashier)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
     queryset = PhysicalBook.objects.all()
     serializer_class = PhysicalBookAdminRetrieveSerializer
 
@@ -58,7 +57,7 @@ class PhysicalBookAdminRetrieveAPIView(RetrieveAPIView):
 class PhysicalBookAdminUpdateAPIView(BaseCreatorUpdateAPIView):
     """Views for updating physicalbook for admin."""
 
-    permission_classes = [IsAuthenticated & (IsAdminOrSuperAdminOrDirector | IsCashier)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
     queryset = PhysicalBook.objects.all()
     serializer_class = PhysicalBookAdminUpdateSerializer
 
@@ -66,5 +65,5 @@ class PhysicalBookAdminUpdateAPIView(BaseCreatorUpdateAPIView):
 class PhysicalBookAdminDeleteAPIView(DestroyAPIView):
     """Views for deleting physicalbook for admin."""
 
-    permission_classes = [IsAuthenticated & (IsAdminOrSuperAdminOrDirector | IsCashier)]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
     queryset = PhysicalBook.objects.all()
