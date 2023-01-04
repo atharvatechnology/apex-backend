@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
@@ -52,6 +53,16 @@ class UserCreateAdminAPIView(CreateAPIView):
     serializer_class = UserCreateAdminSerializer
     queryset = User.objects.all()
 
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        # Get user role and add role to user.
+        user_role = serializer.data["roles"][0]
+        obj.roles.add(user_role)
+        # Get user group and add to user.
+        user_group = Role.role_choices[user_role - 1][1]
+        group = Group.objects.get_or_create(name=user_group)
+        obj.groups.add(group[0])
+
 
 class UserStudentCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
@@ -63,6 +74,8 @@ class UserStudentCreateAdminAPIView(CreateAPIView):
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.roles.add(Role.STUDENT)
+        group = Group.objects.get_or_create(name="Student")
+        obj.groups.add(group[0])
 
 
 class UserTeacherCreateAdminAPIView(CreateAPIView):
@@ -75,6 +88,8 @@ class UserTeacherCreateAdminAPIView(CreateAPIView):
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.roles.add(Role.TEACHER)
+        group = Group.objects.get_or_create(name="Teacher")
+        obj.groups.add(group[0])
 
 
 class UserListAdminAPIView(ListAPIView):

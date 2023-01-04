@@ -168,10 +168,11 @@ class User(AbstractUser):
         return otp
 
     def get_roles(self):
-        if not self.roles.all():
+        all_roles = self.roles.all()
+        if not all_roles:
             return None
         all_roles = []
-        for roles in self.roles.all():
+        for roles in all_roles:
             all_roles.extend(
                 role_value
                 for role_id, role_value in Role.role_choices
