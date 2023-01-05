@@ -1,5 +1,6 @@
 from dj_rest_auth.views import LoginView
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics
@@ -33,6 +34,8 @@ class UserCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.roles.add(Role.STUDENT)
+        group, created = Group.objects.get_or_create(name="Student")
+        obj.groups.add(group)
 
 
 class UserCreateOTPVerifyAPIView(UpdateModelMixin, LoginView):

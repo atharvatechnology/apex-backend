@@ -9,7 +9,7 @@ from rest_framework.generics import (
 )
 
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAdminorSuperAdminorDirector, IsCounsellor
+from common.permissions import IsAdminOrSuperAdminOrDirector, IsCounsellor
 from counseling.api_admin.serializers import (
     CounselingCreateSerializer,
     CounselingListSerializer,
@@ -23,7 +23,7 @@ from counseling.models import Counseling
 class CounselingListAPIView(ListAPIView):
     """View for listing counseling."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector | IsCounsellor]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCounsellor]
     serializer_class = CounselingListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["student_name", "phone_number"]
@@ -35,7 +35,7 @@ class CounselingListAPIView(ListAPIView):
 class CounselingCreateAPIView(CreateAPIView):
     """View for creating counseling."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector | IsCounsellor]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCounsellor]
     serializer_class = CounselingCreateSerializer
     queryset = Counseling.objects.all()
 
@@ -46,7 +46,7 @@ class CounselingCreateAPIView(CreateAPIView):
 class CounselingRetrieveAPIView(RetrieveAPIView):
     """View for retrieving counseling."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector | IsCounsellor]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCounsellor]
     serializer_class = CounselingRetrieveSerializer
     queryset = Counseling.objects.all()
 
@@ -54,7 +54,7 @@ class CounselingRetrieveAPIView(RetrieveAPIView):
 class CounselingUpdateAPIView(UpdateAPIView):
     """View for updating counseling."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector | IsCounsellor]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCounsellor]
     serializer_class = CounselingUpdateSerializer
     queryset = Counseling.objects.all()
 
@@ -62,5 +62,5 @@ class CounselingUpdateAPIView(UpdateAPIView):
 class CounselingDeleteAPIView(DestroyAPIView):
     """View for deleting counseling."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector | IsCounsellor]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCounsellor]
     queryset = Counseling.objects.all()
