@@ -34,8 +34,8 @@ class UserCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.roles.add(Role.STUDENT)
-        group = Group.objects.get_or_create(name="Student")
-        obj.groups.add(group[0])
+        group, created = Group.objects.get_or_create(name="Student")
+        obj.groups.add(group)
 
 
 class UserCreateOTPVerifyAPIView(UpdateModelMixin, LoginView):

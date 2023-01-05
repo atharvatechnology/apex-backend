@@ -53,6 +53,9 @@ class Role(models.Model):
     def __str__(self):
         return self.get_id_display()
 
+    def role_dict(self):
+        return {role[0]: role[1] for role in self.role_choices}
+
 
 class UserManager(BaseUserManager):
     """Custom User Manager."""
@@ -171,14 +174,14 @@ class User(AbstractUser):
         all_roles = self.roles.all()
         if not all_roles:
             return None
-        all_roles = []
+        user_roles = []
         for roles in all_roles:
-            all_roles.extend(
+            user_roles.extend(
                 role_value
                 for role_id, role_value in Role.role_choices
                 if roles.id == role_id
             )
-        return all_roles
+        return user_roles
 
     def check_role(self, roles):
         return roles in self.roles.all().values_list("id", flat=True)

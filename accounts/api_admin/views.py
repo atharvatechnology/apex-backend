@@ -55,13 +55,15 @@ class UserCreateAdminAPIView(CreateAPIView):
 
     def perform_create(self, serializer):
         obj = serializer.save()
-        # Get user role and add role to user.
-        user_role = serializer.data["roles"][0]
-        obj.roles.add(user_role)
-        # Get user group and add to user.
-        user_group = Role.role_choices[user_role - 1][1]
-        group = Group.objects.get_or_create(name=user_group)
-        obj.groups.add(group[0])
+        # Get user role.
+        user_role = serializer.data["roles"]
+        #  Get user role index from tuple
+        role_dict = Role().role_dict()
+        for roles in user_role:
+            role_name = role_dict[roles]
+            # Get user group
+            group, created = Group.objects.get_or_create(name=role_name)
+            obj.groups.add(group)
 
 
 class UserStudentCreateAdminAPIView(CreateAPIView):
@@ -75,7 +77,8 @@ class UserStudentCreateAdminAPIView(CreateAPIView):
         obj = serializer.save()
         obj.roles.add(Role.STUDENT)
         group = Group.objects.get_or_create(name="Student")
-        obj.groups.add(group[0])
+        group, created = Group.objects.get_or_create(name="Student")
+        obj.groups.add(group)
 
 
 class UserTeacherCreateAdminAPIView(CreateAPIView):
@@ -88,8 +91,8 @@ class UserTeacherCreateAdminAPIView(CreateAPIView):
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.roles.add(Role.TEACHER)
-        group = Group.objects.get_or_create(name="Teacher")
-        obj.groups.add(group[0])
+        group, created = Group.objects.get_or_create(name="Teacher")
+        obj.groups.add(group)
 
 
 class UserListAdminAPIView(ListAPIView):
