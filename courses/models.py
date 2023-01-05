@@ -70,9 +70,8 @@ class Course(CreatorBaseModel, PublishedModel):
         blank=True,
         null=True,
     )
-    description = models.CharField(
+    description = models.TextField(
         _("description"),
-        max_length=100,
         blank=True,
         null=True,
     )
