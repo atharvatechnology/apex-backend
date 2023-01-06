@@ -228,6 +228,14 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
         )
 
 
+class CourseIdSerializer(serializers.ModelSerializer):
+    """Course when the user is enrolled."""
+
+    class Meta:
+        model = Course
+        fields = ("id",)
+
+
 # new changes
 class CourseEnrollmentListSerializer(serializers.ModelSerializer):
     """Course when the user is enrolled."""
