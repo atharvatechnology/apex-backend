@@ -29,9 +29,7 @@ def is_enrolled(enrolled_obj, user):
     enrollments = []
     if user.is_authenticated:
         enrollments = enrolled_obj.enrolls.all().filter(student=user)
-    if len(enrollments) > 0:
-        return True
-    return False
+    return len(enrollments) > 0
 
 
 def is_enrolled_active(enrolled_obj, user):
@@ -55,9 +53,7 @@ def is_enrolled_active(enrolled_obj, user):
         enrollments = enrolled_obj.enrolls.all().filter(
             student=user, status=EnrollmentStatus.ACTIVE
         )
-    if len(enrollments) > 0:
-        return True
-    return False
+    return len(enrollments) > 0
 
 
 def get_student_rank(obj):
@@ -76,17 +72,14 @@ def get_student_rank(obj):
         rank of the user in the exam.
 
     """
-    if obj.selected_session.status == "resultsout":
-        all_examinee_states = ExamThroughEnrollment.objects.filter(
-            exam=obj.exam, selected_session=obj.selected_session
-        )
-        num_examinee = all_examinee_states.count()
-        num_examinee_lower_score = all_examinee_states.filter(
-            score__lt=obj.score
-        ).count()
-        return num_examinee - num_examinee_lower_score
-    else:
+    if obj.selected_session.status != "resultsout":
         return None
+    all_examinee_states = ExamThroughEnrollment.objects.filter(
+        exam=obj.exam, selected_session=obj.selected_session
+    )
+    num_examinee = all_examinee_states.count()
+    num_examinee_lower_score = all_examinee_states.filter(score__lt=obj.score).count()
+    return num_examinee - num_examinee_lower_score
 
 
 def batch_is_enrolled_and_price(enrolled_objs, user):
@@ -116,15 +109,12 @@ def retrieve_exam_status(self, obj):
     user = self.context["request"].user
     if not user.is_authenticated:
         return None
-    enrollments = ExamThroughEnrollment.objects.filter(
-        enrollment__student=user,
-        exam=obj,
-    )
-    if enrollments:
+    if enrollments := ExamThroughEnrollment.objects.filter(
+        enrollment__student=user, exam=obj
+    ):
         for enrollment in enrollments:
             session_id = enrollment.selected_session.id
-            exam_sessions = ExamSession.objects.filter(id=session_id)
-            if exam_sessions:
+            if exam_sessions := ExamSession.objects.filter(id=session_id):
                 for exam_session in exam_sessions:
                     if exam_session.status == SessionStatus.INACTIVE:
                         return ExamStatus.SCHEDULED
@@ -152,7 +142,7 @@ def schedule_exam_in_five_minutes(exam, student):
     """
 
     schedule_time = timezone.now() + timezone.timedelta(minutes=1)
-    exam_session = ExamSession.objects.create(
+    return ExamSession.objects.create(
         exam=exam,
         start_date=schedule_time,
         result_is_published=True,
@@ -161,4 +151,3 @@ def schedule_exam_in_five_minutes(exam, student):
         # schedule exam immediately for practice exams
         status=SessionStatus.ACTIVE,
     )
-    return exam_session

@@ -25,6 +25,7 @@ from .views import (
     ExamThroughEnrollmentGeneratorAPIView,
     ExamThroughEnrollmentListAPIView,
     ExamThroughEnrollmentListCardAPIView,
+    GetEnrollmentByUserAPIView,
     OverallEnrollmentAPIView,
     PhysicalBookCourseEnrollmentAdminCreateAPIView,
     PhysicalBookCourseEnrollmentAdminDestroyAPIView,
@@ -156,6 +157,11 @@ session_urls = [
 ]
 
 enrollment_urls = [
+    path(
+        "get-by-user/<str:student_code>/",
+        GetEnrollmentByUserAPIView.as_view(),
+        name="get-enrollment_by_user",
+    ),
     path(
         "delete/<int:pk>/",
         EnrollmentDeleteAdminAPIView.as_view(),
