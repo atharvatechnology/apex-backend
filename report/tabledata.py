@@ -25,32 +25,28 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
         "status": "Status",
     }
 
-    def get_students_name(self, linea):
-        return (
-            str(linea.enrollment.student.first_name)
-            + " "
-            + str(linea.enrollment.student.last_name)
-        )
+    def get_students_name(self, obj):
+        return obj.enrollment.student.__str__()
 
-    def get_phone_number(self, linea):
-        return str(linea.enrollment.student.username)
+    def get_phone_number(self, obj):
+        return str(obj.enrollment.student.username)
 
-    def get_exam(self, linea):
-        return linea.exam.name
+    def get_exam(self, obj):
+        return obj.exam.name
 
-    def get_created_date(self, linea):
-        return str(linea.created_at.date())
+    def get_created_date(self, obj):
+        return str(obj.enrollment.created_at.date())
 
-    def get_payment(self, linea):
-        return str(linea.exam.price)
+    def get_payment(self, obj):
+        return str(obj.exam.price)
 
-    def get_status(self, linea):
-        return linea.status
+    def get_status(self, obj):
+        return obj.status
 
-    # def get_rank(self, linea):
-    #     return get_student_rank(linea)
+    # def get_rank(self, obj):
+    #     return get_student_rank(obj)
 
-    def get_values_from_fields(self, field_name, linea):
+    def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "enrollment": self.get_students_name,
             "phone_number": self.get_phone_number,
@@ -61,7 +57,7 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
             "payment": self.get_payment,
             "status": self.get_status,
         }
-        return fields_and_values[field_name](linea)
+        return fields_and_values[field_name](obj)
 
 
 class CourseThroughEnrollmentTableData(BaseDynamicTableData):
@@ -74,32 +70,28 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
         "course_enroll_status": "Status",
     }
 
-    def get_students_name(self, linea):
-        return (
-            str(linea.enrollment.student.first_name)
-            + " "
-            + str(linea.enrollment.student.last_name)
-        )
+    def get_students_name(self, obj):
+        return obj.enrollment.student.__str__()
 
-    def get_phone_number(self, linea):
-        return str(linea.enrollment.student.username)
+    def get_phone_number(self, obj):
+        return str(obj.enrollment.student.username)
 
-    def get_course_name(self, linea):
-        return linea.course.name
+    def get_course_name(self, obj):
+        return obj.course.name
 
-    def get_payment(self, linea):
-        return str(linea.course.price)
+    def get_payment(self, obj):
+        return str(obj.course.price)
 
-    # def get_session(self, linea):
-    #     return str(linea.selected_session.start_date.date())
+    # def get_session(self, obj):
+    #     return str(obj.selected_session.start_date.date())
 
-    def get_status(self, linea):
-        return linea.course_enroll_status
+    def get_status(self, obj):
+        return obj.course_enroll_status
 
-    # def get_completed_date(self, linea):
-    #     return str(linea.completed_date)
+    # def get_completed_date(self, obj):
+    #     return str(obj.completed_date)
 
-    def get_values_from_fields(self, field_name, linea):
+    def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "enrollment": self.get_students_name,
             "phone_number": self.get_phone_number,
@@ -107,7 +99,7 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
             "payment": self.get_payment,
             "course_enroll_status": self.get_status,
         }
-        return fields_and_values[field_name](linea)
+        return fields_and_values[field_name](obj)
 
 
 class StudentTableData(BaseDynamicTableData):
@@ -121,26 +113,26 @@ class StudentTableData(BaseDynamicTableData):
         "email": "Email",
     }
 
-    def get_fullname(self, linea):
-        return str(linea.user.first_name) + " " + str(linea.user.last_name)
+    def get_fullname(self, obj):
+        return obj.user.__str__()
 
-    def get_created_date(self, linea):
-        return str(linea.user.date_joined.date())
+    def get_created_date(self, obj):
+        return str(obj.user.date_joined.date())
 
-    def get_phone(self, linea):
-        return str(linea.user.username)
+    def get_phone(self, obj):
+        return str(obj.user.username)
 
-    def get_email(self, linea):
-        return linea.user.email
+    def get_email(self, obj):
+        return obj.user.email
 
-    def get_values_from_fields(self, field_name, linea):
+    def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "fullname": self.get_fullname,
             "date_joined": self.get_created_date,
             "phone_number": self.get_phone,
             "email": self.get_email,
         }
-        return fields_and_values[field_name](linea)
+        return fields_and_values[field_name](obj)
 
 
 class ExamTableData(BaseDynamicTableData):
@@ -154,29 +146,29 @@ class ExamTableData(BaseDynamicTableData):
         "failed": "Failed",
     }
 
-    def get_exam_name(self, linea):
-        return linea.exam.name
+    def get_exam_name(self, obj):
+        return obj.exam.name
 
-    def get_exam_type(self, linea):
-        return linea.exam.exam_type
+    def get_exam_type(self, obj):
+        return obj.exam.exam_type
 
-    def get_exam_date(self, linea):
-        return str(linea.exam.start_date.date())
+    def get_exam_date(self, obj):
+        return str(obj.exam.start_date.date())
 
-    def get_examinee_count(self, linea):
-        return str(linea.session_enrolls.all().count())
+    def get_examinee_count(self, obj):
+        return str(obj.session_enrolls.all().count())
 
-    def get_passed_count(self, linea):
+    def get_passed_count(self, obj):
         return str(
-            linea.session_enrolls.filter(status=ExamEnrollmentStatus.PASSED).count()
+            obj.session_enrolls.filter(status=ExamEnrollmentStatus.PASSED).count()
         )
 
-    def get_failed_count(self, linea):
+    def get_failed_count(self, obj):
         return str(
-            linea.session_enrolls.filter(status=ExamEnrollmentStatus.FAILED).count()
+            obj.session_enrolls.filter(status=ExamEnrollmentStatus.FAILED).count()
         )
 
-    def get_values_from_fields(self, field_name, linea):
+    def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "exam": self.get_exam_name,
             "exam_type": self.get_exam_type,
@@ -185,7 +177,7 @@ class ExamTableData(BaseDynamicTableData):
             "passes": self.get_passed_count,
             "failed": self.get_failed_count,
         }
-        return fields_and_values[field_name](linea)
+        return fields_and_values[field_name](obj)
 
 
 class CourseTableData(BaseDynamicTableData):
@@ -199,22 +191,22 @@ class CourseTableData(BaseDynamicTableData):
         "status": "Status",
     }
 
-    def get_course_name(self, linea):
-        return linea.course.name
+    def get_course_name(self, obj):
+        return obj.course.name
 
-    def get_price(self, linea):
-        return linea.course.price
+    def get_price(self, obj):
+        return obj.course.price
 
-    def get_students_enrolled_count(self, linea):
-        return str(linea.course_enrolls.all().count())
+    def get_students_enrolled_count(self, obj):
+        return str(obj.course_enrolls.all().count())
 
-    def get_start_date(self, linea):
-        return str(linea.course.start_date.date())
+    def get_start_date(self, obj):
+        return str(obj.course.start_date.date())
 
-    def get_status(self, linea):
-        return linea.course.status
+    def get_status(self, obj):
+        return obj.course.status
 
-    def get_values_from_fields(self, field_name, linea):
+    def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "course_name": self.get_course_name,
             "price": self.get_price,
@@ -222,7 +214,7 @@ class CourseTableData(BaseDynamicTableData):
             "start_date": self.get_start_date,
             "status": self.get_status,
         }
-        return fields_and_values[field_name](linea)
+        return fields_and_values[field_name](obj)
 
 
 class StudentAttendanceTableData(BaseDynamicTableData):
@@ -234,26 +226,26 @@ class StudentAttendanceTableData(BaseDynamicTableData):
         # "attendance_time": "Attendance time",
     }
 
-    def get_student_name(self, linea):
-        return str(linea.user.first_name) + " " + str(linea.user.last_name)
+    def get_student_name(self, obj):
+        return obj.user.__str__()
 
-    def get_phone_number(self, linea):
-        return linea.user.username
+    def get_phone_number(self, obj):
+        return obj.user.username
 
-    def get_date(self, linea):
-        return str(linea.date.date())
+    def get_date(self, obj):
+        return str(obj.date.date())
 
-    # def get_time(self, linea):
-    #     return str(linea.date.time())
+    # def get_time(self, obj):
+    #     return str(obj.date.time())
 
-    def get_values_from_fields(self, field_name, linea):
+    def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "student_name": self.get_student_name,
             "phone_number": self.get_phone_number,
             "date": self.get_date,
             # "attendance_time": self.get_time,
         }
-        return fields_and_values[field_name](linea)
+        return fields_and_values[field_name](obj)
 
 
 class TeacherAttendanceTableData(BaseDynamicTableData):
@@ -264,19 +256,19 @@ class TeacherAttendanceTableData(BaseDynamicTableData):
         "date": "Date",
     }
 
-    def get_teachers_name(self, linea):
-        return str(linea.user.first_name) + " " + str(linea.user.last_name)
+    def get_teachers_name(self, obj):
+        return obj.user.__str__()
 
-    def get_phone_number(self, linea):
-        return linea.user.username
+    def get_phone_number(self, obj):
+        return obj.user.username
 
-    def get_date(self, linea):
-        return str(linea.date.date())
+    def get_date(self, obj):
+        return str(obj.date.date())
 
-    def get_values_from_fields(self, field_name, linea):
+    def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "teachers_name": self.get_teachers_name,
             "phone_number": self.get_phone_number,
             "date": self.get_date,
         }
-        return fields_and_values[field_name](linea)
+        return fields_and_values[field_name](obj)

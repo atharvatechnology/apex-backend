@@ -329,6 +329,7 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
             obj.enrollment.student.profile.image.url
         )
 
+    # can be replaced by UserSerializer.
     def get_student(self, obj):
         """Get student username."""
         return {
