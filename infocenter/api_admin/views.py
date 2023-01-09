@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAdminorSuperAdminorDirector
+from common.permissions import IsAdminOrSuperAdminOrDirector
 
 from ..models import CourseInfo, CourseInfoCategory, WebResource
 from .serializers import (
@@ -20,7 +20,7 @@ from .serializers import (
 class CourseInfoCategoryViewSet(viewsets.ModelViewSet):
     """CourseInfoCategory viewset."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     queryset = CourseInfoCategory.objects.all()
     serializer_class = CourseInfoCategoryCRUDSerializer
 
@@ -34,7 +34,7 @@ class CourseInfoCategoryViewSet(viewsets.ModelViewSet):
 class CourseInfoViewSet(viewsets.ModelViewSet):
     """CourseInfo viewset."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     queryset = CourseInfo.objects.all()
     serializer_class = CourseInfoCRUDSerializer
 
@@ -48,7 +48,7 @@ class CourseInfoViewSet(viewsets.ModelViewSet):
 class WebResourceCreateAPIView(BaseCreatorCreateAPIView):
     """WebResource viewset."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     queryset = WebResource.objects.all()
     serializer_class = WebResourceCRUDAdminSerializer
 
@@ -56,7 +56,7 @@ class WebResourceCreateAPIView(BaseCreatorCreateAPIView):
 class WebResourceUpdateAPIView(BaseCreatorUpdateAPIView):
     """WebResource viewset."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     queryset = WebResource.objects.all()
     serializer_class = WebResourceCRUDAdminSerializer
 
@@ -64,7 +64,7 @@ class WebResourceUpdateAPIView(BaseCreatorUpdateAPIView):
 class WebResourceListAPIView(ListAPIView):
     """WebResource viewset."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     queryset = WebResource.objects.all()
     serializer_class = WebResourceCRUDAdminSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
@@ -75,5 +75,5 @@ class WebResourceListAPIView(ListAPIView):
 class WebResourceDeleteAPIView(DestroyAPIView):
     """WebResource viewset."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     queryset = WebResource.objects.all()

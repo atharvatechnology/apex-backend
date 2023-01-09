@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
@@ -29,7 +30,7 @@ from accounts.api_admin.serializers import (
 )
 from accounts.models import Role
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAdminorSuperAdminorDirector
+from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
 from common.utils import tuple_to_list, tuple_to_list_first_elements
 from courses.models import CourseCategory
 
@@ -39,7 +40,7 @@ User = get_user_model()
 class UserRolesView(APIView):
     """Roles List API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
 
     def get(self, request):
         return Response(tuple_to_list(Role.role_choices))
@@ -48,39 +49,55 @@ class UserRolesView(APIView):
 class UserCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     serializer_class = UserCreateAdminSerializer
     queryset = User.objects.all()
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        # Get user role.
+        user_role = serializer.data["roles"]
+        #  Get user role index from tuple
+        role_dict = Role().role_dict()
+        for roles in user_role:
+            role_name = role_dict[roles]
+            # Get user group
+            group, created = Group.objects.get_or_create(name=role_name)
+            obj.groups.add(group)
 
 
 class UserStudentCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier]
     serializer_class = UserStudentCreateAdminSerializer
     queryset = User.objects.all()
 
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.roles.add(Role.STUDENT)
+        group, created = Group.objects.get_or_create(name="Student")
+        obj.groups.add(group)
 
 
 class UserTeacherCreateAdminAPIView(CreateAPIView):
     """Admin Create API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     serializer_class = UserTeacherCreateAdminSerializer
     queryset = User.objects.all()
 
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.roles.add(Role.TEACHER)
+        group, created = Group.objects.get_or_create(name="Teacher")
+        obj.groups.add(group)
 
 
 class UserListAdminAPIView(ListAPIView):
     """User List API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier]
     serializer_class = UserListAdminSerializer
     queryset = User.objects.all().order_by("-id")
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
@@ -123,7 +140,7 @@ class UserCounsellorListAdminAPIView(UserListAdminAPIView):
 
 
 class UserStudentAdminCardAPIView(APIView):
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     queryset = User.objects.filter(roles__in=[Role.STUDENT])
 
     def get(self, request, *args, **kwargs):
@@ -145,7 +162,7 @@ class UserStudentAdminCardAPIView(APIView):
 class UserRetrieveAdminAPIView(RetrieveAPIView):
     """User Retrieve API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     serializer_class = UserRetrieveAdminSerializer
     queryset = User.objects.all()
 
@@ -153,7 +170,7 @@ class UserRetrieveAdminAPIView(RetrieveAPIView):
 class UserUpdateAdminAPIView(UpdateAPIView):
     """User Update API View."""
 
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     serializer_class = UserUpdateAdminSerializer
     queryset = User.objects.all()
 
@@ -162,7 +179,7 @@ class GetSMSCreditAdminAPIView(GenericAPIView):
     """Check credit of SMS provider."""
 
     serializer_class = SMSCreditAdminSerializer
-    permission_classes = [IsAdminorSuperAdminorDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
 
     def get(self, request, *args, **kwargs):
         otp = OTP().getCredit()

@@ -58,11 +58,10 @@ class MeetingListView(ListAPIView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            enrollment = CourseThroughEnrollment.objects.filter(
+            if enrollment := CourseThroughEnrollment.objects.filter(
                 enrollment__student=self.request.user,
                 selected_session__status=SessionStatus.ACTIVE,
-            )
-            if enrollment:
+            ):
                 meeting = Meeting.objects.none()
                 for enroll in enrollment:
                     session = enroll.selected_session

@@ -1,3 +1,4 @@
+from django.db.models import BooleanField, Case, When
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import localtime, now
 from django_filters.rest_framework import DjangoFilterBackend
@@ -39,6 +40,23 @@ class ExamListAPIView(PublishableModelMixin, ListAPIView):
     search_fields = ["name"]
     pagination_class = StandardResultsSetPagination
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return (
+                super()
+                .get_queryset()
+                .annotate(
+                    cat=Case(
+                        When(category__in=user.profile.interests.all(), then=True),
+                        default=False,
+                        output_field=BooleanField(),
+                    )
+                )
+                .order_by("-cat", "-id")
+            )
+        return super().get_queryset()
+
 
 class ExamRetrieveAPIView(PublishableModelMixin, RetrieveAPIView):
     """View for retrieving exams."""
@@ -70,17 +88,14 @@ class ExamPaperAPIView(RetrieveAPIView):
         exam_session = ExamSession.objects.filter(
             exam=instance, id=self.kwargs["session_id"]
         ).first()
-        enrollment = ExamThroughEnrollment.objects.filter(
+        if enrollment := ExamThroughEnrollment.objects.filter(
             selected_session=exam_session, enrollment__student=self.request.user
-        ).first()
-        if enrollment:
+        ).first():
             if enrollment.selected_session.status == SessionStatus.ACTIVE:
                 return super().retrieve(request, *args, **kwargs)
             return Response({"detail": "Exam Session is not Active"}, status=400)
         return Response(
-            "Student is not enrolled to {} exam session.".format(
-                self.kwargs["session_id"]
-            )
+            f'Student is not enrolled to {self.kwargs["session_id"]} exam session.'
         )
 
 
