@@ -30,7 +30,14 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ["college_name", "image", "date_of_birth", "faculty"]
+        fields = [
+            "college_name",
+            "image",
+            "date_of_birth",
+            "faculty",
+            "address",
+            "interests",
+        ]
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
@@ -47,6 +54,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "faculty",
             "address",
+            "interests",
             "qr_code",
         ]
         read_only_fields = ("qr_code",)
@@ -82,8 +90,13 @@ class UserCreateSerializer(serializers.ModelSerializer):
         instance.save()
 
         if profile_data:
+            interests = None
+            if "interests" in profile_data:
+                interests = profile_data.pop("interests")
             for attr, value in profile_data.items():
                 setattr(instance.profile, attr, value)
+            if interests:
+                instance.profile.interests.set(interests)
             instance.profile.save()
         return instance
 
@@ -257,8 +270,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         if profile_data:
+            interests = None
+            if "interests" in profile_data:
+                interests = profile_data.pop("interests")
             for attr, value in profile_data.items():
                 setattr(instance.profile, attr, value)
+            if interests:
+                instance.profile.interests.set(interests)
             instance.profile.save()
         return instance
 
