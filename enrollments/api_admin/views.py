@@ -480,11 +480,13 @@ class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
             {
                 "model_fields": [
                     "enrollment",
-                    # "exam",
-                    # "selected_session",
-                    "rank",
-                    "score",
-                    "negative_score",
+                    "phone_number",
+                    "exam",
+                    "created_date",
+                    "payment",
+                    # "rank",
+                    # "score",
+                    # "negative_score",
                     "status",
                 ]
             }

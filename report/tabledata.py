@@ -1,7 +1,6 @@
 from accounts.models import Profile
 from attendance.models import StudentAttendance, TeacherAttendance
 from common.report import BaseDynamicTableData
-from enrollments.api.utils import get_student_rank
 from enrollments.models import (
     CourseSession,
     CourseThroughEnrollment,
@@ -15,11 +14,14 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
     model = ExamThroughEnrollment
     field_to_header_names = {
         "enrollment": "Student's Name",
-        # "exam": "Exam",
+        "phone_number": "Phone Number",
+        "exam": "Exam",
+        "created_date": "Created Date",
+        "payment": "Payment",
         # "selected_session": "Selected Session",
-        "rank": "Rank",
-        "score": "Score",
-        "negative_score": "Negative Score",
+        # "rank": "Rank",
+        # "score": "Score",
+        # "negative_score": "Negative Score",
         "status": "Status",
     }
 
@@ -30,30 +32,33 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
             + str(linea.enrollment.student.last_name)
         )
 
-    # def get_exam_name(self, linea):
-    #     return linea.exam.name
+    def get_phone_number(self, linea):
+        return str(linea.enrollment.student.username)
 
-    # def get_session(self, linea):
-    #     return str(linea.selected_session.start_date.date())
+    def get_exam(self, linea):
+        return linea.exam.name
 
-    def get_score(self, linea):
-        return str(linea.score)
+    def get_created_date(self, linea):
+        return str(linea.created_at.date())
 
-    def get_negative_score(self, linea):
-        return str(linea.negative_score)
+    def get_payment(self, linea):
+        return str(linea.exam.price)
 
     def get_status(self, linea):
         return linea.status
 
-    def get_rank(self, linea):
-        return get_student_rank(linea)
+    # def get_rank(self, linea):
+    #     return get_student_rank(linea)
 
     def get_values_from_fields(self, field_name, linea):
         fields_and_values = {
             "enrollment": self.get_students_name,
-            "rank": self.get_rank,
-            "score": self.get_score,
-            "negative_score": self.get_negative_score,
+            "phone_number": self.get_phone_number,
+            "exam": self.get_exam,
+            "created_date": self.get_created_date,
+            # "rank": self.get_rank,
+            # "score": self.get_score,
+            "payment": self.get_payment,
             "status": self.get_status,
         }
         return fields_and_values[field_name](linea)
@@ -120,7 +125,7 @@ class StudentTableData(BaseDynamicTableData):
         return str(linea.user.first_name) + " " + str(linea.user.last_name)
 
     def get_created_date(self, linea):
-        return linea.date_joined
+        return str(linea.user.date_joined.date())
 
     def get_phone(self, linea):
         return str(linea.user.username)

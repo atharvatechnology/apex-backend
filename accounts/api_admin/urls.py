@@ -64,7 +64,7 @@ urlpatterns = [
     path("sms/credit/", GetSMSCreditAdminAPIView.as_view(), name="credit"),
     path("roles/list/", UserRolesView.as_view(), name="roles-list"),
     path(
-        "report/generate/",
+        "student/report/generate/",
         StudentReportGeneratorAPIView.as_view(),
         name="generator-student",
     ),
