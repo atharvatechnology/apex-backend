@@ -8,7 +8,9 @@ def excelcelery(model_fields, model_name, filtered_data, user_id):
         CourseThroughEnrollmentTableData,
         ExamTableData,
         ExamThroughEnrollmentTableData,
+        StudentAttendanceTableData,
         StudentTableData,
+        TeacherAttendanceTableData,
     )
 
     call_table = {
@@ -17,5 +19,7 @@ def excelcelery(model_fields, model_name, filtered_data, user_id):
         "StudentProfile": StudentTableData,
         "Exam": ExamTableData,
         "Course": CourseTableData,
+        "StudentAttendance": StudentAttendanceTableData,
+        "TeacherAttendance": TeacherAttendanceTableData,
     }
     call_table[model_name](filtered_data, user_id, model_fields).generate_report()

@@ -6,6 +6,7 @@ from attendance.api_admin.views import (
     StudentAttendanceAdminListAPIView,
     StudentAttendanceAdminRetrieveAPIView,
     StudentAttendanceAdminUpdateAPIView,
+    StudentAttendanceReportGeneratorAPIView,
     TeacherAttendanceAdminDeleteAPIView,
     TeacherAttendanceAdminHistoryListAPIView,
     TeacherAttendanceAdminListAPIView,
@@ -15,6 +16,7 @@ from attendance.api_admin.views import (
     TeacherAttendanceDetailAdminListAPIView,
     TeacherAttendanceDetailAdminRetrieveAPIView,
     TeacherAttendanceDetailAdminUpdateAPIView,
+    TeacherAttendanceReportGeneratorAPIView,
 )
 
 student_admin_urls = [
@@ -42,6 +44,11 @@ student_admin_urls = [
         "delete/<int:pk>/",
         StudentAttendanceAdminDeleteAPIView.as_view(),
         name="admin-student-delete",
+    ),
+    path(
+        "report/generate/",
+        StudentAttendanceReportGeneratorAPIView.as_view(),
+        name="generator-student-attendance",
     ),
 ]
 
@@ -99,6 +106,11 @@ teacher_admin_urls = [
     path(
         "detail/",
         include(teacher_admin_details_urls),
+    ),
+    path(
+        "report/generate/",
+        TeacherAttendanceReportGeneratorAPIView.as_view(),
+        name="generator-teacher-attendance",
     ),
 ]
 

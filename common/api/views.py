@@ -34,9 +34,7 @@ class BaseReportGeneratorAPIView(GenericAPIView):
     filterset_class = None
     model_name = None
     serializer_class = ModelFieldsAndFilterParamsSerializer
-    permission_classes = [
-        IsAuthenticated & (IsAdminOrSuperAdminOrDirector | IsAccountant)
-    ]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant]
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

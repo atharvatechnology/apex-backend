@@ -226,7 +226,7 @@ class StudentAttendanceTableData(BaseDynamicTableData):
         "student_name": "Student Name",
         "phone_number": "Phone number",
         "date": "Date",
-        "attendance_time": "Attendance time",
+        # "attendance_time": "Attendance time",
     }
 
     def get_student_name(self, linea):
@@ -238,15 +238,15 @@ class StudentAttendanceTableData(BaseDynamicTableData):
     def get_date(self, linea):
         return str(linea.date.date())
 
-    def get_time(self, linea):
-        return str(linea.date.time())
+    # def get_time(self, linea):
+    #     return str(linea.date.time())
 
     def get_values_from_fields(self, field_name, linea):
         fields_and_values = {
             "student_name": self.get_student_name,
             "phone_number": self.get_phone_number,
             "date": self.get_date,
-            "attendance_time": self.get_time,
+            # "attendance_time": self.get_time,
         }
         return fields_and_values[field_name](linea)
 
@@ -257,10 +257,9 @@ class TeacherAttendanceTableData(BaseDynamicTableData):
         "teachers_name": "Teacher Name",
         "phone_number": "Phone number",
         "date": "Date",
-        "attendance_time": "Attendance time",
     }
 
-    def get_student_name(self, linea):
+    def get_teachers_name(self, linea):
         return str(linea.user.first_name) + " " + str(linea.user.last_name)
 
     def get_phone_number(self, linea):
@@ -269,14 +268,10 @@ class TeacherAttendanceTableData(BaseDynamicTableData):
     def get_date(self, linea):
         return str(linea.date.date())
 
-    def get_time(self, linea):
-        return str(linea.date.time())
-
     def get_values_from_fields(self, field_name, linea):
         fields_and_values = {
-            "student_name": self.get_student_name,
+            "teachers_name": self.get_teachers_name,
             "phone_number": self.get_phone_number,
             "date": self.get_date,
-            "attendance_time": self.get_time,
         }
         return fields_and_values[field_name](linea)
