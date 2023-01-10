@@ -19,18 +19,22 @@ class AttendanceFilter(django_filters.FilterSet):
 class StudentAttendanceDateFilter(django_filters.FilterSet):
     """Filter for Student Attendance by date."""
 
+    date_only = django_filters.DateFilter(field_name="date", lookup_expr="date")
+    date__gte = django_filters.DateFilter(field_name="date", lookup_expr="date__gte")
+    date__lte = django_filters.DateFilter(field_name="date", lookup_expr="date__lte")
+
     class Meta:
         model = StudentAttendance
-        fields = {
-            "date": ["exact"],
-        }
+        fields = ["date"]
 
 
 class TeacherAttendanceDateFilter(django_filters.FilterSet):
     """Filter for Teacher Attendance by date."""
 
+    date_only = django_filters.DateFilter(field_name="date", lookup_expr="date")
+    date__gte = django_filters.DateFilter(field_name="date", lookup_expr="date__gte")
+    date__lte = django_filters.DateFilter(field_name="date", lookup_expr="date__lte")
+
     class Meta:
         model = TeacherAttendance
-        fields = {
-            "date": ["exact"],
-        }
+        fields = ["date"]
