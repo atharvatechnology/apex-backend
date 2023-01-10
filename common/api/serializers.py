@@ -47,16 +47,10 @@ class DynamicFieldsCategorySerializer:
                 self.fields.pop(field_name)
 
 
-class ModelFieldsAndFilterParamsSerializer(serializers.Serializer):
+class ModelFieldsSerializer(serializers.Serializer):
     """Serializer for getting model fields and filters."""
 
     model_fields = serializers.ListField(child=serializers.CharField(max_length=55))
-    filter_params = serializers.DictField(
-        child=serializers.CharField(max_length=55), required=False
-    )
 
     class Meta:
-        fields = (
-            "model_fields",
-            "filter_params",
-        )
+        fields = ("model_fields",)
