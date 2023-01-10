@@ -101,6 +101,8 @@ class ExamInfoSerializer(serializers.ModelSerializer):
     """Serializer for Exam Info."""
 
     template = TemplateSerializer()
+    session = serializers.SerializerMethodField()
+    question_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -111,7 +113,21 @@ class ExamInfoSerializer(serializers.ModelSerializer):
             "price",
             "template",
             "exam_type",
+            "question_count",
+            "session",
         )
+
+    def get_session(self, obj):
+        sessions = obj.sessions.all()
+        if sessions.count() > 1:
+            return "Multiple"
+        elif sessions.count() == 0:
+            return "No session"
+        else:
+            return sessions[0].start_date
+
+    def get_question_count(self, obj):
+        return obj.questions.all().count()
 
 
 class ExamEnrollmentSerializer(serializers.ModelSerializer):
@@ -540,10 +556,9 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
                 selected_session = data.get("selected_session")
                 completed_date = data.get("completed_date")
                 student = enrollment.student
-                course_enrollment = CourseThroughEnrollment.objects.filter(
+                if CourseThroughEnrollment.objects.filter(
                     course=course, enrollment__student=student
-                )
-                if course_enrollment:
+                ):
                     raise serializers.ValidationError(
                         "User is already enrolled to the course"
                     )

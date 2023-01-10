@@ -479,3 +479,37 @@ class ExamSessionListSerializer(serializers.ModelSerializer):
 
     def get_passed(self, obj):
         return obj.session_enrolls.filter(status=ExamEnrollmentStatus.PASSED).count()
+
+
+class CourseThroughEnrollmentAdminUserSerializer(serializers.ModelSerializer):
+    """Base Serializer for CourseThroughEnrollment."""
+
+    course = CoursePhysicalSerializer()
+    selected_session = CourseSessionAdminSerializer()
+    created_at = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "selected_session",
+            "course",
+            "created_at",
+            "status",
+            "enrollment",
+        )
+        read_only_fields = ("status",)
+
+    def get_status(self, obj):
+        """Get enrollment status."""
+        return obj.enrollment.status
+
+    def get_created_at(self, obj):
+        """Get created_at."""
+        return obj.enrollment.created_at
+
+
+class GetEnrollmentByUserSerializer(serializers.Serializer):
+    user = UserMiniAdminSerializer()
+    enrollments = CourseThroughEnrollmentAdminUserSerializer(many=True)

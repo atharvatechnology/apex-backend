@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
@@ -16,6 +17,7 @@ from rest_framework.views import APIView
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
 from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
+from common.utils import decode_user
 from courses.api.serializers import CourseCategoryRetrieveSerializer
 from courses.filters import CourseFilter
 from courses.models import CourseCategory
@@ -30,6 +32,7 @@ from enrollments.api_admin.serializers import (
     ExamSessionAdminSerializer,
     ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
+    GetEnrollmentByUserSerializer,
     PhysicalBookCourseEnrollmentAdminSerializer,
     PhysicalBookCourseEnrollmentCreateAdminSerializer,
     PhysicalBookCourseEnrollmentUpdateAdminSerializer,
@@ -48,8 +51,32 @@ from enrollments.models import (
     ExamSession,
     ExamThroughEnrollment,
     PhysicalBookCourseEnrollment,
+    SessionStatus,
 )
 from exams.models import Exam
+
+User = get_user_model()
+
+
+class GetEnrollmentByUserAPIView(GenericAPIView):
+    serializer_class = GetEnrollmentByUserSerializer
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
+
+    def get(self, request, *args, **kwargs):
+        decoded_user = None
+        if student_code := self.kwargs.get("student_code"):
+            decoded_user = decode_user(student_code)
+        user_object = None
+        if decoded_user is not None:
+            user_object = User.objects.filter(username=decoded_user).first()
+
+        enrollments = CourseThroughEnrollment.objects.filter(
+            enrollment__student=user_object,
+            selected_session__status=SessionStatus.ACTIVE,
+        )
+        data = {"user": user_object, "enrollments": enrollments}
+        serializer = self.get_serializer(data)
+        return Response(serializer.data)
 
 
 class ExamSessionCreateAPIView(BaseCreatorCreateAPIView):
