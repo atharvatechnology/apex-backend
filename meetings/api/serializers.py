@@ -63,3 +63,11 @@ class MeetingSerializer(serializers.ModelSerializer):
             "weekly_days",
         )
         read_only_fields = ("id", "meeting_id")
+
+
+class MeetingCourseSessionSerializer(serializers.ModelSerializer):
+    """Meeting Course Session serializer."""
+
+    class Meta:
+        model = Meeting
+        fields = ("course_session",)

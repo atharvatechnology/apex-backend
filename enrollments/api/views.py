@@ -1,8 +1,11 @@
+from datetime import datetime, timedelta, timezone
+
 from django.utils.timezone import localtime
 from rest_framework import serializers, status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
+    GenericAPIView,
     ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
@@ -12,11 +15,12 @@ from rest_framework.response import Response
 
 # from common.utils import dynamic_excel_generator
 from courses.models import Course
-from enrollments.api.serializers import (  # PhysicalBookCourseEnrollmentSerializer,
+from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
     CourseEnrollmentSerializer,
     CourseEnrollmentUpdateSerializer,
     CourseExamEnrollmentCreateSerializer,
+    CourseIdSerializer,
     EnrollmentCreateSerializer,
     EnrollmentRetrieveSerializer,
     ExamEnrollmentCheckPointRetrieveSerializer,
@@ -35,6 +39,8 @@ from enrollments.models import (  # PhysicalBookCourseEnrollment,
     SessionStatus,
 )
 from exams.models import Exam
+from meetings.api.serializers import MeetingCourseSessionSerializer
+from meetings.models import Meeting
 
 
 class EnrollmentCreateAPIView(CreateAPIView):
@@ -331,3 +337,99 @@ class CourseEnrollementDestroyAPIView(DestroyAPIView):
 
 class CheckIfStudentInCourse(CreateAPIView):
     serializer_class = StudentEnrollmentSerializer
+
+
+class StudentEnrollmentDetail(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseIdSerializer
+    queryset = Course.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        course_id = self.get_object().id
+
+        course = Course.objects.get(id=course_id)
+        course_duration = course.duration.days
+
+        # All classes count
+        get_all_meetings = Meeting.objects.filter(course_session__course__id=course_id)
+        if get_all_meetings:
+            total_classes_count = 0
+            for classes in get_all_meetings:
+                if classes.repeat_type == 1:
+                    duration = course_duration // 1
+                elif classes.repeat_type == 2:
+                    duration = course_duration // 7
+                elif classes.repeat_type == 3:
+                    duration = course_duration // 30
+
+                total_classes_count += duration / classes.repeat_interval
+
+        # All exam sessions count
+        all_exams = course.exams_exam_related.all()
+
+        # class attended count.
+        class_attended_count = (
+            CourseThroughEnrollment.objects.filter(course=course_id)
+            .filter(enrollment__student=self.request.user.id)
+            .first()
+        )
+
+        # Exam attempted count by Enrolled Student choosing particular course.
+        exam_attempted_count = 0
+        for exams in all_exams:
+            for exam_enroll in exams.exam_enrolls.filter(
+                enrollment__student_id=request.user.id
+            ):
+                if exam_enroll.question_state.all() > 0:
+                    exam_attempted_count += 1
+
+        data = {
+            "total_classes_in_course": total_classes_count,
+            "total_exams_in_course": all_exams.count(),
+            "exam_attempted_count": exam_attempted_count,
+            "class_attended_count": class_attended_count.attended_count
+            if class_attended_count
+            else 0,
+        }
+        return Response(
+            data,
+        )
+
+
+class StudentAttendanceIncrement(GenericAPIView):
+    serializer_class = MeetingCourseSessionSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        course_session_id = serializer.data.get("course_session")
+        course_through_enrollment = (
+            CourseThroughEnrollment.objects.filter(selected_session=course_session_id)
+            .filter(enrollment__student=self.request.user.id)
+            .first()
+        )
+
+        if course_through_enrollment.class_meet_updated:
+            time_difference = (
+                datetime.now(timezone.utc)
+                + timedelta(hours=5, minutes=45)
+                - course_through_enrollment.class_meet_updated
+            )
+            if time_difference.total_seconds() >= 10800:
+                course_through_enrollment.attended_count += 1
+                course_through_enrollment.save()
+                return Response(
+                    {"msg": "Congratulations your attendance has been recorded."}
+                )
+
+            return Response(
+                {"msg": "Your attendance for this session has already been recorded."}
+            )
+        else:
+            course_through_enrollment.attended_count += 1
+            course_through_enrollment.save()
+            return Response(
+                {"msg": "Congratulations your attendance has been recorded."}
+            )
+
+        return Response({"msg": "No Course through Enrollment found."})

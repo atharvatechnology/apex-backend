@@ -453,6 +453,8 @@ class CourseThroughEnrollment(models.Model):
         default=CourseEnrollmentStatus.NEW,
     )
     completed_date = models.DateTimeField(null=True, blank=True)
+    attended_count = models.PositiveIntegerField(default=0)
+    class_meet_updated = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         """Meta defination for CourseThroughEnrollment."""
@@ -467,6 +469,14 @@ class CourseThroughEnrollment(models.Model):
     def __change_course_enroll_status(self, course_enroll_status):
         self.course_enroll_status = course_enroll_status
         self.save()
+
+    def save(self, *args, **kwargs):
+        from datetime import datetime
+
+        if getattr(self, "class_meet_updated_changed", True):
+            if not self.attended_count == 0:
+                self.class_meet_updated = datetime.now()
+        super(CourseThroughEnrollment, self).save(*args, **kwargs)
 
     @property
     def current_course_enroll_status(self):
