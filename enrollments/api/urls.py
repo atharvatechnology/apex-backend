@@ -6,14 +6,12 @@ from enrollments.api.views import (
     CourseEnrollementListAPIView,
     CourseEnrollementRetrieveAPIView,
     CourseEnrollementUpdateAPIView,
-    CourseThroughEnrollmentGeneratorAPIView,
     EnrollmentCreateAPIView,
     EnrollmentListAPIView,
     ExamEnrollmentCheckpointRetrieveAPIView,
     ExamEnrollmentRetrieveAPIView,
     ExamEnrollmentRetrievePoolAPIView,
     ExamEnrollmentUpdateAPIView,
-    ExamThroughEnrollmentGeneratorAPIView,
     PracticeEnrollmentCreateAPIView,
     StudentAttendanceIncrement,
     StudentEnrollmentDetail,
@@ -22,11 +20,6 @@ from enrollments.api.views import (
 enrollment_urls = [
     path("create/", EnrollmentCreateAPIView.as_view(), name="enrollment-create"),
     path("list/", EnrollmentListAPIView.as_view(), name="enrollment-list"),
-    path(
-        "report/generate/",
-        ExamThroughEnrollmentGeneratorAPIView.as_view(),
-        name="generator-enrollment",
-    ),
 ]
 
 exam_urls = [
@@ -105,11 +98,6 @@ course_enroll_urls = [
         "destroy/<int:pk>/",
         CourseEnrollementDestroyAPIView.as_view(),
         name="course-enroll-destroy",
-    ),
-    path(
-        "report/generate/",
-        CourseThroughEnrollmentGeneratorAPIView.as_view(),
-        name="generator-course",
     ),
     path(
         "attendance/count/",

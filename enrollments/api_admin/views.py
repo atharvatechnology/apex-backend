@@ -14,7 +14,11 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.api.views import (
+    BaseCreatorCreateAPIView,
+    BaseCreatorUpdateAPIView,
+    BaseReportGeneratorAPIView,
+)
 from common.paginations import StandardResultsSetPagination
 from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
 from common.utils import decode_user
@@ -40,7 +44,9 @@ from enrollments.api_admin.serializers import (
 )
 from enrollments.filters import (
     CourseGraphFilter,
+    CourseSessionFilter,
     CourseThroughEnrollmentFilter,
+    ExamSessionFilter,
     ExamThroughEnrollmentFilter,
 )
 from enrollments.models import (
@@ -487,3 +493,92 @@ class PhysicalBookCourseEnrollmentAdminDestroyAPIView(DestroyAPIView):
     permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
     queryset = PhysicalBookCourseEnrollment.objects.all()
     serializer_class = PhysicalBookCourseEnrollmentAdminSerializer
+
+
+class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = ExamThroughEnrollment.objects.all()
+    filterset_class = ExamThroughEnrollmentFilter
+    model_name = "ExamThroughEnrollment"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "enrollment",
+                    "phone_number",
+                    "exam",
+                    "created_date",
+                    "payment",
+                    # "rank",
+                    # "score",
+                    # "negative_score",
+                    "status",
+                ]
+            }
+        )
+
+
+class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = CourseThroughEnrollment.objects.all()
+    filterset_class = CourseThroughEnrollmentFilter
+    model_name = "CourseThroughEnrollment"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "enrollment",
+                    "phone_number",
+                    "course_name",
+                    "payment",
+                    "course_enroll_status",
+                ]
+            }
+        )
+
+
+class ExamGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = ExamSession.objects.all()
+    filterset_class = ExamSessionFilter
+    model_name = "Exam"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "exam",
+                    "exam_type",
+                    "exam_date",
+                    "examinee",
+                    "passes",
+                    "failed",
+                ]
+            }
+        )
+
+
+class CourseGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = CourseSession.objects.all()
+    filterset_class = CourseSessionFilter
+    model_name = "Course"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "course_name",
+                    "price",
+                    "students_enrolled",
+                    "start_date",
+                    "status",
+                ]
+            }
+        )

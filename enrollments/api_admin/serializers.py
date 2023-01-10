@@ -324,6 +324,23 @@ class CourseThroughEnrollmentAdminBaseSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("status",)
 
+    def get_image(self, obj):
+        return self.context["request"].build_absolute_uri(
+            obj.enrollment.student.profile.image.url
+        )
+
+    # can be replaced by UserSerializer.
+    def get_student(self, obj):
+        """Get student username."""
+        return {
+            "name": obj.enrollment.student.__str__(),
+            "phone": obj.enrollment.student.username,
+            "email": obj.enrollment.student.email,
+            "profile_image": self.get_image(obj)
+            if obj.enrollment.student.profile.image
+            else None,
+        }
+
     def get_status(self, obj):
         """Get enrollment status."""
         return obj.enrollment.status

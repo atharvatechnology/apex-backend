@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from django.utils.timezone import localtime
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, serializers, status
+from rest_framework import serializers, status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -15,7 +14,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 # from common.utils import dynamic_excel_generator
-from common.api.views import BaseReportGeneratorAPIView
 from courses.models import Course
 from enrollments.api.serializers import (
     CourseEnrollmentRetrieveSerializer,
@@ -31,10 +29,6 @@ from enrollments.api.serializers import (
     ExamEnrollmentUpdateSerializer,
     PracticeExamEnrollmentCreateSerializer,
     StudentEnrollmentSerializer,
-)
-from enrollments.filters import (
-    CourseThroughEnrollmentFilter,
-    ExamThroughEnrollmentFilter,
 )
 from enrollments.models import (  # PhysicalBookCourseEnrollment,
     CourseThroughEnrollment,
@@ -343,29 +337,6 @@ class CourseEnrollementDestroyAPIView(DestroyAPIView):
 
 class CheckIfStudentInCourse(CreateAPIView):
     serializer_class = StudentEnrollmentSerializer
-
-
-class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
-    queryset = ExamThroughEnrollment.objects.all()
-    filterset_class = ExamThroughEnrollmentFilter
-    model_name = "ExamThroughEnrollment"
-    # {"model_fields":
-    #     ["enrollment","exam","selected_session","rank","score","negative_score","status"]
-    # }
-
-
-class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
-    queryset = CourseThroughEnrollment.objects.all()
-    filterset_class = CourseThroughEnrollmentFilter
-    model_name = "CourseThroughEnrollment"
-
-    # {
-    # "model_fields"=["enrollment","course_name","selected_session","course_enroll_status","completed_date"]
-    # }
 
 
 class StudentEnrollmentDetail(RetrieveAPIView):

@@ -634,7 +634,6 @@ class ExamThroughEnrollment(models.Model):
         default=ExamEnrollmentStatus.CREATED,
     )
     # submitted = models.BooleanField(_("submitted"), default=False)
-
     objects = ExamThroughEnrollmentManager()
 
     class Meta:

@@ -2,23 +2,27 @@ from django.urls import include, path
 
 from .views import (
     CourseEnrollmentCreateAPIView,
+    CourseGeneratorAPIView,
     CourseGraphAPIView,
     CourseSessionCreateAPIView,
     CourseSessionDeleteAPIView,
     CourseSessionListAPIView,
     CourseSessionUpdateAPIView,
     CourseThroughEnrollmentCourseWiseListAPIView,
+    CourseThroughEnrollmentGeneratorAPIView,
     CourseThroughEnrollmentListAPIView,
     CourseThroughEnrollmentListCardAPIView,
     EnrollmentDeleteAdminAPIView,
     EnrollmentGraphAPIView,
     EnrollmentUpdateAdminAPIView,
     ExamEnrollmentCreateAPIView,
+    ExamGeneratorAPIView,
     ExamGraphAPIView,
     ExamSessionCreateAPIView,
     ExamSessionDeleteAPIView,
     ExamSessionListAPIView,
     ExamSessionUpdateAPIView,
+    ExamThroughEnrollmentGeneratorAPIView,
     ExamThroughEnrollmentListAPIView,
     ExamThroughEnrollmentListCardAPIView,
     GetEnrollmentByUserAPIView,
@@ -47,6 +51,11 @@ exam_session_urls = [
         "delete/<int:pk>/",
         ExamSessionDeleteAPIView.as_view(),
         name="exam-session-delete",
+    ),
+    path(
+        "report/generate/",
+        ExamGeneratorAPIView.as_view(),
+        name="generator-exam-sessions",
     ),
 ]
 
@@ -80,6 +89,11 @@ course_session_urls = [
         StudentCourseCheckView.as_view(),
         name="student-course-check",
     ),
+    path(
+        "report/generate/",
+        CourseGeneratorAPIView.as_view(),
+        name="generator-course-sessions",
+    ),
 ]
 
 exam_through_enrollment_urls = [
@@ -87,6 +101,11 @@ exam_through_enrollment_urls = [
         "list/",
         ExamThroughEnrollmentListAPIView.as_view(),
         name="exam-through-enrollment-list",
+    ),
+    path(
+        "report/generate/",
+        ExamThroughEnrollmentGeneratorAPIView.as_view(),
+        name="generator-enrollment",
     ),
     path(
         "card/",
@@ -124,6 +143,11 @@ course_through_enrollment_urls = [
         "card/",
         CourseThroughEnrollmentListCardAPIView.as_view(),
         name="course-through-enrollment-card",
+    ),
+    path(
+        "report/generate/",
+        CourseThroughEnrollmentGeneratorAPIView.as_view(),
+        name="generator-course",
     ),
 ]
 

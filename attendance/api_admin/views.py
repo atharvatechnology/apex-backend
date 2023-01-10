@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
 
 from attendance.api_admin.serializers import (
     StudentAttendanceAdminHistoryListSerializer,
@@ -13,13 +14,17 @@ from attendance.api_admin.serializers import (
     TeacherAttendanceAdminUpdateSerializer,
     TeacherAttendanceDetailAdminSerializer,
 )
-from attendance.filters import AttendanceFilter
+from attendance.filters import (
+    AttendanceFilter,
+    StudentAttendanceDateFilter,
+    TeacherAttendanceDateFilter,
+)
 from attendance.models import (
     StudentAttendance,
     TeacherAttendance,
     TeacherAttendanceDetail,
 )
-from common.api.views import BaseCreatorUpdateAPIView
+from common.api.views import BaseCreatorUpdateAPIView, BaseReportGeneratorAPIView
 from common.paginations import StandardResultsSetPagination
 from common.permissions import IsAdminOrSuperAdminOrDirector
 
@@ -175,3 +180,41 @@ class TeacherAttendanceDetailAdminDeleteAPIView(DestroyAPIView):
     permission_classes = [IsAdminOrSuperAdminOrDirector]
     serializer_class = TeacherAttendanceDetailAdminSerializer
     queryset = TeacherAttendanceDetail.objects.all()
+
+
+class StudentAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = StudentAttendance.objects.all()
+    filterset_class = StudentAttendanceDateFilter
+    model_name = "StudentAttendance"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "student_name",
+                    "phone_number",
+                    "date",
+                ]
+            }
+        )
+
+
+class TeacherAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = TeacherAttendance.objects.all()
+    filterset_class = TeacherAttendanceDateFilter
+    model_name = "TeacherAttendance"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "teachers_name",
+                    "phone_number",
+                    "date",
+                ]
+            }
+        )
