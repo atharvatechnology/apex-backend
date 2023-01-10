@@ -12,8 +12,8 @@ from enrollments.models import (
 class ExamThroughEnrollmentFilter(django_filters.FilterSet):
     """Filter for ExamThroughEnrollment."""
 
-    enrollment__created_at = django_filters.DateFromToRangeFilter(
-        field_name="created_at"
+    created_at = django_filters.DateFromToRangeFilter(
+        field_name="enrollment__created_at"
     )
 
     class Meta:
@@ -24,15 +24,14 @@ class ExamThroughEnrollmentFilter(django_filters.FilterSet):
             "selected_session__start_date": ["exact"],
             "selected_session": ["exact"],
             "enrollment__status": ["exact"],
-            "enrollment__created_at": ["gt", "lt"],
         }
 
 
 class CourseThroughEnrollmentFilter(django_filters.FilterSet):
     """Filter for ExamThroughEnrollment."""
 
-    enrollment__created_at = django_filters.DateFromToRangeFilter(
-        field_name="created_at"
+    created_at = django_filters.DateFromToRangeFilter(
+        field_name="enrollment__created_at"
     )
 
     class Meta:
@@ -45,7 +44,6 @@ class CourseThroughEnrollmentFilter(django_filters.FilterSet):
             "enrollment__status": ["exact"],
             "course_enroll_status": ["exact"],  # For Report
             "course__category__name": ["icontains"],  # For Report
-            "enrollment__created_at": ["gt", "lt"],
         }
 
 
