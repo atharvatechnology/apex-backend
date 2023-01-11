@@ -11,7 +11,7 @@ from bannerad.api_admin.serializers import (
     BannerAdRetrieveAdminSerializer,
     BannerAdUpdateAdminSerializer,
 )
-from bannerad.models import BannerAd
+from bannerad.models import BannerAd, BannerAdCategory
 from common.api.views import BaseCreatorCreateAPIView
 from common.permissions import IsAdminOrSuperAdminOrDirector
 
@@ -32,12 +32,20 @@ class BannerAdRetrieveAdminAPIView(RetrieveAPIView):
     queryset = BannerAd.objects.all()
 
 
-class BannerAdListAdminAPIView(ListAPIView):
+class BannerAdListWebAdminAPIView(ListAPIView):
     """View for listing bannerad."""
 
     permission_classes = [IsAdminOrSuperAdminOrDirector]
     serializer_class = BannerAdListAdminSerializer
-    queryset = BannerAd.objects.all()
+    queryset = BannerAd.objects.filter(category=BannerAdCategory.WEB)
+
+
+class BannerAdListMobileAdminAPIView(ListAPIView):
+    """View for listing bannerad."""
+
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    serializer_class = BannerAdListAdminSerializer
+    queryset = BannerAd.objects.filter(category=BannerAdCategory.MOBILE)
 
 
 class BannerAdUpdateAdminAPIView(UpdateAPIView):
