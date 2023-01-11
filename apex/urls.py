@@ -57,6 +57,7 @@ api_urls = [
     path("infocenter/", include("infocenter.api.urls")),
     path("bannerad/", include("bannerad.api.urls")),
     path("notifications/", include("notifications.api.urls")),
+    path("dashboard/", include("dashboard.api.urls")),
 ]
 
 api_admin_urls = [
