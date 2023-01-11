@@ -32,7 +32,8 @@ class BaseDynamicTableData:
         # retrieve model data
         queryset = self.model.objects.filter(id__in=self.queryset)
 
-        user = User.objects.get(id=self.request.user.id)
+        # since celery doesn't have logged in user instance we pass loggedin user id.
+        user = User.objects.get(id=self.user_id)
         media_path = f"reports/{user.username}"
         base_path = os.path.join(settings.BASE_DIR, f"media/{media_path}")
         os.makedirs(base_path, exist_ok=True)

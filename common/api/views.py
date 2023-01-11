@@ -2,7 +2,7 @@ from rest_framework.generics import CreateAPIView, GenericAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from common.api.serializers import ModelFieldsAndFilterParamsSerializer
+from common.api.serializers import ModelFieldsSerializer
 from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector
 from enrollments.api.tasks import excelcelery
 from report.models import GeneratedReport
@@ -33,7 +33,7 @@ class BaseReportGeneratorAPIView(GenericAPIView):
     queryset = None
     filterset_class = None
     model_name = None
-    serializer_class = ModelFieldsAndFilterParamsSerializer
+    serializer_class = ModelFieldsSerializer
     permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant]
 
     def get_context_data(self, **kwargs):
@@ -45,13 +45,7 @@ class BaseReportGeneratorAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if serializer.data["filter_params"]:
-            filtered_data = self.filter_queryset(
-                self.get_queryset().filter(**serializer.data["filter_params"])
-            )
-        else:
-            filtered_data = self.filter_queryset(self.get_queryset())
-
+        filtered_data = self.filter_queryset(self.get_queryset())
         report_object = GeneratedReport.objects.last()
         id_of_last_report = report_object.id if report_object else 0
 
