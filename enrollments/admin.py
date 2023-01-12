@@ -34,6 +34,7 @@ class CourseThroughEnrollmentInline(admin.TabularInline):
 @admin.register(CourseThroughEnrollment)
 class CourseThroughEnrollmentAdmin(admin.ModelAdmin):
     list_display = ["id", "enrollment"]
+    readonly_fields = ["attended_count", "class_meet_updated"]
 
 
 class QuestionEnrollmentInline(admin.TabularInline):

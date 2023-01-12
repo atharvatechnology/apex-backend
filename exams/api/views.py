@@ -115,9 +115,12 @@ def trigger_exam_submit(request, pk):
     # retrieve user
     user = request.user
     # Find the latest exam enrollment of the user
-    exm_enr = ExamThroughEnrollment.objects.filter(
-        enrollment__student=user, exam=exam
-    ).latest("id")
+    try:
+        exm_enr = ExamThroughEnrollment.objects.filter(
+            enrollment__student=user, exam=exam
+        ).latest("id")
+    except ExamThroughEnrollment.DoesNotExist:
+        return Response({"detail": "Exam enrollment not found."}, status=404)
     exm_sess = exm_enr.selected_session
     # Check if the latest exam session is active
     if exm_sess.status != SessionStatus.ACTIVE:

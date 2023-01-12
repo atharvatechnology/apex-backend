@@ -12,6 +12,8 @@ class BannerAdCreateAdminSerializer(serializers.ModelSerializer):
             "id",
             "img",
             "is_displayed",
+            "category",
+            "title",
         )
 
 
@@ -24,6 +26,8 @@ class BannerAdListAdminSerializer(serializers.ModelSerializer):
             "id",
             "img",
             "is_displayed",
+            "category",
+            "title",
         )
 
 
@@ -36,6 +40,8 @@ class BannerAdUpdateAdminSerializer(serializers.ModelSerializer):
             "id",
             "img",
             "is_displayed",
+            "title",
+            "category",
         )
 
 
@@ -48,4 +54,6 @@ class BannerAdRetrieveAdminSerializer(serializers.ModelSerializer):
             "id",
             "img",
             "is_displayed",
+            "title",
+            "category",
         )

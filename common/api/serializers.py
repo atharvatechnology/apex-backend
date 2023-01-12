@@ -48,9 +48,9 @@ class DynamicFieldsCategorySerializer:
 
 
 class ModelFieldsSerializer(serializers.Serializer):
-    """Serializer for getting model fields."""
+    """Serializer for getting model fields and filters."""
 
     model_fields = serializers.ListField(child=serializers.CharField(max_length=55))
 
     class Meta:
-        fields = "model_fields"
+        fields = ("model_fields",)

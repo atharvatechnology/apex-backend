@@ -28,7 +28,9 @@ from accounts.api_admin.serializers import (
     UserTeacherCreateAdminSerializer,
     UserUpdateAdminSerializer,
 )
-from accounts.models import Role
+from accounts.filters import StudentFilter
+from accounts.models import Profile, Role
+from common.api.views import BaseReportGeneratorAPIView
 from common.paginations import StandardResultsSetPagination
 from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
 from common.utils import tuple_to_list, tuple_to_list_first_elements
@@ -185,3 +187,23 @@ class GetSMSCreditAdminAPIView(GenericAPIView):
         otp = OTP().getCredit()
         serializer = self.get_serializer(otp)
         return Response(serializer.data)
+
+
+class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = Profile.objects.all()
+    filterset_class = StudentFilter
+    model_name = "StudentProfile"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "fullname",
+                    "date_joined",
+                    "phone_number",
+                    "email",
+                ]
+            }
+        )

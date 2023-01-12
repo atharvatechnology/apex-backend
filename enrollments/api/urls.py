@@ -6,25 +6,20 @@ from enrollments.api.views import (
     CourseEnrollementListAPIView,
     CourseEnrollementRetrieveAPIView,
     CourseEnrollementUpdateAPIView,
-    CourseThroughEnrollmentGeneratorAPIView,
     EnrollmentCreateAPIView,
     EnrollmentListAPIView,
     ExamEnrollmentCheckpointRetrieveAPIView,
     ExamEnrollmentRetrieveAPIView,
     ExamEnrollmentRetrievePoolAPIView,
     ExamEnrollmentUpdateAPIView,
-    ExamThroughEnrollmentGeneratorAPIView,
     PracticeEnrollmentCreateAPIView,
+    StudentAttendanceIncrement,
+    StudentEnrollmentDetail,
 )
 
 enrollment_urls = [
     path("create/", EnrollmentCreateAPIView.as_view(), name="enrollment-create"),
     path("list/", EnrollmentListAPIView.as_view(), name="enrollment-list"),
-    path(
-        "report/generate/",
-        ExamThroughEnrollmentGeneratorAPIView.as_view(),
-        name="generator-enrollment",
-    ),
 ]
 
 exam_urls = [
@@ -105,14 +100,22 @@ course_enroll_urls = [
         name="course-enroll-destroy",
     ),
     path(
-        "report/generate/",
-        CourseThroughEnrollmentGeneratorAPIView.as_view(),
-        name="generator-course",
+        "attendance/count/",
+        StudentAttendanceIncrement.as_view(),
+        name="attendance-increment",
     ),
 ]
 
 check_enroll_urls = [
     path("student-enroll/", CheckIfStudentInCourse.as_view(), name="stu-enroll"),
+]
+
+student_enroll_detail_urls = [
+    path(
+        "student-enroll/details/<int:pk>",
+        StudentEnrollmentDetail.as_view(),
+        name="stu-enroll-details",
+    ),
 ]
 
 urlpatterns = [
@@ -121,5 +124,6 @@ urlpatterns = [
     # path("physical/", include(physical_urls)),
     path("course-enroll/", include(course_enroll_urls)),
     path("check/", include(check_enroll_urls)),
+    path("", include(student_enroll_detail_urls)),
     # path("dynamic/", dynamic_excel_generator,)
 ]

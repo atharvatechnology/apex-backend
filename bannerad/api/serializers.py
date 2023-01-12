@@ -12,4 +12,5 @@ class BannerAdRetrieveSerializer(serializers.ModelSerializer):
             "id",
             "img",
             "is_displayed",
+            "title",
         )
