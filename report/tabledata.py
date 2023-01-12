@@ -1,13 +1,14 @@
-from accounts.models import Profile
+from accounts.models import User
 from attendance.models import StudentAttendance, TeacherAttendance
 from common.report import BaseDynamicTableData
+from common.utils import get_human_readable_date_time
+from courses.models import Course
 from enrollments.models import (
-    CourseSession,
     CourseThroughEnrollment,
     ExamEnrollmentStatus,
-    ExamSession,
     ExamThroughEnrollment,
 )
+from exams.models import Exam
 
 
 class ExamThroughEnrollmentTableData(BaseDynamicTableData):
@@ -103,27 +104,31 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
 
 
 class StudentTableData(BaseDynamicTableData):
-    """status field not found."""
-
-    model = Profile
+    model = User
     field_to_header_names = {
         "fullname": "Student Name",
-        "date_joined": "Created date",
+        "date_joined": "Joined date",
         "phone_number": "Phone Number",
         "email": "Email",
+        "status": "Status",
     }
 
     def get_fullname(self, obj):
-        return obj.user.__str__()
+        return obj.__str__()
 
     def get_created_date(self, obj):
-        return str(obj.user.date_joined.date())
+        return get_human_readable_date_time(obj.date_joined)
 
     def get_phone(self, obj):
-        return str(obj.user.username)
+        return str(obj.username)
 
     def get_email(self, obj):
-        return obj.user.email
+        return obj.email
+
+    def get_status(self, obj):
+        if obj.is_active:
+            return "Active"
+        return "Inactive"
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
@@ -131,12 +136,39 @@ class StudentTableData(BaseDynamicTableData):
             "date_joined": self.get_created_date,
             "phone_number": self.get_phone,
             "email": self.get_email,
+            "status": self.get_status,
+        }
+        return fields_and_values[field_name](obj)
+
+
+class TeacherTableData(BaseDynamicTableData):
+    model = User
+    field_to_header_names = {
+        "fullname": "Teacher Name",
+        "phone_number": "Phone Number",
+        "email": "Email",
+    }
+
+    def get_fullname(self, obj):
+        return obj.__str__()
+
+    def get_phone(self, obj):
+        return str(obj.username)
+
+    def get_email(self, obj):
+        return obj.email
+
+    def get_values_from_fields(self, field_name, obj):
+        fields_and_values = {
+            "fullname": self.get_fullname,
+            "phone_number": self.get_phone,
+            "email": self.get_email,
         }
         return fields_and_values[field_name](obj)
 
 
 class ExamTableData(BaseDynamicTableData):
-    model = ExamSession
+    model = Exam
     field_to_header_names = {
         "exam": "Exam",
         "exam_type": "Type",
@@ -147,26 +179,42 @@ class ExamTableData(BaseDynamicTableData):
     }
 
     def get_exam_name(self, obj):
-        return obj.exam.name
+        return obj.name
 
     def get_exam_type(self, obj):
-        return obj.exam.exam_type
+        return obj.exam_type
 
     def get_exam_date(self, obj):
-        return str(obj.exam.start_date.date())
+        exam_sessions = obj.sessions.all()
+        return ", ".join(
+            [
+                exam_session.start_date.strftime("%d %b %Y")
+                for exam_session in exam_sessions
+            ]
+        )
+
+    def examinee_filter(self, obj, filter_args):
+        exam_enrolls = obj.exam_enrolls.all().order_by("selected_session")
+        exam_sessions = obj.sessions.all()
+        examinees = []
+        for exam_session in exam_sessions:
+            exam_enrolls_count = exam_enrolls.filter(selected_session=exam_session)
+            exam_enrolls_count = (
+                exam_enrolls_count.filter(**filter_args).count()
+                if filter_args
+                else exam_enrolls_count.count()
+            )
+            examinees.append(exam_enrolls_count)
+        return ", ".join([str(examinee) for examinee in examinees])
 
     def get_examinee_count(self, obj):
-        return str(obj.session_enrolls.all().count())
+        return self.examinee_filter(obj, None)
 
     def get_passed_count(self, obj):
-        return str(
-            obj.session_enrolls.filter(status=ExamEnrollmentStatus.PASSED).count()
-        )
+        return self.examinee_filter(obj, {"status": ExamEnrollmentStatus.PASSED})
 
     def get_failed_count(self, obj):
-        return str(
-            obj.session_enrolls.filter(status=ExamEnrollmentStatus.FAILED).count()
-        )
+        return self.examinee_filter(obj, {"status": ExamEnrollmentStatus.FAILED})
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
@@ -182,34 +230,39 @@ class ExamTableData(BaseDynamicTableData):
 
 class CourseTableData(BaseDynamicTableData):
 
-    model = CourseSession
+    model = Course
     field_to_header_names = {
         "course_name": "Course Name",
         "price": "Price",
-        "students_enrolled": "Student Enrolled",
+        "duration": "Duration",
+        "students_enrolled": "Students Enrolled",
         "start_date": "Start Date",
         "status": "Status",
     }
 
     def get_course_name(self, obj):
-        return obj.course.name
+        return obj.name
 
     def get_price(self, obj):
-        return obj.course.price
+        return obj.price
+
+    def get_duration(self, obj):
+        return obj.duration
 
     def get_students_enrolled_count(self, obj):
-        return str(obj.course_enrolls.all().count())
+        return str(obj.enrolls.all().count())
 
     def get_start_date(self, obj):
-        return str(obj.course.start_date.date())
+        return " ,".join(x.start_date.strftime("%d %b %Y") for x in obj.sessions.all())
 
     def get_status(self, obj):
-        return obj.course.status
+        return obj.status.upper()
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "course_name": self.get_course_name,
             "price": self.get_price,
+            "duration": self.get_duration,
             "students_enrolled": self.get_students_enrolled_count,
             "start_date": self.get_start_date,
             "status": self.get_status,
@@ -233,7 +286,7 @@ class StudentAttendanceTableData(BaseDynamicTableData):
         return obj.user.username
 
     def get_date(self, obj):
-        return str(obj.date.date())
+        return get_human_readable_date_time(obj.date)
 
     # def get_time(self, obj):
     #     return str(obj.date.time())
@@ -263,7 +316,7 @@ class TeacherAttendanceTableData(BaseDynamicTableData):
         return obj.user.username
 
     def get_date(self, obj):
-        return str(obj.date.date())
+        return get_human_readable_date_time(obj.date)
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {

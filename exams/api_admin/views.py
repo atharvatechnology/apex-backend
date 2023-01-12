@@ -11,7 +11,11 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 
-from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.api.views import (
+    BaseCreatorCreateAPIView,
+    BaseCreatorUpdateAPIView,
+    BaseReportGeneratorAPIView,
+)
 from common.paginations import StandardResultsSetPagination
 from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
 from exams.filters import ExamOnCourseFilter
@@ -194,3 +198,25 @@ class ExamDetailAPIView(RetrieveAPIView):
     serializer_class = ExamDetailSerializer
     queryset = Exam.objects.all()
     permission_classes = [IsAdminOrSuperAdminOrDirector]
+
+
+class ExamGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = Exam.objects.all()
+    filterset_class = ExamOnCourseFilter
+    model_name = "Exam"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "exam",
+                    "exam_type",
+                    "exam_date",
+                    "examinee",
+                    "passes",
+                    "failed",
+                ]
+            }
+        )

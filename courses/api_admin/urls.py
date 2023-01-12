@@ -9,6 +9,7 @@ from .views import (
     CourseCreateAPIView,
     CourseDeleteAPIView,
     CourseDropdownListAPIView,
+    CourseGeneratorAPIView,
     CourseListAPIView,
     CourseOverviewAPIView,
     CourseOverviewCardAPIView,
@@ -47,6 +48,11 @@ course_urlpatterns = [
     ),
     path("exam/remove/", remove_exam_in_course, name="remove-exam-in-course"),
     path("overview/", include(course_overview_urlpatterns)),
+    path(
+        "report/generate/",
+        CourseGeneratorAPIView.as_view(),
+        name="remove-exam-in-course",
+    ),
 ]
 
 category_urlpatterns = [

@@ -2,7 +2,6 @@ from django.urls import include, path
 
 from .views import (
     CourseEnrollmentCreateAPIView,
-    CourseGeneratorAPIView,
     CourseGraphAPIView,
     CourseSessionCreateAPIView,
     CourseSessionDeleteAPIView,
@@ -16,7 +15,6 @@ from .views import (
     EnrollmentGraphAPIView,
     EnrollmentUpdateAdminAPIView,
     ExamEnrollmentCreateAPIView,
-    ExamGeneratorAPIView,
     ExamGraphAPIView,
     ExamSessionCreateAPIView,
     ExamSessionDeleteAPIView,
@@ -52,11 +50,6 @@ exam_session_urls = [
         ExamSessionDeleteAPIView.as_view(),
         name="exam-session-delete",
     ),
-    path(
-        "report/generate/",
-        ExamGeneratorAPIView.as_view(),
-        name="generator-exam-sessions",
-    ),
 ]
 
 exam_graph = [path("bar/", ExamGraphAPIView.as_view(), name="exam-graph")]
@@ -88,11 +81,6 @@ course_session_urls = [
         "check/",
         StudentCourseCheckView.as_view(),
         name="student-course-check",
-    ),
-    path(
-        "report/generate/",
-        CourseGeneratorAPIView.as_view(),
-        name="generator-course-sessions",
     ),
 ]
 

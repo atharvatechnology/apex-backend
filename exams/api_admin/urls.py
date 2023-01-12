@@ -5,6 +5,7 @@ from exams.api_admin.views import (
     ExamDeleteAPIView,
     ExamDetailAPIView,
     ExamDropdownListAPIView,
+    ExamGeneratorAPIView,
     ExamImageUploadAPIView,
     ExamListAPIView,
     ExamListOverviewAPIView,
@@ -48,6 +49,11 @@ urlpatterns = [
     ),
     path("detail/<int:pk>/", ExamDetailAPIView.as_view(), name="exam-detail"),
     path("overview/", include(exam_overview_urls)),
+    path(
+        "report/generate/",
+        ExamGeneratorAPIView.as_view(),
+        name="generator-exam-sessions",
+    ),
 ]
 
 option_urls = [
