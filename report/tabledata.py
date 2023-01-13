@@ -32,7 +32,7 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
         return obj.exam.name
 
     def get_created_date(self, obj):
-        return str(obj.enrollment.created_at)
+        return str(obj.enrollment.created_at.strftime("%a %b %d %Y"))
 
     def get_payment(self, obj):
         price = obj.enrollment.payments_payment_related.first()
@@ -59,6 +59,7 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
         "enrollment": "Student's Name",
         "phone_number": "Phone Number",
         "course_name": "Course Name",
+        "created_date": "Created Date",
         "payment": "Payment",
         "course_enroll_status": "Status",
     }
@@ -68,6 +69,9 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
 
     def get_phone_number(self, obj):
         return str(obj.enrollment.student.username)
+
+    def get_created_date(self, obj):
+        return str(obj.enrollment.created_at.strftime("%a %b %d %Y"))
 
     def get_course_name(self, obj):
         return obj.course.name
@@ -90,6 +94,7 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
             "enrollment": self.get_students_name,
             "phone_number": self.get_phone_number,
             "course_name": self.get_course_name,
+            "created_date": self.get_created_date,
             "payment": self.get_payment,
             "course_enroll_status": self.get_status,
         }

@@ -542,6 +542,7 @@ class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
                     "enrollment",
                     "phone_number",
                     "course_name",
+                    "created_date",
                     "payment",
                     "course_enroll_status",
                 ]
