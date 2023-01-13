@@ -19,10 +19,6 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
         "exam": "Exam",
         "created_date": "Created Date",
         "payment": "Payment",
-        # "selected_session": "Selected Session",
-        # "rank": "Rank",
-        # "score": "Score",
-        # "negative_score": "Negative Score",
         "status": "Status",
     }
 
@@ -36,16 +32,14 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
         return obj.exam.name
 
     def get_created_date(self, obj):
-        return str(obj.enrollment.created_at.date())
+        return str(obj.enrollment.created_at)
 
     def get_payment(self, obj):
-        return str(obj.exam.price)
+        price = obj.enrollment.payments_payment_related.first()
+        return str(price.amount if price else "-")
 
     def get_status(self, obj):
         return obj.status
-
-    # def get_rank(self, obj):
-    #     return get_student_rank(obj)
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
@@ -53,8 +47,6 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
             "phone_number": self.get_phone_number,
             "exam": self.get_exam,
             "created_date": self.get_created_date,
-            # "rank": self.get_rank,
-            # "score": self.get_score,
             "payment": self.get_payment,
             "status": self.get_status,
         }
@@ -81,7 +73,8 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
         return obj.course.name
 
     def get_payment(self, obj):
-        return str(obj.course.price)
+        price = obj.enrollment.payments_payment_related.first()
+        return str(price.amount if price else "-")
 
     # def get_session(self, obj):
     #     return str(obj.selected_session.start_date.date())
@@ -273,30 +266,20 @@ class CourseTableData(BaseDynamicTableData):
 class StudentAttendanceTableData(BaseDynamicTableData):
     model = StudentAttendance
     field_to_header_names = {
-        "student_name": "Student Name",
-        "phone_number": "Phone number",
         "date": "Date",
-        # "attendance_time": "Attendance time",
+        "time": "Time",
     }
 
-    def get_student_name(self, obj):
-        return obj.user.__str__()
-
-    def get_phone_number(self, obj):
-        return obj.user.username
-
     def get_date(self, obj):
-        return get_human_readable_date_time(obj.date)
+        return obj.date.strftime("%Y-%m-%d")
 
-    # def get_time(self, obj):
-    #     return str(obj.date.time())
+    def get_time(self, obj):
+        return obj.date.strftime("%H:%M %p")
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
-            "student_name": self.get_student_name,
-            "phone_number": self.get_phone_number,
             "date": self.get_date,
-            # "attendance_time": self.get_time,
+            "time": self.get_time,
         }
         return fields_and_values[field_name](obj)
 
@@ -304,24 +287,19 @@ class StudentAttendanceTableData(BaseDynamicTableData):
 class TeacherAttendanceTableData(BaseDynamicTableData):
     model = TeacherAttendance
     field_to_header_names = {
-        "teachers_name": "Teacher Name",
-        "phone_number": "Phone number",
         "date": "Date",
+        "time": "Time",
     }
 
-    def get_teachers_name(self, obj):
-        return obj.user.__str__()
-
-    def get_phone_number(self, obj):
-        return obj.user.username
-
     def get_date(self, obj):
-        return get_human_readable_date_time(obj.date)
+        return obj.date.strftime("%Y-%m-%d")
+
+    def get_time(self, obj):
+        return obj.date.strftime("%H:%M %p")
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
-            "teachers_name": self.get_teachers_name,
-            "phone_number": self.get_phone_number,
             "date": self.get_date,
+            "time": self.get_time,
         }
         return fields_and_values[field_name](obj)

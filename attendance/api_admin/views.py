@@ -14,11 +14,7 @@ from attendance.api_admin.serializers import (
     TeacherAttendanceAdminUpdateSerializer,
     TeacherAttendanceDetailAdminSerializer,
 )
-from attendance.filters import (
-    AttendanceFilter,
-    StudentAttendanceDateFilter,
-    TeacherAttendanceDateFilter,
-)
+from attendance.filters import AttendanceFilter
 from attendance.models import (
     StudentAttendance,
     TeacherAttendance,
@@ -184,18 +180,17 @@ class TeacherAttendanceDetailAdminDeleteAPIView(DestroyAPIView):
 
 class StudentAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
     queryset = StudentAttendance.objects.all()
-    filterset_class = StudentAttendanceDateFilter
+    filterset_class = AttendanceFilter
+    search_fields = ["name"]
     model_name = "StudentAttendance"
 
     def get(self, request):
         return Response(
             {
                 "model_fields": [
-                    "student_name",
-                    "phone_number",
                     "date",
+                    "time",
                 ]
             }
         )
@@ -205,16 +200,15 @@ class TeacherAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = TeacherAttendance.objects.all()
-    filterset_class = TeacherAttendanceDateFilter
+    filterset_class = AttendanceFilter
     model_name = "TeacherAttendance"
 
     def get(self, request):
         return Response(
             {
                 "model_fields": [
-                    "teachers_name",
-                    "phone_number",
                     "date",
+                    "time",
                 ]
             }
         )
