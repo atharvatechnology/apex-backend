@@ -5,4 +5,7 @@ from . import consumers
 websocket_urlpatterns = [
     # re_path(r'ws/clock/', consumers.ClockConsumer.as_asgi()),
     re_path(r"ws/clock/(?P<room_name>\w+)/$", consumers.ClockConsumer.as_asgi()),
+    re_path(
+        r"ws/staff/(?P<room_name>\w+)/$", consumers.StaffTrackingConsumer.as_asgi()
+    ),
 ]
