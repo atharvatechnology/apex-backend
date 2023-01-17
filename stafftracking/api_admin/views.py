@@ -1,10 +1,10 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.permissions import IsSuperAdminOrDirector
 from stafftracking.api_admin.serializers import StaffTrackingSerializer
 from stafftracking.models import StaffTracking
 
@@ -14,11 +14,11 @@ channel_layer = get_channel_layer()
 class StaffTrackingListAPIView(ListAPIView):
     queryset = StaffTracking.objects.all()
     serializer_class = StaffTrackingSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminOrDirector]
 
 
 class StaffTrackingRequestAPIView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperAdminOrDirector]
 
     def get(self, request, *args, **kwargs):
         user_id = self.kwargs.get("user_id")
