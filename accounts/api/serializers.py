@@ -56,6 +56,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "address",
             "interests",
             "qr_code",
+            "interests",
         ]
         read_only_fields = ("qr_code",)
 
