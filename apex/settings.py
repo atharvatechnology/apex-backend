@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "bannerad",
     "counseling",
     "dashboard",
+    "stafftracking",
 ]
 
 MIDDLEWARE = [
