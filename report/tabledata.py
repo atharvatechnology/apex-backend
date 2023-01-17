@@ -308,3 +308,55 @@ class TeacherAttendanceTableData(BaseDynamicTableData):
             "time": self.get_time,
         }
         return fields_and_values[field_name](obj)
+
+
+class AllStudentAttendanceTableData(BaseDynamicTableData):
+    model = StudentAttendance
+    field_to_header_names = {
+        "student_name": "Student Name",
+        "phone_number": "Phone Number",
+        "attendance_time": "Attendance time",
+    }
+
+    def get_student_name(self, obj):
+        return obj.user.__str__()
+
+    def get_phone_number(self, obj):
+        return str(obj.user.username)
+
+    def get_time(self, obj):
+        return obj.date.strftime("%H:%M %p")
+
+    def get_values_from_fields(self, field_name, obj):
+        fields_and_values = {
+            "student_name": self.get_student_name,
+            "phone_number": self.get_phone_number,
+            "attendance_time": self.get_time,
+        }
+        return fields_and_values[field_name](obj)
+
+
+class AllTeacherAttendanceTableData(BaseDynamicTableData):
+    model = TeacherAttendance
+    field_to_header_names = {
+        "teachers_name": "Teacher Name",
+        "phone_number": "Phone Number",
+        "attendance_time": "Attendance time",
+    }
+
+    def get_teachers_name(self, obj):
+        return obj.user.__str__()
+
+    def get_phone_number(self, obj):
+        return str(obj.user.username)
+
+    def get_time(self, obj):
+        return obj.date.strftime("%H:%M %p")
+
+    def get_values_from_fields(self, field_name, obj):
+        fields_and_values = {
+            "teachers_name": self.get_teachers_name,
+            "phone_number": self.get_phone_number,
+            "attendance_time": self.get_time,
+        }
+        return fields_and_values[field_name](obj)

@@ -178,7 +178,7 @@ class TeacherAttendanceDetailAdminDeleteAPIView(DestroyAPIView):
     queryset = TeacherAttendanceDetail.objects.all()
 
 
-class StudentAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
+class SingleStudentAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     queryset = StudentAttendance.objects.all()
     filterset_class = AttendanceFilter
@@ -196,7 +196,26 @@ class StudentAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
         )
 
 
-class TeacherAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
+class AllStudentAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["user__username", "user__first_name", "user__last_name"]
+    queryset = StudentAttendance.objects.all()
+    filterset_class = AttendanceFilter
+    model_name = "AllStudentAttendance"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "student_name",
+                    "phone_number",
+                    "attendance_time",
+                ]
+            }
+        )
+
+
+class SingleTeacherAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     queryset = TeacherAttendance.objects.all()
@@ -209,6 +228,25 @@ class TeacherAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
                 "model_fields": [
                     "date",
                     "time",
+                ]
+            }
+        )
+
+
+class AllTeacherAttendanceReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+    queryset = TeacherAttendance.objects.all()
+    filterset_class = AttendanceFilter
+    model_name = "AllTeacherAttendance"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "teachers_name",
+                    "phone_number",
+                    "attendance_time",
                 ]
             }
         )
