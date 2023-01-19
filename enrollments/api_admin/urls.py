@@ -16,6 +16,7 @@ from .views import (
     EnrollmentUpdateAdminAPIView,
     ExamEnrollmentCreateAPIView,
     ExamGraphAPIView,
+    ExamResultReportGeneratorAPIView,
     ExamSessionCreateAPIView,
     ExamSessionDeleteAPIView,
     ExamSessionListAPIView,
@@ -99,6 +100,11 @@ exam_through_enrollment_urls = [
         "card/",
         ExamThroughEnrollmentListCardAPIView.as_view(),
         name="exam-through-enrollment-card",
+    ),
+    path(
+        "result/report/generate/",
+        ExamResultReportGeneratorAPIView.as_view(),
+        name="generator-exam-result",
     ),
 ]
 

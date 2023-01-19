@@ -548,3 +548,33 @@ class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
                 ]
             }
         )
+
+
+class ExamResultReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    queryset = ExamThroughEnrollment.objects
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
+    search_fields = [
+        "enrollment__student__first_name",
+        "enrollment__student__last_name",
+        "enrollment__student__username",
+        "exam__name",
+    ]
+    filterset_class = ExamThroughEnrollmentFilter
+    model_name = "ExamResult"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "student_name",
+                    "rank",
+                    "score",
+                    "negative_score",
+                    "status",
+                ]
+            }
+        )

@@ -3,6 +3,7 @@ from attendance.models import StudentAttendance, TeacherAttendance
 from common.report import BaseDynamicTableData
 from common.utils import get_human_readable_date_time
 from courses.models import Course
+from enrollments.api.utils import get_student_rank
 from enrollments.models import (
     CourseThroughEnrollment,
     ExamEnrollmentStatus,
@@ -358,5 +359,41 @@ class AllTeacherAttendanceTableData(BaseDynamicTableData):
             "teachers_name": self.get_teachers_name,
             "phone_number": self.get_phone_number,
             "attendance_time": self.get_time,
+        }
+        return fields_and_values[field_name](obj)
+
+
+class ExamResultTableData(BaseDynamicTableData):
+    model = ExamThroughEnrollment
+    field_to_header_names = {
+        "student_name": "Student's Name",
+        "rank": "Rank",
+        "score": "Score",
+        "negative_score": "Negative Score",
+        "status": "Status",
+    }
+
+    def get_students_name(self, obj):
+        return obj.enrollment.student.__str__()
+
+    def get_rank(self, obj):
+        return str(get_student_rank(obj))
+
+    def get_score(self, obj):
+        return str(obj.enrollment.score)
+
+    def get_negative_score(self, obj):
+        return str(obj.enrollment.negative_score)
+
+    def get_status(self, obj):
+        return obj.enrollment.status
+
+    def get_values_from_fields(self, field_name, obj):
+        fields_and_values = {
+            "student_name": self.get_students_name,
+            "rank": self.get_rank,
+            "score": self.get_rank,
+            "negative_score": self.get_rank,
+            "status": self.get_status,
         }
         return fields_and_values[field_name](obj)
