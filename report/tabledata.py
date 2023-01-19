@@ -10,6 +10,7 @@ from enrollments.models import (
     ExamThroughEnrollment,
 )
 from exams.models import Exam
+from payments.models import Payment
 
 
 class ExamThroughEnrollmentTableData(BaseDynamicTableData):
@@ -395,5 +396,48 @@ class ExamResultTableData(BaseDynamicTableData):
             "score": self.get_rank,
             "negative_score": self.get_rank,
             "status": self.get_status,
+        }
+        return fields_and_values[field_name](obj)
+
+
+class PaymentTableData(BaseDynamicTableData):
+    model = Payment
+    field_to_header_names = {
+        "name": "Name",
+        "type": "Type",
+        "enrollment": "Enrollment",
+        "revenue": "Revenue",
+    }
+
+    def get_name(self, obj):
+        return obj.enrollment.student.__str__()
+
+    def get_payment_category(self, obj):
+        type_string = []
+        if obj.enrollment.exams.all().count() > 0:
+            type_string.append("Exam")
+        if obj.enrollment.courses.all().count() > 0:
+            type_string.append("Course")
+        return ",".join(type_string)
+
+    def get_enrollment(self, obj):
+        enrollment_string = []
+        if obj.enrollment.exams.all().count() > 0:
+            for exam_name in obj.enrollment.exams.all():
+                enrollment_string.append(exam_name.name)
+        if obj.enrollment.courses.all().count() > 0:
+            for course_name in obj.enrollment.courses.all():
+                enrollment_string.append(course_name.name)
+        return ",".join(enrollment_string)
+
+    def get_revenue(self, obj):
+        return str(obj.amount)
+
+    def get_values_from_fields(self, field_name, obj):
+        fields_and_values = {
+            "name": self.get_name,
+            "type": self.get_payment_category,
+            "enrollment": self.get_enrollment,
+            "revenue": self.get_revenue,
         }
         return fields_and_values[field_name](obj)

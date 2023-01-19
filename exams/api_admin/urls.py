@@ -52,7 +52,7 @@ urlpatterns = [
     path(
         "report/generate/",
         ExamGeneratorAPIView.as_view(),
-        name="generator-exam-sessions",
+        name="generator-exams",
     ),
 ]
 

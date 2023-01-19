@@ -51,7 +51,7 @@ course_urlpatterns = [
     path(
         "report/generate/",
         CourseGeneratorAPIView.as_view(),
-        name="remove-exam-in-course",
+        name="generator-courses",
     ),
 ]
 
