@@ -17,6 +17,16 @@ class StaffTrackingListAPIView(ListAPIView):
     permission_classes = [IsSuperAdminOrDirector]
 
 
+class StaffTrackingListPerUserAPIView(ListAPIView):
+    queryset = StaffTracking.objects.all()
+    serializer_class = StaffTrackingSerializer
+    permission_classes = [IsSuperAdminOrDirector]
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id", None)
+        return super().get_queryset().filter(user=user_id)[:5]
+
+
 class StaffTrackingRequestAPIView(APIView):
     permission_classes = [IsSuperAdminOrDirector]
 
