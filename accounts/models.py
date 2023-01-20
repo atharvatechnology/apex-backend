@@ -138,6 +138,7 @@ class User(AbstractUser):
         error_messages={
             "unique": _("A user with that phone already exists."),
         },
+        db_index=True,
     )
     otp_counter = models.PositiveIntegerField(default=0)
     otp = models.CharField(max_length=6, null=True, blank=True)
