@@ -45,6 +45,7 @@ jobs:
     name: Deploy to GCP instance
     runs-on: ubuntu-latest
     environment: deployment
+    needs: build
 
     permissions:
       contents: 'read'
