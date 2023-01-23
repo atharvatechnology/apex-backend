@@ -1,10 +1,9 @@
-from django.db.models import BooleanField, Case, When
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from common.api.mixin import PublishableModelMixin
+from common.api.mixin import InterestWiseOrderMixin, PublishableModelMixin
 from common.paginations import StandardResultsSetPagination
 from courses.api.permissions import IsCourseEnrolledActive
 from courses.api.serializers import (
@@ -17,7 +16,7 @@ from courses.filters import CourseFilter
 from courses.models import Course, CourseCategory
 
 
-class CourseListAPIView(PublishableModelMixin, ListAPIView):
+class CourseListAPIView(PublishableModelMixin, InterestWiseOrderMixin, ListAPIView):
     """View for listing courses."""
 
     permission_classes = [AllowAny]
@@ -29,23 +28,6 @@ class CourseListAPIView(PublishableModelMixin, ListAPIView):
     pagination_class = StandardResultsSetPagination
     # filterset_fields = ['price', 'category']
     # ordering = ['course']
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated:
-            return (
-                super()
-                .get_queryset()
-                .annotate(
-                    cat=Case(
-                        When(category__in=user.profile.interests.all(), then=True),
-                        default=False,
-                        output_field=BooleanField(),
-                    )
-                )
-                .order_by("-cat", "-id")
-            )
-        return super().get_queryset()
 
 
 class CourseRetrieveAPIAfterEnrollView(PublishableModelMixin, RetrieveAPIView):

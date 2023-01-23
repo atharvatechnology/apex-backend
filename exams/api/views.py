@@ -1,4 +1,3 @@
-from django.db.models import BooleanField, Case, When
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import localtime, now
 from django_filters.rest_framework import DjangoFilterBackend
@@ -8,7 +7,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from common.api.mixin import PublishableModelMixin
+from common.api.mixin import InterestWiseOrderMixin, PublishableModelMixin
 from common.paginations import StandardResultsSetPagination
 from enrollments.models import ExamSession, ExamThroughEnrollment, SessionStatus
 from exams.api.permissions import IsExamEnrolledActive
@@ -29,7 +28,7 @@ from .serializers import (  # ExamUpdateSerializer,
 #     # permission_classes = [AllowAny]
 
 
-class ExamListAPIView(PublishableModelMixin, ListAPIView):
+class ExamListAPIView(PublishableModelMixin, InterestWiseOrderMixin, ListAPIView):
     """View for listing exams."""
 
     serializer_class = ExamListSerializer
@@ -39,23 +38,6 @@ class ExamListAPIView(PublishableModelMixin, ListAPIView):
     filterset_class = ExamFilter
     search_fields = ["name"]
     pagination_class = StandardResultsSetPagination
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated:
-            return (
-                super()
-                .get_queryset()
-                .annotate(
-                    cat=Case(
-                        When(category__in=user.profile.interests.all(), then=True),
-                        default=False,
-                        output_field=BooleanField(),
-                    )
-                )
-                .order_by("-cat", "-id")
-            )
-        return super().get_queryset()
 
 
 class ExamRetrieveAPIView(PublishableModelMixin, RetrieveAPIView):

@@ -1,3 +1,4 @@
+from django.db.models import BooleanField, Case, When
 from rest_framework import serializers
 
 from enrollments.api.utils import is_enrolled, is_enrolled_active
@@ -34,3 +35,22 @@ class PublishableModelMixin:
     def get_queryset(self):
         qs = self.queryset
         return qs.published()
+
+
+class InterestWiseOrderMixin(object):
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated and hasattr(user, "profile"):
+            return (
+                super()
+                .get_queryset()
+                .annotate(
+                    cat=Case(
+                        When(category__in=user.profile.interests.all(), then=True),
+                        default=False,
+                        output_field=BooleanField(),
+                    )
+                )
+                .order_by("-cat", "-id")
+            )
+        return super().get_queryset()
