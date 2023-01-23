@@ -77,7 +77,6 @@ jobs:
           # command: "sed -i 's+BACKEND_TAG=pr-.*+BACKEND_TAG=pr-${{ github.event.inputs.version }}+g' ${{ secrets.GCP_PATH }} && docker compose -f ${{ secrets.GCP_DOCKER_COMPOSE_PATH }} up -d"
           command: |
             cd apex-platform
-            export BACKEND_TAG=$(echo $TAG)
-            echo BACKEND_IMAGE=$BACKEND_TAG > .env.api
+            echo BACKEND_IMAGE=$TAG > .env.api
             cat .env.api .env.web .env.web.admin > .env
             docker compose up -d api socket celery celery-beat
