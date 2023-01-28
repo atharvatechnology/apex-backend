@@ -23,11 +23,11 @@ repos:
       - id: bandit
         args: [ "-iii", "-ll" ]
 
-  - repo: https://gitlab.com/pycqa/flake8
+  - repo: https://github.com/pycqa/flake8
     rev: 3.9.2
     hooks:
       - id: flake8
-        exclude: migrations
+        exclude: migrations|apps
 
   - repo: https://github.com/asottile/seed-isort-config
     rev: v2.2.0

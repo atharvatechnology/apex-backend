@@ -1,27 +1,48 @@
 from decimal import Decimal
 
+from ckeditor.fields import RichTextField
+from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.models import CreatorBaseModel
+from common.modelFields import PercentageField
+from common.models import CreatorBaseModel, PublishedModel
 from common.validators import validate_positive
+
+
+class ExamTemplateStatus:
+    DRAFT = "draft"
+    COMPLETED = "completed"
+
+    CHOICES = [
+        (DRAFT, _("Draft")),
+        (COMPLETED, _("Completed")),
+    ]
 
 
 class ExamTemplate(CreatorBaseModel):
     """Model definition for ExamTemplate."""
 
     name = models.CharField(_("name"), max_length=128)
-    # description = models.TextField(blank=True)
-    duration = models.DurationField(_("duration"))
+    description = models.TextField(_("description"), default="No description available")
+    duration = models.DurationField(
+        _("Duration"), help_text=_("Enter duration in HH:MM:SS format")
+    )
     # models.IntegerField(default=0, validators=[validate_positive])
     full_marks = models.DecimalField(
-        _("full_marks"), max_digits=5, decimal_places=2, default=0
+        _("Full Marks"), max_digits=5, decimal_places=2, default=0
     )
-    pass_marks = models.DecimalField(
-        _("pass_marks"), max_digits=5, decimal_places=2, default=0
+    pass_percentage = PercentageField(
+        _("Pass Percentage"), max_digits=3, decimal_places=2
     )
     display_num_questions = models.PositiveIntegerField(
-        _("display_num_questions"), default=1
+        _("Display Question Number"), default=1
+    )
+    status = models.CharField(
+        _("Status"),
+        max_length=16,
+        choices=ExamTemplateStatus.CHOICES,
+        default=ExamTemplateStatus.DRAFT,
     )
     # exam_type = models.CharField(max_length=10, choices=(
     #     ('S', 'SINGLE'), ('M', 'MULTIPLE')), default='S')
@@ -29,6 +50,7 @@ class ExamTemplate(CreatorBaseModel):
     class Meta:
         verbose_name = _("Exam Template")
         verbose_name_plural = _("Exam Templates")
+        ordering = ["-id"]
 
     def __str__(self):
         return self.name
@@ -36,24 +58,32 @@ class ExamTemplate(CreatorBaseModel):
 
 class ExamStatus:
     CREATED = "created"
-    STARTED = "started"
-    FINISHED = "finished"
     SCHEDULED = "scheduled"
     CANCELLED = "cancelled"
+    IN_PROGRESS = "in_progress"
 
     CHOICES = [
         (CREATED, "Created"),
-        (STARTED, "Started"),
-        (FINISHED, "Finished"),
         (SCHEDULED, "Scheduled"),
         (CANCELLED, "Cancelled"),
+        (IN_PROGRESS, "In Progress"),
+    ]
+
+
+class ExamType:
+    LIVE = "live"
+    PRACTICE = "practice"
+
+    CHOICES = [
+        (LIVE, "Live"),
+        (PRACTICE, "Practice"),
     ]
 
 
 # Create your models here.
 
 
-class Exam(CreatorBaseModel):
+class Exam(CreatorBaseModel, PublishedModel):
     """Model definition for Exam."""
 
     name = models.CharField(_("name"), max_length=128)
@@ -66,18 +96,26 @@ class Exam(CreatorBaseModel):
     )
     # TODO: Add course field here after course app is created
     # Also how to relate course to exams?
-    # course = models.ForeignKey("courses.Course",
-    #                            verbose_name=_("course"),
-    #                            related_name="%(app_label)s_%(class)s_related",
-    #                            related_query_name="%(app_label)s_%(class)ss",
-    #                            on_delete=models.SET_NULL,
-    #                            null=True,
-    #                            blank=True)
-    status = models.CharField(
-        _("status"),
+    course = models.ForeignKey(
+        "courses.Course",
+        verbose_name=_("course"),
+        related_name="%(app_label)s_%(class)s_related",
+        related_query_name="%(app_label)s_%(class)ss",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    # status = models.CharField(
+    #     _("status"),
+    #     max_length=16,
+    #     choices=ExamStatus.CHOICES,
+    #     default=ExamStatus.CREATED,
+    # )
+    exam_type = models.CharField(
+        _("Exam Type"),
         max_length=16,
-        choices=ExamStatus.CHOICES,
-        default=ExamStatus.CREATED,
+        choices=ExamType.CHOICES,
+        default=ExamType.LIVE,
     )
     price = models.DecimalField(
         _("price"),
@@ -106,42 +144,74 @@ class Exam(CreatorBaseModel):
         """Unicode representation of Exam."""
         return self.name
 
-    def __change_status(self, status):
-        self.status = status
-        self.save()
-
     @property
-    def current_status(self):
-        return self.status
+    def is_practice(self):
+        return self.exam_type == ExamType.PRACTICE
 
-    # FSM State transition methods
-    def start_exam(self):
-        self.__change_status(ExamStatus.STARTED)
+    def save(self, *args, **kwargs):
+        """Save method for Exam."""
+        if self.id:
+            prev_exam = Exam.objects.get(id=self.id)
+            if (
+                prev_exam.exam_type == ExamType.PRACTICE
+                and self.exam_type == ExamType.LIVE
+            ):
+                raise PermissionDenied("Cannot change exam type from practice to live")
+        super().save(*args, **kwargs)
 
-    def finish_exam(self):
-        self.__change_status(ExamStatus.FINISHED)
+    # def __change_type(self, status):
+    #     if self.exam_type == ExamType.LIVE:
+    #         self.exam_type = ExamType.PRACTICE
+    #         self.save()
 
-    def schedule_exam(self):
-        self.__change_status(ExamStatus.SCHEDULED)
+    # @property
+    # def current_status(self):
+    #     return self.status
 
-    def cancel_exam(self):
-        self.__change_status(ExamStatus.CANCELLED)
+    # # FSM State transition methods
+    # def start_exam(self):
+    #     if self.status == ExamStatus.IN_PROGRESS:
+    #         return
+    #     if self.status == ExamStatus.SCHEDULED:
+    #         return self.__change_status(ExamStatus.IN_PROGRESS)
+    #     raise StateTransitionError(f"Exam cannot be started from {self.status} state")
+
+    # def finish_exam(self):
+    #     if self.status == ExamStatus.CREATED:
+    #         return
+    #     # GO back to default state
+    #     if self.status in [ExamStatus.IN_PROGRESS, ExamStatus.SCHEDULED]:
+    #         return self.__change_status(ExamStatus.CREATED)
+    # raise StateTransitionError(f"Exam cannot be finished from {self.status} state")
+
+    # def schedule_exam(self):
+    #     if self.status == ExamStatus.SCHEDULED:
+    #         return
+    #     if self.status in ExamStatus.CREATED:
+    #         return self.__change_status(ExamStatus.SCHEDULED)
+    # raise StateTransitionError(f"Exam cannot be scheduled from {self.status} state")
+
+    # def cancel_exam(self):
+    #     self.__change_status(ExamStatus.CANCELLED)
 
 
 # class SectionTemplate(models.Model):
 class Section(models.Model):
     """Model definition for Section."""
 
-    name = models.CharField(_("name"), max_length=64)
-    num_of_questions = models.IntegerField(_("num_of_questions"), default=0)
+    name = models.CharField(_("Name"), max_length=64)
+    num_of_questions = models.IntegerField(_("Number Of Questions"), default=0)
     pos_marks = models.DecimalField(
-        _("pos_marks"), max_digits=5, decimal_places=2, default=Decimal("2.0")
+        _("Positive Marks"), max_digits=5, decimal_places=2, default=Decimal("2.0")
     )
-    neg_marks = models.DecimalField(
-        _("neg_marks"), max_digits=5, decimal_places=2, default=Decimal("0.4")
+    neg_percentage = PercentageField(
+        _("Negative Percentage"), max_digits=3, decimal_places=2
     )
     template = models.ForeignKey(
-        ExamTemplate, verbose_name=_("template"), on_delete=models.CASCADE
+        ExamTemplate,
+        verbose_name=_("Template"),
+        on_delete=models.CASCADE,
+        related_name="sections",
     )
 
     class Meta:
@@ -152,7 +222,18 @@ class Section(models.Model):
 
     def __str__(self):
         """Unicode representation of Section."""
-        return self.name
+        return f"{self.name} ({self.template.name})"
+
+    def get_section_marks(self):
+        """Calculate total marks for this section.
+
+        Returns
+        -------
+        decimal
+            Total marks for this section.
+
+        """
+        return self.pos_marks * self.num_of_questions
 
 
 # class Section(models.Model):
@@ -185,7 +266,7 @@ class Section(models.Model):
 class Question(models.Model):
     """Model definition for Question."""
 
-    detail = models.TextField(_("detail"))
+    detail = RichTextField(_("detail"))
     img = models.ImageField(_("img"), upload_to="questions/", null=True, blank=True)
     exam = models.ForeignKey(
         Exam,
@@ -196,7 +277,7 @@ class Question(models.Model):
     section = models.ForeignKey(
         Section,
         verbose_name=_("section"),
-        related_name=_("sections"),
+        related_name=_("questions"),
         on_delete=models.CASCADE,
     )
     feedback = models.TextField(_("feedback"), blank=True, null=True)
@@ -206,7 +287,7 @@ class Question(models.Model):
 
         verbose_name = "Question"
         verbose_name_plural = "Questions"
-        ordering = ["exam", "id"]
+        ordering = ["exam", "section", "id"]
 
     def __str__(self):
         """Unicode representation of Question."""
@@ -216,7 +297,7 @@ class Question(models.Model):
 class Option(models.Model):
     """Model definition for Option."""
 
-    detail = models.TextField(_("detail"))
+    detail = RichTextField(_("detail"))
     correct = models.BooleanField(_("correct"), default=False)
     question = models.ForeignKey(
         Question,
@@ -236,3 +317,26 @@ class Option(models.Model):
     def __str__(self):
         """Unicode representation of Option."""
         return f"{self.question}_{self.id}"
+
+
+class ExamImage(models.Model):
+    """Model definition for Exam Related Image."""
+
+    def exam_image_path(self, filename):
+        return f"exams/{self.exam.id}/{filename}"
+
+    exam = models.ForeignKey(
+        Exam,
+        verbose_name=_("exam"),
+        related_name=_("images"),
+        on_delete=models.CASCADE,
+    )
+
+    upload = models.ImageField(_("img"), upload_to=exam_image_path)
+
+    class Meta:
+        ordering = ["exam", "id"]
+
+    def __str__(self):
+        """Unicode representation of ExamImage."""
+        return f"{self.exam}_{self.id}"

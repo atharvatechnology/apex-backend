@@ -1,0 +1,83 @@
+name: CI/CD to GCP
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Push Image
+    runs-on: ubuntu-latest
+    outputs:
+      img_tag: ${{ steps.docker_meta.outputs.tags }}
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Docker Meta
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v4
+        with:
+          images: ghcr.io/atharvatechnology/apex-backend
+          tags: |
+            type=sha
+
+      - name: Login to ghcr
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+
+
+  deploy:
+    name: Deploy to GCP instance
+    runs-on: ubuntu-latest
+    environment: deployment
+    needs: build
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout
+        uses: 'actions/checkout@v3'
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: 'projects/798920531034/locations/global/workloadIdentityPools/githubaction-pool/providers/my-provider'
+          service_account: 'githubactions@apex-351704.iam.gserviceaccount.com'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - id: 'compute-ssh'
+        uses: 'google-github-actions/ssh-compute@v0'
+        env:
+          TAG: ${{needs.build.outputs.img_tag}}
+        with:
+          instance_name: '${{ secrets.GCP_INSTANCE_NAME }}'
+          zone: '${{ secrets.GCP_ZONE }}'
+          ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
+          user: '${{ secrets.GCP_USER }}'
+          # command: "sed -i 's+BACKEND_TAG=pr-.*+BACKEND_TAG=pr-${{ github.event.inputs.version }}+g' ${{ secrets.GCP_PATH }} && docker compose -f ${{ secrets.GCP_DOCKER_COMPOSE_PATH }} up -d"
+          command: |
+            cd apex-platform
+            echo BACKEND_IMAGE=${{ needs.build.outputs.img_tag }}
+            echo BACKEND_IMAGE=${{ needs.build.outputs.img_tag }} > .env.api
+            cat .env.api .env.web .env.web.admin > .env
+            docker compose up -d api socket celery celery-beat

@@ -1,50 +1,35 @@
 from django.urls import path
 
 from exams.api.views import (
-    ExamCreateAPIView,
-    ExamDeleteAPIView,
     ExamListAPIView,
     ExamPaperAPIView,
+    ExamPaperPreviewAPIView,
     ExamRetrieveAPIView,
-    ExamTemplateCreateAPIView,
-    ExamTemplateDeleteAPIView,
-    ExamTemplateListAPIView,
-    ExamTemplateRetrieveAPIView,
-    ExamTemplateUpdateAPIView,
-    ExamUpdateAPIView,
+    ExamRetrievePoolAPIView,
+    trigger_exam_submit,
 )
 
 urlpatterns = [
-    path("create/", ExamCreateAPIView.as_view(), name="exam-create"),
     path("list/", ExamListAPIView.as_view(), name="exam-list"),
     path("retrieve/<int:pk>/", ExamRetrieveAPIView.as_view(), name="exam-retrieve"),
-    path("update/<int:pk>/", ExamUpdateAPIView.as_view(), name="exam-update"),
-    path("delete/<int:pk>/", ExamDeleteAPIView.as_view(), name="exam-delete"),
-    path("paper/<int:pk>/", ExamPaperAPIView.as_view(), name="exam-paper"),
-]
-
-urlpatterns += [
     path(
-        "template/create/",
-        ExamTemplateCreateAPIView.as_view(),
-        name="exam-template-create",
+        "retrieve/<int:pk>/pool/",
+        ExamRetrievePoolAPIView.as_view(),
+        name="exam-retrieve-pool",
     ),
     path(
-        "template/list/", ExamTemplateListAPIView.as_view(), name="exam-template-list"
+        "paper/<int:pk>/<int:session_id>/",
+        ExamPaperAPIView.as_view(),
+        name="exam-paper",
     ),
     path(
-        "template/retrieve/<int:pk>/",
-        ExamTemplateRetrieveAPIView.as_view(),
-        name="exam-template-retrieve",
+        "paper/preview/<int:pk>/",
+        ExamPaperPreviewAPIView.as_view(),
+        name="exam-paper-preview",
     ),
     path(
-        "template/update/<int:pk>/",
-        ExamTemplateUpdateAPIView.as_view(),
-        name="exam-template-update",
-    ),
-    path(
-        "template/delete/<int:pk>/",
-        ExamTemplateDeleteAPIView.as_view(),
-        name="exam-template-delete",
+        "trigger-submit/<int:pk>/",
+        trigger_exam_submit,
+        name="trigger-exam-submit",
     ),
 ]

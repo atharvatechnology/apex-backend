@@ -4,9 +4,11 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.models import Group  # , Permission
 from django.core.exceptions import ValidationError
+from django.urls import reverse
+from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import User
+from accounts.models import Profile, Role, User
 
 
 class UserCreationForm(forms.ModelForm):
@@ -69,18 +71,31 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
+    def view_profile(self, obj):
+        return mark_safe(
+            "<a href="
+            f'"{reverse("admin:accounts_profile_change", args=(obj.profile.pk,))}">'
+            f"{obj.profile}</a>"
+        )
+
+    actions = ["make_active"]
+
     list_display = [
+        "id",
+        "name",
         "username",
         "email",
-        "name",
         "is_active",
-        "is_staff",
+        "last_login",
+        "date_joined",
+        "view_profile",
     ]
     list_filter = (
         "is_staff",
         "is_superuser",
         "is_active",
         "groups",
+        "roles",
     )
     search_fields = ("username", "first_name", "last_name", "email")
     ordering = ("username",)
@@ -98,6 +113,7 @@ class UserAdmin(BaseUserAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "roles",
                     "otp",
                     "otp_counter",
                     "otp_generate_time",
@@ -126,6 +142,7 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
+    date_hierarchy = "date_joined"
 
     def name(self, object):
         return object.get_full_name()
@@ -150,10 +167,34 @@ class UserAdmin(BaseUserAdmin):
             kwargs["queryset"] = Group.objects.exclude(name__in=["Admin", "Manager"])
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
+    @admin.action(description="Mark selected students active")
+    def make_active(self, request, queryset):
+        queryset.update(is_active=True)
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "college_name",
+        "faculty",
+        "date_of_birth",
+    ]
+    search_fields = [
+        "user__username",
+        "user__first_name",
+        "user__last_name",
+    ]
+    autocomplete_fields = [
+        "user",
+    ]
+
 
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)
 # admin.site.register(Permission)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
-admin.site.unregister(Group)
+# admin.site.unregister(Group)
+
+admin.site.register(Role)

@@ -1,33 +1,57 @@
-from django.urls import path
+from django.urls import include, path
 
 from notes.api.views import (
-    ContentCreateAPIView,
-    ContentDestroyAPIView,
     ContentListAPIView,
-    ContentUpdateAPIView,
-    NoteCreateAPIView,
-    NoteDestroyAPIView,
+    ContentRetrieveAPIViewAfterEnroll,
+    ContentRetrieveAPIViewBeforeEnroll,
     NoteListAPIVew,
-    NoteUpdateAPIView,
+    NoteRetrieveAPIViewAfterEnroll,
+    NoteRetrieveAPIViewBeforeEnroll,
+    RecordedVideoListAPIView,
+    RecordedVideoRetrieveAPIView,
 )
 
 app_name = "notes"
 
-urlpatterns = [
+note_urls = [
     path("list/", NoteListAPIVew.as_view(), name="note-list"),
-    path("create/", NoteCreateAPIView.as_view(), name="note-create"),
-    path("update/<int:pk>/", NoteUpdateAPIView.as_view(), name="note-update"),
-    path("delete/<int:pk>/", NoteDestroyAPIView.as_view(), name="note-delete"),
+    path(
+        "get/after/<int:pk>/",
+        NoteRetrieveAPIViewAfterEnroll.as_view(),
+        name="note-retrieve-after-enroll",
+    ),
+    path(
+        "get/before/<int:pk>/",
+        NoteRetrieveAPIViewBeforeEnroll.as_view(),
+        name="note-retrieve-before-enroll",
+    ),
+]
+
+content_urls = [
     path("content/list/", ContentListAPIView.as_view(), name="content-list"),
-    path("content/create/", ContentCreateAPIView.as_view(), name="content-create"),
     path(
-        "content/update/<int:pk>/",
-        ContentUpdateAPIView.as_view(),
-        name="content-update",
+        "content/get/after/<int:pk>/",
+        ContentRetrieveAPIViewAfterEnroll.as_view(),
+        name="content-retrieve-after-enroll",
     ),
     path(
-        "content/delete/<int:pk>/",
-        ContentDestroyAPIView.as_view(),
-        name="content-delete",
+        "content/get/before/<int:pk>/",
+        ContentRetrieveAPIViewBeforeEnroll.as_view(),
+        name="content-retrieve-before-enroll",
     ),
+]
+
+recorded_video_urls = [
+    path("list/", RecordedVideoListAPIView.as_view(), name="recorded-video-list"),
+    path(
+        "retrieve/<int:pk>/",
+        RecordedVideoRetrieveAPIView.as_view(),
+        name="recorded-video-retrieve",
+    ),
+]
+
+urlpatterns = [
+    path("", include(note_urls)),
+    path("content/", include(content_urls)),
+    path("recorded-video/", include(recorded_video_urls)),
 ]

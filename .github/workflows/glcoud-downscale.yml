@@ -1,0 +1,41 @@
+name: Schedule server decrease
+on:
+  schedule:
+    - cron: "15 14 * * 06"
+    - cron: "15 14 * * 00"
+  workflow_dispatch:
+    
+jobs:
+  upscale:
+    name: decrease server capacity
+    runs-on: ubuntu-latest
+    environment: deployment
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: 'actions/checkout@v3'
+
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/798920531034/locations/global/workloadIdentityPools/githubaction-pool/providers/my-provider'
+        service_account: 'githubactions@apex-351704.iam.gserviceaccount.com'
+        
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+      
+    - name: 'downgrade sql instance'
+      run: 'gcloud sql instances patch ${{ secrets.GCP_SQL_INSTANCE }} --tier=db-custom-1-3840 --quiet'
+      
+    - name: 'stop instance'
+      run: 'gcloud compute instances stop instance-1 --zone us-central1-a'
+      
+    - name: 'change machine type'
+      run: 'gcloud compute instances set-machine-type instance-1 --zone us-central1-a --machine-type n1-standard-1'
+      
+    - name: 'start instance'
+      run: 'gcloud compute instances start instance-1 --zone us-central1-a'

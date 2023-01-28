@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Redis
+*.rdb
+
 # Distribution / packaging
 .Python
 build/
@@ -24,6 +27,7 @@ pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
+*.whl
 *.egg
 MANIFEST
 
@@ -131,3 +135,13 @@ dmypy.json
 *.bak
 *.dat
 *.dir
+media/
+apex-education-firebase.json
+proposal.py
+
+
+# Ingnore csv files
+*.csv
+
+# Ignore har files generated for performance testing
+*.har

@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from .models import Content, Note
+from common.admin import CreatorBaseModelAdmin
+
+from .models import Content, Note, RecordedVideo
 
 
 class ContentTabularInline(admin.TabularInline):
@@ -10,30 +12,14 @@ class ContentTabularInline(admin.TabularInline):
 
 
 @admin.register(Content)
-class ContentAdmin(admin.ModelAdmin):
+class ContentAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     list_display = ["id", "name"]
-    readonly_fields = ["created_by", "updated_by"]
-
-    def save_model(self, request, obj, form, change):
-        instance = form.save(commit=False)
-        if not hasattr(instance, "created_by"):
-            obj.created_by = request.user
-        obj.updated_by = request.user
-        super().save_model(request, obj, form, change)
 
 
 @admin.register(Note)
-class NoteAdmin(admin.ModelAdmin):
+class NoteAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
     list_display = ["id", "title"]
     inlines = [ContentTabularInline]
-    readonly_fields = ["created_by", "updated_by"]
-
-    def save_model(self, request, obj, form, change):
-        instance = form.save(commit=False)
-        if not hasattr(instance, "created_by"):
-            obj.created_by = request.user
-        obj.updated_by = request.user
-        super().save_model(request, obj, form, change)
 
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
@@ -45,3 +31,8 @@ class NoteAdmin(admin.ModelAdmin):
             instance.updated_by = request.user
             instance.save()
         formset.save_m2m()
+
+
+@admin.register(RecordedVideo)
+class RecordedVideoAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
+    list_display = ["id", "name", "course", "link"]

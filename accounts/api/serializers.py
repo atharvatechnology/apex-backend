@@ -1,6 +1,10 @@
+from dj_rest_auth.serializers import UserDetailsSerializer
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+
+from accounts.models import Profile
 
 User = get_user_model()
 
@@ -14,14 +18,54 @@ class FullNameField(serializers.Field):
 
     def to_internal_value(self, data):
         """Return the user object fields based on the full name."""
-        fname, lname = data.rsplit(" ", 1)
+        try:
+            fname, lname = data.rsplit(" ", 1)
+        except ValueError:
+            fname, lname = data, ""
         return {"first_name": fname, "last_name": lname}
+
+
+class ProfileCreateSerializer(serializers.ModelSerializer):
+    """Serializer for the Profile model."""
+
+    class Meta:
+        model = Profile
+        fields = [
+            "college_name",
+            "image",
+            "date_of_birth",
+            "faculty",
+            "address",
+            "interests",
+        ]
+
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for the Profile model Update."""
+
+    college_name = serializers.CharField(required=True)
+    date_of_birth = serializers.DateField(required=True)
+
+    class Meta:
+        model = Profile
+        fields = [
+            "college_name",
+            "image",
+            "date_of_birth",
+            "faculty",
+            "address",
+            "interests",
+            "qr_code",
+            "interests",
+        ]
+        read_only_fields = ("qr_code",)
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """User Create Serializer."""
 
     fullName = FullNameField(source="*")
+    profile = ProfileCreateSerializer(required=False)
 
     class Meta:
         model = User
@@ -30,16 +74,31 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "password",
             "email",
             "fullName",
+            "profile",
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
     @transaction.atomic
     def create(self, validated_data):
+        profile_data = None
+        if "profile" in validated_data:
+            profile_data = validated_data.pop("profile")
+
         instance = super().create(validated_data)
         instance.is_active = False
         instance.set_password(validated_data["password"])
         instance.generate_otp()
         instance.save()
+
+        if profile_data:
+            interests = None
+            if "interests" in profile_data:
+                interests = profile_data.pop("interests")
+            for attr, value in profile_data.items():
+                setattr(instance.profile, attr, value)
+            if interests:
+                instance.profile.interests.set(interests)
+            instance.profile.save()
         return instance
 
 
@@ -67,6 +126,11 @@ class UserCreateOTPVerifySerializer(serializers.ModelSerializer):
         instance.is_active = True
         instance.save()
         return instance
+
+    def validate(self, attrs):
+        username = attrs.get("username")
+        attrs["user"] = get_object_or_404(User, username=username)
+        return attrs
 
 
 class UserResetPasswordOTPRequestSerializer(serializers.ModelSerializer):
@@ -136,3 +200,105 @@ class UserResetPasswordConfirmSerializer(serializers.ModelSerializer):
         instance.is_active = True
         instance.save()
         return instance
+
+    def validate(self, attrs):
+        username = attrs.get("username")
+        attrs["user"] = get_object_or_404(User, username=username)
+        return attrs
+
+
+class UserCustomDetailsSerializer(UserDetailsSerializer):
+    full_name = serializers.SerializerMethodField(read_only=True)
+    admin_user = serializers.SerializerMethodField(read_only=True)
+    roles = serializers.SerializerMethodField()
+
+    class Meta(UserDetailsSerializer.Meta):
+        extra_fields = UserDetailsSerializer.Meta.extra_fields + [
+            "full_name",
+            "admin_user",
+            "roles",
+        ]
+        fields = list(UserDetailsSerializer.Meta.fields) + [
+            "full_name",
+            "admin_user",
+            "roles",
+        ]
+
+    def get_roles(self, obj):
+        return obj.get_roles()
+
+    def get_full_name(self, obj):
+        return obj.get_full_name()
+
+    def get_admin_user(self, obj):
+        return obj.is_superuser
+
+
+class UserDetailSerializer(UserCustomDetailsSerializer):
+    """User Details Serializer."""
+
+    profile = ProfileUpdateSerializer(required=False)
+
+    class Meta(UserCustomDetailsSerializer.Meta):
+        fields = list(UserCustomDetailsSerializer.Meta.fields) + ["profile"]
+        extra_fields = list(UserCustomDetailsSerializer.Meta.extra_fields) + [
+            "profile",
+        ]
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    """User Update Serializer."""
+
+    fullName = FullNameField(source="*")
+    profile = ProfileUpdateSerializer(required=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "email",
+            "fullName",
+            "profile",
+        ]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        profile_data = None
+        if "profile" in validated_data:
+            profile_data = validated_data.pop("profile")
+
+        instance = super().update(instance, validated_data)
+        instance.save()
+
+        if profile_data:
+            interests = None
+            if "interests" in profile_data:
+                interests = profile_data.pop("interests")
+            for attr, value in profile_data.items():
+                setattr(instance.profile, attr, value)
+            if interests:
+                instance.profile.interests.set(interests)
+            instance.profile.save()
+        return instance
+
+
+class StudentQRSerializer(serializers.ModelSerializer):
+    """Serializer to provide QR of student."""
+
+    class Meta:
+        model = Profile
+        fields = ["qr_code"]
+
+
+class UserMiniSerializer(serializers.ModelSerializer):
+    """User Mini Serializer."""
+
+    fullName = FullNameField(source="*")
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "fullName",
+        ]

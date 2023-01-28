@@ -9,6 +9,52 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.api.otp import OTP
 from accounts.validators import PhoneNumberValidator
+from common.utils import generate_qrcode
+
+
+class Role(models.Model):
+    SUPER_ADMIN = 1
+    ADMIN = 2
+    DIRECTOR = 3
+    TEACHER = 4
+    ACCOUNTANT = 5
+    CASHIER = 6
+    COUNSELLOR = 7
+    STAFF = 8
+    STUDENT = 9
+    role_choices = (
+        (SUPER_ADMIN, "Super Admin"),
+        (ADMIN, "Admin"),
+        (DIRECTOR, "Director"),
+        (TEACHER, "Teacher"),
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+        (STUDENT, "Student"),
+    )
+    staff_choices = (
+        (SUPER_ADMIN, "Super Admin"),
+        (ADMIN, "Admin"),
+        (DIRECTOR, "Director"),
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+    )
+    trackable_staff_choices = (
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+    )
+    id = models.PositiveSmallIntegerField(choices=role_choices, primary_key=True)
+
+    def __str__(self):
+        return self.get_id_display()
+
+    def role_dict(self):
+        return {role[0]: role[1] for role in self.role_choices}
 
 
 class UserManager(BaseUserManager):
@@ -77,6 +123,8 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     """Custom User model."""
 
+    roles = models.ManyToManyField(Role)
+
     username_validator = PhoneNumberValidator()
 
     username = models.CharField(
@@ -88,8 +136,9 @@ class User(AbstractUser):
         ),
         validators=[username_validator],
         error_messages={
-            "unique": _("A user with that username already exists."),
+            "unique": _("A user with that phone already exists."),
         },
+        db_index=True,
     )
     otp_counter = models.PositiveIntegerField(default=0)
     otp = models.CharField(max_length=6, null=True, blank=True)
@@ -111,9 +160,7 @@ class User(AbstractUser):
             return (False, "OTP is already used")
         if self.otp_generate_time < five_minutes_ago:
             return (False, "The OTP is out of date")
-        if self.otp != otp:
-            return (False, "OTP is not valid")
-        return (True, otp)
+        return (False, "OTP is not valid") if self.otp != otp else (True, otp)
 
     def generate_otp(self):
         """To generate OTP and call send otp method."""
@@ -123,3 +170,88 @@ class User(AbstractUser):
         self.otp = otp
         OTP.sendOTP(self.username, otp)
         return otp
+
+    def get_roles(self):
+        all_roles = self.roles.all()
+        if not all_roles:
+            return None
+        user_roles = []
+        for roles in all_roles:
+            user_roles.extend(
+                role_value
+                for role_id, role_value in Role.role_choices
+                if roles.id == role_id
+            )
+        return user_roles
+
+    def check_role(self, roles):
+        return roles in self.roles.all().values_list("id", flat=True)
+
+    @property
+    def is_student(self):
+        return self.check_role(Role.STUDENT)
+
+    @property
+    def is_teacher(self):
+        return self.check_role(Role.TEACHER)
+
+    @property
+    def is_director(self):
+        return self.check_role(Role.DIRECTOR)
+
+    @property
+    def is_super_admin(self):
+        return self.is_superuser or self.check_role(Role.SUPER_ADMIN)
+
+    @property
+    def is_accountant(self):
+        return self.check_role(Role.ACCOUNTANT)
+
+    @property
+    def is_admin(self):
+        return self.check_role(Role.ADMIN)
+
+    @property
+    def is_cashier(self):
+        return self.check_role(Role.CASHIER)
+
+    @property
+    def is_counsellor(self):
+        return self.check_role(Role.COUNSELLOR)
+
+    @property
+    def is_office_staff(self):
+        return self.check_role(Role.STAFF)
+
+
+class Profile(models.Model):
+    """Custom Profile model."""
+
+    def profile_image_upload(self, filename):
+        """To upload profile image."""
+        return f"profile/{self.user.username}/{filename}"
+
+    def qr_code_image_upload(self, filename):
+        """To upload qr code image."""
+        return f"qr_code/{self.user.username}/{filename}"
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    college_name = models.CharField(max_length=100, null=True, blank=True)
+    image = models.FileField(upload_to=profile_image_upload, null=True, blank=True)
+    qr_code = models.FileField(upload_to=qr_code_image_upload, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    faculty = models.CharField(max_length=100, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    interests = models.ManyToManyField("courses.CourseCategory", blank=True)
+
+    class Meta:
+        ordering = ["user"]
+
+    def save(self, *args, **kwargs):
+        usr_name = self.user.username
+        qr_path = generate_qrcode(usr_name)
+        self.qr_code = qr_path
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user.username}"

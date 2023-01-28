@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q
+from django.utils.timezone import localtime, now
 
 User = get_user_model()
 
@@ -16,3 +18,25 @@ class CreatorBaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class PublishedQueryset(models.QuerySet):
+    def published(self):
+        today = localtime(now())
+        return self.filter(is_published=True or Q(publish_date__lte=today))
+
+
+class PublishedModel(models.Model):
+    is_published = models.BooleanField(default=False)
+    publish_date = models.DateTimeField(blank=True, null=True)
+
+    objects = models.Manager.from_queryset(PublishedQueryset)()
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_visible(self):
+        today = localtime(now())
+        published_by_date = (self.publish_date <= today) if self.publish_date else False
+        return self.is_published or published_by_date

@@ -1,78 +1,114 @@
-from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django.utils.timezone import localtime, now
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 
-from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
-from exams.models import Exam, ExamTemplate
+from common.api.mixin import InterestWiseOrderMixin, PublishableModelMixin
+from common.paginations import StandardResultsSetPagination
+from enrollments.models import ExamSession, ExamThroughEnrollment, SessionStatus
+from exams.api.permissions import IsExamEnrolledActive
+from exams.filters import ExamFilter
+from exams.models import Exam
 
-from .serializers import (
-    ExamCreateSerializer,
+from .serializers import (  # ExamUpdateSerializer,
     ExamListSerializer,
     ExamPaperSerializer,
+    ExamRetrievePoolSerializer,
     ExamRetrieveSerializer,
-    ExamTemplateSerializer,
-    ExamUpdateSerializer,
 )
 
+# from common.utils import excelgenerator
 
-class ExamCreateAPIView(BaseCreatorCreateAPIView):
-    serializer_class = ExamCreateSerializer
-    # permission_classes = [AllowAny]
+# class ExamCreateAPIView(BaseCreatorCreateAPIView):
+#     serializer_class = ExamCreateSerializer
+#     # permission_classes = [AllowAny]
 
 
-class ExamListAPIView(ListAPIView):
+class ExamListAPIView(PublishableModelMixin, InterestWiseOrderMixin, ListAPIView):
+    """View for listing exams."""
+
     serializer_class = ExamListSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     permission_classes = [AllowAny]
     queryset = Exam.objects.all()
+    filterset_class = ExamFilter
+    search_fields = ["name"]
+    pagination_class = StandardResultsSetPagination
 
 
-class ExamRetrieveAPIView(RetrieveAPIView):
+class ExamRetrieveAPIView(PublishableModelMixin, RetrieveAPIView):
+    """View for retrieving exams."""
+
     serializer_class = ExamRetrieveSerializer
     permission_classes = [AllowAny]
     queryset = Exam.objects.all()
 
 
-class ExamUpdateAPIView(BaseCreatorUpdateAPIView):
-    serializer_class = ExamUpdateSerializer
-    permission_classes = [IsAuthenticated]
+class ExamRetrievePoolAPIView(RetrieveAPIView):
+    serializer_class = ExamRetrievePoolSerializer
+    permission_classes = [AllowAny]
     queryset = Exam.objects.all()
+
+
+# class ExamUpdateAPIView(BaseCreatorUpdateAPIView):
+#     serializer_class = ExamUpdateSerializer
+#     permission_classes = [IsAuthenticated]
+#     queryset = Exam.objects.all()
 
 
 class ExamPaperAPIView(RetrieveAPIView):
     serializer_class = ExamPaperSerializer
-    permission_classes = [IsAuthenticated]  # TODO: IsEnrolled
+    permission_classes = [IsAuthenticated, IsExamEnrolledActive]  # TODO: IsEnrolled
+    queryset = Exam.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        exam_session = ExamSession.objects.filter(
+            exam=instance, id=self.kwargs["session_id"]
+        ).first()
+        if enrollment := ExamThroughEnrollment.objects.filter(
+            selected_session=exam_session, enrollment__student=self.request.user
+        ).first():
+            if enrollment.selected_session.status == SessionStatus.ACTIVE:
+                return super().retrieve(request, *args, **kwargs)
+            return Response({"detail": "Exam Session is not Active"}, status=400)
+        return Response(
+            f'Student is not enrolled to {self.kwargs["session_id"]} exam session.'
+        )
+
+
+class ExamPaperPreviewAPIView(RetrieveAPIView):
+    serializer_class = ExamPaperSerializer
+    permission_classes = [IsAdminUser]
     queryset = Exam.objects.all()
 
 
-class ExamDeleteAPIView(DestroyAPIView):
-    permission_classes = [IsAuthenticated]
-    queryset = Exam.objects.all()
-
-
-class ExamTemplateCreateAPIView(BaseCreatorCreateAPIView):
-    serializer_class = ExamTemplateSerializer
-    # permission_classes = []
-
-
-class ExamTemplateListAPIView(ListAPIView):
-    serializer_class = ExamTemplateSerializer
-    # TODO: permit admin only
-    # permission_classes = []
-    queryset = ExamTemplate.objects.all()
-
-
-class ExamTemplateRetrieveAPIView(RetrieveAPIView):
-    serializer_class = ExamTemplateSerializer
-    queryset = ExamTemplate.objects.all()
-
-
-class ExamTemplateUpdateAPIView(BaseCreatorUpdateAPIView):
-    serializer_class = ExamTemplateSerializer
-    # TODO: permit admin only
-    # permission_classes = []
-    queryset = ExamTemplate.objects.all()
-
-
-class ExamTemplateDeleteAPIView(DestroyAPIView):
-    # TODO: permit admin only
-    permission_classes = [IsAuthenticated]
-    queryset = ExamTemplate.objects.all()
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def trigger_exam_submit(request, pk):
+    exam = get_object_or_404(Exam, pk=pk)
+    # Check if exam is of practice type
+    if not exam.is_practice:
+        return Response({"detail": "Cannot trigger exam not of practice type."})
+    # retrieve user
+    user = request.user
+    # Find the latest exam enrollment of the user
+    try:
+        exm_enr = ExamThroughEnrollment.objects.filter(
+            enrollment__student=user, exam=exam
+        ).latest("id")
+    except ExamThroughEnrollment.DoesNotExist:
+        return Response({"detail": "Exam enrollment not found."}, status=404)
+    exm_sess = exm_enr.selected_session
+    # Check if the latest exam session is active
+    if exm_sess.status != SessionStatus.ACTIVE:
+        return Response({"detail": "Exam session is not active."})
+    # Trigger session end which must trigger exam submit
+    if exm_sess.end_date > localtime(now()):
+        return Response({"detail": "Exam session is not over yet."})
+    exm_sess.end_session()
+    return Response({"detail": "Exam submitted successfully."})

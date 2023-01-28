@@ -4,7 +4,15 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from rest_framework import permissions
+from rest_framework.routers import DefaultRouter
+
+from meetings.api_admin.urls import subject_urlpatterns
+
+router = DefaultRouter()
+router.register(r"devices", FCMDeviceAuthorizedViewSet)
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -35,13 +43,56 @@ urlpatterns = [
     ),
 ]
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
+api_urls = [
     path("accounts/", include("accounts.api.urls")),
     path("auth/", include("dj_rest_auth.urls")),
+    path("courses/", include("courses.api.urls")),
     path("notes/", include("notes.api.urls")),
     path("exams/", include("exams.api.urls")),
     path("enrollments/", include("enrollments.api.urls")),
+    path("physical-book/", include("physicalbook.api.urls")),
+    path("attendance/", include("attendance.api.urls")),
+    path("meetings/", include("meetings.api.urls")),
+    path("payments/", include("payments.api.urls")),
+    path("infocenter/", include("infocenter.api.urls")),
+    path("bannerad/", include("bannerad.api.urls")),
+    path("notifications/", include("notifications.api.urls")),
+    path("dashboard/", include("dashboard.api.urls")),
 ]
+
+api_admin_urls = [
+    path("exams/", include("exams.api_admin.urls")),
+    path("courses/", include("courses.api_admin.urls")),
+    path("notes/", include("notes.api_admin.urls")),
+    path("enrollments/", include("enrollments.api_admin.urls")),
+    path("accounts/", include("accounts.api_admin.urls")),
+    path("meetings/", include("meetings.api_admin.urls")),
+    path("subjects/", include(subject_urlpatterns)),
+    path("infocenter/", include("infocenter.api_admin.urls")),
+    path("notifications/", include("notifications.api_admin.urls")),
+    path("payments/", include("payments.api_admin.urls")),
+    path("report/", include("report.api_admin.urls")),
+    path("banner/", include("bannerad.api_admin.urls")),
+    path("dashboard/", include("dashboard.api_admin.urls")),
+    path("counseling/", include("counseling.api_admin.urls")),
+    path("attendance/", include("attendance.api_admin.urls")),
+    path("physicalbook/", include("physicalbook.api_admin.urls")),
+    path("stafftracking/", include("stafftracking.api_admin.urls")),
+]
+
+fcm_urls = [
+    path("", include(router.urls)),
+]
+
+urlpatterns += [
+    path("admin/", admin.site.urls),
+    path("api/", include(api_urls)),
+    path("api/admin/", include(api_admin_urls)),
+    path("api/fcm/", include(fcm_urls)),
+    # path("student_urls/", include("student.api.urls")),
+    # path("teacher_urls/", include("teacher.api.urls")),
+    path("__debug__/", include("debug_toolbar.urls")),
+]
+
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -3,6 +3,10 @@ from decimal import Decimal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from common.models import CreatorBaseModel, PublishedModel
+
+# from common.errors import StateTransitionError
+
 
 # Create your models here.
 class CourseCategory(models.Model):
@@ -25,7 +29,7 @@ class CourseCategory(models.Model):
         verbose_name = "CourseCategory"
 
         verbose_name = "CourseCategory"
-        verbose_name_plural = "CourseCategorys."
+        verbose_name_plural = "CourseCategories"
         ordering = ["id"]
 
     def __str__(self):
@@ -34,21 +38,23 @@ class CourseCategory(models.Model):
 
 
 class CourseStatus:
-    INSESSION = "insession"  # course has active classses currently
+    INSESSION = "insession"  # course has active classses currently.
     UPCOMING = "upcoming"  # course is being planned.
     ENDED = "ended"  # course has successfully ended.
-    CANCELLED = "cancelled"  # course has been abruptly ended.
 
     CHOICES = [
         (INSESSION, "insession"),
         (UPCOMING, "upcoming"),
         (ENDED, "ended"),
-        (CANCELLED, "cancelled"),
     ]
 
 
-class Course(models.Model):
+class Course(CreatorBaseModel, PublishedModel):
     """Model definition for Course."""
+
+    def course_image_path(self, filename):
+        """Return path for course image."""
+        return f"courses/{self.id}/{filename}"
 
     name = models.CharField(
         _("name"),
@@ -64,19 +70,21 @@ class Course(models.Model):
         blank=True,
         null=True,
     )
-    description = models.CharField(
-        _("password"),
-        max_length=100,
+    description = models.TextField(
+        _("description"),
         blank=True,
         null=True,
     )
-    type_id = models.IntegerField(
-        _("type_id"),
+    overview_detail = models.TextField(
+        _("overview_detail"),
+        blank=True,
+        null=True,
     )
-    instructor_id = models.IntegerField(
-        _("instructor_id"),
+    feature_detail = models.TextField(
+        _("feature_detail"),
+        blank=True,
+        null=True,
     )
-
     link = models.URLField(
         _("link"),
         max_length=150,
@@ -105,13 +113,58 @@ class Course(models.Model):
         decimal_places=2,
         default=Decimal("0.0"),
     )
+    duration = models.DurationField(
+        _("Duration"),
+        help_text=_(
+            'The following data represents 20 days and 10 hours \
+                for the entered data "20 10:00:00".'
+        ),
+    )
+    image = models.ImageField(
+        _("image"), upload_to=course_image_path, null=True, blank=True
+    )
 
     class Meta:
         """Meta definition for Course."""
 
         verbose_name = "Course"
         verbose_name_plural = "Courses"
+        ordering = ["-id"]
 
     def __str__(self):
         """Unicode representation of Course."""
         return self.name
+
+    def __change_status(self, status):
+        self.status = status
+        self.save()
+
+    @property
+    def current_status(self):
+        return self.status
+
+    def start_course(self):
+        if self.status == CourseStatus.INSESSION:
+            return
+        if self.status == CourseStatus.UPCOMING:
+            return self.__change_status(CourseStatus.INSESSION)
+        # raise StateTransitionError(f"Course cannot
+        # be started from {self.status} state")
+
+    def schedule_course(self):
+        if self.status == CourseStatus.UPCOMING:
+            return
+        if self.status == CourseStatus.ENDED:
+            return self.__change_status(CourseStatus.UPCOMING)
+        # raise StateTransitionError(
+        #     f"Course cannot be scheduled from {self.status} state"
+        # )
+
+    def finish_course(self):
+        if self.status == CourseStatus.ENDED:
+            return
+        if self.status == CourseStatus.INSESSION:
+            return self.__change_status(CourseStatus.ENDED)
+        # raise StateTransitionError(
+        #     f"Course cannot be finished from {self.status} state"
+        # )
