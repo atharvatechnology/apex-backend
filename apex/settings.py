@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     "counseling",
     "dashboard",
     "stafftracking",
+    "discussion",
 ]
 
 MIDDLEWARE = [
