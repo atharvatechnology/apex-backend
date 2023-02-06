@@ -11,12 +11,13 @@ class Question(CreatorBaseModel):
     
     def __str__(self):
         return self.content
+    
     @property
     def is_question(self):
         if self.question is None:
             return True
         return False
-    @property
-    def answers(self):
-        return Question.objects.filter(question=self).reverse()
+    # @property
+    # def answers(self):
+    #     return Question.objects.filter(question=self).reverse()
 
