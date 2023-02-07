@@ -39,6 +39,11 @@ class ExamListAPIView(PublishableModelMixin, InterestWiseOrderMixin, ListAPIView
     search_fields = ["name"]
     pagination_class = StandardResultsSetPagination
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        return queryset
+
 
 class ExamRetrieveAPIView(PublishableModelMixin, RetrieveAPIView):
     """View for retrieving exams."""
