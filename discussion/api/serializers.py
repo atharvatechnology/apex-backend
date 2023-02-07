@@ -42,18 +42,12 @@ class QuestionUpdateSerializer(CreatorSerializer):
          model=Question
          fields=['content']
     def update(self, instance, validated_data):
-        instance.content=validated_data.get('content',instance.content)
-        instance.updated_by = validated_data.get('updated_by', instance.updated_by)
-        instance.question =validated_data.get('question',instance.question)
-        instance.updated_at =validated_data.get('updated_at',instance.updated_at)
         if (instance.question is not None) and instance.question.is_question==False:
                 raise serializers.ValidationError(
                     "Reply for Answer is not Possible",
                 )
         else:
-            instance.save()     
-        return instance
-            
+            return super().update(instance, validated_data)
 
             
 
