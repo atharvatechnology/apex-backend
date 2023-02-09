@@ -4,17 +4,17 @@ from common.api.serializers import CreatorSerializer
 
 """Serializer to list all the questions"""
 class QuestionListSerializer(serializers.ModelSerializer):
-    replies =serializers.StringRelatedField(many=True, read_only =True)
-    question =serializers.StringRelatedField(read_only =True)
+    replies ="QuestionListSerializer(many=True,read_only=True)"
+    question ="QuestionListSerializer(read_only=True)"
     class Meta:
         ref_name = "Discussion Question"
         model=Question
-        fields=['content','question','replies','created_by','created_at']
+        fields=['id','content','question','replies','created_by','created_at']
 
 """Serializer to retrieve a question"""
 class QuestionRetrieveSerializer(serializers.ModelSerializer):
-    replies =serializers.StringRelatedField(many=True, read_only =True)
-    question =serializers.StringRelatedField(read_only =True)
+    replies =QuestionListSerializer(many=True,read_only=True)
+    question =QuestionListSerializer(read_only=True)
     class Meta:
         ref_name = "Discussion Question"
         model=Question
@@ -27,8 +27,8 @@ class QuestionCreateSerializer(CreatorSerializer):
          model=Question
          fields=['content','question']
     def create(self, validated_data):
-        question= validated_data["question"]
-        if (question is not None) and validated_data.get('question').is_question==False:
+        question= validated_data.get("question")
+        if (question is not None) and question.is_question==False:
                 raise serializers.ValidationError(
                     "Reply for Answer is not Possible",
                 ) 
