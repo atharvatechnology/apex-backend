@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import serializers
 
 from common.api.mixin import EnrolledSerializerMixin
@@ -59,8 +60,15 @@ class CourseListSerializer(CourseBaseSerializer):
         read_only_fields = CourseBaseSerializer.Meta.read_only_fields
 
     @staticmethod
+    def setup_eager_loading(queryset):
+        """Perform necessary eager loading of data."""
+        queryset = queryset.prefetch_related("sessions")
+        queryset = queryset.annotate(course_enroll_count=Count("course_enrolls"))
+        return queryset
+
+    @staticmethod
     def get_enrollment_count(obj):
-        return {"course_enroll_count": obj.course_enrolls.all().count()}
+        return {"course_enroll_count": obj.course_enroll_count}
 
 
 class CourseRetrieveSerializerAfterEnroll(
