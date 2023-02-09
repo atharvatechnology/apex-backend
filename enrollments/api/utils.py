@@ -26,10 +26,12 @@ def is_enrolled(enrolled_obj, user):
         state of enrollment of user to that obj
 
     """
-    enrollments = []
+    # enrollments = []
     if user.is_authenticated:
         enrollments = enrolled_obj.enrolls.all().filter(student=user)
-    return len(enrollments) > 0
+        return enrollments.exists()
+    return False
+    # return len(enrollments) > 0
 
 
 def is_enrolled_active(enrolled_obj, user):
@@ -48,12 +50,14 @@ def is_enrolled_active(enrolled_obj, user):
         state of active enrollment of user to that obj
 
     """
-    enrollments = []
+    # enrollments = []
     if user.is_authenticated:
         enrollments = enrolled_obj.enrolls.all().filter(
             student=user, status=EnrollmentStatus.ACTIVE
         )
-    return len(enrollments) > 0
+        return enrollments.exists()
+    return False
+    # return len(enrollments) > 0
 
 
 def get_student_rank(obj):
