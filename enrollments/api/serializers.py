@@ -393,8 +393,22 @@ class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("status",)
 
-
-# new change
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.prefetch_related(
+            "exam_enrolls",
+            "course_enrolls",
+            "exam_enrolls__exam",
+            "exam_enrolls__exam__template",
+            "exam_enrolls__exam__questions",
+            "exam_enrolls__exam__sessions",
+            "exam_enrolls__selected_session",
+            "exam_enrolls__exam__category",
+            "course_enrolls__selected_session",
+            "course_enrolls__course__category",
+            "course_enrolls__course__course_enrolls",
+        )
+        return queryset
 
 
 class PracticeExamEnrollmentCreateSerializer(serializers.ModelSerializer):
