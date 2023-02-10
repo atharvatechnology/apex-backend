@@ -178,6 +178,11 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentRetrieveSerializer
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = self.serializer_class().setup_eager_loading(queryset)
+        return queryset
+
     def retrieve(self, request, *args, **kwargs):
         exam_enrollment = self.get_object()
         # if (
@@ -199,7 +204,8 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
             selected_session.status == SessionStatus.RESULTSOUT
         ):
             # if (selected_session.status == SessionStatus.RESULTSOUT):
-            return super().retrieve(request, *args, **kwargs)
+            serializer = self.get_serializer(exam_enrollment)
+            return Response(serializer.data)
         if publish_date := selected_session.result_publish_date:
             error_detail = f"Your result will be published \
                 on {localtime(publish_date).strftime('%Y-%m-%d %H:%M:%S')}"

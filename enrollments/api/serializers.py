@@ -796,6 +796,12 @@ class ExamEnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "status",
         )
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        """Perform necessary eager loading of data."""
+        queryset = queryset.prefetch_related("exam__questions__options")
+        return queryset
+
     def get_rank(self, obj):
         return get_student_rank(obj)
 
