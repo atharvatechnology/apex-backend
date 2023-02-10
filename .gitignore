@@ -145,3 +145,7 @@ proposal.py
 
 # Ignore har files generated for performance testing
 *.har
+
+# Ignore static files
+static/
+static-live/
