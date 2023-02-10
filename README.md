@@ -25,3 +25,9 @@ pre-commit install
 ```shell
 celery -A apex worker --beat --scheduler django -l info
 ```
+
+#### Run celery along with scheduler
+- in terminal inside root of the project
+```shell
+celery -A apex worker -l info -B --scheduler django_celery_beat.schedulers:DatabaseScheduler
+```
