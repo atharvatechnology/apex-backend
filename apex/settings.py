@@ -89,9 +89,11 @@ INSTALLED_APPS = [
     "counseling",
     "dashboard",
     "stafftracking",
+    "silk",
 ]
 
 MIDDLEWARE = [
+    "silk.middleware.SilkyMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -427,3 +429,6 @@ GOOGLE_APPLICATION_CREDENTIALS = BASE_DIR / env(
     "GOOGLE_APPLICATION_CREDENTIALS", default="apex-education-firebase.json"
 )
 # Firebase notification end
+
+# SILKY_PYTHON_PROFILER = True
+# SILKY_PYTHON_PROFILER_BINARY = True
