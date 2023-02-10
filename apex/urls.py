@@ -79,6 +79,8 @@ api_admin_urls = [
     path("attendance/", include("attendance.api_admin.urls")),
     path("physicalbook/", include("physicalbook.api_admin.urls")),
     path("stafftracking/", include("stafftracking.api_admin.urls")),
+    path("discussion/", include("discussion.api_admin.urls")),
+
 ]
 
 fcm_urls = [
