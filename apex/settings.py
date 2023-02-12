@@ -104,6 +104,10 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
+if DEBUG:
+    INSTALLED_APPS += ["silk"]
+    MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
+
 ROOT_URLCONF = "apex.urls"
 
 TEMPLATES = [
@@ -427,3 +431,6 @@ GOOGLE_APPLICATION_CREDENTIALS = BASE_DIR / env(
     "GOOGLE_APPLICATION_CREDENTIALS", default="apex-education-firebase.json"
 )
 # Firebase notification end
+
+# SILKY_PYTHON_PROFILER = True
+# SILKY_PYTHON_PROFILER_BINARY = True

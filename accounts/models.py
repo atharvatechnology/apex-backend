@@ -119,6 +119,9 @@ class UserManager(BaseUserManager):
             )
         return self.none()
 
+    def get_queryset(self):
+        return super().get_queryset().select_related("profile")
+
 
 class User(AbstractUser):
     """Custom User model."""

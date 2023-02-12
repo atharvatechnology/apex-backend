@@ -33,11 +33,10 @@ class PublishableModelMixin:
     """Filter the queryset to only include published instances."""
 
     def get_queryset(self):
-        qs = self.queryset
-        return qs.published()
+        return super().get_queryset().published()
 
 
-class InterestWiseOrderMixin(object):
+class InterestWiseOrderMixin:
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and hasattr(user, "profile"):
