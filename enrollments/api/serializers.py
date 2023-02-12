@@ -673,12 +673,17 @@ class QuestionEnrollmentSerializer(serializers.ModelSerializer):
 class QuestionEnrollmentSubmitSerializer(serializers.ModelSerializer):
     """Serializer when user submits his exam's question answers."""
 
+    question = serializers.IntegerField(source="question_id")
+    selected_option = serializers.IntegerField(source="selected_option_id")
+
     class Meta:
         model = QuestionEnrollment
         fields = (
             "id",
             "question",
             "selected_option",
+            # "question_id",
+            # "selected_option_id",
         )
 
 
@@ -723,14 +728,20 @@ class ExamEnrollmentUpdateSerializer(serializers.ModelSerializer):
         submitted = validated_data.get("submitted") or False
 
         for state_data in question_states:
-            question = state_data.get("question")
-            option = state_data.get("selected_option")
+            question = state_data.get("question_id")
+            option = state_data.get("selected_option_id")
             prev_question_states = instance.question_states.all()
-            prev_states = prev_question_states.filter(question=question)
-            if len(prev_states) > 0:
-                prev_state = prev_states.first()
-                prev_state.question = question
-                prev_state.selected_option = option
+            try:
+                prev_state = (
+                    prev_question_states.filter(question_id=question)
+                    .select_related("question", "selected_option")
+                    .first()
+                )
+            except QuestionEnrollment.DoesNotExist:
+                prev_state = None
+            if prev_state:
+                prev_state.question_id = question
+                prev_state.selected_option_id = option
                 prev_state.save()
             else:
                 new_state = QuestionEnrollment(
