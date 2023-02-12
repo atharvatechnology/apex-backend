@@ -3,6 +3,7 @@ from django.urls import include, path
 from accounts.api_admin.views import (
     GetSMSCreditAdminAPIView,
     StudentReportGeneratorAPIView,
+    TeacherReportGeneratorAPIView,
     UserCounsellorListAdminAPIView,
     UserCreateAdminAPIView,
     UserFacultyListAdminAPIView,
@@ -67,5 +68,10 @@ urlpatterns = [
         "student/report/generate/",
         StudentReportGeneratorAPIView.as_view(),
         name="generator-student",
+    ),
+    path(
+        "teacher/report/generate/",
+        TeacherReportGeneratorAPIView.as_view(),
+        name="generator-teacher",
     ),
 ]

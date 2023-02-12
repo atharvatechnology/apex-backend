@@ -1,12 +1,15 @@
 from django.urls import include, path
 
 from attendance.api_admin.views import (
+    AllStudentAttendanceReportGeneratorAPIView,
+    AllTeacherAttendanceReportGeneratorAPIView,
+    SingleStudentAttendanceReportGeneratorAPIView,
+    SingleTeacherAttendanceReportGeneratorAPIView,
     StudentAttendanceAdminDeleteAPIView,
     StudentAttendanceAdminHistoryListAPIView,
     StudentAttendanceAdminListAPIView,
     StudentAttendanceAdminRetrieveAPIView,
     StudentAttendanceAdminUpdateAPIView,
-    StudentAttendanceReportGeneratorAPIView,
     TeacherAttendanceAdminDeleteAPIView,
     TeacherAttendanceAdminHistoryListAPIView,
     TeacherAttendanceAdminListAPIView,
@@ -16,7 +19,6 @@ from attendance.api_admin.views import (
     TeacherAttendanceDetailAdminListAPIView,
     TeacherAttendanceDetailAdminRetrieveAPIView,
     TeacherAttendanceDetailAdminUpdateAPIView,
-    TeacherAttendanceReportGeneratorAPIView,
 )
 
 student_admin_urls = [
@@ -46,9 +48,14 @@ student_admin_urls = [
         name="admin-student-delete",
     ),
     path(
-        "report/generate/",
-        StudentAttendanceReportGeneratorAPIView.as_view(),
-        name="generator-student-attendance",
+        "single/report/generate/",
+        SingleStudentAttendanceReportGeneratorAPIView.as_view(),
+        name="generator-single-student-attendance",
+    ),
+    path(
+        "all/report/generate/",
+        AllStudentAttendanceReportGeneratorAPIView.as_view(),
+        name="generator-all-student-attendance",
     ),
 ]
 
@@ -108,9 +115,14 @@ teacher_admin_urls = [
         include(teacher_admin_details_urls),
     ),
     path(
-        "report/generate/",
-        TeacherAttendanceReportGeneratorAPIView.as_view(),
-        name="generator-teacher-attendance",
+        "single/report/generate/",
+        SingleTeacherAttendanceReportGeneratorAPIView.as_view(),
+        name="generator-single-teacher-attendance",
+    ),
+    path(
+        "all/report/generate/",
+        AllTeacherAttendanceReportGeneratorAPIView.as_view(),
+        name="generator-all-teacher-attendance",
     ),
 ]
 

@@ -29,6 +29,11 @@ class CourseListAPIView(PublishableModelMixin, InterestWiseOrderMixin, ListAPIVi
     # filterset_fields = ['price', 'category']
     # ordering = ['course']
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        return queryset
+
 
 class CourseRetrieveAPIAfterEnrollView(PublishableModelMixin, RetrieveAPIView):
     """View for retrieving courses."""
