@@ -745,8 +745,12 @@ class QuestionEnrollment(models.Model):
 
     def save(self, *args, **kwargs):
         try:
-            self.exam_stat.exam.questions.get(pk=self.question.id)
-            self.question.options.get(pk=self.selected_option.id)
+            # self.exam_stat.exam.questions.get(pk=self.question.id)
+            # self.question.options.get(pk=self.selected_option.id)
+            self.exam_stat.exam.questions.get(
+                pk=self.question_id,
+                options__in=[self.selected_option],
+            )
             super().save(*args, **kwargs)
         except Exception as error:
             raise error

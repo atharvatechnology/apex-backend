@@ -26,10 +26,12 @@ def is_enrolled(enrolled_obj, user):
         state of enrollment of user to that obj
 
     """
-    enrollments = []
+    # enrollments = []
     if user.is_authenticated:
         enrollments = enrolled_obj.enrolls.all().filter(student=user)
-    return len(enrollments) > 0
+        return enrollments.exists()
+    return False
+    # return len(enrollments) > 0
 
 
 def is_enrolled_active(enrolled_obj, user):
@@ -48,12 +50,14 @@ def is_enrolled_active(enrolled_obj, user):
         state of active enrollment of user to that obj
 
     """
-    enrollments = []
+    # enrollments = []
     if user.is_authenticated:
         enrollments = enrolled_obj.enrolls.all().filter(
             student=user, status=EnrollmentStatus.ACTIVE
         )
-    return len(enrollments) > 0
+        return enrollments.exists()
+    return False
+    # return len(enrollments) > 0
 
 
 def get_student_rank(obj):
@@ -109,17 +113,19 @@ def retrieve_exam_status(self, obj):
     user = self.context["request"].user
     if not user.is_authenticated:
         return None
-    if enrollments := ExamThroughEnrollment.objects.filter(
-        enrollment__student=user, exam=obj
-    ):
+    enrollments = list(
+        ExamThroughEnrollment.objects.filter(
+            enrollment__student=user, exam=obj
+        ).select_related("selected_session")
+    )
+    if len(enrollments) > 0:
         for enrollment in enrollments:
-            session_id = enrollment.selected_session.id
-            if exam_sessions := ExamSession.objects.filter(id=session_id):
-                for exam_session in exam_sessions:
-                    if exam_session.status == SessionStatus.INACTIVE:
-                        return ExamStatus.SCHEDULED
-                    elif exam_session.status == SessionStatus.ACTIVE:
-                        return ExamStatus.IN_PROGRESS
+            exam_session_status = enrollment.selected_session.status
+            # if exam_sessions := ExamSession.objects.filter(id=session_id):
+            if exam_session_status == SessionStatus.INACTIVE:
+                return ExamStatus.SCHEDULED
+            elif exam_session_status == SessionStatus.ACTIVE:
+                return ExamStatus.IN_PROGRESS
                 # return ExamStatus.CREATED
     return ExamStatus.CREATED
 
