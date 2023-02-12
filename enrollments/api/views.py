@@ -229,7 +229,8 @@ class ExamEnrollmentCheckpointRetrieveAPIView(RetrieveAPIView):
             exam_enrollment.status
             in [ExamEnrollmentStatus.CREATED]
         ):
-            return super().retrieve(request, *args, **kwargs)
+            serializer = self.get_serializer(exam_enrollment)
+            return Response(serializer.data)
 
         return Response(
             {"detail": "Exam is not active or u have already submitted."},
