@@ -89,11 +89,9 @@ INSTALLED_APPS = [
     "counseling",
     "dashboard",
     "stafftracking",
-    "silk",
 ]
 
 MIDDLEWARE = [
-    "silk.middleware.SilkyMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -105,6 +103,10 @@ MIDDLEWARE = [
     "apex.middleware.MoveJWTCookieIntoTheBody",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+if DEBUG:
+    INSTALLED_APPS += ["silk"]
+    MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
 
 ROOT_URLCONF = "apex.urls"
 
