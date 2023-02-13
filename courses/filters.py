@@ -13,6 +13,7 @@ class CourseFilter(django_filters.FilterSet):
             "category": ["exact"],
             "name": ["icontains"],
             "created_at": ["gt", "lt"],
+            "status": ["exact"],
         }
 
 

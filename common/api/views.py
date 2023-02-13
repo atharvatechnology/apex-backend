@@ -43,9 +43,26 @@ class BaseReportGeneratorAPIView(GenericAPIView):
         return ctx
 
     def post(self, request, *args, **kwargs):
+        original_data_headers = self.get(request).data
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        filtered_data = self.filter_queryset(self.get_queryset())
+        queryset = self.get_queryset()
+
+        # Comparing headers needed for operation vs headers sent from front-end.
+        if not set(original_data_headers["model_fields"]) == set(
+            serializer.data["model_fields"]
+        ):
+            return Response(
+                {
+                    "msg": "Different header parameters. \
+                        Please send only those headers sent in get request."
+                }
+            )
+
+        if self.request.GET.get("user_id"):
+            user_id = self.request.GET.get("user_id")
+            queryset = self.get_queryset().filter(user=user_id)
+        filtered_data = self.filter_queryset(queryset)
         report_object = GeneratedReport.objects.last()
         id_of_last_report = report_object.id if report_object else 0
 

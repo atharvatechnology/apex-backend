@@ -150,6 +150,7 @@ class EnrollmentListAPIView(ListAPIView):
 
         """
         queryset = super().get_queryset()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         return queryset.filter(student=self.request.user)
 
 
@@ -167,7 +168,19 @@ class ExamEnrollmentUpdateAPIView(UpdateAPIView):
                 {"detail": "Your answers have already been submitted."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return super().update(request, *args, **kwargs)
+        instance = exam_enrollment
+        partial = kwargs.pop("partial", False)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+        # return super().update(request, *args, **kwargs)
 
 
 class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
@@ -176,6 +189,11 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     queryset = ExamThroughEnrollment.objects.all()
     serializer_class = ExamEnrollmentRetrieveSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = self.serializer_class().setup_eager_loading(queryset)
+        return queryset
 
     def retrieve(self, request, *args, **kwargs):
         exam_enrollment = self.get_object()
@@ -198,7 +216,8 @@ class ExamEnrollmentRetrieveAPIView(RetrieveAPIView):
             selected_session.status == SessionStatus.RESULTSOUT
         ):
             # if (selected_session.status == SessionStatus.RESULTSOUT):
-            return super().retrieve(request, *args, **kwargs)
+            serializer = self.get_serializer(exam_enrollment)
+            return Response(serializer.data)
         if publish_date := selected_session.result_publish_date:
             error_detail = f"Your result will be published \
                 on {localtime(publish_date).strftime('%Y-%m-%d %H:%M:%S')}"
@@ -229,7 +248,8 @@ class ExamEnrollmentCheckpointRetrieveAPIView(RetrieveAPIView):
             exam_enrollment.status
             in [ExamEnrollmentStatus.CREATED]
         ):
-            return super().retrieve(request, *args, **kwargs)
+            serializer = self.get_serializer(exam_enrollment)
+            return Response(serializer.data)
 
         return Response(
             {"detail": "Exam is not active or u have already submitted."},
@@ -352,8 +372,8 @@ class StudentEnrollmentDetail(RetrieveAPIView):
 
         # All classes count
         get_all_meetings = Meeting.objects.filter(course_session__course__id=course_id)
+        total_classes_count = 0
         if get_all_meetings:
-            total_classes_count = 0
             for classes in get_all_meetings:
                 if classes.repeat_type == 1:
                     duration = course_duration // 1
@@ -380,7 +400,7 @@ class StudentEnrollmentDetail(RetrieveAPIView):
             for exam_enroll in exams.exam_enrolls.filter(
                 enrollment__student_id=request.user.id
             ):
-                if exam_enroll.question_state.all() > 0:
+                if exam_enroll.question_states.exists():
                     exam_attempted_count += 1
 
         data = {

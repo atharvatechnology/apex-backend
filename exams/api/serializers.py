@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import serializers
 
 from common.api.mixin import EnrolledSerializerMixin
@@ -8,6 +9,7 @@ from enrollments.api.serializers import (
 )
 from enrollments.api.utils import retrieve_exam_status
 from enrollments.models import (
+    Enrollment,
     EnrollmentStatus,
     ExamEnrollmentStatus,
     ExamThroughEnrollment,
@@ -107,6 +109,13 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
             "active_exam_is_submitted",
         )
 
+    def _get_cached_enrollments(self, obj, user):
+        if not hasattr(self, "_cached_enrollments"):
+            enrollments = list(obj.enrolls.all().filter(student=user).order_by("-id"))
+            self._cached_enrollments = enrollments
+            return enrollments
+        return self._cached_enrollments
+
     def get_exam_enroll(self, obj):
         """Retrieve exam enroll of current user.
 
@@ -126,9 +135,9 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
         enrollments = []
         user = self.context["request"].user
         if user.is_authenticated:
-            enrollments = obj.enrolls.all().filter(student=user)
+            enrollments = self._get_cached_enrollments(obj, user)
         if len(enrollments) > 0:
-            enrollment = enrollments.latest("id")
+            enrollment = enrollments[0]
             if enrollment.status != EnrollmentStatus.ACTIVE:
                 return None
             exam_enrollment = (
@@ -144,9 +153,9 @@ class ExamRetrieveSerializer(CreatorSerializer, EnrolledSerializerMixin):
         enrollments = []
         user = self.context["request"].user
         if user.is_authenticated:
-            enrollments = obj.enrolls.all().filter(student=user)
+            enrollments = self._get_cached_enrollments(obj, user)
         if len(enrollments) > 0:
-            enrollment = enrollments.latest("id")
+            enrollment = enrollments[0]
             exam_enrollment = (
                 enrollment.exam_enrolls.all().filter(exam=obj).latest("id")
             )
@@ -223,6 +232,14 @@ class ExamListSerializer(serializers.ModelSerializer):
     session = serializers.SerializerMethodField()
     question_count = serializers.SerializerMethodField()
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        """Perform necessary eager loading of data."""
+        queryset = queryset.prefetch_related("sessions", "category")
+        queryset = queryset.select_related("template")
+        queryset = queryset.annotate(question_count=Count("questions"))
+        return queryset
+
     class Meta:
         model = Exam
         fields = (
@@ -250,7 +267,7 @@ class ExamListSerializer(serializers.ModelSerializer):
             return sessions[0].start_date
 
     def get_question_count(self, obj):
-        return obj.questions.all().count()
+        return obj.question_count
 
 
 class ExamUpdateSerializer(CreatorSerializer):
@@ -315,16 +332,43 @@ class ExamPaperSerializer(serializers.ModelSerializer):
             "exam_enroll",
         )
 
+    def _get_student_enrollment(self, obj):
+        if not hasattr(self, "_student_enrollment"):
+            try:
+                student_enrollment = obj.enrolls.filter(
+                    student=self.context["request"].user
+                ).latest("id")
+            except Enrollment.DoesNotExist:
+                student_enrollment = None
+            self._student_enrollment = student_enrollment
+        return self._student_enrollment
+
     def get_exam_enroll(self, obj):
         if self.context["request"].user.is_authenticated:
-            student_enrollments = obj.enrolls.filter(
-                student=self.context["request"].user
-            )
-            if student_enrollments.count() > 0:
+            if hasattr(self.context["request"], "student_enrollment"):
+                student_enrollment = self.context["request"].student_enrollment
+            else:
+                # try:
+                #     student_enrollment = obj.enrolls.filter(
+                #         student=self.context["request"].user
+                #     ).latest("id")
+                # except:
+                #     student_enrollment = None
+                student_enrollment = self._get_student_enrollment(obj)
+            if student_enrollment:
+                if hasattr(self.context["request"], "student_through_enrollment"):
+                    student_through_enrollment = self.context[
+                        "request"
+                    ].student_through_enrollment
+                else:
+                    student_through_enrollment = (
+                        student_enrollment.exam_enrolls.filter(exam=obj)
+                        .select_related("selected_session")
+                        .latest("id")
+                    )
                 return ExamEnrollmentPaperSerializer(
-                    student_enrollments.latest("id")
-                    .exam_enrolls.filter(exam=obj)
-                    .latest("id")
+                    student_through_enrollment
+                    # student_enrollment.exam_enrolls.filter(exam=obj).latest("id")
                 ).data
 
     def get_status(self, obj):

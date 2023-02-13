@@ -12,7 +12,11 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
+from common.api.views import (
+    BaseCreatorCreateAPIView,
+    BaseCreatorUpdateAPIView,
+    BaseReportGeneratorAPIView,
+)
 from common.paginations import StandardResultsSetPagination
 from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
 from courses.api_admin.serializers import (
@@ -82,11 +86,8 @@ class CourseListAPIView(ListAPIView):
     search_fields = ["name"]
     filterset_class = CourseFilter
     serializer_class = CourseSerializer
-    search_fields = ["name"]
     queryset = Course.objects.all()
     pagination_class = StandardResultsSetPagination
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    filterset_class = CourseFilter
 
 
 class CourseRetrieveAPIView(RetrieveAPIView):
@@ -195,4 +196,26 @@ class CourseStudentPBook(ListAPIView):
         student_id = self.kwargs.get("student_id")
         return queryset.filter(
             enrolls__student__id=student_id, enrolls__status=EnrollmentStatus.ACTIVE
+        )
+
+
+class CourseGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_class = CourseFilter
+    search_fields = ["name"]
+    queryset = Course.objects.all()
+    model_name = "Course"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "course_name",
+                    "price",
+                    "duration",
+                    "students_enrolled",
+                    "start_date",
+                    "status",
+                ]
+            }
         )

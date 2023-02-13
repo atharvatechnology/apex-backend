@@ -29,7 +29,7 @@ jobs:
       uses: 'google-github-actions/setup-gcloud@v1'
       
     - name: 'downgrade sql instance'
-      run: 'gcloud sql instances patch ${{ secrets.GCP_SQL_INSTANCE }} --tier=db-custom-1-3840 --quiet'
+      run: 'gcloud sql instances patch apex --tier=db-custom-1-3840 --quiet'
       
     - name: 'stop instance'
       run: 'gcloud compute instances stop instance-1 --zone us-central1-a'

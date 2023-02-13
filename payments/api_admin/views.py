@@ -1,6 +1,9 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
 
+from common.api.views import BaseReportGeneratorAPIView
 from common.paginations import StandardResultsSetPagination
 from common.permissions import IsAccountant, IsSuperAdminOrDirector
 from payments import PaymentStatus
@@ -16,3 +19,22 @@ class PaymentListAPIView(ListAPIView):
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = PaymentFilter
+
+
+class PaymentReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_class = PaymentFilter
+    queryset = Payment.objects.filter(status=PaymentStatus.PAID)
+    model_name = "Payment"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "name",
+                    "type",
+                    "enrollment",
+                    "revenue",
+                ]
+            }
+        )

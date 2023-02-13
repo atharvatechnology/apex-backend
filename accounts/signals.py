@@ -11,10 +11,9 @@ User = get_user_model()
 @disable_for_loaddata
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.get_or_create(
-            user=instance,
-            defaults={
-                "user": instance,
-            },
-        )
+    Profile.objects.get_or_create(
+        user=instance,
+        defaults={
+            "user": instance,
+        },
+    )

@@ -28,8 +28,7 @@ from accounts.api_admin.serializers import (
     UserTeacherCreateAdminSerializer,
     UserUpdateAdminSerializer,
 )
-from accounts.filters import StudentFilter
-from accounts.models import Profile, Role
+from accounts.models import Role
 from common.api.views import BaseReportGeneratorAPIView
 from common.paginations import StandardResultsSetPagination
 from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
@@ -191,9 +190,9 @@ class GetSMSCreditAdminAPIView(GenericAPIView):
 
 class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
-    queryset = Profile.objects.all()
-    filterset_class = StudentFilter
+    search_fields = ["username", "first_name", "last_name"]
+    queryset = User.objects.filter(roles__in=[Role.STUDENT])
+    filterset_class = StudentAdminFilter
     model_name = "StudentProfile"
 
     def get(self, request):
@@ -202,6 +201,26 @@ class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
                 "model_fields": [
                     "fullname",
                     "date_joined",
+                    "phone_number",
+                    "email",
+                    "status",
+                ]
+            }
+        )
+
+
+class TeacherReportGeneratorAPIView(BaseReportGeneratorAPIView):
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["username", "first_name", "last_name"]
+    queryset = User.objects.filter(roles__in=[Role.TEACHER])
+    filterset_class = UserAdminFilter
+    model_name = "TeacherProfile"
+
+    def get(self, request):
+        return Response(
+            {
+                "model_fields": [
+                    "fullname",
                     "phone_number",
                     "email",
                 ]
