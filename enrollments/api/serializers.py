@@ -759,7 +759,7 @@ class ExamEnrollmentUpdateSerializer(serializers.ModelSerializer):
                 prev_state.save()
             else:
                 new_state = QuestionEnrollment(
-                    exam_stat=instance, question=question, selected_option=option
+                    exam_stat=instance, question_id=question, selected_option_id=option
                 )
                 new_state.save()
         if submitted:
