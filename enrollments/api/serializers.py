@@ -738,7 +738,7 @@ class ExamEnrollmentUpdateSerializer(serializers.ModelSerializer):
             updated exam enrollment.
 
         """
-        question_states = validated_data.pop("question_states")
+        question_states = validated_data.pop("question_states", [])
         submitted = validated_data.get("submitted") or False
 
         for state_data in question_states:
@@ -756,12 +756,18 @@ class ExamEnrollmentUpdateSerializer(serializers.ModelSerializer):
             if prev_state:
                 prev_state.question_id = question
                 prev_state.selected_option_id = option
-                prev_state.save()
+                # prev_state.save()
+                cur_state = prev_state
             else:
                 new_state = QuestionEnrollment(
                     exam_stat=instance, question_id=question, selected_option_id=option
                 )
-                new_state.save()
+                # new_state.save()
+                cur_state = new_state
+            try:
+                cur_state.save()
+            except Exception as e:
+                raise serializers.ValidationError(e)
         if submitted:
             if instance.status == ExamEnrollmentStatus.CREATED:
                 instance.attempt_exam()
