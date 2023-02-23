@@ -36,7 +36,8 @@ from enrollments.api_admin.serializers import (
     ExamSessionAdminSerializer,
     ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
-    GetEnrollmentByUserSerializer,
+    GetAllEnrollmentSerializer,
+    GetCourseEnrollmentByUserSerializer,
     PhysicalBookCourseEnrollmentAdminSerializer,
     PhysicalBookCourseEnrollmentCreateAdminSerializer,
     PhysicalBookCourseEnrollmentUpdateAdminSerializer,
@@ -62,8 +63,8 @@ from exams.models import Exam
 User = get_user_model()
 
 
-class GetEnrollmentByUserAPIView(GenericAPIView):
-    serializer_class = GetEnrollmentByUserSerializer
+class GetCourseEnrollmentByUserAPIView(GenericAPIView):
+    serializer_class = GetCourseEnrollmentByUserSerializer
     permission_classes = [IsAdminOrSuperAdminOrDirector]
 
     def get(self, request, *args, **kwargs):
@@ -578,3 +579,22 @@ class ExamResultReportGeneratorAPIView(BaseReportGeneratorAPIView):
                 ]
             }
         )
+
+
+class GetEnrollmentsByUserAPIView(GenericAPIView):
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    queryset = Enrollment.objects.all()
+    serializer_class = GetAllEnrollmentSerializer
+
+    def get(self, request, *args, **kwargs):
+        student_id = kwargs.get("student_id")
+
+        enrollments = Enrollment.objects.filter(student_id=student_id)
+        data = {
+            "course": CourseThroughEnrollment.objects.filter(
+                enrollment__in=enrollments
+            ),
+            "exam": ExamThroughEnrollment.objects.filter(enrollment__in=enrollments),
+        }
+        serializer = self.get_serializer(data)
+        return Response(serializer.data)

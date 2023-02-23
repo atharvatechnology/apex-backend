@@ -25,8 +25,12 @@ from enrollments.models import (
     PhysicalBookCourseEnrollment,
 )
 from exams.api_common.serializers import ExamMiniSerializer
+from exams.models import Exam
 from payments.api_common.serializers import PaymentSerializer
-from physicalbook.api_admin.serializers import PhysicalBookAdminListSerializer
+from physicalbook.api_admin.serializers import (
+    PhysicalBookAdminListSerializer,
+    PhysicalBookEnrolledCourseSerializer,
+)
 
 User = get_user_model()
 
@@ -527,6 +531,86 @@ class CourseThroughEnrollmentAdminUserSerializer(serializers.ModelSerializer):
         return obj.enrollment.created_at
 
 
-class GetEnrollmentByUserSerializer(serializers.Serializer):
+class GetCourseEnrollmentByUserSerializer(serializers.Serializer):
     user = UserMiniAdminSerializer()
     enrollments = CourseThroughEnrollmentAdminUserSerializer(many=True)
+
+
+class CourseSerializerWithIdAndName(serializers.ModelSerializer):
+    physical_books = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Course
+        fields = (
+            "id",
+            "name",
+            "physical_books",
+        )
+
+    def get_physical_books(self, obj):
+        return PhysicalBookEnrolledCourseSerializer(
+            obj.physical_books,
+            many=True,
+            context=self.context,
+        ).data
+
+
+class CourseSessionSerializerWithIdNameAndStatus(serializers.ModelSerializer):
+    class Meta:
+        model = CourseSession
+        fields = (
+            "id",
+            "name",
+            "status",
+        )
+
+
+class CourseThroughEnrollmentStudentDetailAdminSerializer(serializers.ModelSerializer):
+    course = serializers.SerializerMethodField()
+    selected_session = CourseSessionSerializerWithIdNameAndStatus()
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = [
+            "id",
+            "course",
+            "selected_session",
+        ]
+
+    def get_course(self, obj):
+        return CourseSerializerWithIdAndName(
+            obj.course,
+            context=self.context,
+        ).data
+
+
+class ExamSerializerWithIdAndName(serializers.ModelSerializer):
+    class Meta:
+        model = Exam
+        fields = (
+            "id",
+            "name",
+        )
+
+
+class ExamThroughEnrollmentStudentDetailAdminSerializer(serializers.ModelSerializer):
+    exam = ExamSerializerWithIdAndName()
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = [
+            "id",
+            "exam",
+        ]
+
+
+class GetAllEnrollmentSerializer(serializers.Serializer):
+    course = serializers.SerializerMethodField()
+    exam = ExamThroughEnrollmentStudentDetailAdminSerializer(many=True)
+
+    def get_course(self, obj):
+        return CourseThroughEnrollmentStudentDetailAdminSerializer(
+            obj["course"],
+            many=True,
+            context=self.context,
+        ).data
