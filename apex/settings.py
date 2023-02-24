@@ -81,7 +81,6 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "ckeditor",
-    "debug_toolbar",
     "fcm_django",
     "notifications",
     "report",
@@ -101,12 +100,16 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apex.middleware.MoveJWTCookieIntoTheBody",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "apex.middleware.OneJWTPerUserMiddleware",
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ["silk"]
+    INSTALLED_APPS += [
+        "silk",
+        "debug_toolbar",
+    ]
     MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "apex.urls"
 
@@ -197,9 +200,9 @@ REST_FRAMEWORK = {
     # "DEFAULT_PAGINATION_CLASS": "courses.api.paginations.CustomPagination",
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.BasicAuthentication",
         # "rest_framework.authentication.SessionAuthentication",
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }

@@ -8,6 +8,7 @@ from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 
+from accounts.api.views import CustomLoginView, CustomLogoutView, get_refresh_view
 from meetings.api_admin.urls import subject_urlpatterns
 
 router = DefaultRouter()
@@ -45,6 +46,9 @@ urlpatterns = [
 
 api_urls = [
     path("accounts/", include("accounts.api.urls")),
+    path("auth/login/", CustomLoginView.as_view(), name="auth_login"),
+    path("auth/logout/", CustomLogoutView.as_view(), name="auth_logout"),
+    path("auth/token/refresh/", get_refresh_view().as_view(), name="auth_refresh"),
     path("auth/", include("dj_rest_auth.urls")),
     path("courses/", include("courses.api.urls")),
     path("notes/", include("notes.api.urls")),
@@ -91,7 +95,6 @@ urlpatterns += [
     path("api/fcm/", include(fcm_urls)),
     # path("student_urls/", include("student.api.urls")),
     # path("teacher_urls/", include("teacher.api.urls")),
-    path("__debug__/", include("debug_toolbar.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
@@ -99,4 +102,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Path for silky django profiler
 if settings.DEBUG:
-    urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
+    urlpatterns += [
+        path("silk/", include("silk.urls", namespace="silk")),
+        path("__debug__/", include("debug_toolbar.urls")),
+    ]
