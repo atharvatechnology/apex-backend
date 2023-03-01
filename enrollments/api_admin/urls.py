@@ -11,6 +11,7 @@ from .views import (
     CourseThroughEnrollmentGeneratorAPIView,
     CourseThroughEnrollmentListAPIView,
     CourseThroughEnrollmentListCardAPIView,
+    CourseThroughEnrollmentStudentListAPIView,
     EnrollmentDeleteAdminAPIView,
     EnrollmentGraphAPIView,
     EnrollmentUpdateAdminAPIView,
@@ -132,6 +133,11 @@ course_through_enrollment_urls = [
     path(
         "list/",
         CourseThroughEnrollmentListAPIView.as_view(),
+        name="course-through-enrollment-list",
+    ),
+    path(
+        "student/<int:student_id>/",
+        CourseThroughEnrollmentStudentListAPIView.as_view(),
         name="course-through-enrollment-list",
     ),
     path(

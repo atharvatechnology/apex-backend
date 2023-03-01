@@ -31,6 +31,7 @@ from enrollments.api_admin.serializers import (
     CourseSessionAdminSerializer,
     CourseSessionAdminUpdateSerializer,
     CourseThroughEnrollmentAdminBaseSerializer,
+    CourseThroughEnrollmentAdminStudentSerializer,
     EnrollmentStatusAdminUpdateSerializer,
     ExamEnrollmentCreateSerializer,
     ExamSessionAdminSerializer,
@@ -387,6 +388,24 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
     ]
     # ordering_fields = ["status", "score"]
     filterset_class = CourseThroughEnrollmentFilter
+
+
+class CourseThroughEnrollmentStudentListAPIView(ListAPIView):
+    """List all student in Course."""
+
+    serializer_class = CourseThroughEnrollmentAdminStudentSerializer
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    filterset_class = CourseFilter
+    queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
+    filter_backends = [
+        DjangoFilterBackend,
+    ]
+    pagination_class = StandardResultsSetPagination
+    filterset_class = CourseThroughEnrollmentFilter
+
+    def get_queryset(self):
+        student_id = self.kwargs.get("student_id")
+        return super().get_queryset().filter(enrollment__student_id=student_id)
 
 
 class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAPIView):

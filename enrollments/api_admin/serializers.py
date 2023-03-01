@@ -614,3 +614,28 @@ class GetAllEnrollmentSerializer(serializers.Serializer):
             many=True,
             context=self.context,
         ).data
+
+
+class CourseThroughEnrollmentAdminStudentSerializer(serializers.ModelSerializer):
+    """Base Serializer for CourseThroughEnrollment."""
+
+    course = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseThroughEnrollment
+        fields = (
+            "id",
+            "course",
+            "created_at",
+        )
+
+    def get_course(self, obj):
+        return CourseSerializerWithIdAndName(
+            obj.course,
+            context=self.context,
+        ).data
+
+    def get_created_at(self, obj):
+        """Get created_at."""
+        return obj.enrollment.created_at
