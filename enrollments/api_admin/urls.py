@@ -11,6 +11,7 @@ from .views import (
     CourseThroughEnrollmentGeneratorAPIView,
     CourseThroughEnrollmentListAPIView,
     CourseThroughEnrollmentListCardAPIView,
+    CourseThroughEnrollmentStudentListAPIView,
     EnrollmentDeleteAdminAPIView,
     EnrollmentGraphAPIView,
     EnrollmentUpdateAdminAPIView,
@@ -24,7 +25,8 @@ from .views import (
     ExamThroughEnrollmentGeneratorAPIView,
     ExamThroughEnrollmentListAPIView,
     ExamThroughEnrollmentListCardAPIView,
-    GetEnrollmentByUserAPIView,
+    GetCourseEnrollmentByUserAPIView,
+    GetEnrollmentsByUserAPIView,
     OverallEnrollmentAPIView,
     PhysicalBookCourseEnrollmentAdminCreateAPIView,
     PhysicalBookCourseEnrollmentAdminDestroyAPIView,
@@ -134,6 +136,11 @@ course_through_enrollment_urls = [
         name="course-through-enrollment-list",
     ),
     path(
+        "student/<int:student_id>/",
+        CourseThroughEnrollmentStudentListAPIView.as_view(),
+        name="course-through-enrollment-list",
+    ),
+    path(
         "card/",
         CourseThroughEnrollmentListCardAPIView.as_view(),
         name="course-through-enrollment-card",
@@ -153,8 +160,13 @@ session_urls = [
 enrollment_urls = [
     path(
         "get-by-user/<str:student_code>/",
-        GetEnrollmentByUserAPIView.as_view(),
+        GetCourseEnrollmentByUserAPIView.as_view(),
         name="get-enrollment_by_user",
+    ),
+    path(
+        "user/<str:student_id>/",
+        GetEnrollmentsByUserAPIView.as_view(),
+        name="get-enrollments_by_user",
     ),
     path(
         "delete/<int:pk>/",
