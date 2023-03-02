@@ -31,12 +31,14 @@ from enrollments.api_admin.serializers import (
     CourseSessionAdminSerializer,
     CourseSessionAdminUpdateSerializer,
     CourseThroughEnrollmentAdminBaseSerializer,
+    CourseThroughEnrollmentAdminStudentSerializer,
     EnrollmentStatusAdminUpdateSerializer,
     ExamEnrollmentCreateSerializer,
     ExamSessionAdminSerializer,
     ExamSessionAdminUpdateSerializer,
     ExamThroughEnrollmentAdminListSerializer,
-    GetEnrollmentByUserSerializer,
+    GetAllEnrollmentSerializer,
+    GetCourseEnrollmentByUserSerializer,
     PhysicalBookCourseEnrollmentAdminSerializer,
     PhysicalBookCourseEnrollmentCreateAdminSerializer,
     PhysicalBookCourseEnrollmentUpdateAdminSerializer,
@@ -62,8 +64,8 @@ from exams.models import Exam
 User = get_user_model()
 
 
-class GetEnrollmentByUserAPIView(GenericAPIView):
-    serializer_class = GetEnrollmentByUserSerializer
+class GetCourseEnrollmentByUserAPIView(GenericAPIView):
+    serializer_class = GetCourseEnrollmentByUserSerializer
     permission_classes = [IsAdminOrSuperAdminOrDirector]
 
     def get(self, request, *args, **kwargs):
@@ -388,6 +390,24 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
     filterset_class = CourseThroughEnrollmentFilter
 
 
+class CourseThroughEnrollmentStudentListAPIView(ListAPIView):
+    """List all student in Course."""
+
+    serializer_class = CourseThroughEnrollmentAdminStudentSerializer
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    filterset_class = CourseFilter
+    queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
+    filter_backends = [
+        DjangoFilterBackend,
+    ]
+    pagination_class = StandardResultsSetPagination
+    filterset_class = CourseThroughEnrollmentFilter
+
+    def get_queryset(self):
+        student_id = self.kwargs.get("student_id")
+        return super().get_queryset().filter(enrollment__student_id=student_id)
+
+
 class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAPIView):
     def get_queryset(self):
         course_id = self.kwargs.get("course_id")
@@ -578,3 +598,22 @@ class ExamResultReportGeneratorAPIView(BaseReportGeneratorAPIView):
                 ]
             }
         )
+
+
+class GetEnrollmentsByUserAPIView(GenericAPIView):
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    queryset = Enrollment.objects.all()
+    serializer_class = GetAllEnrollmentSerializer
+
+    def get(self, request, *args, **kwargs):
+        student_id = kwargs.get("student_id")
+
+        enrollments = Enrollment.objects.filter(student_id=student_id)
+        data = {
+            "course": CourseThroughEnrollment.objects.filter(
+                enrollment__in=enrollments
+            ),
+            "exam": ExamThroughEnrollment.objects.filter(enrollment__in=enrollments),
+        }
+        serializer = self.get_serializer(data)
+        return Response(serializer.data)
