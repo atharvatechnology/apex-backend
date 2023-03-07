@@ -1,10 +1,20 @@
-from dj_rest_auth.views import LoginView
+from dj_rest_auth.jwt_auth import (
+    CookieTokenRefreshSerializer,
+    set_jwt_access_cookie,
+    set_jwt_refresh_cookie,
+)
+from dj_rest_auth.views import LoginView, LogoutView
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import generics
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.settings import api_settings as jwt_settings
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from accounts.api.serializers import (
     StudentQRSerializer,
@@ -218,3 +228,52 @@ class StudentQRView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user.profile
+
+
+class CustomLoginView(LoginView):
+    def login(self):
+        super().login()
+        if getattr(settings, "REST_USE_JWT", False):
+            cache.set(
+                f"{self.user.id}-token",
+                {
+                    "access": str(self.access_token),
+                    "refresh": str(self.refresh_token),
+                },
+                timeout=jwt_settings.ACCESS_TOKEN_LIFETIME.seconds,
+            )
+            # a = cache.get(f"{self.user.id}-token")
+
+
+class CustomLogoutView(LogoutView):
+    def logout(self, request):
+        user = self.request.user
+        response = super().logout(request)
+        if getattr(settings, "REST_USE_JWT", False):
+            cache.delete(f"{user.id}-token")
+        return response
+
+
+def get_refresh_view():
+    """Return a Token Refresh CBV without a circular import."""
+
+    class RefreshViewWithCookieSupport(TokenRefreshView):
+        serializer_class = CookieTokenRefreshSerializer
+
+        def finalize_response(self, request, response, *args, **kwargs):
+            if response.status_code == 200 and "access" in response.data:
+                set_jwt_access_cookie(response, response.data["access"])
+                response.data["access_token_expiration"] = (
+                    timezone.now() + jwt_settings.ACCESS_TOKEN_LIFETIME
+                )
+            if response.status_code == 200 and "refresh" in response.data:
+                set_jwt_refresh_cookie(response, response.data["refresh"])
+            if hasattr(request, "past_user"):
+                cache.set(
+                    f"{request.past_user.id}-token",
+                    response.data,
+                    timeout=jwt_settings.ACCESS_TOKEN_LIFETIME.seconds,
+                )
+            return super().finalize_response(request, response, *args, **kwargs)
+
+    return RefreshViewWithCookieSupport
