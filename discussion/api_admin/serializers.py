@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.api_admin.serializers import UserMiniAdminSerializer
 from common.api.serializers import CreatorSerializer
 from discussion.models import Question
 
@@ -7,19 +8,30 @@ from discussion.models import Question
 class QuestionAdminListSerializer(serializers.ModelSerializer):
     """Serializer to list all the questions."""
 
+    created_by = UserMiniAdminSerializer()
     replies = "QuestionAdminListSerializer(many=True,read_only=True)"
     question = "QuestionAdminListSerializer(read_only=True)"
 
     class Meta:
         ref_name = "Discussion Question"
         model = Question
-        fields = ["id", "content", "question", "replies", "created_by", "created_at"]
+        fields = [
+            "id",
+            "content",
+            "question",
+            "reply_count",
+            "created_by",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class QuestionAdminRetrieveSerializer(serializers.ModelSerializer):
     """Serializer to retrieve a question."""
 
-    replies = QuestionAdminListSerializer(many=True, read_only=True)
+    created_by = UserMiniAdminSerializer()
+    updated_by = UserMiniAdminSerializer()
+    replies = QuestionAdminListSerializer(read_only=True, many=True)
     question = QuestionAdminListSerializer(read_only=True)
 
     class Meta:
@@ -29,7 +41,7 @@ class QuestionAdminRetrieveSerializer(serializers.ModelSerializer):
             "id",
             "content",
             "question",
-            "replies",
+            "reply_count",
             "created_by",
             "updated_by",
             "created_at",
