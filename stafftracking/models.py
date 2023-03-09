@@ -12,8 +12,8 @@ class StaffTracking(models.Model):
         on_delete=models.CASCADE,
         related_name="stafftracking",
     )
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=15, decimal_places=13)
+    longitude = models.DecimalField(max_digits=15, decimal_places=13)
     address = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -22,3 +22,19 @@ class StaffTracking(models.Model):
 
     def __str__(self):
         return f"{self.user} at {get_human_readable_date_time(self.created_at)}"
+
+
+class StaffConnectionStatus(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="staffconnectionstatus",
+    )
+    is_connected = models.BooleanField(default=False)
+    is_enabled = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id", "-user"]
+
+    def __str__(self):
+        return f"{self.user} is {self.is_connected}"

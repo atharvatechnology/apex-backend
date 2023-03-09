@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from accounts.api.serializers import FullNameField
 from accounts.models import Profile
+from stafftracking.api_admin.serializers import StaffConnectionStatusUserSerializer
 
 User = get_user_model()
 
@@ -215,3 +216,20 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
 
 class SMSCreditAdminSerializer(serializers.Serializer):
     credit = serializers.IntegerField()
+
+
+class UserTrackableListSerializer(serializers.ModelSerializer):
+    """Serializer fstaffconnectionstatusor the User Trackable List Model."""
+
+    staffconnectionstatus = StaffConnectionStatusUserSerializer()
+    fullName = FullNameField(source="*")
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "fullName",
+            "is_active",
+            "staffconnectionstatus",
+        ]
