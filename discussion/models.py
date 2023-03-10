@@ -28,9 +28,9 @@ class Question(CreatorBaseModel):
         return False
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         if (self.question) and self.created_by.is_student:
             question = self.question
             question.updated_at = timezone.now()
             question.updated_by = self.created_by
             question.save()
-        super().save(*args, **kwargs)
