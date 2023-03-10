@@ -26,11 +26,9 @@ class QuestionListAPIView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_admin:
-            return Question.objects.filter(question=None)
         if user.is_student:
             return Question.objects.filter(question=None, created_by=user)
-        return Question.objects.all()
+        return Question.objects.filter(question=None)
 
 
 class QuestionRetrieveAPIView(RetrieveAPIView):
