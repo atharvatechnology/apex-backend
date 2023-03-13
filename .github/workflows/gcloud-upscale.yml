@@ -1,9 +1,9 @@
 name: Schedule server increase
-on:
-  schedule:
-    - cron: "15 00 * * 06"
-    - cron: "15 09 * * 00"
-  workflow_dispatch:
+# on:
+#   schedule:
+#     - cron: "15 00 * * 06"
+#     - cron: "15 09 * * 00"
+#   workflow_dispatch:
     
 jobs:
   upscale:
