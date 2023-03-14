@@ -52,10 +52,17 @@ jobs:
         uses: 'actions/checkout@v3'
         
       - name: Echo
-        run: echo ${{ fromJSON(needs.build.outputs.json_tag).tags[0] }}
-        # run: echo ${ GITHUB_SHA::7 }
-
-
+#         run: echo ${{ fromJSON(needs.build.outputs.json_tag).tags[0] }}
+        env:
+          TAG: ${{ fromJSON(needs.build.outputs.json_tag).tags[0] }}
+        run: |
+          echo $TAG
+          IFS=: read -r dummy shaVal <<< $TAG
+          echo "SHA_TAG=$shaVal" >> $env:GITHUB_ENV
+          
+      - name: Echo sha tag
+        run: echo ${{env.SHA_TAG}}
+        
       - name: 'Authenticate to Yeti Cloud'
         uses: 'DovnarAlexander/github-actions-jelastic@master'
         with:
@@ -63,4 +70,4 @@ jobs:
           jelastic_url: app.yetiapp.cloud
           jelastic_username: ${{ secrets.JELASTIC_USERNAME }}
           jelastic_password: ${{ secrets.JELASTIC_TOKEN }}
-          task: environment/control/redeploycontainers --envName ${{ secrets.JELASTIC_ENV }} --nodeGroup ${{ secrets.JELASTIC_NODE_GROUP }} --tag ${ GITHUB_SHA::7 }
+          task: environment/control/redeploycontainers --envName ${{ secrets.JELASTIC_ENV }} --nodeGroup ${{ secrets.JELASTIC_NODE_GROUP }} --tag ${{ env.SHA_TAG }}
