@@ -1,5 +1,5 @@
 name: Schedule server decrease
-# on:
+on:
 #   schedule:
 #     - cron: "15 14 * * 06"
 #     - cron: "15 14 * * 00"

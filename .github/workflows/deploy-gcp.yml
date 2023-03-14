@@ -1,6 +1,6 @@
 name: CI/CD to GCP
 
-# on:
+on:
 #   push:
 #     branches: [ main ]
 
