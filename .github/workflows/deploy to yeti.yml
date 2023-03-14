@@ -58,7 +58,7 @@ jobs:
         run: |
           echo $TAG
           IFS=: read -r dummy shaVal <<< $TAG
-          echo "SHA_TAG=$shaVal" >> $env:GITHUB_ENV
+          echo "SHA_TAG=$shaVal" >> $GITHUB_ENV
           
       - name: Echo sha tag
         run: echo "this is my sha ${{ env.SHA_TAG }}"
