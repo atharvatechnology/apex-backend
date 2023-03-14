@@ -61,7 +61,7 @@ jobs:
           echo "SHA_TAG=$shaVal" >> $env:GITHUB_ENV
           
       - name: Echo sha tag
-        run: echo ${{env.SHA_TAG}}
+        run: echo "this is my sha ${{ env.SHA_TAG }}"
         
       - name: 'Authenticate to Yeti Cloud'
         uses: 'DovnarAlexander/github-actions-jelastic@master'
