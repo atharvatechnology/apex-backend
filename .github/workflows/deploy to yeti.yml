@@ -56,7 +56,7 @@ jobs:
       - name: 'Authenticate to Yeti Cloud'
         uses: 'DovnarAlexander/github-actions-jelastic@master'
         env:
-          TAG: ${{fromJSON(needs.build_and_push.outputs.json_tag).tags[0]}}
+          TAG: ${{fromJSON(needs.build.outputs.json_tag).tags[0]}}
         with:
           envs: TAG
           jelastic_url: app.yetiapp.cloud
