@@ -5,7 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 from django.utils.timezone import localtime, now
 
-from stafftracking.models import StaffTracking
+from stafftracking.models import StaffConnectionStatus, StaffTracking
 
 User = get_user_model()
 
@@ -92,11 +92,15 @@ class ClockConsumer(AsyncWebsocketConsumer):
 class StaffTrackingConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_group_name = self.scope["url_route"]["kwargs"]["room_name"]
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.accept()
+        user_id = self.room_group_name.split("_")[1]
+        if user_id and user_id != "0":
+            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+            await self.accept()
+            await self.create_staff_connection_status()
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        await self.disable_staff_connection_status()
 
     async def receive(self, text_data=None):
         data = json.loads(text_data)
@@ -106,13 +110,9 @@ class StaffTrackingConsumer(AsyncWebsocketConsumer):
         message = event["message"]
         await self.create_stafftracking_object(message)
 
-    @database_sync_to_async
-    def create_stafftracking_object(self, message):
-        user_id = self.room_group_name.split("_")[1]
-        user = User.objects.get(id=user_id)
-        StaffTracking.objects.create(
-            user=user, latitude=message["latitude"], longitude=message["longitude"]
-        )
+    async def location_enabled(self, event):
+        message = event["message"]
+        await self.is_location_enabled_in_staff_tracking(message)
 
     async def send_request_user(self, event):
         await self.send(
@@ -122,3 +122,39 @@ class StaffTrackingConsumer(AsyncWebsocketConsumer):
                 }
             )
         )
+
+    @database_sync_to_async
+    def create_stafftracking_object(self, message):
+        user_id = self.room_group_name.split("_")[1]
+        user = User.objects.get(id=user_id)
+        StaffTracking.objects.create(
+            user=user, latitude=message["latitude"], longitude=message["longitude"]
+        )
+
+    @database_sync_to_async
+    def create_staff_connection_status(self):
+        user_id = self.room_group_name.split("_")[1]
+        staff_connection_status, created = StaffConnectionStatus.objects.get_or_create(
+            user_id=user_id, defaults={"user_id": user_id}
+        )
+        staff_connection_status.is_connected = True
+        staff_connection_status.save()
+
+    @database_sync_to_async
+    def disable_staff_connection_status(self):
+        user_id = self.room_group_name.split("_")[1]
+        if staff_connection_status := StaffConnectionStatus.objects.filter(
+            user_id=user_id
+        ).first():
+            staff_connection_status.is_connected = False
+            staff_connection_status.is_enabled = False
+            staff_connection_status.save()
+
+    @database_sync_to_async
+    def is_location_enabled_in_staff_tracking(self, location_enabled):
+        user_id = self.room_group_name.split("_")[1]
+        if staff_connection_status := StaffConnectionStatus.objects.filter(
+            user_id=user_id
+        ).first():
+            staff_connection_status.is_enabled = location_enabled
+            staff_connection_status.save()
