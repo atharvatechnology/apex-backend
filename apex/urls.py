@@ -62,6 +62,7 @@ api_urls = [
     path("bannerad/", include("bannerad.api.urls")),
     path("notifications/", include("notifications.api.urls")),
     path("dashboard/", include("dashboard.api.urls")),
+    path("discussion/", include("discussion.api.urls")),
 ]
 
 api_admin_urls = [
@@ -82,6 +83,8 @@ api_admin_urls = [
     path("attendance/", include("attendance.api_admin.urls")),
     path("physicalbook/", include("physicalbook.api_admin.urls")),
     path("stafftracking/", include("stafftracking.api_admin.urls")),
+    path("discussion/", include("discussion.api_admin.urls")),
+
 ]
 
 fcm_urls = [
