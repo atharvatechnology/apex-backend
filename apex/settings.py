@@ -81,7 +81,6 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "ckeditor",
-    "debug_toolbar",
     "fcm_django",
     "notifications",
     "report",
@@ -101,12 +100,16 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apex.middleware.MoveJWTCookieIntoTheBody",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "apex.middleware.OneJWTPerUserMiddleware",
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ["silk"]
+    INSTALLED_APPS += [
+        "silk",
+        "debug_toolbar",
+    ]
     MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "apex.urls"
 
@@ -388,7 +391,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(redis_host, 6379)],
+            "hosts": [redis_url],
             # "hosts": [("127.0.0.1", 6379)],
         },
     },
