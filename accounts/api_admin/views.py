@@ -26,6 +26,7 @@ from accounts.api_admin.serializers import (
     UserRetrieveAdminSerializer,
     UserStudentCreateAdminSerializer,
     UserTeacherCreateAdminSerializer,
+    UserTrackableListSerializer,
     UserUpdateAdminSerializer,
 )
 from accounts.models import Role
@@ -131,6 +132,7 @@ class UserTrackableListAdminAPIView(UserListAdminAPIView):
         roles__in=tuple_to_list_first_elements(Role.trackable_staff_choices)
     )
     filterset_class = FacultyAdminFilter
+    serializer_class = UserTrackableListSerializer
 
 
 class UserCounsellorListAdminAPIView(UserListAdminAPIView):
