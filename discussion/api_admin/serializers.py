@@ -31,7 +31,6 @@ class QuestionAdminRetrieveSerializer(serializers.ModelSerializer):
 
     created_by = UserMiniAdminSerializer()
     updated_by = UserMiniAdminSerializer()
-    replies = QuestionAdminListSerializer(read_only=True, many=True)
     question = QuestionAdminListSerializer(read_only=True)
 
     class Meta:
