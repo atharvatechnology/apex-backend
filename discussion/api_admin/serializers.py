@@ -9,7 +9,7 @@ class QuestionAdminListSerializer(serializers.ModelSerializer):
     """Serializer to list all the questions."""
 
     created_by = UserMiniAdminSerializer()
-    replies = "QuestionAdminListSerializer(many=True,read_only=True)"
+    # replies = QuestionAdminListSerializer(many=True,read_only=True)
     question = "QuestionAdminListSerializer(read_only=True)"
 
     class Meta:
@@ -31,7 +31,6 @@ class QuestionAdminRetrieveSerializer(serializers.ModelSerializer):
 
     created_by = UserMiniAdminSerializer()
     updated_by = UserMiniAdminSerializer()
-    replies = QuestionAdminListSerializer(read_only=True, many=True)
     question = QuestionAdminListSerializer(read_only=True)
 
     class Meta:
