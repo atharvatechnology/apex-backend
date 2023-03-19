@@ -268,7 +268,7 @@ def get_refresh_view():
                 )
             if response.status_code == 200 and "refresh" in response.data:
                 set_jwt_refresh_cookie(response, response.data["refresh"])
-            if hasattr(request, "past_user"):
+            if response.status_code == 200 and hasattr(request, "past_user"):
                 cache.set(
                     f"{request.past_user.id}-token",
                     response.data,

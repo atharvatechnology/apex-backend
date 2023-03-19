@@ -1,10 +1,13 @@
 import json
 
+from dj_rest_auth.jwt_auth import JWTCookieAuthentication
 from django.conf import settings
+from django.contrib.auth.middleware import get_user
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.functional import SimpleLazyObject
 
 
 class MoveJWTCookieIntoTheBody(MiddlewareMixin):
@@ -35,7 +38,6 @@ class OneJWTPerUserMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-
         if (
             request.path == reverse_lazy("auth_refresh")
             and request.user.is_authenticated
@@ -44,7 +46,10 @@ class OneJWTPerUserMiddleware:
             tokens = cache.get(f"{request.user.id}-token")
             refresh_token = request.COOKIES.get(settings.JWT_AUTH_REFRESH_COOKIE, None)
             if tokens and refresh_token and (refresh_token != tokens["refresh"]):
-                return HttpResponse("Permission Denied", status=401)
+                response = HttpResponse("Permission Denied", status=401)
+                response.delete_cookie(settings.JWT_AUTH_COOKIE)
+                response.delete_cookie(settings.JWT_AUTH_REFRESH_COOKIE)
+                return response
 
         if request.path == reverse_lazy("auth_login"):
             return self.get_response(request)
@@ -54,6 +59,27 @@ class OneJWTPerUserMiddleware:
             access_token = request.COOKIES.get(settings.JWT_AUTH_COOKIE, None)
             refresh_token = request.COOKIES.get(settings.JWT_AUTH_REFRESH_COOKIE, None)
             if tokens and access_token and (access_token != tokens["access"]):
-                return HttpResponse("Permission Denied", status=401)
-
+                response = HttpResponse("Permission Denied", status=401)
+                response.delete_cookie(settings.JWT_AUTH_COOKIE)
+                response.delete_cookie(settings.JWT_AUTH_REFRESH_COOKIE)
+                return response
         return self.get_response(request)
+
+
+class JWTAuthenticationMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request.user = SimpleLazyObject(lambda: self.__class__.get_jwt_user(request))
+        return self.get_response(request)
+
+    @staticmethod
+    def get_jwt_user(request):
+        user = get_user(request)
+        if user.is_authenticated:
+            return user
+        jwt_authentication = JWTCookieAuthentication()
+        if jwt_data := jwt_authentication.authenticate(request):
+            return jwt_data[0]
+        return user
