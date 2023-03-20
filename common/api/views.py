@@ -47,7 +47,6 @@ class BaseReportGeneratorAPIView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         queryset = self.get_queryset()
-
         # Comparing headers needed for operation vs headers sent from front-end.
         frontend_headers = serializer.data["model_fields"]
         actual_headers = original_data_headers["model_fields"]
@@ -60,10 +59,9 @@ class BaseReportGeneratorAPIView(GenericAPIView):
             )
 
         # sorting of list as per actual list
-        new_ordered_header = []
-        for header in actual_headers:
-            if header in frontend_headers:
-                new_ordered_header.append(header)
+        new_ordered_header = [
+            header for header in actual_headers if header in frontend_headers
+        ]
 
         if self.request.GET.get("user_id"):
             user_id = self.request.GET.get("user_id")
@@ -73,7 +71,6 @@ class BaseReportGeneratorAPIView(GenericAPIView):
         id_of_last_report = report_object.id if report_object else 0
 
         new_generated_id = int(id_of_last_report) + 1
-        print(new_ordered_header)
         excelcelery.delay(
             new_ordered_header,
             self.model_name,
