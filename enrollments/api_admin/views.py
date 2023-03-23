@@ -551,7 +551,7 @@ class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
         "enrollment__student__username",
         "course__name",
     ]
-    queryset = CourseThroughEnrollment.objects.all()
+    queryset = CourseThroughEnrollment.objects.all().order_by("-enrollment__created_at")
     filterset_class = CourseThroughEnrollmentFilter
     model_name = "CourseThroughEnrollment"
 

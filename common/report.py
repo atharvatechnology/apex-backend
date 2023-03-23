@@ -32,6 +32,11 @@ class BaseDynamicTableData:
         # retrieve model data
         queryset = self.model.objects.filter(id__in=self.queryset)
 
+        # We choose this approach for now. If later we filter by search or
+        # filter params. Then we send filter params to celery.
+        queryset = dict([(obj.id, obj) for obj in queryset])
+        sorted_objects = [queryset[id] for id in self.queryset]
+
         # since celery doesn't have logged in user instance we pass loggedin user id.
         user = User.objects.get(id=self.user_id)
         media_path = f"reports/{user.username}"
@@ -53,7 +58,7 @@ class BaseDynamicTableData:
         # For data
         col = 0
         row = 1
-        for linea in queryset:
+        for linea in sorted_objects:
             worksheet.write(row, col, row)  # For serial number.
             for field_name in self.model_fields:
                 col = col + 1
