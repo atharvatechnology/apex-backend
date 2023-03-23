@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.db import transaction
 from rest_framework import serializers
 
@@ -116,7 +117,7 @@ class UserStudentCreateAdminSerializer(UserCreateAdminSerializer):
 
 
 class UserTeacherCreateAdminSerializer(UserCreateAdminSerializer):
-    """Admin Student Create Serializer."""
+    """Admin Teacher Create Serializer."""
 
     class Meta:
         model = User
@@ -202,6 +203,11 @@ class UserUpdateAdminSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
         instance.is_active = True
         instance.save()
+
+        roles = validated_data.get("roles", [])
+        for role in roles:
+            group, _ = Group.objects.get_or_create(name=role)
+            instance.groups.add(group)
 
         if profile_data:
             if "interests" in profile_data:

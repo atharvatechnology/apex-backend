@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from accounts.api_admin.serializers import UserMiniAdminSerializer
 from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
-from common.utils import decode_user
+from common.utils import decode_user, get_human_readable_date_time_js
 from courses.api_common.serializers import CoursePhysicalSerializer
 from courses.models import Course, CourseStatus
 from enrollments.api.serializers import ExamEnrollmentSerializer
@@ -493,7 +493,7 @@ class ExamSessionListSerializer(serializers.ModelSerializer):
         )
 
     def get_start_date(self, obj):
-        return obj.start_date.strftime("%d %b %Y")
+        return get_human_readable_date_time_js(obj.start_date)
 
     def get_examinee(self, obj):
         return obj.session_enrolls.all().count()
