@@ -396,10 +396,12 @@ class StudentEnrollmentDetail(RetrieveAPIView):
 
         # Exam attempted count by Enrolled Student choosing particular course.
         exam_attempted_count = 0
+        total_exams_score = 0  # Total score of all exams
         for exams in all_exams:
             for exam_enroll in exams.exam_enrolls.filter(
                 enrollment__student_id=request.user.id
             ):
+                total_exams_score += exam_enroll.score
                 if exam_enroll.question_states.exists():
                     exam_attempted_count += 1
 
@@ -409,6 +411,9 @@ class StudentEnrollmentDetail(RetrieveAPIView):
             "exam_attempted_count": exam_attempted_count,
             "class_attended_count": class_attended_count.attended_count
             if class_attended_count
+            else 0,
+            "avg_score": total_exams_score / exam_attempted_count
+            if (exam_attempted_count > 0)
             else 0,
         }
         return Response(
