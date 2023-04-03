@@ -70,6 +70,11 @@ def get_human_readable_date_time(data):
     return data.strftime("%Y-%m-%d %H:%M %p")
 
 
+def get_human_readable_date_time_js(data):
+    """Get human readable date time."""
+    return data.strftime("%Y-%m-%dT%H:%M")
+
+
 def send_mail_common(template, context, to, subject):
     htmly = get_template(template)
     from_email = settings.EMAIL_HOST_USER

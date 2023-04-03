@@ -193,7 +193,7 @@ class GetSMSCreditAdminAPIView(GenericAPIView):
 class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["username", "first_name", "last_name"]
-    queryset = User.objects.filter(roles__in=[Role.STUDENT])
+    queryset = User.objects.filter(roles__in=[Role.STUDENT]).order_by("-id")
     filterset_class = StudentAdminFilter
     model_name = "StudentProfile"
 
@@ -214,7 +214,7 @@ class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
 class TeacherReportGeneratorAPIView(BaseReportGeneratorAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["username", "first_name", "last_name"]
-    queryset = User.objects.filter(roles__in=[Role.TEACHER])
+    queryset = User.objects.filter(roles__in=[Role.TEACHER]).order_by("-id")
     filterset_class = UserAdminFilter
     model_name = "TeacherProfile"
 
