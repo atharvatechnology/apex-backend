@@ -26,6 +26,17 @@ class MeetingProviderVariants:
     CHOICES = [(key, key) for key in keys]
 
 
+class MeetingStatus:
+    """Meeting status model."""
+
+    INACTIVE = "inactive"
+    ACTIVE = "active"
+    CHOICES = (
+        (INACTIVE, _("Inactive")),
+        (ACTIVE, _("Active")),
+    )
+
+
 class Meeting(models.Model):
     """Model definition for Meeting."""
 
@@ -76,9 +87,29 @@ class Meeting(models.Model):
     weekly_days = models.CharField(
         _("weekly_days"), max_length=255, null=True, blank=True
     )
+    meeting_status = models.CharField(
+        _("meeting_status"),
+        max_length=64,
+        choices=MeetingStatus.CHOICES,
+        default=MeetingStatus.INACTIVE,
+    )
 
     def __str__(self):
         return f"{self.topic}_{self.id} - {self.start_time}"
+
+    @property
+    def is_joinable(self):
+        return self.meeting_status == MeetingStatus.ACTIVE
+
+    def __change_status(self, status):
+        self.meeting_status = status
+        self.save()
+
+    def start_meeting(self):
+        return self.__change_status(MeetingStatus.ACTIVE)
+
+    def end_meeting(self):
+        return self.__change_status(MeetingStatus.INACTIVE)
 
     class Meta:
         verbose_name = "Meeting"

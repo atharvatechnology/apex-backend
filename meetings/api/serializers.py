@@ -25,6 +25,7 @@ class MeetingOnCourseEnrolledSerializer(serializers.ModelSerializer):
     """Serializer for meeting on course enrolled."""
 
     subject = SubjectSerializer()
+    is_joinable = serializers.SerializerMethodField()
 
     class Meta:
         model = Meeting
@@ -36,7 +37,11 @@ class MeetingOnCourseEnrolledSerializer(serializers.ModelSerializer):
             "start_time",
             "duration",
             "subject",
+            "is_joinable",
         )
+
+    def get_is_joinable(self, obj):
+        return obj.is_joinable
 
 
 class MeetingSerializer(serializers.ModelSerializer):
