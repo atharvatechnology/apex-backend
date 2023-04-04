@@ -80,7 +80,30 @@ def zoom_webhook(request):
     # get zoom token
     zoom_token = settings.ZOOM_CONFIGS["zoom_webhook_token"]
 
+    # get webhook data and headers
     webhook_data = request.data
+    webhook_headers = request.headers
+    zoom_signature = webhook_headers.get("x-zm-signature", "")
+
+    # verify signature
+    if zoom_signature:
+        zoom_msg = (
+            f"v0:{webhook_headers['x-zm-request-timestamp']}"
+            + f":{request.body.decode('utf-8')}"
+        )
+        # get sha-256 encrypted token
+        encrypted_token = hmac.new(
+            key=zoom_token.encode("utf-8"),
+            msg=zoom_msg.encode("utf-8"),
+            digestmod="sha256",
+        ).hexdigest()
+        generated_signature = f"v0={encrypted_token}"
+        # compare generated signature with webhook signature
+        if generated_signature != zoom_signature:
+            return Response(
+                {"message": "Invalid Signature"}, status=status.HTTP_403_FORBIDDEN
+            )
+
     event_type = webhook_data.get("event", "endpoint.url_validation")
     resp_data = {}  # default response data
     if event_type == "endpoint.url_validation":
