@@ -423,6 +423,7 @@ ZOOM_CONFIGS = {
     "zoom_retry_attempts": env("ZOOM_RETRY_ATTEMPTS", default=3),
     "zoom_sdk_key": env("ZOOM_SDK_KEY"),
     "zoom_secret_key": env("ZOOM_SECRET_KEY"),
+    "zoom_webhook_token": env("ZOOM_WEBHOOK_TOKEN"),
 }
 # firebase notification
 FIREBASE_APP = initialize_app()

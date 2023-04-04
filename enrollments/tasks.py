@@ -2,7 +2,12 @@ from celery import shared_task
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
-from enrollments.models import CourseSession, ExamSession, ExamThroughEnrollment
+from enrollments.models import (
+    CourseSession,
+    ExamSession,
+    ExamThroughEnrollment,
+    SessionStatus,
+)
 from exams.models import ExamType
 
 CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
@@ -40,7 +45,10 @@ def calculate_score(exam_through_enrollment_id):
         # fail trigger
         exam_through_enrollment.fail_exam()
     if exam_through_enrollment.exam.exam_type == ExamType.PRACTICE:
-        exam_through_enrollment.selected_session.end_session()
+        exam_sess = exam_through_enrollment.selected_session
+        if exam_sess.status == SessionStatus.ACTIVE:
+            exam_sess.end_session()
+        # exam_through_enrollment.selected_session.end_session()
     # session_id = exam_through_enrollment.selected_session.id
     # result_count = cache.get_or_set(
     #         f"session_{session_id}_total_results",

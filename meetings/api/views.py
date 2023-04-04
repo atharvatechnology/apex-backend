@@ -1,8 +1,11 @@
+import hmac
 from time import time
 
 import jwt
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -69,3 +72,65 @@ class MeetingListView(ListAPIView):
                     meeting = meeting | meeting_session
                 return meeting
         return None
+
+
+@csrf_exempt
+@api_view(["POST"])
+def zoom_webhook(request):
+    # get zoom token
+    zoom_token = settings.ZOOM_CONFIGS["zoom_webhook_token"]
+
+    # get webhook data and headers
+    webhook_data = request.data
+    webhook_headers = request.headers
+    zoom_signature = webhook_headers.get("x-zm-signature", "")
+
+    # verify signature
+    if zoom_signature:
+        zoom_msg = (
+            f"v0:{webhook_headers['x-zm-request-timestamp']}"
+            + f":{request.body.decode('utf-8')}"
+        )
+        # get sha-256 encrypted token
+        encrypted_token = hmac.new(
+            key=zoom_token.encode("utf-8"),
+            msg=zoom_msg.encode("utf-8"),
+            digestmod="sha256",
+        ).hexdigest()
+        generated_signature = f"v0={encrypted_token}"
+        # compare generated signature with webhook signature
+        if generated_signature != zoom_signature:
+            return Response(
+                {"message": "Invalid Signature"}, status=status.HTTP_403_FORBIDDEN
+            )
+
+    event_type = webhook_data.get("event", "endpoint.url_validation")
+    resp_data = {}  # default response data
+    if event_type == "endpoint.url_validation":
+        # get plain token from request
+        plain_token = webhook_data["payload"]["plainToken"]
+        # use zoom token as salt to generate sha-256 encrypted token
+        encrypted_token = hmac.new(
+            key=zoom_token.encode("utf-8"),
+            msg=plain_token.encode("utf-8"),
+            digestmod="sha256",
+        ).hexdigest()
+        resp_data = {
+            "plainToken": plain_token,
+            "encryptedToken": encrypted_token,
+        }
+    elif event_type == "meeting.started":
+        meeting_data = webhook_data["payload"]["object"]
+        meeting_id = meeting_data["id"]
+        meeting = Meeting.objects.get(meeting_id=meeting_id)
+        meeting.start_meeting()
+        print("********* HURRAY Meeting started!!!!!!!!!!!! *********")
+
+    elif event_type == "meeting.ended":
+        meeting_data = webhook_data["payload"]["object"]
+        meeting_id = meeting_data["id"]
+        meeting = Meeting.objects.get(meeting_id=meeting_id)
+        meeting.end_meeting()
+        print("********* HURRAY Meeting ended!!!!!!!!!!!! *********")
+
+    return Response(resp_data, status=status.HTTP_200_OK)

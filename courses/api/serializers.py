@@ -30,7 +30,7 @@ class CourseBaseSerializer(PublishedSerializer):
 
 
 class CourseEnrollmentCourseRetrieveSerializer(serializers.ModelSerializer):
-    """Serializer of ExamEnroll when user is retrieving an exam."""
+    """Serializer of CourseEnroll when user is retrieving a Course."""
 
     selected_session = SelectedCourseSessionSerializer()
 

@@ -28,8 +28,12 @@ class MeetingSerializer(serializers.ModelSerializer):
             "repeat_interval",
             "monthly_day",
             "weekly_days",
+            "is_joinable",
         )
         read_only_fields = ("id", "meeting_id")
+
+    def get_is_joinable(self, obj):
+        return obj.is_joinable
 
 
 class MeetingCreateSerializer(MeetingSerializer):

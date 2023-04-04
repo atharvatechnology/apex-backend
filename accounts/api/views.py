@@ -240,7 +240,7 @@ class CustomLoginView(LoginView):
                     "access": str(self.access_token),
                     "refresh": str(self.refresh_token),
                 },
-                timeout=jwt_settings.ACCESS_TOKEN_LIFETIME.seconds,
+                timeout=jwt_settings.ACCESS_TOKEN_LIFETIME.total_seconds(),
             )
             # a = cache.get(f"{self.user.id}-token")
 
