@@ -80,8 +80,7 @@ def zoom_webhook(request):
     # get zoom token
     zoom_token = settings.ZOOM_CONFIGS["zoom_webhook_token"]
 
-    # get webhook data and headers
-    webhook_data = request.data
+    # get webhook headers
     webhook_headers = request.headers
     zoom_signature = webhook_headers.get("x-zm-signature", "")
 
@@ -103,6 +102,9 @@ def zoom_webhook(request):
             return Response(
                 {"message": "Invalid Signature"}, status=status.HTTP_403_FORBIDDEN
             )
+
+    # get webhook data
+    webhook_data = request.data
 
     event_type = webhook_data.get("event", "endpoint.url_validation")
     resp_data = {}  # default response data
