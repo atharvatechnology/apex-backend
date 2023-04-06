@@ -1,4 +1,5 @@
 import hmac
+import logging
 from time import time
 
 import jwt
@@ -15,6 +16,8 @@ from meetings.api_admin.serializers import MeetingSerializer
 from meetings.models import Meeting
 
 from .serializers import GenerateSignatureSerializer
+
+logger = logging.getLogger(__name__)
 
 
 def generate_signature(data):
@@ -124,15 +127,21 @@ def zoom_webhook(request):
     elif event_type == "meeting.started":
         meeting_data = webhook_data["payload"]["object"]
         meeting_id = meeting_data["id"]
-        meeting = Meeting.objects.get(meeting_id=meeting_id)
-        meeting.start_meeting()
+        try:
+            meeting = Meeting.objects.get(meeting_id=meeting_id)
+            meeting.start_meeting()
+        except Meeting.DoesNotExist:
+            logger.warning(f"Meeting with id {meeting_id} not found")
         print("********* HURRAY Meeting started!!!!!!!!!!!! *********")
 
     elif event_type == "meeting.ended":
         meeting_data = webhook_data["payload"]["object"]
         meeting_id = meeting_data["id"]
-        meeting = Meeting.objects.get(meeting_id=meeting_id)
-        meeting.end_meeting()
+        try:
+            meeting = Meeting.objects.get(meeting_id=meeting_id)
+            meeting.end_meeting()
+        except Meeting.DoesNotExist:
+            logger.warning(f"Meeting with id {meeting_id} not found")
         print("********* HURRAY Meeting ended!!!!!!!!!!!! *********")
 
     return Response(resp_data, status=status.HTTP_200_OK)
