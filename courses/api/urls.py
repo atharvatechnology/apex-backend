@@ -7,7 +7,10 @@ from courses.api.views import (
     CourseRetrieveAPIAfterEnrollView,
     CourseRetrieveAPIBeforeEnrollView,
 )
-from enrollments.api.views import CourseExamEnrollmentCreateAPIView
+from enrollments.api.views import (
+    CourseExamEnrollmentCreateAPIView,
+    CoursePracticeExamEnrollmentCreateAPIView,
+)
 
 app_name = "api.courses"
 
@@ -16,6 +19,11 @@ course_exam_urls = [
         "<int:exam_id>/enroll/",
         CourseExamEnrollmentCreateAPIView.as_view(),
         name="exam-enroll",
+    ),
+    path(
+        "practice/<int:exam_id>/enroll/",
+        CoursePracticeExamEnrollmentCreateAPIView.as_view(),
+        name="practice-exam-enroll",
     ),
 ]
 

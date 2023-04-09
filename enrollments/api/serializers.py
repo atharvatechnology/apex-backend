@@ -161,6 +161,18 @@ class PracticeExamThroughEnrollmentSerializer(serializers.ModelSerializer):
         )
 
 
+class PracticeExamThroughEnrollmentInCourseSerializer(serializers.ModelSerializer):
+    """Serializer when user enrolls to a practice exam."""
+
+    class Meta:
+        model = ExamThroughEnrollment
+        fields = (
+            "id",
+            "exam",
+            "selected_session",
+        )
+
+
 # new changes
 class ExamEnrollmentListSerializer(serializers.ModelSerializer):
     """Serializer when user enrolls to an exam.
@@ -503,6 +515,88 @@ class PracticeExamEnrollmentCreateSerializer(serializers.ModelSerializer):
         return enrollment
 
 
+class CoursePracticeExamEnrollmentCreateSerializer(serializers.ModelSerializer):
+    """Serializer when user with course enrollment enrolls to a practice exam."""
+
+    exam_enrolls = PracticeExamThroughEnrollmentInCourseSerializer(
+        many=True, required=False
+    )
+
+    class Meta:
+        model = Enrollment
+        fields = (
+            "id",
+            "exam_enrolls",
+        )
+        read_only_fields = ("id", "exam_enrolls")
+
+    @transaction.atomic
+    def create(self, validated_data):
+        """Create a new enrollment to the practice exam.
+
+        If user has prior enrollment to the live version of the exam,
+        then exam through enrollment is created to the practice version
+        of the exam in the same enrollment.
+
+        Parameters
+        ----------
+        validated_data : dict
+            Exam and enrollment data.
+
+        Returns
+        -------
+        Enrollment
+            Instance of the created or updated enrollment.
+
+        """
+        enrollment_ctx = self.context["enrollment_context"]
+        exam = enrollment_ctx["exam"]
+        enrollment = enrollment_ctx["enrollment"]
+        student = self.context["request"].user
+        # Check if the exam is a practice exam
+        if exam.exam_type != ExamType.PRACTICE:
+            raise serializers.ValidationError(
+                "Exam is not a practice exam.",
+            )
+        # Check if user has any active schedules for the exam
+        if (
+            exam.sessions.filter(
+                session_enrolls__enrollment__student=self.context["request"].user
+            )
+            .filter(
+                Q(status=SessionStatus.ACTIVE)
+                | Q(status=SessionStatus.INACTIVE)
+                # status__in=[
+                #     SessionStatus.INACTIVE,
+                #     SessionStatus.ACTIVE,
+                # ]
+            )
+            .exists()
+        ):
+            raise serializers.ValidationError(
+                "User is already scheduled for the exam.",
+            )
+        # check if user has prior enrollment to the any version of the exam
+        # exam_enroll = ExamThroughEnrollment.objects.filter(
+        #     exam__id=exam.id,
+        #     enrollment__student=student,
+        # ).first()
+        # enrollment = (
+        #     exam_enroll.enrollment if exam_enroll else super().create(validated_data)
+        # )
+        # create a new session to schedule the exam
+        # schedule the exam 5 minutes from now
+        exam_session = schedule_exam_in_five_minutes(exam, student)
+        # create exam through enrollment to the practice version of the exam
+        ExamThroughEnrollment.objects.create(
+            exam=exam,
+            enrollment=enrollment,
+            selected_session=exam_session,
+        )
+        enrollment.save()
+        return enrollment
+
+
 class EnrollmentCreateSerializer(serializers.ModelSerializer):
     """Serializer when user is enrolling into an exam.
 
@@ -628,6 +722,7 @@ class CourseExamEnrollmentCreateSerializer(serializers.ModelSerializer):
         """
 
         exams_data = validated_data.pop("exam_enrolls", None)
+        print(f"exams_data: {exams_data}*******************")
         user = self.context["request"].user
         if not (exams_data):
             raise serializers.ValidationError("Exam field should be non-empty.")
