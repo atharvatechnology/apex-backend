@@ -402,6 +402,7 @@ class EnrollmentRetrieveSerializer(serializers.ModelSerializer):
             "status",
             "exams",
             "courses",
+            "created_at",
         )
         read_only_fields = ("status",)
 
