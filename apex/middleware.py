@@ -1,4 +1,3 @@
-import contextlib
 import json
 
 from dj_rest_auth.jwt_auth import JWTCookieAuthentication
@@ -55,6 +54,11 @@ class OneJWTPerUserMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # delete cookies if user Authentication Failed
+        if request.user == -1:
+            response = self.get_response(request)
+            return delete_cookies(response)
+
         if (
             request.path == reverse_lazy("auth_refresh")
             and request.user.is_authenticated
@@ -76,9 +80,8 @@ class OneJWTPerUserMiddleware:
             if tokens and access_token and (access_token != tokens["access"]):
                 response = HttpResponse("Permission Denied", status=401)
                 return delete_cookies(response)
-        response = self.get_response(request)
-        # remove dangling cookies if user is not authenticated
-        return delete_cookies(response) if request.user.is_anonymous else response
+
+        return self.get_response(request)
 
 
 class JWTAuthenticationMiddleware(object):
@@ -95,7 +98,9 @@ class JWTAuthenticationMiddleware(object):
         if user.is_authenticated:
             return user
         jwt_authentication = JWTCookieAuthentication()
-        with contextlib.suppress(AuthenticationFailed):
+        try:
             if jwt_data := jwt_authentication.authenticate(request):
                 return jwt_data[0]
+        except AuthenticationFailed:
+            return -1
         return user
