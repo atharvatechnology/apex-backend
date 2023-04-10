@@ -32,7 +32,6 @@ class StudentOnlineAttendanceSerializer(CreatorSerializer):
         fields = (
             "id",
             "date",
-            "user",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 

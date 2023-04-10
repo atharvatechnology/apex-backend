@@ -59,6 +59,31 @@ class StudentOnlineAttendanceCreateAPIView(BaseCreatorCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = StudentOnlineAttendanceSerializer
 
+    def perform_create(self, serializer):
+        """Save serializer object with current user as user, check existing attendance.
+
+        Args:
+            serializer: The serializer object.
+
+        Raises
+            ValidationError: If attendance for user on the given date already exists.
+
+        Returns
+            None
+
+        """
+        # Set the user of the serializer to the current user
+        user = self.request.user
+        date = self.request.data.get("date").split("T")[0]
+        if StudentAttendance.objects.filter(user=user, date__date=date).exists():
+            raise ValidationError("Attendance already exists")
+
+        serializer.save(
+            user=user,
+            created_by=user,
+            updated_by=user,
+        )
+
 
 class StudentAttendanceRetrieveAPIView(RetrieveAPIView):
     """View for retrieving attendance."""
