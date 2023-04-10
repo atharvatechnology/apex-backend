@@ -8,5 +8,5 @@ class ExamMiniSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ("id", "name")
+        fields = ("id", "name", "exam_type")
         read_only_fields = fields
