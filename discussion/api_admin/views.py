@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
@@ -34,8 +35,24 @@ class QuestionRepliesListAdminAPIView(ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        question_id = self.kwargs["pk"]
-        question = Question.objects.get(id=question_id)
+        """Get the queryset containing all replies to a particular question.
+
+        Returns
+            QuerySet: The queryset containing all replies to the specified question.
+
+        Raises
+            Http404: If the question with the specified ID does not exist.
+
+        """
+        # Get the question ID from the URL kwargs
+        question_id = self.kwargs.get("pk")
+        if question_id is None:
+            # If no ID is found, return an empty queryset
+            return Question.objects.none()
+        # Get the question object with the given ID
+        # If the question doesn't exist, raise an HTTP 404 error
+        question = get_object_or_404(Question, id=question_id)
+        # Return a queryset of all replies to the question
         return question.replies.all()
 
 
