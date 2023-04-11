@@ -143,6 +143,7 @@ class ExamEnrollmentSerializer(serializers.ModelSerializer):
             "exam",
             "selected_session",
         )
+        extra_kwargs = {"selected_session": {"required": False}}
 
 
 class PracticeExamThroughEnrollmentSerializer(serializers.ModelSerializer):
@@ -656,7 +657,7 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
             total_price += batch_is_enrolled_and_price(exams, user)
         enrollment = super().create(validated_data)
 
-        exam_data_save(exams_data, enrollment)
+        exam_data_save(exams_data, enrollment, user)
         if courses_data:
             courses_all = [data.get("course") for data in courses_data]
             total_price += batch_is_enrolled_and_price(courses_all, user)
@@ -723,7 +724,6 @@ class CourseExamEnrollmentCreateSerializer(serializers.ModelSerializer):
         """
 
         exams_data = validated_data.pop("exam_enrolls", None)
-        print(f"exams_data: {exams_data}*******************")
         user = self.context["request"].user
         if not (exams_data):
             raise serializers.ValidationError("Exam field should be non-empty.")
@@ -731,7 +731,7 @@ class CourseExamEnrollmentCreateSerializer(serializers.ModelSerializer):
         batch_is_enrolled_and_price(exams, user)
         enrollment = super().create(validated_data)
 
-        exam_data_save(exams_data, enrollment)
+        exam_data_save(exams_data, enrollment, user)
         enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment

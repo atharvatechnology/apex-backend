@@ -432,7 +432,7 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
         batch_is_enrolled_and_price(exams, user)
         enrollment = super().create(validated_data)
 
-        exam_data_save(exams_data, enrollment)
+        exam_data_save(exams_data, enrollment, user)
         admin_user = self.context["request"].user
         if admin_user.get_roles[0] != Role.CASHIER:
             enrollment.status = EnrollmentStatus.ACTIVE
