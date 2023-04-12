@@ -408,7 +408,7 @@ class CourseEnrollmentCreateSerializer(serializers.ModelSerializer):
                 course=course, enrollment=enrollment, selected_session=session
             ).save()
         admin_user = self.context["request"].user
-        if admin_user.get_roles[0] != Role.CASHIER:
+        if admin_user.get_roles()[0] != Role.CASHIER:
             enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment
@@ -434,7 +434,7 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
 
         exam_data_save(exams_data, enrollment, user)
         admin_user = self.context["request"].user
-        if admin_user.get_roles[0] != Role.CASHIER:
+        if admin_user.get_roles()[0] != Role.CASHIER:
             enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment
