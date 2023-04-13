@@ -132,7 +132,6 @@ def zoom_webhook(request):
             meeting.start_meeting()
         except Meeting.DoesNotExist:
             logger.warning(f"Meeting with id {meeting_id} not found")
-        print("********* HURRAY Meeting started!!!!!!!!!!!! *********")
 
     elif event_type == "meeting.ended":
         meeting_data = webhook_data["payload"]["object"]
@@ -142,6 +141,5 @@ def zoom_webhook(request):
             meeting.end_meeting()
         except Meeting.DoesNotExist:
             logger.warning(f"Meeting with id {meeting_id} not found")
-        print("********* HURRAY Meeting ended!!!!!!!!!!!! *********")
 
     return Response(resp_data, status=status.HTTP_200_OK)
