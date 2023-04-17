@@ -1,15 +1,20 @@
 import contextlib
 import json
+import logging
 
 from dj_rest_auth.jwt_auth import JWTCookieAuthentication
 from django.conf import settings
 from django.contrib.auth.middleware import get_user
 from django.core.cache import cache
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import SimpleLazyObject
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
+
+from common.errors import StateTransitionError
+
+logger = logging.getLogger(__name__)
 
 
 class MoveJWTCookieIntoTheBody(MiddlewareMixin):
@@ -99,3 +104,30 @@ class JWTAuthenticationMiddleware(object):
             if jwt_data := jwt_authentication.authenticate(request):
                 return jwt_data[0]
         return user
+
+
+class ErrorHandlerMiddleware:
+    """Handles known errors gracefully and returns a JSON response."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_exception(self, request, exception):
+        if isinstance(exception, ConnectionError):
+            error_msg = exception.args[0] if exception.args else "Error in server"
+            logger.exception(exception)
+            return JsonResponse(
+                {"error": "ConnectionError", "message": error_msg}, status=500
+            )
+        if isinstance(exception, StateTransitionError):
+            error_msg = (
+                exception.args[0] if exception.args else "Error in state handler"
+            )
+            logger.exception(exception)
+            return JsonResponse(
+                {"error": "StateTransitionError", "message": error_msg}, status=500
+            )

@@ -4,6 +4,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from accounts.api_admin.serializers import UserMiniAdminSerializer
+from accounts.models import Role
 from common.api.serializers import CreatorSerializer, DynamicFieldsCategorySerializer
 from common.utils import decode_user, get_human_readable_date_time_js
 from courses.api_common.serializers import CoursePhysicalSerializer
@@ -406,7 +407,9 @@ class CourseEnrollmentCreateSerializer(serializers.ModelSerializer):
             CourseThroughEnrollment(
                 course=course, enrollment=enrollment, selected_session=session
             ).save()
-        enrollment.status = EnrollmentStatus.ACTIVE
+        admin_user = self.context["request"].user
+        if admin_user.get_roles()[0] != Role.CASHIER:
+            enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment
 
@@ -429,8 +432,10 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
         batch_is_enrolled_and_price(exams, user)
         enrollment = super().create(validated_data)
 
-        exam_data_save(exams_data, enrollment)
-        enrollment.status = EnrollmentStatus.ACTIVE
+        exam_data_save(exams_data, enrollment, user)
+        admin_user = self.context["request"].user
+        if admin_user.get_roles()[0] != Role.CASHIER:
+            enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment
 

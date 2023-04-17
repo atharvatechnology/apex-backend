@@ -1,4 +1,5 @@
 import hmac
+import logging
 from time import time
 
 import jwt
@@ -15,6 +16,8 @@ from meetings.api_admin.serializers import MeetingSerializer
 from meetings.models import Meeting
 
 from .serializers import GenerateSignatureSerializer
+
+logger = logging.getLogger(__name__)
 
 
 def generate_signature(data):
@@ -80,8 +83,7 @@ def zoom_webhook(request):
     # get zoom token
     zoom_token = settings.ZOOM_CONFIGS["zoom_webhook_token"]
 
-    # get webhook data and headers
-    webhook_data = request.data
+    # get webhook headers
     webhook_headers = request.headers
     zoom_signature = webhook_headers.get("x-zm-signature", "")
 
@@ -104,6 +106,9 @@ def zoom_webhook(request):
                 {"message": "Invalid Signature"}, status=status.HTTP_403_FORBIDDEN
             )
 
+    # get webhook data
+    webhook_data = request.data
+
     event_type = webhook_data.get("event", "endpoint.url_validation")
     resp_data = {}  # default response data
     if event_type == "endpoint.url_validation":
@@ -122,15 +127,19 @@ def zoom_webhook(request):
     elif event_type == "meeting.started":
         meeting_data = webhook_data["payload"]["object"]
         meeting_id = meeting_data["id"]
-        meeting = Meeting.objects.get(meeting_id=meeting_id)
-        meeting.start_meeting()
-        print("********* HURRAY Meeting started!!!!!!!!!!!! *********")
+        try:
+            meeting = Meeting.objects.get(meeting_id=meeting_id)
+            meeting.start_meeting()
+        except Meeting.DoesNotExist:
+            logger.warning(f"Meeting with id {meeting_id} not found")
 
     elif event_type == "meeting.ended":
         meeting_data = webhook_data["payload"]["object"]
         meeting_id = meeting_data["id"]
-        meeting = Meeting.objects.get(meeting_id=meeting_id)
-        meeting.end_meeting()
-        print("********* HURRAY Meeting ended!!!!!!!!!!!! *********")
+        try:
+            meeting = Meeting.objects.get(meeting_id=meeting_id)
+            meeting.end_meeting()
+        except Meeting.DoesNotExist:
+            logger.warning(f"Meeting with id {meeting_id} not found")
 
     return Response(resp_data, status=status.HTTP_200_OK)
