@@ -21,6 +21,7 @@ from enrollments.api.serializers import (
     CourseEnrollmentUpdateSerializer,
     CourseExamEnrollmentCreateSerializer,
     CourseIdSerializer,
+    CoursePracticeExamEnrollmentCreateSerializer,
     EnrollmentCreateSerializer,
     EnrollmentRetrieveSerializer,
     ExamEnrollmentCheckPointRetrieveSerializer,
@@ -129,6 +130,55 @@ class CourseExamEnrollmentCreateAPIView(EnrollmentCreateAPIView):
                     exam_enrollment.delete()
 
                 return super().create(request, *args, **kwargs)
+            raise serializers.ValidationError("You are not enrolled in this course")
+        raise serializers.ValidationError("Exam does not belong to course")
+
+
+class CoursePracticeExamEnrollmentCreateAPIView(EnrollmentCreateAPIView):
+    """Create a practice exam enrollment according to course for a student."""
+
+    serializer_class = CoursePracticeExamEnrollmentCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        course_id = self.kwargs.get("pk")
+        exam_id = self.kwargs.get("exam_id")
+        user = self.request.user
+
+        course = Course.objects.get(id=course_id)
+        exam = Exam.objects.get(id=exam_id)
+
+        if exam.course == course:
+            course_enrollment = Enrollment.objects.filter(
+                student=user, courses__in=[course], status=EnrollmentStatus.ACTIVE
+            )
+            if course_enrollment.exists():
+                exam_enrollment = Enrollment.objects.filter(
+                    student=user, exams__in=[exam]
+                ).exclude(courses__in=[course])
+
+                if exam_enrollment.exists():
+                    exam_enrollment.delete()
+                # pass course enrollment and exam to context
+                enrollment_context = {
+                    "enrollment": course_enrollment[0],
+                    "exam": exam,
+                }
+                ctx = self.get_serializer_context()
+                ctx["enrollment_context"] = enrollment_context
+                # print(ctx)
+                # pass context to serializer
+                serializer = self.get_serializer(
+                    data=request.data,
+                    context=ctx,
+                )
+
+                # call super create passing serializer
+                serializer.is_valid(raise_exception=True)
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED, headers=headers
+                )
             raise serializers.ValidationError("You are not enrolled in this course")
         raise serializers.ValidationError("Exam does not belong to course")
 

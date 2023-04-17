@@ -1,6 +1,18 @@
 {
     "python.formatting.provider": "black",
-    "githubPullRequests.ignoredPullRequestBranches": [
-        "dev"
+    "files.autoSave": "off",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.pythonPath": "/home/sushil/anaconda3/envs/apex/bin/python",
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+        "pylint_django",
+        "--load-plugins",
+        "pylint_django.checkers.migrations",
+        "--django-settings-module=apex.settings",
+        "--disable=C0114, C0115, W0222",
+        "--disable=imported-auth-user",
+        "--disable=invalid-name",
+        "--disable=line-too-long"
     ]
 }

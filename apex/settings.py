@@ -103,6 +103,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apex.middleware.MoveJWTCookieIntoTheBody",
     "apex.middleware.OneJWTPerUserMiddleware",
+    "apex.middleware.ErrorHandlerMiddleware",
 ]
 
 if DEBUG:

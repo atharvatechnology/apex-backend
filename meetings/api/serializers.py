@@ -38,6 +38,10 @@ class MeetingOnCourseEnrolledSerializer(serializers.ModelSerializer):
             "duration",
             "subject",
             "is_joinable",
+            "repeat_type",
+            "repeat_interval",
+            "monthly_day",
+            "weekly_days",
         )
 
     def get_is_joinable(self, obj):
@@ -46,6 +50,8 @@ class MeetingOnCourseEnrolledSerializer(serializers.ModelSerializer):
 
 class MeetingSerializer(serializers.ModelSerializer):
     """Base meeting serializer."""
+
+    subject = SubjectSerializer()
 
     class Meta:
         model = Meeting

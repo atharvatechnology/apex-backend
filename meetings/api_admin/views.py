@@ -9,7 +9,7 @@ from rest_framework.generics import (
 from common.permissions import IsAdminOrSuperAdminOrDirector
 from meetings.api_admin.serializers import (
     MeetingCreateSerializer,
-    MeetingSerializer,
+    MeetingListSerializer,
     SubjectCRUDSerializer,
 )
 from meetings.models import Meeting, Subject
@@ -36,7 +36,7 @@ class MeetingDeleteAPIView(DestroyAPIView):
 class MeetingListAPIView(ListAPIView):
     queryset = Meeting.objects.all()
     permission_classes = [IsAdminOrSuperAdminOrDirector]
-    serializer_class = MeetingSerializer
+    serializer_class = MeetingListSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(course_session=self.kwargs["session_id"])

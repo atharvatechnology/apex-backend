@@ -82,7 +82,7 @@ class CourseRetrieveAPIAfterEnrollView(PublishableModelMixin, RetrieveAPIView):
 class CourseRetrieveAPIBeforeEnrollView(PublishableModelMixin, RetrieveAPIView):
     """View for retrieving courses."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = CourseRetrieveSerializerBeforeEnroll
     queryset = Course.objects.all()
 

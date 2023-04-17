@@ -1,13 +1,19 @@
 import json
+import logging
 
 from dj_rest_auth.jwt_auth import JWTCookieAuthentication
 from django.conf import settings
 from django.contrib.auth.middleware import get_user
 from django.core.cache import cache
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import SimpleLazyObject
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
+
+from common.errors import StateTransitionError
+
+logger = logging.getLogger(__name__)
 
 
 class MoveJWTCookieIntoTheBody(MiddlewareMixin):
@@ -33,11 +39,31 @@ class MoveJWTCookieIntoTheBody(MiddlewareMixin):
         return None
 
 
+def delete_cookies(response):
+    """Delete JWT authentication cookies from an HTTP response.
+
+    Args:
+        response (HttpResponse): The response to modify.
+
+    Returns
+        HttpResponse: The modified HTTP response object.
+
+    """
+    response.delete_cookie(settings.JWT_AUTH_COOKIE)
+    response.delete_cookie(settings.JWT_AUTH_REFRESH_COOKIE)
+    return response
+
+
 class OneJWTPerUserMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        # delete cookies if user Authentication Failed
+        if request.user == -1:
+            response = self.get_response(request)
+            return delete_cookies(response)
+
         if (
             request.path == reverse_lazy("auth_refresh")
             and request.user.is_authenticated
@@ -47,9 +73,7 @@ class OneJWTPerUserMiddleware:
             refresh_token = request.COOKIES.get(settings.JWT_AUTH_REFRESH_COOKIE, None)
             if tokens and refresh_token and (refresh_token != tokens["refresh"]):
                 response = HttpResponse("Permission Denied", status=401)
-                response.delete_cookie(settings.JWT_AUTH_COOKIE)
-                response.delete_cookie(settings.JWT_AUTH_REFRESH_COOKIE)
-                return response
+                return delete_cookies(response)
 
         if request.path == reverse_lazy("auth_login"):
             return self.get_response(request)
@@ -60,9 +84,8 @@ class OneJWTPerUserMiddleware:
             refresh_token = request.COOKIES.get(settings.JWT_AUTH_REFRESH_COOKIE, None)
             if tokens and access_token and (access_token != tokens["access"]):
                 response = HttpResponse("Permission Denied", status=401)
-                response.delete_cookie(settings.JWT_AUTH_COOKIE)
-                response.delete_cookie(settings.JWT_AUTH_REFRESH_COOKIE)
-                return response
+                return delete_cookies(response)
+
         return self.get_response(request)
 
 
@@ -80,6 +103,36 @@ class JWTAuthenticationMiddleware(object):
         if user.is_authenticated:
             return user
         jwt_authentication = JWTCookieAuthentication()
-        if jwt_data := jwt_authentication.authenticate(request):
-            return jwt_data[0]
+        try:
+            if jwt_data := jwt_authentication.authenticate(request):
+                return jwt_data[0]
+        except AuthenticationFailed:
+            return -1
         return user
+
+
+class ErrorHandlerMiddleware:
+    """Handles known errors gracefully and returns a JSON response."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_exception(self, request, exception):
+        if isinstance(exception, ConnectionError):
+            error_msg = exception.args[0] if exception.args else "Error in server"
+            logger.exception(exception)
+            return JsonResponse(
+                {"error": "ConnectionError", "message": error_msg}, status=500
+            )
+        if isinstance(exception, StateTransitionError):
+            error_msg = (
+                exception.args[0] if exception.args else "Error in state handler"
+            )
+            logger.exception(exception)
+            return JsonResponse(
+                {"error": "StateTransitionError", "message": error_msg}, status=500
+            )

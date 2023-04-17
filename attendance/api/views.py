@@ -59,6 +59,31 @@ class StudentOnlineAttendanceCreateAPIView(BaseCreatorCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = StudentOnlineAttendanceSerializer
 
+    def perform_create(self, serializer):
+        """Save serializer object with current user as user, check existing attendance.
+
+        Args:
+            serializer: The serializer object.
+
+        Raises
+            ValidationError: If attendance for user on the given date already exists.
+
+        Returns
+            None
+
+        """
+        # Set the user of the serializer to the current user
+        user = self.request.user
+        date = self.request.data.get("date").split("T")[0]
+        if StudentAttendance.objects.filter(user=user, date__date=date).exists():
+            raise ValidationError("Attendance already exists")
+
+        serializer.save(
+            user=user,
+            created_by=user,
+            updated_by=user,
+        )
+
 
 class StudentAttendanceRetrieveAPIView(RetrieveAPIView):
     """View for retrieving attendance."""
@@ -104,19 +129,38 @@ class AttendanceCreateAPIView(BaseCreatorCreateAPIView):
     serializer_class = AttendanceCreateSerializer
 
     def get_serializer_class(self):
-        """Get the serializer class."""
+        """Get appropriate serializer class based on scanned user from QR code.
+
+        Returns
+            Serializer class: based on the user scanned from the QR code.
+
+        Raises
+            ValidationError: If user is not found or not a student/teacher.
+
+        """
+        # Decode the user scanned from the QR code
         decoded_user = None
         if user := self.request.data.get("user"):
             decoded_user = decode_user(user)
+
+        # Find the user object from the decoded username
         user_object = None
         if decoded_user is not None:
             user_object = User.objects.filter(username=decoded_user).first()
-        if user_object:
-            if user_object.is_student:
-                return StudentAttendanceCreateSerializer
-            elif user_object.is_teacher:
-                return TeacherAttendanceCreateSerializer
-        return self.serializer_class
+
+        # For Swagger schema generation
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return StudentAttendanceCreateSerializer
+
+        # Raise an error if the user is not found or is not a student or teacher
+        if not user_object:
+            raise ValidationError("User doesn't exists.")
+        if user_object.is_student:
+            return StudentAttendanceCreateSerializer
+        elif user_object.is_teacher:
+            return TeacherAttendanceCreateSerializer
+        raise ValidationError("Qr code is not valid.")
 
 
 class TeacherAttendanceDetailCreateAPIView(BaseCreatorCreateAPIView):
