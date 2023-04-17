@@ -2,6 +2,7 @@ from django.urls import include, path
 
 from accounts.api_admin.views import (
     GetSMSCreditAdminAPIView,
+    RegenerateQRCodeAdminAPIView,
     StudentReportGeneratorAPIView,
     TeacherReportGeneratorAPIView,
     UserCounsellorListAdminAPIView,
@@ -54,6 +55,11 @@ counsellor_url = [
 
 urlpatterns = [
     path("create/", UserCreateAdminAPIView.as_view(), name="create"),
+    path(
+        "regenerate/qr/<int:pk>/",
+        RegenerateQRCodeAdminAPIView.as_view(),
+        name="regenerate-qr",
+    ),
     path("student/", include(student_url)),
     path("teacher/", include(teacher_url)),
     path("faculty/", include(faculty_url)),

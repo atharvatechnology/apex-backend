@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import (
@@ -228,3 +229,36 @@ class TeacherReportGeneratorAPIView(BaseReportGeneratorAPIView):
                 ]
             }
         )
+
+
+class RegenerateQRCodeAdminAPIView(APIView):
+    """API endpoint to regenerate QR code for a user profile.
+
+    This API view is accessible only to users with the IsAdminOrSuperAdminOrDirector
+    permission class. It regenerates the QR code for a user's profile by calling the
+    generate_qr_code method of the user's Profile instance. The user's ID is taken
+    from the URL parameters and used to retrieve the user object from the database.
+
+    Returns
+        Response: A JSON response with a success message.
+
+    """
+
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
+
+    def post(self, request, *args, **kwargs):
+        """Regenerate a QR code for a user's profile.
+
+        Args:
+            request: The HTTP request object.
+            *args: Positional arguments.
+            **kwargs: Keyword arguments.
+
+        Returns
+            A Response object with a success message.
+
+        """
+        user_id = self.kwargs.get("pk")
+        user = get_object_or_404(User, id=user_id)
+        user.profile.generate_qr_code()
+        return Response({"message": "QR Code Regenerated"})

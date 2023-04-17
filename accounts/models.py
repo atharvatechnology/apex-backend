@@ -228,14 +228,53 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    """Custom Profile model."""
+    """Custom Profile model.
+
+    This model extends the default User model by adding additional fields to store
+    profile information about users.
+
+    Attributes
+        user: A one-to-one relationship to the default User model.
+        college_name: The name of the user's college or university.
+        image: An optional image file for the user's profile picture.
+        qr_code: An optional image file for the user's QR code.
+        date_of_birth: The user's date of birth.
+        faculty: The user's faculty or department.
+        address: The user's address.
+        interests: A many-to-many relationship to the CourseCategory model.
+
+    """
 
     def profile_image_upload(self, filename):
-        """To upload profile image."""
+        """Generate a filepath for a profile image file.
+
+        This function takes a filename and generates a filepath to store the file
+        in the format "profile/{username}/{filename}". The {username} variable is
+        replaced with the username of the user associated with this instance.
+
+        Args:
+            filename: The name of the file being uploaded.
+
+        Returns
+            A string representing the filepath where the file should be stored.
+
+        """
         return f"profile/{self.user.username}/{filename}"
 
     def qr_code_image_upload(self, filename):
-        """To upload qr code image."""
+        """Generate a filepath for a QR code image file.
+
+        This function takes a filename and generates a filepath to store the file
+        in the format "qr_code/{username}/{filename}". The {username} variable is
+        replaced with the username of the user associated with this instance.
+
+        Args:
+            filename: The name of the file being uploaded.
+
+        Returns
+            A string representing the filepath where the file should be stored.
+
+        """
         return f"qr_code/{self.user.username}/{filename}"
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
@@ -251,10 +290,58 @@ class Profile(models.Model):
         ordering = ["user"]
 
     def save(self, *args, **kwargs):
+        """Override the default save method to generate a QR code for the user.
+
+        If the instance does not already have a QR code, this function
+        generates one using the user's username and saves the path to
+        the instance. It then calls the superclass save method to save
+        the instance to the database.
+
+        Args:
+            *args: Positional arguments passed to the save method.
+            **kwargs: Keyword arguments passed to the save method.
+
+        Returns
+            None
+
+        """
         usr_name = self.user.username
-        qr_path = generate_qrcode(usr_name)
-        self.qr_code = qr_path
+        # Generate a QR code for the user if one does not already exist.
+        if not self.qr_code:
+            qr_path = generate_qrcode(usr_name)
+            self.qr_code = qr_path
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """Return a string representation of the Profile instance.
+
+        This function returns a string representation of the instance by returning
+        the username of the associated user.
+
+        Args:
+            None
+
+        Returns
+            A string representing the instance.
+
+        """
         return f"{self.user.username}"
+
+    def generate_qr_code(self):
+        """Generate a QR code for the user and saves the path to the instance.
+
+        This function generates a QR code for the user's username using the
+        `generate_qrcode` function and saves the resulting path to the `qr_code`
+        field of the instance. It then calls the instance's `save` method to
+        persist the changes to the database.
+
+        Args:
+            None
+
+        Returns
+            None
+
+        """
+        qr_path = generate_qrcode(self.user.username)
+        self.qr_code = qr_path
+        self.save()
