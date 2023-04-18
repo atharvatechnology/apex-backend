@@ -67,7 +67,7 @@ class OneJWTPerUserMiddleware:
             tokens = cache.get(f"{request.user.id}-token")
             refresh_token = request.COOKIES.get(settings.JWT_AUTH_REFRESH_COOKIE, None)
             if tokens and refresh_token and (refresh_token != tokens["refresh"]):
-                response = HttpResponse("Permission Denied", status=401)
+                response = HttpResponse("Invalid Token", status=498)
                 return delete_cookies(response)
 
         if request.path == reverse_lazy("auth_login"):
@@ -78,7 +78,7 @@ class OneJWTPerUserMiddleware:
             access_token = request.COOKIES.get(settings.JWT_AUTH_COOKIE, None)
             refresh_token = request.COOKIES.get(settings.JWT_AUTH_REFRESH_COOKIE, None)
             if tokens and access_token and (access_token != tokens["access"]):
-                response = HttpResponse("Permission Denied", status=401)
+                response = HttpResponse("Invalid Token", status=498)
                 return delete_cookies(response)
 
         return self.get_response(request)
