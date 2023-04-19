@@ -6,6 +6,7 @@ from exams.models import ExamType
 from payments import PaymentStatus
 
 
+@receiver(post_save, sender="payments.Payment")
 @receiver(post_save, sender="payments.OnlinePayment")
 @receiver(post_save, sender="payments.BankPayment")
 def on_online_payment(sender, instance, **kwargs):
