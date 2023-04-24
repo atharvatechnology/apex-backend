@@ -62,7 +62,7 @@ class TeacherAttendanceDetail(CreatorBaseModel):
         _("Number_of_peroid"), decimal_places=2, max_digits=4
     )
     message = models.TextField(_("Message"))
-    remarks = models.TextField(_("Remarks"))
+    remarks = models.TextField(_("Remarks"), blank=True, null=True)
     status = models.CharField(
         _("Status"),
         max_length=20,
