@@ -41,7 +41,7 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
         return str(price.amount if price else "-")
 
     def get_status(self, obj):
-        return obj.status
+        return obj.enrollment.status
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
@@ -381,20 +381,20 @@ class ExamResultTableData(BaseDynamicTableData):
         return str(get_student_rank(obj))
 
     def get_score(self, obj):
-        return str(obj.enrollment.score)
+        return str(obj.score)
 
     def get_negative_score(self, obj):
-        return str(obj.enrollment.negative_score)
+        return str(obj.negative_score)
 
     def get_status(self, obj):
-        return obj.enrollment.status
+        return obj.status
 
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "student_name": self.get_students_name,
             "rank": self.get_rank,
-            "score": self.get_rank,
-            "negative_score": self.get_rank,
+            "score": self.get_score,
+            "negative_score": self.get_negative_score,
             "status": self.get_status,
         }
         return fields_and_values[field_name](obj)
