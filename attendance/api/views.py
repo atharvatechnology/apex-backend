@@ -12,9 +12,7 @@ from attendance.api.serializers import (
     StudentOnlineAttendanceSerializer,
     TeacherAttendanceCreateSerializer,
     TeacherAttendanceDetailCreateSerializer,
-    TeacherAttendanceDetailListSerializer,
-    TeacherAttendanceDetailRetrieveSerializer,
-    TeacherAttendanceDetailUpdateSerializer,
+    TeacherAttendanceDetailSerializer,
     TeacherAttendanceRetrieveSerializer,
 )
 from attendance.filters import AttendanceFilter
@@ -24,7 +22,8 @@ from attendance.models import (
     TeacherAttendanceDetail,
 )
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
-from common.paginations import StandardResultsSetPagination
+
+# from common.paginations import StandardResultsSetPagination
 from common.utils import decode_user
 
 User = get_user_model()
@@ -39,7 +38,7 @@ class StudentAttendanceListAPIView(ListAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     filterset_class = AttendanceFilter
-    pagination_class = StandardResultsSetPagination
+    # pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         """Get the queryset."""
@@ -101,7 +100,8 @@ class TeacherAttendanceListAPIView(ListAPIView):
     queryset = TeacherAttendance.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
-    # filterset_class = AttendanceFilter
+    filterset_class = AttendanceFilter
+    # pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -112,6 +112,31 @@ class TeacherAttendanceCreateAPIView(BaseCreatorCreateAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherAttendanceCreateSerializer
+
+    def perform_create(self, serializer):
+        """Save serializer object with current user as user, check existing attendance.
+
+        Args:
+            serializer: The serializer object.
+
+        Raises
+            ValidationError: If attendance for user on the given date already exists.
+
+        Returns
+            None
+
+        """
+        # Set the user of the serializer to the current user
+        user = self.request.user
+        date = self.request.data.get("date").split("T")[0]
+        if TeacherAttendance.objects.filter(user=user, date__date=date).exists():
+            raise ValidationError("Attendance already exists")
+
+        serializer.save(
+            user=user,
+            created_by=user,
+            updated_by=user,
+        )
 
 
 class TeacherAttendanceRetrieveAPIView(RetrieveAPIView):
@@ -175,7 +200,7 @@ class TeacherAttendanceDetailListAPIView(ListAPIView):
     """View for listing teacher detail attendance."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = TeacherAttendanceDetailListSerializer
+    serializer_class = TeacherAttendanceDetailSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
     queryset = TeacherAttendanceDetail.objects.all()
@@ -200,7 +225,7 @@ class TeacherAttendanceDetailRetrieveAPIView(RetrieveAPIView):
     """View for retrieving teacher detail attendance."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = TeacherAttendanceDetailRetrieveSerializer
+    serializer_class = TeacherAttendanceDetailSerializer
     queryset = TeacherAttendanceDetail.objects.all()
 
 
@@ -208,5 +233,5 @@ class TeacherAttendanceDetailUpdateAPIView(BaseCreatorUpdateAPIView):
     """View for updating teacher detail attendance."""
 
     permission_classes = [IsAuthenticated]
-    serializer_class = TeacherAttendanceDetailUpdateSerializer
+    serializer_class = TeacherAttendanceDetailSerializer
     queryset = TeacherAttendanceDetail.objects.all()
