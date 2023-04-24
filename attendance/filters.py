@@ -10,4 +10,4 @@ class AttendanceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Attendance
-        fields = {"date": ["exact", "gte", "lte"]}
+        fields = {"date": ["exact", "gte", "lte", "year", "month"]}
