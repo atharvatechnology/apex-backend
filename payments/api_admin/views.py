@@ -1,14 +1,21 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.response import Response
 
 from common.api.views import BaseReportGeneratorAPIView
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAccountant, IsSuperAdminOrDirector
+from common.permissions import (
+    IsAccountant,
+    IsAdminOrSuperAdminOrDirector,
+    IsSuperAdminOrDirector,
+)
 from payments import PaymentStatus
 from payments.api_admin.filters import PaymentFilter
-from payments.api_admin.serializers import PaymentSerializer
+from payments.api_admin.serializers import (
+    PaymentCreateAdminSerializer,
+    PaymentSerializer,
+)
 from payments.models import Payment
 
 
@@ -38,3 +45,9 @@ class PaymentReportGeneratorAPIView(BaseReportGeneratorAPIView):
                 ]
             }
         )
+
+
+class PaymentCreateAdminAPIView(CreateAPIView):
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant]
+    serializer_class = PaymentCreateAdminSerializer
+    queryset = Payment.objects.all()
