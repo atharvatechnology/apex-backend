@@ -18,7 +18,6 @@ from enrollments.models import (
     CourseSession,
     CourseThroughEnrollment,
     Enrollment,
-    EnrollmentStatus,
     ExamEnrollmentStatus,
     ExamSession,
     ExamThroughEnrollment,
@@ -406,7 +405,6 @@ class CourseEnrollmentCreateSerializer(serializers.ModelSerializer):
             CourseThroughEnrollment(
                 course=course, enrollment=enrollment, selected_session=session
             ).save()
-        enrollment.status = EnrollmentStatus.ACTIVE
         enrollment.save()
         return enrollment
 
@@ -429,9 +427,7 @@ class ExamEnrollmentCreateSerializer(serializers.ModelSerializer):
         batch_is_enrolled_and_price(exams, user)
         enrollment = super().create(validated_data)
 
-        exam_data_save(exams_data, enrollment)
-        enrollment.status = EnrollmentStatus.ACTIVE
-        enrollment.save()
+        exam_data_save(exams_data, enrollment, user)
         return enrollment
 
 

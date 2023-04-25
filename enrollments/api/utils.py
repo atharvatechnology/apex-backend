@@ -97,11 +97,17 @@ def batch_is_enrolled_and_price(enrolled_objs, user):
     return sum_price
 
 
-def exam_data_save(exams_data, enrollment):
+def exam_data_save(exams_data, enrollment, student):
     if exams_data:
         for data in exams_data:
             exam = data.get("exam")
-            selected_session = data.get("selected_session")
+            selected_session = data.get("selected_session", None)
+            if exam.is_practice:
+                selected_session = schedule_exam_in_five_minutes(exam, student)
+            if not selected_session:
+                raise serializers.ValidationError(
+                    "Session should be selected for Live exam"
+                )
             ExamThroughEnrollment(
                 enrollment=enrollment, exam=exam, selected_session=selected_session
             ).save()

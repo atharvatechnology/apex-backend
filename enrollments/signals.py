@@ -9,7 +9,7 @@ from django.dispatch import receiver
 
 from exams.models import ExamStatus, ExamType
 
-from .models import ExamEnrollmentStatus, SessionStatus
+from .models import EnrollmentStatus, ExamEnrollmentStatus, SessionStatus
 from .tasks import calculate_score
 
 channel_layer = get_channel_layer()
@@ -55,8 +55,12 @@ def on_exam_session_save(sender, instance, created, **kwargs):
             f"session_{instance.id}_total_examinees", total_examinees, timeout=CACHE_TTL
         )
         cache.set(f"session_{instance.id}_total_results", 0, timeout=CACHE_TTL)
-
         for exam_through_enrollment in instance.session_enrolls.all():
+            if exam_through_enrollment.exam.exam_type == ExamType.LIVE:
+                enr = exam_through_enrollment.enrollment
+                if enr.status == EnrollmentStatus.PENDING:
+                    enr.delete()
+                    continue
             if exam_through_enrollment.status == ExamEnrollmentStatus.CREATED:
                 exam_through_enrollment.attempt_exam()
             # scoring calculation automatically beigns after

@@ -6,6 +6,14 @@ from meetings.providers.register import provider_factory
 from ..models import Meeting, Subject
 
 
+class SubjectSerializer(serializers.ModelSerializer):
+    """Serializer for subject on meeting retrieval."""
+
+    class Meta:
+        model = Subject
+        fields = ("id", "name")
+
+
 class MeetingSerializer(serializers.ModelSerializer):
     """Base meeting serializer."""
 
@@ -34,6 +42,17 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     def get_is_joinable(self, obj):
         return obj.is_joinable
+
+
+class MeetingListSerializer(MeetingSerializer):
+    """Serializer for listing meetings."""
+
+    subject = SubjectSerializer()
+
+    class Meta:
+        model = Meeting
+        fields = MeetingSerializer.Meta.fields
+        read_only_fields = MeetingSerializer.Meta.read_only_fields
 
 
 class MeetingCreateSerializer(MeetingSerializer):
