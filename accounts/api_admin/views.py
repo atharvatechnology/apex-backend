@@ -33,7 +33,12 @@ from accounts.api_admin.serializers import (
 from accounts.models import Role
 from common.api.views import BaseReportGeneratorAPIView
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
+from common.permissions import (
+    IsAccountant,
+    IsAdminOrSuperAdminOrDirector,
+    IsCashier,
+    IsCounsellor,
+)
 from common.utils import tuple_to_list, tuple_to_list_first_elements
 from courses.models import CourseCategory
 
@@ -137,6 +142,7 @@ class UserTrackableListAdminAPIView(UserListAdminAPIView):
 
 
 class UserCounsellorListAdminAPIView(UserListAdminAPIView):
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsCounsellor]
     queryset = User.objects.filter(roles__in=[Role.COUNSELLOR])
     serializer_class = UserMiniAdminSerializer
     filter_backends = [filters.SearchFilter]
