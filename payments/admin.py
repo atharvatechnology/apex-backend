@@ -1,8 +1,6 @@
 from django.contrib import admin
 
-from .models import BankPayment, OnlinePayment
-
-# Register your models here.
+from .models import BankPayment, OnlinePayment, Payment
 
 
 class OnlinePaymentInline(admin.TabularInline):
@@ -17,11 +15,10 @@ class BankPaymentInline(admin.TabularInline):
     show_change_link = True
 
 
-# class PaymentAdmin(admin.ModelAdmin):
-#     readonly_fields = ('id',)
-#     list_display = ('id', 'enrollment', 'amount',
-#                     'status', 'created_at', 'updated_at')
-#     list_filter = ('status',)
+class PaymentAdmin(admin.ModelAdmin):
+    readonly_fields = ("id",)
+    list_display = ("id", "enrollment", "amount", "status", "created_at", "updated_at")
+    list_filter = ("status",)
 
 
 class OnlinePaymentAdmin(admin.ModelAdmin):
@@ -34,6 +31,6 @@ class BankPaymentAdmin(admin.ModelAdmin):
     readonly_fields = ("id",)
 
 
-# admin.site.register(Payment, PaymentAdmin)
+admin.site.register(Payment, PaymentAdmin)
 admin.site.register(OnlinePayment, OnlinePaymentAdmin)
 admin.site.register(BankPayment, BankPaymentAdmin)
