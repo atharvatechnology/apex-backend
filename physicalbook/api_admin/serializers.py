@@ -14,6 +14,7 @@ class PhysicalBookAdminListSerializer(serializers.ModelSerializer):
             "name",
             "image",
             "course",
+            "sub_topic",
         )
 
 
@@ -27,6 +28,7 @@ class PhysicalBookAdminRetrieveSerializer(serializers.ModelSerializer):
             "name",
             "image",
             "course",
+            "sub_topic",
         )
 
 
@@ -40,6 +42,7 @@ class PhysicalBookAdminCreateSerializer(CreatorSerializer):
             "name",
             "image",
             "course",
+            "sub_topic",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
@@ -54,6 +57,7 @@ class PhysicalBookAdminUpdateSerializer(CreatorSerializer):
             "name",
             "image",
             "course",
+            "sub_topic",
         )
 
 
