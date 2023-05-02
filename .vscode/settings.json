@@ -1,6 +1,6 @@
 {
     "python.formatting.provider": "black",
-    "files.autoSave": "off",
+    "files.autoSave": "afterDelay",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "python.pythonPath": "/home/sushil/anaconda3/envs/apex/bin/python",
