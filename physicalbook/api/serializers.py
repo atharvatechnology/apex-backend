@@ -24,6 +24,7 @@ class PhysicalBookSerializerAfterEnroll(CreatorSerializer):
             "image",
             "course",
             "sub_topic",
+            "taken",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
 
