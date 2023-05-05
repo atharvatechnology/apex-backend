@@ -71,6 +71,7 @@ class PhysicalBookEnrolledCourseSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "taken",
+            "sub_topic",
         )
 
     def get_taken(self, obj):
