@@ -13,7 +13,10 @@ from notes.api.serializers import (
     NoteSerializerAfterEnroll,
     RecordedVideoDetailSerializer,
 )
-from physicalbook.api.serializers import PhysicalBookSerializerBeforeEnroll
+from physicalbook.api.serializers import (
+    PhysicalBookSerializerAfterEnroll,
+    PhysicalBookSerializerBeforeEnroll,
+)
 
 
 class CourseBaseSerializer(PublishedSerializer):
@@ -79,7 +82,7 @@ class CourseRetrieveSerializerAfterEnroll(
     sessions = CourseSessionSerializer(many=True)
     notes = NoteSerializerAfterEnroll(many=True)
     recorded_videos = RecordedVideoDetailSerializer(many=True)
-    physical_books = PhysicalBookSerializerBeforeEnroll(many=True)
+    physical_books = PhysicalBookSerializerAfterEnroll(many=True)
     course_enroll = serializers.SerializerMethodField()
     enrollment_count = serializers.SerializerMethodField()
 
