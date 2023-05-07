@@ -145,3 +145,17 @@ def trigger_exam_submit(request, pk):
         return Response({"detail": "Exam session is not over yet."})
     exm_sess.end_session()
     return Response({"detail": "Exam submitted successfully."})
+
+
+class MyExamsList(PublishableModelMixin, ListAPIView):
+    serializer_class = ExamListSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Exam.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        return queryset.filter(enrolls__student=self.request.user).order_by(
+            "-enrolls__id"
+        )
