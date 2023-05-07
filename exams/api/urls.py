@@ -6,11 +6,13 @@ from exams.api.views import (
     ExamPaperPreviewAPIView,
     ExamRetrieveAPIView,
     ExamRetrievePoolAPIView,
+    MyExamsList,
     trigger_exam_submit,
 )
 
 urlpatterns = [
     path("list/", ExamListAPIView.as_view(), name="exam-list"),
+    path("my/", MyExamsList.as_view(), name="exam-my"),
     path("retrieve/<int:pk>/", ExamRetrieveAPIView.as_view(), name="exam-retrieve"),
     path(
         "retrieve/<int:pk>/pool/",

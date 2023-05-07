@@ -1,3 +1,5 @@
+from rest_framework import serializers
+
 from common.api.serializers import CreatorSerializer
 from physicalbook.models import PhysicalBook
 
@@ -17,14 +19,27 @@ from physicalbook.models import PhysicalBook
 class PhysicalBookSerializerAfterEnroll(CreatorSerializer):
     """serializer class for PhysicalBookRetrieveAPIViewAfterEnroll."""
 
+    taken = serializers.SerializerMethodField()
+
     class Meta:
         model = PhysicalBook
         fields = CreatorSerializer.Meta.fields + (
             "name",
             "image",
             "course",
+            "sub_topic",
+            "taken",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields
+
+    def get_taken(self, obj):
+        student_id = self.context["request"].user.id
+        return bool(
+            obj.physicalbook_enrolls.filter(
+                course_enrollment__enrollment__student__id=student_id,
+                status_provided=True,
+            )
+        )
 
 
 class PhysicalBookSerializerBeforeEnroll(CreatorSerializer):
@@ -36,5 +51,6 @@ class PhysicalBookSerializerBeforeEnroll(CreatorSerializer):
             "name",
             "image",
             "course",
+            "sub_topic",
         )
         read_only_fields = CreatorSerializer.Meta.read_only_fields

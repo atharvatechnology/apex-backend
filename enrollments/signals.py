@@ -67,7 +67,7 @@ def on_exam_session_save(sender, instance, created, **kwargs):
             # exam is attempted
             # session_id = exam_through_enrollment.selected_session.id
             session_id = instance.id
-            result_count = cache.get(f"session_{session_id}_total_results")
+            result_count = cache.get(f"session_{session_id}_total_results", 0)
             result_count += 1
             cache.set(
                 f"session_{session_id}_total_results",
