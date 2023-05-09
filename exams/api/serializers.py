@@ -1,4 +1,3 @@
-from django.db.models import Count
 from rest_framework import serializers
 
 from common.api.mixin import EnrolledSerializerMixin
@@ -235,9 +234,9 @@ class ExamListSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         """Perform necessary eager loading of data."""
-        queryset = queryset.prefetch_related("sessions", "category")
+        queryset = queryset.prefetch_related("sessions", "category", "questions")
         queryset = queryset.select_related("template")
-        queryset = queryset.annotate(question_count=Count("questions"))
+        # queryset = queryset.annotate(question_count=Count("questions"))
         return queryset
 
     class Meta:
@@ -267,7 +266,7 @@ class ExamListSerializer(serializers.ModelSerializer):
             return sessions[0].start_date
 
     def get_question_count(self, obj):
-        return obj.question_count
+        return obj.questions.count()
 
 
 class ExamUpdateSerializer(CreatorSerializer):
