@@ -156,6 +156,8 @@ class MyExamsList(PublishableModelMixin, ListAPIView):
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
-        return queryset.filter(enrolls__student=self.request.user).order_by(
-            "-enrolls__id"
+        return (
+            queryset.filter(enrolls__student=self.request.user)
+            .order_by("-enrolls__id")
+            .distinct()
         )
