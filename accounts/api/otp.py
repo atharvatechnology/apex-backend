@@ -5,6 +5,8 @@ import requests
 from django.conf import settings
 from django.utils.timezone import datetime
 
+from accounts.tasks import send_otp
+
 
 class GenerateKey:
     @staticmethod
@@ -75,15 +77,18 @@ class OTP:
         platform = settings.OTP_SMS_PLATFORM
         if platform in OTP().message_function:
             params = OTP().message_function[platform]["send"](phone, otp)
-            otp_send = requests.post(sms_send_url, data=params)
-        if platform == "AakashSMS":
-            result = otp_send.json()
-            if not result["error"]:
-                return True
-        elif platform == "SparrowSMS":
-            if otp_send.status_code == 200:
-                return True
-        return False
+            send_otp.delay(sms_send_url, params, platform)
+            # otp_send = requests.post(sms_send_url, data=params)
+
+        # if platform == "AakashSMS":
+        #     result = otp_send.json()
+        #     if not result["error"]:
+        #         return True
+        # elif platform == "SparrowSMS":
+        #     if otp_send.status_code == 200:
+        #         return True
+        # TODO: Remove this line if possible
+        return True
 
     @staticmethod
     def getCredit():
