@@ -3,7 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from common.api.serializers import ModelFieldsSerializer
-from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector
+from common.permissions import (
+    IsAccountant,
+    IsAdminOrSuperAdminOrDirector,
+    IsContentCreator,
+)
 from enrollments.api.tasks import excelcelery
 from report.models import GeneratedReport
 
@@ -34,7 +38,9 @@ class BaseReportGeneratorAPIView(GenericAPIView):
     filterset_class = None
     model_name = None
     serializer_class = ModelFieldsSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsAccountant | IsContentCreator
+    ]
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
