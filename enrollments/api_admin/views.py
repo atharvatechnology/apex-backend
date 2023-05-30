@@ -378,7 +378,9 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Course."""
 
     serializer_class = CourseThroughEnrollmentAdminBaseSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     filterset_class = CourseFilter
     queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
     filter_backends = [
@@ -401,7 +403,9 @@ class CourseThroughEnrollmentStudentListAPIView(ListAPIView):
     """List all student in Course."""
 
     serializer_class = CourseThroughEnrollmentAdminStudentSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     filterset_class = CourseFilter
     queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
     filter_backends = [
@@ -422,7 +426,9 @@ class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAP
 
 
 class CourseThroughEnrollmentListCardAPIView(APIView):
-    permission_classes = [IsAccountant | IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [
+        IsAccountant | IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator
+    ]
     queryset = Enrollment.objects.filter(courses__isnull=False)
 
     def get(self, request, *args, **kwargs):
