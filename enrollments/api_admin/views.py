@@ -94,14 +94,14 @@ class ExamSessionCreateAPIView(BaseCreatorCreateAPIView):
     """Create a new session for an exam."""
 
     serializer_class = ExamSessionAdminSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamSessionUpdateAPIView(BaseCreatorUpdateAPIView):
     """Update an existing session for an exam."""
 
     serializer_class = ExamSessionAdminUpdateSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     queryset = ExamSession.objects.all()
 
     def can_update_object(self, obj):
@@ -125,7 +125,9 @@ class ExamSessionListAPIView(ListAPIView):
     """List all sessions for an exam."""
 
     serializer_class = ExamSessionAdminSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier | IsContentCreator
+    ]
     queryset = ExamSession.objects.all()
 
     def get_queryset(self):
@@ -135,7 +137,7 @@ class ExamSessionListAPIView(ListAPIView):
 class ExamSessionDeleteAPIView(DestroyAPIView):
     """Delete an existing session for an exam."""
 
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     queryset = ExamSession.objects.all()
 
     def can_delete(self, object):
@@ -336,7 +338,9 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Exam."""
 
     serializer_class = ExamThroughEnrollmentAdminListSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     queryset = ExamThroughEnrollment.objects
     filter_backends = [
         filters.SearchFilter,
@@ -355,7 +359,9 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
 
 
 class ExamThroughEnrollmentListCardAPIView(APIView):
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     queryset = Enrollment.objects.filter(exams__isnull=False)
 
     def get(self, request, *args, **kwargs):
