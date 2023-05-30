@@ -4,7 +4,11 @@ from rest_framework.generics import DestroyAPIView, ListAPIView, RetrieveAPIView
 
 from common.api.views import BaseCreatorCreateAPIView, BaseCreatorUpdateAPIView
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAdminOrSuperAdminOrDirector, IsCashier
+from common.permissions import (
+    IsAdminOrSuperAdminOrDirector,
+    IsCashier,
+    IsContentCreator,
+)
 from notes.api_admin.serializers import (
     ContentSerializer,
     NoteSerializer,
@@ -23,7 +27,7 @@ class NoteCreateAPIView(BaseCreatorCreateAPIView):
 
     """
 
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
 
     serializer_class = NoteSerializer
 
@@ -41,7 +45,7 @@ class NoteListAPIView(ListAPIView):
 
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["title"]
@@ -67,7 +71,7 @@ class NoteRetrieveAPIView(RetrieveAPIView):
 
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
 
 
 class NoteUpdateAPIView(BaseCreatorUpdateAPIView):
@@ -83,7 +87,7 @@ class NoteUpdateAPIView(BaseCreatorUpdateAPIView):
 
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
 
 
 class NoteDestroyAPIView(DestroyAPIView):
@@ -98,7 +102,7 @@ class NoteDestroyAPIView(DestroyAPIView):
     """
 
     queryset = Note.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
 
 
 class ContentCreateAPIView(BaseCreatorCreateAPIView):
@@ -112,7 +116,7 @@ class ContentCreateAPIView(BaseCreatorCreateAPIView):
     """
 
     serializer_class = ContentSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
 
 
 class ContentListAPIView(ListAPIView):
@@ -128,7 +132,7 @@ class ContentListAPIView(ListAPIView):
     """
 
     queryset = Content.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     serializer_class = ContentSerializer
     pagination_class = StandardResultsSetPagination
 
@@ -146,7 +150,7 @@ class ContentListByCourseAPIView(ListAPIView):
     """
 
     queryset = Content.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     serializer_class = ContentSerializer
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter]
@@ -171,7 +175,7 @@ class ContentRetrieveAPIView(RetrieveAPIView):
     """
 
     queryset = Content.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     serializer_class = ContentSerializer
 
 
@@ -186,7 +190,7 @@ class ContentUpdateAPIView(BaseCreatorUpdateAPIView):
 
     """
 
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     queryset = Content.objects.all()
     serializer_class = ContentSerializer
 
@@ -203,7 +207,7 @@ class ContentDestroyAPIView(DestroyAPIView):
     """
 
     queryset = Content.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
 
 
 class RecordedVideoCreateAPIView(BaseCreatorCreateAPIView):
@@ -216,7 +220,7 @@ class RecordedVideoCreateAPIView(BaseCreatorCreateAPIView):
 
     """
 
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     serializer_class = RecordedVideoSerializer
 
 
@@ -234,7 +238,7 @@ class RecordedVideoListAPIView(ListAPIView):
     queryset = RecordedVideo.objects.all()
     serializer_class = RecordedVideoSerializer
     pagination_class = StandardResultsSetPagination
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
 
@@ -259,7 +263,7 @@ class RecordedVideoRetrieveAPIView(RetrieveAPIView):
 
     queryset = RecordedVideo.objects.all()
     serializer_class = RecordedVideoSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
 
 
 class RecordedVideoUpdateAPIView(BaseCreatorUpdateAPIView):
@@ -273,7 +277,7 @@ class RecordedVideoUpdateAPIView(BaseCreatorUpdateAPIView):
 
     """
 
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     queryset = RecordedVideo.objects.all()
     serializer_class = RecordedVideoSerializer
 
@@ -290,4 +294,4 @@ class RecordedVideoDestroyAPIView(DestroyAPIView):
     """
 
     queryset = RecordedVideo.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]

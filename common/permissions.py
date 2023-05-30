@@ -16,6 +16,7 @@ def get_permit(user, group_name):
         "Counsellor": user.is_counsellor,
         "Staff": user.is_office_staff,
         "Student": user.is_student,
+        "Content Creator": user.is_content_creator,
     }
     if user_perm_dict[group_name] and group in user.groups.all():
         return True
@@ -99,3 +100,8 @@ class IsStaff(permissions.BasePermission):
 class IsStudent(permissions.BasePermission):
     def has_permission(self, request, view):
         return get_permit(request.user, "Student")
+
+
+class IsContentCreator(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return get_permit(request.user, "Content Creator")
