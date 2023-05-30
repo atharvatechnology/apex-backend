@@ -18,12 +18,12 @@ from meetings.providers.register import provider_factory
 
 class MeetingCreateAPIView(CreateAPIView):
     serializer_class = MeetingCreateSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class MeetingDeleteAPIView(DestroyAPIView):
     queryset = Meeting.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
     def perform_destroy(self, instance):
         variant = instance.variant
@@ -35,7 +35,7 @@ class MeetingDeleteAPIView(DestroyAPIView):
 
 class MeetingListAPIView(ListAPIView):
     queryset = Meeting.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     serializer_class = MeetingListSerializer
 
     def get_queryset(self):
