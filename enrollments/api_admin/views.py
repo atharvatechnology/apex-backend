@@ -20,7 +20,12 @@ from common.api.views import (
     BaseReportGeneratorAPIView,
 )
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
+from common.permissions import (
+    IsAccountant,
+    IsAdminOrSuperAdminOrDirector,
+    IsCashier,
+    IsContentCreator,
+)
 from common.utils import decode_user
 from courses.api.serializers import CourseCategoryRetrieveSerializer
 from courses.filters import CourseFilter
@@ -89,14 +94,14 @@ class ExamSessionCreateAPIView(BaseCreatorCreateAPIView):
     """Create a new session for an exam."""
 
     serializer_class = ExamSessionAdminSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamSessionUpdateAPIView(BaseCreatorUpdateAPIView):
     """Update an existing session for an exam."""
 
     serializer_class = ExamSessionAdminUpdateSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     queryset = ExamSession.objects.all()
 
     def can_update_object(self, obj):
@@ -120,7 +125,9 @@ class ExamSessionListAPIView(ListAPIView):
     """List all sessions for an exam."""
 
     serializer_class = ExamSessionAdminSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier | IsContentCreator
+    ]
     queryset = ExamSession.objects.all()
 
     def get_queryset(self):
@@ -130,7 +137,7 @@ class ExamSessionListAPIView(ListAPIView):
 class ExamSessionDeleteAPIView(DestroyAPIView):
     """Delete an existing session for an exam."""
 
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     queryset = ExamSession.objects.all()
 
     def can_delete(self, object):
@@ -178,14 +185,14 @@ class CourseSessionCreateAPIView(BaseCreatorCreateAPIView):
     """Create a new session for an exam."""
 
     serializer_class = CourseSessionAdminSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class CourseSessionUpdateAPIView(BaseCreatorUpdateAPIView):
     """Update an existing session for an exam."""
 
     serializer_class = CourseSessionAdminUpdateSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     queryset = CourseSession.objects.all()
 
     def can_update_object(self, obj):
@@ -209,7 +216,9 @@ class CourseSessionListAPIView(ListAPIView):
     """List all sessions for an exam."""
 
     serializer_class = CourseSessionAdminSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier | IsContentCreator
+    ]
     queryset = CourseSession.objects.all()
 
     def get_queryset(self):
@@ -219,7 +228,7 @@ class CourseSessionListAPIView(ListAPIView):
 class CourseSessionDeleteAPIView(DestroyAPIView):
     """Delete an existing session for an exam."""
 
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     queryset = CourseSession.objects.all()
 
     def can_delete(self, object):
@@ -329,7 +338,9 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Exam."""
 
     serializer_class = ExamThroughEnrollmentAdminListSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     queryset = ExamThroughEnrollment.objects
     filter_backends = [
         filters.SearchFilter,
@@ -348,7 +359,9 @@ class ExamThroughEnrollmentListAPIView(ListAPIView):
 
 
 class ExamThroughEnrollmentListCardAPIView(APIView):
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     queryset = Enrollment.objects.filter(exams__isnull=False)
 
     def get(self, request, *args, **kwargs):
@@ -371,7 +384,9 @@ class CourseThroughEnrollmentListAPIView(ListAPIView):
     """List all student in Course."""
 
     serializer_class = CourseThroughEnrollmentAdminBaseSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     filterset_class = CourseFilter
     queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
     filter_backends = [
@@ -394,7 +409,9 @@ class CourseThroughEnrollmentStudentListAPIView(ListAPIView):
     """List all student in Course."""
 
     serializer_class = CourseThroughEnrollmentAdminStudentSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     filterset_class = CourseFilter
     queryset = CourseThroughEnrollment.objects.order_by("-enrollment__created_at")
     filter_backends = [
@@ -415,7 +432,9 @@ class CourseThroughEnrollmentCourseWiseListAPIView(CourseThroughEnrollmentListAP
 
 
 class CourseThroughEnrollmentListCardAPIView(APIView):
-    permission_classes = [IsAccountant | IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [
+        IsAccountant | IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator
+    ]
     queryset = Enrollment.objects.filter(courses__isnull=False)
 
     def get(self, request, *args, **kwargs):
@@ -460,7 +479,9 @@ class EnrollmentDeleteAdminAPIView(DestroyAPIView):
 class StudentCourseCheckView(GenericAPIView):
     """View for checking if student is enrolled in a course."""
 
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsCashier | IsAccountant | IsContentCreator
+    ]
     serializer_class = StudentEnrollmentCheckSerializer
 
     def post(self, request, *args, **kwargs):

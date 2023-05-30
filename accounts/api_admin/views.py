@@ -51,7 +51,16 @@ class UserRolesView(APIView):
     permission_classes = [IsAdminOrSuperAdminOrDirector]
 
     def get(self, request):
-        return Response(tuple_to_list(Role.role_choices))
+        user = request.user
+        if user.is_super_admin:
+            tuple_list = tuple_to_list(Role.super_admin_choices)
+        elif user.is_admin:
+            tuple_list = tuple_to_list(Role.admin_choices)
+        elif user.is_director:
+            tuple_list = tuple_to_list(Role.director_choices)
+        else:
+            tuple_list = []
+        return Response(tuple_list)
 
 
 class UserCreateAdminAPIView(CreateAPIView):
@@ -122,11 +131,19 @@ class UserStudentListAdminAPIView(UserListAdminAPIView):
 
 
 class UserTeacherListAdminAPIView(UserListAdminAPIView):
+    """Teacher User List API View."""
+
+    # TODO: probably permission must be changed to IsAdminOrSuperAdminOrDirector
+
     queryset = User.objects.filter(roles__in=[Role.TEACHER]).order_by("-id")
     filterset_class = UserAdminFilter
 
 
 class UserFacultyListAdminAPIView(UserListAdminAPIView):
+    """Faculty User List API View."""
+
+    # TODO: probably permission must be changed to IsAdminOrSuperAdminOrDirector
+
     queryset = User.objects.filter(
         roles__in=tuple_to_list_first_elements(Role.staff_choices)
     )
@@ -134,6 +151,10 @@ class UserFacultyListAdminAPIView(UserListAdminAPIView):
 
 
 class UserTrackableListAdminAPIView(UserListAdminAPIView):
+    """Trackable User List API View."""
+
+    # TODO: probably permission must be changed to IsAdminOrSuperAdminOrDirector
+
     queryset = User.objects.filter(
         roles__in=tuple_to_list_first_elements(Role.trackable_staff_choices)
     )

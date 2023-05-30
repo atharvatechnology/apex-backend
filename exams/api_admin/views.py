@@ -17,7 +17,12 @@ from common.api.views import (
     BaseReportGeneratorAPIView,
 )
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAccountant, IsAdminOrSuperAdminOrDirector, IsCashier
+from common.permissions import (
+    IsAccountant,
+    IsAdminOrSuperAdminOrDirector,
+    IsCashier,
+    IsContentCreator,
+)
 from exams.filters import ExamOnCourseFilter
 from exams.models import Exam, ExamTemplate, ExamTemplateStatus, Question, Section
 
@@ -43,41 +48,41 @@ from .serializers import (
 
 class QuestionCreateAPIView(CreateAPIView):
     serializer_class = QuestionCreateSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class QuestionUpdateAPIView(UpdateAPIView):
     serializer_class = QuestionUpdateSerializer
     queryset = Question.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class SectionCreateAPIView(CreateAPIView):
     serializer_class = SectionCRUDSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class SectionUpdateAPIView(UpdateAPIView):
     serializer_class = SectionCRUDSerializer
     queryset = Section.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class SectionDeleteAPIView(DestroyAPIView):
     serializer_class = SectionCRUDSerializer
     queryset = Section.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamTemplateCreateAPIView(BaseCreatorCreateAPIView):
     serializer_class = ExamTemplateCreateUpdateSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamTemplateDropdownListAPIView(ListAPIView):
     serializer_class = ExamTemplateMiniSerializer
     queryset = ExamTemplate.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
     def get_queryset(self):
         return super().get_queryset().filter(status=ExamTemplateStatus.COMPLETED)
@@ -89,62 +94,62 @@ class ExamTemplateListAPIView(ListAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ["name"]
     pagination_class = StandardResultsSetPagination
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamTemplateRetrieveAPIView(RetrieveAPIView):
     serializer_class = ExamTemplateRetrieveSerializer
     queryset = ExamTemplate.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamTemplateUpdateAPIView(BaseCreatorUpdateAPIView):
     serializer_class = ExamTemplateCreateUpdateSerializer
     queryset = ExamTemplate.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamTemplateDeleteAPIView(DestroyAPIView):
     queryset = ExamTemplate.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class OptionCreateAPIView(CreateAPIView):
     serializer_class = OptionCUDSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class OptionUpdateAPIView(UpdateAPIView):
     serializer_class = OptionCUDSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     queryset = Question.objects.all()
 
 
 class OptionsDeleteAPIView(DestroyAPIView):
     serializer_class = OptionCUDSerializer
     queryset = Question.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class QuestionDeleteAPIView(DestroyAPIView):
     queryset = Question.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamCreateAPIView(BaseCreatorCreateAPIView):
     serializer_class = ExamCreateSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamUpdateAPIView(BaseCreatorUpdateAPIView):
     serializer_class = ExamUpdateSerializer
     queryset = Exam.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamDeleteAPIView(DestroyAPIView):
     queryset = Exam.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamListAPIView(ListAPIView):
@@ -154,7 +159,7 @@ class ExamListAPIView(ListAPIView):
     filterset_class = ExamOnCourseFilter
     queryset = Exam.objects.all()
     pagination_class = StandardResultsSetPagination
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamListOverviewAPIView(ExamListAPIView):
@@ -163,7 +168,7 @@ class ExamListOverviewAPIView(ExamListAPIView):
 
 class ExamOverviewCardAPIView(GenericAPIView):
     serializer_class = ExamOverviewCardSerializer
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
     queryset = Exam.objects.all()
 
     def get(self, request, *args, **kwargs):
@@ -175,13 +180,15 @@ class ExamOverviewCardAPIView(GenericAPIView):
 class ExamDropdownListAPIView(ListAPIView):
     serializer_class = ExamMiniSerializer
     queryset = Exam.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier]
+    permission_classes = [
+        IsAdminOrSuperAdminOrDirector | IsAccountant | IsCashier | IsContentCreator
+    ]
 
 
 class ExamRetrieveAPIView(RetrieveAPIView):
     serializer_class = ExamRetrieveAdminSerializer
     queryset = Exam.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamImageUploadAPIView(CreateAPIView):
@@ -197,7 +204,7 @@ class ExamImageUploadAPIView(CreateAPIView):
 class ExamDetailAPIView(RetrieveAPIView):
     serializer_class = ExamDetailSerializer
     queryset = Exam.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsContentCreator]
 
 
 class ExamGeneratorAPIView(BaseReportGeneratorAPIView):
