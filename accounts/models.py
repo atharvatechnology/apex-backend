@@ -22,6 +22,7 @@ class Role(models.Model):
     COUNSELLOR = 7
     STAFF = 8
     STUDENT = 9
+    CONTENT_CREATOR = 10
     role_choices = (
         (SUPER_ADMIN, "Super Admin"),
         (ADMIN, "Admin"),
@@ -32,6 +33,28 @@ class Role(models.Model):
         (COUNSELLOR, "Counsellor"),
         (STAFF, "Staff"),
         (STUDENT, "Student"),
+        (CONTENT_CREATOR, "Content Creator"),
+    )
+    super_admin_choices = (
+        (ADMIN, "Admin"),
+        (DIRECTOR, "Director"),
+        (TEACHER, "Teacher"),
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+        (STUDENT, "Student"),
+        (CONTENT_CREATOR, "Content Creator"),
+    )
+    admin_choices = (
+        (DIRECTOR, "Director"),
+        (TEACHER, "Teacher"),
+        (ACCOUNTANT, "Accountant"),
+        (CASHIER, "Cashier"),
+        (COUNSELLOR, "Counsellor"),
+        (STAFF, "Staff"),
+        (STUDENT, "Student"),
+        (CONTENT_CREATOR, "Content Creator"),
     )
     staff_choices = (
         (SUPER_ADMIN, "Super Admin"),
@@ -41,6 +64,7 @@ class Role(models.Model):
         (CASHIER, "Cashier"),
         (COUNSELLOR, "Counsellor"),
         (STAFF, "Staff"),
+        (CONTENT_CREATOR, "Content Creator"),
     )
     trackable_staff_choices = (
         (ACCOUNTANT, "Accountant"),
@@ -225,6 +249,10 @@ class User(AbstractUser):
     @property
     def is_office_staff(self):
         return self.check_role(Role.STAFF)
+
+    @property
+    def is_content_creator(self):
+        return self.check_role(Role.CONTENT_CREATOR)
 
 
 class Profile(models.Model):
