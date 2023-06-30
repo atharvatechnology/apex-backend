@@ -4,11 +4,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from common.api.mixin import InterestWiseOrderMixin, PublishableModelMixin
 from common.paginations import StandardResultsSetPagination
+from common.permissions import IsAdminOrSuperAdminOrDirector
 from enrollments.models import Enrollment, ExamThroughEnrollment, SessionStatus
 from exams.api.permissions import IsExamEnrolledActive
 from exams.filters import ExamFilter
@@ -116,7 +117,7 @@ class ExamPaperAPIView(RetrieveAPIView):
 
 class ExamPaperPreviewAPIView(RetrieveAPIView):
     serializer_class = ExamPaperSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminOrSuperAdminOrDirector]
     queryset = Exam.objects.all()
 
 
