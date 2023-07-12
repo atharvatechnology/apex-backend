@@ -14,7 +14,7 @@ gunicorn==20.1.0
 django-celery-results==2.3.1
 django-redis==5.2.0
 flower==1.0.0
-django-celery-beat==2.2.1
+django-celery-beat==2.3.0
 psycopg2-binary==2.9.3
 django-ckeditor==6.4.2
 channels==3.0.4
