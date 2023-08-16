@@ -83,7 +83,7 @@ class OTP:
                 message = OTP().message_create_user.format(otp)
             else:
                 message = OTP().message_password_reset.format(otp)
-            params = OTP().message_function[platform]["send"](phone, otp, message)
+            params = OTP().message_function[platform]["send"](phone, message)
             send_otp.delay(sms_send_url, params, platform)
             # otp_send = requests.post(sms_send_url, data=params)
 
