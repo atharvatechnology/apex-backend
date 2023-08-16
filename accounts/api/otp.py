@@ -15,21 +15,24 @@ class GenerateKey:
 
 
 class OTP:
+    message_password_reset = "Your OTP for Apex to Reset Password is {}. Apex Academy, Putalisadak. For Help: 014168143."  # noqa: E501
+    message_create_user = "Your OTP for Apex to Verify Account is {}. Apex Academy, Putalisadak. For Help: 014168143."  # noqa: E501
+
     @staticmethod
-    def __sendOTPAakash(to, otp):
+    def __sendOTPAakash(to, message):
         return {
             "auth_token": settings.OTP_SMS_TOKEN,
             "to": to,
-            "text": f"Your OTP is {otp}",
+            "text": message,
         }
 
     @staticmethod
-    def __sendOTPSparrow(to, otp):
+    def __sendOTPSparrow(to, message):
         return {
             "token": settings.OTP_SMS_TOKEN,
             "from": settings.OTP_SMS_FROM,
             "to": to,
-            "text": f"Your OTP is {otp}",
+            "text": message,
         }
 
     @staticmethod
@@ -72,11 +75,15 @@ class OTP:
         return bool(generate_otp.verify(otp, counter))
 
     @staticmethod
-    def sendOTP(phone, otp):
+    def sendOTP(phone, otp, action):
         sms_send_url = settings.OTP_SEND_URL
         platform = settings.OTP_SMS_PLATFORM
         if platform in OTP().message_function:
-            params = OTP().message_function[platform]["send"](phone, otp)
+            if action == "user_creation":
+                message = OTP().message_create_user.format(otp)
+            else:
+                message = OTP().message_password_reset.format(otp)
+            params = OTP().message_function[platform]["send"](phone, otp, message)
             send_otp.delay(sms_send_url, params, platform)
             # otp_send = requests.post(sms_send_url, data=params)
 

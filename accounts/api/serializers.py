@@ -87,7 +87,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         instance = super().create(validated_data)
         instance.is_active = False
         instance.set_password(validated_data["password"])
-        instance.generate_otp()
+        instance.generate_otp("user_creation")
         instance.save()
 
         if profile_data:
@@ -145,7 +145,7 @@ class UserResetPasswordOTPRequestSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
-        instance.generate_otp()
+        instance.generate_otp("password_reset")
         instance.save()
         return instance
 
