@@ -189,13 +189,13 @@ class User(AbstractUser):
             return (False, "The OTP is out of date")
         return (False, "OTP is not valid") if self.otp != otp else (True, otp)
 
-    def generate_otp(self):
+    def generate_otp(self, action):
         """To generate OTP and call send otp method."""
         self.otp_counter += 1
         otp = OTP.generateOTP(self.username, self.otp_counter)
         self.otp_generate_time = make_aware(datetime.now())
         self.otp = otp
-        OTP.sendOTP(self.username, otp)
+        OTP.sendOTP(self.username, otp, action)
         return otp
 
     def get_roles(self):
