@@ -234,6 +234,8 @@ class StudentReportGeneratorAPIView(BaseReportGeneratorAPIView):
                     "phone_number",
                     "email",
                     "status",
+                    "college_name",
+                    "address",
                 ]
             }
         )
