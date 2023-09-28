@@ -111,6 +111,8 @@ class StudentTableData(BaseDynamicTableData):
         "phone_number": "Phone Number",
         "email": "Email",
         "status": "Status",
+        "college_name": "College Name",
+        "address": "Address",
     }
 
     def get_fullname(self, obj):
@@ -130,6 +132,12 @@ class StudentTableData(BaseDynamicTableData):
             return "Active"
         return "Inactive"
 
+    def get_college_name(self, obj):
+        return obj.profile.college_name
+
+    def get_address(self, obj):
+        return obj.profile.address
+
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "fullname": self.get_fullname,
@@ -137,6 +145,8 @@ class StudentTableData(BaseDynamicTableData):
             "phone_number": self.get_phone,
             "email": self.get_email,
             "status": self.get_status,
+            "college_name": self.get_college_name,
+            "address": self.get_address,
         }
         return fields_and_values[field_name](obj)
 
