@@ -17,6 +17,7 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
     model = ExamThroughEnrollment
     field_to_header_names = {
         "enrollment": "Student's Name",
+        "college_name": "College Name",
         "phone_number": "Phone Number",
         "exam": "Exam",
         "created_date": "Created Date",
@@ -26,6 +27,9 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
 
     def get_students_name(self, obj):
         return obj.enrollment.student.__str__()
+
+    def get_college_name(self, obj):
+        return obj.enrollment.student.profile.college_name
 
     def get_phone_number(self, obj):
         return str(obj.enrollment.student.username)
@@ -46,6 +50,7 @@ class ExamThroughEnrollmentTableData(BaseDynamicTableData):
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "enrollment": self.get_students_name,
+            "college_name": self.get_college_name,
             "phone_number": self.get_phone_number,
             "exam": self.get_exam,
             "created_date": self.get_created_date,
@@ -59,6 +64,7 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
     model = CourseThroughEnrollment
     field_to_header_names = {
         "enrollment": "Student's Name",
+        "college_name": "College Name",
         "phone_number": "Phone Number",
         "course_name": "Course Name",
         "created_date": "Created Date",
@@ -82,6 +88,9 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
         price = obj.enrollment.payments_payment_related.first()
         return str(price.amount if price else "-")
 
+    def get_college_name(self, obj):
+        return obj.enrollment.student.profile.college_name
+
     # def get_session(self, obj):
     #     return str(obj.selected_session.start_date.date())
 
@@ -94,6 +103,7 @@ class CourseThroughEnrollmentTableData(BaseDynamicTableData):
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "enrollment": self.get_students_name,
+            "college_name": self.get_college_name,
             "phone_number": self.get_phone_number,
             "course_name": self.get_course_name,
             "created_date": self.get_created_date,
@@ -378,6 +388,7 @@ class ExamResultTableData(BaseDynamicTableData):
     model = ExamThroughEnrollment
     field_to_header_names = {
         "student_name": "Student's Name",
+        "college_name": "College Name",
         "rank": "Rank",
         "score": "Score",
         "negative_score": "Negative Score",
@@ -386,6 +397,9 @@ class ExamResultTableData(BaseDynamicTableData):
 
     def get_students_name(self, obj):
         return obj.enrollment.student.__str__()
+
+    def get_college_name(self, obj):
+        return obj.enrollment.student.profile.college_name
 
     def get_rank(self, obj):
         return str(get_student_rank(obj))
@@ -402,6 +416,7 @@ class ExamResultTableData(BaseDynamicTableData):
     def get_values_from_fields(self, field_name, obj):
         fields_and_values = {
             "student_name": self.get_students_name,
+            "college_name": self.get_college_name,
             "rank": self.get_rank,
             "score": self.get_score,
             "negative_score": self.get_negative_score,
