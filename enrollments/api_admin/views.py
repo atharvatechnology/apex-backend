@@ -551,6 +551,7 @@ class ExamThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
             {
                 "model_fields": [
                     "enrollment",
+                    "college_name",
                     "phone_number",
                     "exam",
                     "created_date",
@@ -581,6 +582,7 @@ class CourseThroughEnrollmentGeneratorAPIView(BaseReportGeneratorAPIView):
             {
                 "model_fields": [
                     "enrollment",
+                    "college_name",
                     "phone_number",
                     "course_name",
                     "created_date",
@@ -612,6 +614,7 @@ class ExamResultReportGeneratorAPIView(BaseReportGeneratorAPIView):
             {
                 "model_fields": [
                     "student_name",
+                    "college_name",
                     "rank",
                     "score",
                     "negative_score",
