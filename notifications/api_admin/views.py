@@ -4,7 +4,11 @@ from rest_framework import filters
 from rest_framework.generics import CreateAPIView, ListAPIView
 
 from common.paginations import StandardResultsSetPagination
-from common.permissions import IsAdminOrSuperAdminOrDirector, IsCashier
+from common.permissions import (
+    IsAdminOrSuperAdminOrDirector,
+    IsCashier,
+    IsContentCreator,
+)
 from notifications.api_admin.serializers import NotificationAdminSerializer
 from notifications.models import NotificationMessage
 
@@ -12,7 +16,7 @@ from notifications.models import NotificationMessage
 class SendPushNotificationAdmin(CreateAPIView):
     serializer_class = NotificationAdminSerializer
     queryset = NotificationMessage.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -39,7 +43,7 @@ class SendPushNotificationAdmin(CreateAPIView):
 class NotificationAdminListAPIView(ListAPIView):
     serializer_class = NotificationAdminSerializer
     queryset = NotificationMessage.objects.all()
-    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier]
+    permission_classes = [IsAdminOrSuperAdminOrDirector | IsCashier | IsContentCreator]
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ["title"]
