@@ -20,7 +20,8 @@ class ExamThroughEnrollmentInline(admin.TabularInline):
 
     model = ExamThroughEnrollment
     extra = 1
-    readonly_fields = ["status"]
+    readonly_fields = ["status", "enrollment"]
+    fields = ("enrollment", "score", "negative_score", "status")
 
 
 class CourseThroughEnrollmentInline(admin.TabularInline):
@@ -121,6 +122,7 @@ class ExamSessionAdmin(CreatorBaseModelAdmin, admin.ModelAdmin):
             "help_text": "Seconds doesnot matters",
         },
     }
+    list_editable = ["status"]
     date_hierarchy = "created_at"
     readonly_fields = CreatorBaseModelAdmin.readonly_fields + ["end_date"]
 
