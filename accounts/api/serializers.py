@@ -4,7 +4,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from accounts.models import Profile
+from accounts.models import AccountDeleteion, Profile
 
 User = get_user_model()
 
@@ -302,3 +302,33 @@ class UserMiniSerializer(serializers.ModelSerializer):
             "username",
             "fullName",
         ]
+
+
+class UserDeletionSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(style={"input_type": "password"}, write_only=True)
+    user = serializers.CharField()
+
+    class Meta:
+        model = AccountDeleteion
+        fields = ["user", "remarks", "password"]
+
+    def validate_user(self, data):
+        try:
+            user = get_object_or_404(User, username=data, is_active=True)
+        except Exception:
+            raise serializers.ValidationError(
+                "Sorry you doesnot seems to be valid user"
+            )
+        return user
+
+    def validate(self, data):
+        if not data["user"].check_password(data["password"]):
+            raise serializers.ValidationError(
+                "Sorry you doesnot seems to be valid user"
+            )
+        return data
+
+    @transaction.atomic
+    def create(self, validated_data):
+        validated_data.pop("password")
+        return super().create(validated_data)

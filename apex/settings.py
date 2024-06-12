@@ -373,7 +373,7 @@ vars().update(EMAIL_CONFIG)
 SERVER_EMAIL = EMAIL_CONFIG["EMAIL_HOST_USER"]
 ADMINS = [
     ("Apex Error", "sushilk.calcgen@gmail.com"),
-    ("Apex Error", "raj.shrestha778@gmail.com"),
+    ("Nitesh ", "nitesht.calcgen@gmail.com"),
 ]
 # server Bug tracker settings end
 

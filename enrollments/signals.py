@@ -60,6 +60,14 @@ def on_exam_session_save(sender, instance, created, **kwargs):
                 enr = exam_through_enrollment.enrollment
                 if enr.status == EnrollmentStatus.PENDING:
                     enr.delete()
+                    session_id = instance.id
+                    total_examinees_up = cache.get(
+                        f"session_{session_id}_total_examinees"
+                    )
+                    total_examinees_up -= 1
+                    cache.set(
+                        f"session_{instance.id}_total_examinees", total_examinees_up
+                    )
                     continue
             if exam_through_enrollment.status == ExamEnrollmentStatus.CREATED:
                 exam_through_enrollment.attempt_exam()
@@ -74,9 +82,9 @@ def on_exam_session_save(sender, instance, created, **kwargs):
                 result_count,
             )
 
-            total_examinees = cache.get(f"session_{session_id}_total_examinees")
+            total_examinees_check = cache.get(f"session_{session_id}_total_examinees")
             # check if all exam enrollments are calculated
-            if result_count >= total_examinees:
+            if result_count >= total_examinees_check:
                 # publish session exam results
                 # session = Session.objects.get(id=session_id)
                 instance.publish_results()

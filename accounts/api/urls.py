@@ -4,6 +4,7 @@ from accounts.api.views import (
     StudentQRView,
     UserCreateAPIView,
     UserCreateOTPVerifyAPIView,
+    UserDeletionAPIView,
     UserDetailAPIView,
     UserResetPasswordConfirmAPIView,
     UserResetPasswordOTPRequestAPIView,
@@ -30,4 +31,5 @@ urlpatterns = [
     ),
     path("update/me/", UserUpdateAPIView.as_view(), name="update"),
     path("qr/", StudentQRView.as_view(), name="qrretrive"),
+    path("delete/request/", UserDeletionAPIView.as_view(), name="delete_request"),
 ]

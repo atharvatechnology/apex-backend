@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.cache import cache
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import generics
@@ -20,13 +21,14 @@ from accounts.api.serializers import (
     StudentQRSerializer,
     UserCreateOTPVerifySerializer,
     UserCreateSerializer,
+    UserDeletionSerializer,
     UserDetailSerializer,
     UserResetPasswordConfirmSerializer,
     UserResetPasswordOTPRequestSerializer,
     UserResetPasswordOTPVerifySerializer,
     UserUpdateSerializer,
 )
-from accounts.models import Role
+from accounts.models import AccountDeleteion, Role
 
 User = get_user_model()
 
@@ -277,3 +279,16 @@ def get_refresh_view():
             return super().finalize_response(request, response, *args, **kwargs)
 
     return RefreshViewWithCookieSupport
+
+
+class UserDeletionAPIView(generics.CreateAPIView):
+    serializer_class = UserDeletionSerializer
+    model = AccountDeleteion
+    permission_classes = [AllowAny]
+
+    @transaction.atomic
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        user = instance.user
+        user.is_active = False
+        user.save()
