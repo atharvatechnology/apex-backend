@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import Profile, Role, User
+from accounts.models import AccountDeleteion, Profile, Role, User
 
 
 class UserCreationForm(forms.ModelForm):
@@ -196,5 +196,12 @@ admin.site.register(User, UserAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 # admin.site.unregister(Group)
+
+
+@admin.register(AccountDeleteion)
+class AccountDeletionAdmin(admin.ModelAdmin):
+    list_display = ["user", "remarks", "created_at"]
+    readonly_fields = ["created_at", "updated_at"]
+
 
 admin.site.register(Role)
