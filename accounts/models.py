@@ -373,3 +373,13 @@ class Profile(models.Model):
         qr_path = generate_qrcode(self.user.username)
         self.qr_code = qr_path
         self.save()
+
+
+class AccountDeleteion(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    remarks = models.TextField()
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
