@@ -227,7 +227,7 @@ class ExamListSerializer(serializers.ModelSerializer):
     """Serializer when user is listing exams."""
 
     template = ExamTemplateListSerializer()
-    status = serializers.SerializerMethodField()
+    #status = serializers.SerializerMethodField()
     session = serializers.SerializerMethodField()
     question_count = serializers.SerializerMethodField()
 
@@ -246,7 +246,7 @@ class ExamListSerializer(serializers.ModelSerializer):
             "name",
             "exam_type",
             "category",
-            "status",
+            #"status",
             "price",
             "template",
             "session",
