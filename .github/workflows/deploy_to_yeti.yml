@@ -43,7 +43,7 @@ jobs:
 
 
   deploy:
-    name: Deploy to Yeti instance
+    name: Deploy to Yeti instance api
     runs-on: ubuntu-latest
     needs: build
 
@@ -59,10 +59,10 @@ jobs:
           echo "SHA_TAG=$shaVal" >> $GITHUB_ENV
         
       - name: 'Authenticate to Yeti Cloud'
-        uses: 'DovnarAlexander/github-actions-jelastic@master'
+        uses: 'calcgendev/jelastic-cli-actions@master'
         with:
-          envs: GITHUB_SHA
           jelastic_url: app.yetiapp.cloud
           jelastic_username: ${{ secrets.JELASTIC_USERNAME }}
           jelastic_password: ${{ secrets.JELASTIC_TOKEN }}
-          task: environment/control/redeploycontainers --envName ${{ secrets.JELASTIC_ENV }} --nodeGroup ${{ secrets.JELASTIC_NODE_GROUP }} --tag ${{ env.SHA_TAG }}
+          task: "environment/control/redeploycontainers --envName ${{ secrets.JELASTIC_ENV }} --nodeGroup ${{ secrets.JELASTIC_NODE_GROUP }} --tag ${{ env.SHA_TAG }},environment/control/redeploycontainers --envName ${{ secrets.JELASTIC_ENV }} --nodeGroup ${{ secrets.JELASTIC_NODE_GROUP_CELERY }} --tag ${{ env.SHA_TAG }},environment/control/redeploycontainers --envName ${{ secrets.JELASTIC_ENV }} --nodeGroup ${{ secrets.JELASTIC_NODE_GROUP_CELERY_BEAT }} --tag ${{ env.SHA_TAG }},environment/control/redeploycontainers --envName ${{ secrets.JELASTIC_ENV }} --nodeGroup ${{ secrets.JELASTIC_NODE_GROUP_SOCKET }} --tag ${{ env.SHA_TAG }}"
+          
