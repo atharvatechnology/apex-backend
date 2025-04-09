@@ -378,7 +378,7 @@ ADMINS = [
 # server Bug tracker settings end
 
 # For providing https route start
-HTTPS_ENABLED = env("HTTPS_ENABLED", default=False)
+HTTPS_ENABLED = env.bool("HTTPS_ENABLED", False)
 
 if HTTPS_ENABLED:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
